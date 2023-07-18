@@ -1,6 +1,6 @@
 
 import 'package:flutter/material.dart';
-
+import 'package:dangmoog/welcome.dart';
 void main() {
   runApp(MyApp());
 }
@@ -34,28 +34,31 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   _navigateToHome() async {
-    await Future.delayed(Duration(seconds: 2), () {});
+    await Future.delayed(Duration(seconds: 3), () {});
     Navigator.pushReplacement(
       context,
-      MaterialPageRoute(builder: (context) => HomePage()),
+      MaterialPageRoute(builder: (context) => WelcomePage()),
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    Size screenSize = MediaQuery.of(context).size;
     return Scaffold(
-      body: SafeArea(
-      child: Column(
-          children: [ 
-            Container(
-            padding: EdgeInsets.fromLTRB(79, 193, 0, 0),
-            ),
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.start, 
+        children:[
+        SizedBox(height: screenSize.height * 0.24),
+         Padding(
+            padding: EdgeInsets.only(left: screenSize.width * 0.21),
+           child: Container(
+          child : 
             Image.asset('assets/images/dotorit_loading.png',
-            width: 203.0,
-            height: 267.0,
+            width: screenSize.width * 0.54,
             ),   
-          ],
+          ),
         ),
+        ],
       ),
     );
   }
