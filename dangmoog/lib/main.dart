@@ -1,12 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:dangmoog/screens/main_page.dart';
+// import 'package:provider/provider.dart';
+// import 'package:dangmoog/screens/post/post_list.dart';
+// import 'package:dangmoog/models/product_class.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(
+
+      const MyApp(),
+
+  );
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  const MyApp({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -16,7 +23,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         useMaterial3: true,
       ),
-      home: MainPage(),
+      home: const MainPage(),
     );
   }
 }
@@ -36,4 +43,3 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 }
-
