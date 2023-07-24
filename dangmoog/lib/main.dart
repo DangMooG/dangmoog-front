@@ -1,15 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:dangmoog/welcome.dart';
 import 'package:dangmoog/screens/main_page.dart';
 // import 'package:provider/provider.dart';
 // import 'package:dangmoog/screens/post/post_list.dart';
 // import 'package:dangmoog/models/product_class.dart';
 
 void main() {
-  runApp(
-
-      const MyApp(),
-
-  );
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -23,23 +20,64 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         useMaterial3: true,
       ),
-      home: const MainPage(),
+      home: SplashScreen(),
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key});
-
+class SplashScreen extends StatefulWidget {
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
+  _SplashScreenState createState() => _SplashScreenState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
+class _SplashScreenState extends State<SplashScreen> {
+  @override
+  void initState() {
+    super.initState();
+    _navigateToHome();
+  }
+
+  _navigateToHome() async {
+    await Future.delayed(Duration(seconds: 3), () {});
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => WelcomePage()),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      body: Center(child: Text("")),
+    Size screenSize = MediaQuery.of(context).size;
+    return Scaffold(
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.start, 
+        children:[
+        SizedBox(height: screenSize.height * 0.24),
+         Padding(
+            padding: EdgeInsets.only(left: screenSize.width * 0.21),
+           child: Container(
+          child : 
+            Image.asset('assets/images/dotorit_loading.png',
+            width: screenSize.width * 0.54,
+            ),   
+          ),
+        ),
+        ],
+      ),
+    );
+  }
+}
+
+class HomePage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Home Page'),
+      ),
+      body: Center(
+        child: Text('Welcome to Home Page!'),
+      ),
     );
   }
 }
