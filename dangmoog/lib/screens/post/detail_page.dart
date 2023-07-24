@@ -15,27 +15,32 @@ class ProductDetailPage extends StatelessWidget {
         builder: (context, product, child) {
           return Scaffold(
             appBar: AppBar(
-              title: Text('돌아가기'),
+              title: const Text('돌아가기'),
             ),
             body: Column(
               children: <Widget>[
                 _buildProductImage(context),
-
                 Padding(
-                  padding: const EdgeInsets.only(left: 16.0, top: 8.0, right: 8.0, bottom: 8.0),
+                  padding: const EdgeInsets.only(
+                      left: 16.0, top: 8.0, right: 8.0, bottom: 8.0),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
                       _buildTopInfoRow(context, product),
-                      const SizedBox(height: 8.0), // Add a gap of 8.0 logical pixels
+                      const SizedBox(
+                          height: 8.0), // Add a gap of 8.0 logical pixels
                       _buildProductTitle(product),
-                      const SizedBox(height: 8.0), // Add a gap of 8.0 logical pixels
+                      const SizedBox(
+                          height: 8.0), // Add a gap of 8.0 logical pixels
                       _buildProductPrice(product),
-                      const SizedBox(height: 8.0), // Add a gap of 8.0 logical pixels
+                      const SizedBox(
+                          height: 8.0), // Add a gap of 8.0 logical pixels
                       _buildSellerName(product),
-                      const SizedBox(height: 8.0), // Add a gap of 8.0 logical pixels
+                      const SizedBox(
+                          height: 8.0), // Add a gap of 8.0 logical pixels
                       _buildProductDetails(product),
-                      const SizedBox(height: 8.0), // Add a gap of 8.0 logical pixels
+                      const SizedBox(
+                          height: 8.0), // Add a gap of 8.0 logical pixels
                       _buildProductDescription(product),
                     ],
                   ),
@@ -66,7 +71,8 @@ class ProductDetailPage extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: <Widget>[
         IconButton(
-          icon: Icon(product.isFavorited ? Icons.favorite : Icons.favorite_border),
+          icon: Icon(
+              product.isFavorited ? Icons.favorite : Icons.favorite_border),
           color: Colors.red,
           onPressed: () {
             product.isFavorited = !product.isFavorited;
@@ -124,12 +130,14 @@ class ProductDetailPage extends StatelessWidget {
         },
         style: ButtonStyle(
           backgroundColor: MaterialStateProperty.all<Color>(Colors.red),
-          minimumSize: MaterialStateProperty.all<Size>(const Size(double.infinity, 50)),
+          minimumSize:
+              MaterialStateProperty.all<Size>(const Size(double.infinity, 50)),
         ),
         child: const Text('바로 채팅하기'),
       ),
     );
   }
+
   String timeAgo(DateTime date) {
     Duration diff = DateTime.now().difference(date);
     if (diff.inDays > 0) {
@@ -143,4 +151,3 @@ class ProductDetailPage extends StatelessWidget {
     }
   }
 }
-

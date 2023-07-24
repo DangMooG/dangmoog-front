@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../models/product_class.dart';
-import '../detail_page.dart';
+import '../../widgets/post/detail_page.dart';
 import 'package:provider/provider.dart';
 
 class ProductList extends StatelessWidget {
@@ -45,7 +45,6 @@ class ProductList extends StatelessWidget {
       },
     );
   }
-
 
   Widget _buildProductImage(Product product) {
     return SizedBox(
@@ -108,7 +107,7 @@ class ProductList extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.comment),
+            const Icon(Icons.comment),
             Text('${product.comments.length}'),
           ],
         ),
@@ -129,4 +128,3 @@ class ProductList extends StatelessWidget {
     }
   }
 }
-

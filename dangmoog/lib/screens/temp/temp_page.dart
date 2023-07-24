@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-class PageTestPost extends StatelessWidget {
-  const PageTestPost({super.key});
+class TempPage extends StatelessWidget {
+  const TempPage({super.key});
 
   @override
   Widget build(BuildContext context) {

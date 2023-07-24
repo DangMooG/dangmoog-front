@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:dangmoog/screens/post/post_list.dart';
 import 'package:dangmoog/models/product_class.dart';
 
-
 class MainPage extends StatefulWidget {
   const MainPage({Key? key}) : super(key: key);
 
@@ -22,8 +21,7 @@ class _MainPageState extends State<MainPage> {
       comments: '와 존나 힘들다',
       description: 'This is product 1',
       price: 29.99,
-      imageUrl:
-          'assets/images/flickr_wild_000017.jpg',
+      imageUrl: 'assets/images/flickr_wild_000017.jpg',
       saleMethod: '위탁판매',
       user: '김동우',
     ),
@@ -35,8 +33,7 @@ class _MainPageState extends State<MainPage> {
       comments: '와 존나 힘들다',
       description: 'This is product 2',
       price: 39.99,
-      imageUrl:
-          'assets/images/sample.png',
+      imageUrl: 'assets/images/sample.png',
       saleMethod: '위탁판매',
       user: '김철희',
     ),
@@ -48,8 +45,7 @@ class _MainPageState extends State<MainPage> {
       comments: '와 존나 힘들다',
       description: 'This is product 2',
       price: 39.99,
-      imageUrl:
-      'assets/images/flickr_wild_000017.jpg',
+      imageUrl: 'assets/images/flickr_wild_000017.jpg',
       saleMethod: '위탁판매',
       user: '배정윤',
     ),
@@ -61,8 +57,7 @@ class _MainPageState extends State<MainPage> {
       comments: '와 존나 힘들다',
       description: 'This is product 2',
       price: 39.99,
-      imageUrl:
-      'assets/images/flickr_wild_000017.jpg',
+      imageUrl: 'assets/images/flickr_wild_000017.jpg',
       saleMethod: '위탁판매',
       user: '지유나',
     ),
@@ -71,13 +66,6 @@ class _MainPageState extends State<MainPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('DangMooG'),
-      ),
-      body: ProductList(products: products),
-    );
+    return ProductList(products: products);
   }
 }
-
-

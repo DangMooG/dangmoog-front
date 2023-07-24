@@ -2,12 +2,11 @@ import 'package:flutter/material.dart';
 
 import 'package:dangmoog/constants/navbar_icon.dart';
 
-import 'package:dangmoog/screens/my_page.dart';
-import 'package:dangmoog/screens/chat_list.dart';
+import 'package:dangmoog/screens/mypage/my_page.dart';
+import 'package:dangmoog/screens/chat/chat_list.dart';
+import 'package:dangmoog/screens/post/main_page.dart';
 
-import 'package:dangmoog/screens/page_test_home.dart';
-
-import 'package:dangmoog/screens/page_test_post.dart';
+import 'package:dangmoog/screens/temp/temp_page.dart';
 
 class MyHome extends StatefulWidget {
   const MyHome({super.key});
@@ -21,9 +20,9 @@ class _MyHomeState extends State<MyHome> {
 
   final List<Widget> _bodyPage = <Widget>[
     // 아래 임시 widgets을 각자 구현한 widget으로 교체해주시면 됩니다
-    const PageTestPost(), // Post List Page
-    const PageTestHome(), // home page (추후 업데이트를 위한 여유 페이지)
-    const PageTestPost(), // 게시글 작성 페이지로 가야하는데, 일단 임시로
+    const MainPage(), // Post List Page
+    const TempPage(), // home page (추후 업데이트를 위한 여유 페이지)
+    const TempPage(), // 게시글 작성 페이지로 가야하는데, 일단 임시로
     const ChatList(), // Chat List Page
     const MyPage() // MyPage
   ];
