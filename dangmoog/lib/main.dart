@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+
+import 'package:dangmoog/screens/home.dart';
+
 import 'package:dangmoog/welcome.dart';
 import 'package:dangmoog/screens/main_page.dart';
 // import 'package:provider/provider.dart';
@@ -20,6 +23,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         useMaterial3: true,
       ),
+
       home: SplashScreen(),
     );
   }
@@ -63,7 +67,6 @@ class _SplashScreenState extends State<SplashScreen> {
           ),
         ),
         ],
-      ),
     );
   }
 }
