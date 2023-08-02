@@ -16,7 +16,6 @@ class ProductList extends StatelessWidget {
           value: products[i],
           child: _buildProductCard(context),
         );
-        double paddingValue = MediaQuery.of(context).size.width * 0.042; // 4.2% of screen width
         // Apply extra padding to the first item only
         if (i == 0) {
           productCard = Padding(
@@ -70,7 +69,7 @@ class ProductList extends StatelessWidget {
         height: width, // height will also be 32% of the screen width
         child: ClipRRect(
           borderRadius: BorderRadius.circular(15), // You can adjust this value for desired rounding
-          child: Image.asset(product.imageUrl, fit: BoxFit.cover),
+          child: Image.asset(product.images[0], fit: BoxFit.cover),
         ),
       ),
     );

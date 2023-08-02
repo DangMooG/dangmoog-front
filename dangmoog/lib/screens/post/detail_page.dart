@@ -1,7 +1,78 @@
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:dangmoog/models/product_class.dart';
-// import 'package:dangmoog/screens/post/post_list.dart';
+import 'package:carousel_slider/carousel_slider.dart';
+
+class ImageSlider extends StatefulWidget {
+  final List<String> images;
+
+  ImageSlider({required this.images});
+
+  @override
+  _ImageSliderState createState() => _ImageSliderState();
+}
+
+class _ImageSliderState extends State<ImageSlider> {
+  int _current = 0;
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      children: [
+        CarouselSlider(
+          options: CarouselOptions(
+            height: MediaQuery.of(context).size.height * 0.45,
+            viewportFraction: 1.0, // Full width item
+            autoPlay: false,
+            enlargeCenterPage: false,
+            enableInfiniteScroll: false,
+            onPageChanged: (index, reason) {
+              setState(() {
+                _current = index;
+              });
+            },
+          ),
+          items: widget.images.map((imagePath) {
+            return Container(
+              decoration: BoxDecoration(
+                image: DecorationImage(
+                  image: AssetImage(imagePath),
+                  fit: BoxFit.cover,
+                ),
+              ),
+            );
+          }).toList(),
+        ),
+        Positioned(
+          bottom: 0.0,
+          left: 0.0,
+          right: 0.0,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: widget.images.map((url) {
+              int index = widget.images.indexOf(url);
+              return Container(
+                width: 8.0,
+                height: 8.0,
+                margin: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 2.0),
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: _current == index
+                      ? const Color(0xFFCCBEBA)
+                      : const Color(0xFFFFFFFF),
+                ),
+              );
+            }).toList(),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+Widget _buildProductImage(BuildContext context, Product product) {
+  return ImageSlider(images: product.images);
+}
 
 class ProductDetailPage extends StatelessWidget {
   final Product product;
@@ -15,11 +86,15 @@ class ProductDetailPage extends StatelessWidget {
         builder: (context, product, child) {
           return Scaffold(
             appBar: AppBar(
-              title: const Text('돌아가기'),
+              backgroundColor: Colors.transparent, // Transparent AppBar
+              elevation: 0, // No shadow
+              iconTheme: const IconThemeData(color: Colors.white), // Icon color
             ),
+            extendBodyBehindAppBar: true,
+            // Text color
             body: Column(
               children: <Widget>[
-                _buildProductImage(context),
+                _buildProductImage(context, product),
                 Padding(
                   padding: const EdgeInsets.only(
                       left: 16.0, top: 8.0, right: 8.0, bottom: 8.0),
@@ -50,18 +125,6 @@ class ProductDetailPage extends StatelessWidget {
             bottomNavigationBar: _buildChatButton(),
           );
         },
-      ),
-    );
-  }
-
-  Widget _buildProductImage(BuildContext context) {
-    return Container(
-      height: MediaQuery.of(context).size.height * 0.4,
-      decoration: BoxDecoration(
-        image: DecorationImage(
-          image: AssetImage(product.imageUrl),
-          fit: BoxFit.cover,
-        ),
       ),
     );
   }

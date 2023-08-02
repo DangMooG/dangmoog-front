@@ -8,10 +8,9 @@ class Product extends ChangeNotifier{
   final String title;
   final String description;
   final double price;
-  final String imageUrl;
+  final List<String> images;
   final String category;
   final DateTime uploadTime;
-  final String comments;
   final String saleMethod;
   final String user;
   int viewCount;
@@ -24,10 +23,9 @@ class Product extends ChangeNotifier{
     required this.title,
     required this.description,
     required this.price,
-    required this.imageUrl,
+    required this.images,
     required this.category,
     required this.uploadTime,
-    required this.comments,
     required this.saleMethod,
     required this.user, //id 도 만들기
     this.viewCount = 0,
