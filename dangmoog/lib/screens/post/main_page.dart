@@ -18,10 +18,9 @@ class _MainPageState extends State<MainPage> {
       title: '한국토종여우',
       category: '동물',
       uploadTime: DateTime(2),
-
-      description: 'This is product 1',
+      description: '이것은 한국인의 손맛으로 길러진 착하고 온순한 국내산 토종 여우입니다.',
       price: 29.99,
-      images: <String>['assets/images/flickr_wild_000017.jpg','assets/images/flickr_wild_000017.jpg','assets/images/flickr_wild_000017.jpg'],
+      images: <String>['assets/images/flickr_wild_000017.jpg','assets/images/flickr_wild_000017.jpg','assets/images/flickr_wild_000017.jpg','assets/images/flickr_wild_000017.jpg'],
       saleMethod: '위탁판매',
       user: '김동우',
     ),

@@ -103,7 +103,7 @@ class ProductList extends StatelessWidget {
             Text('${product.price}원',
               style: const TextStyle(
                   fontFamily: 'Pretendard',
-                  fontWeight: FontWeight.w300,
+                  fontWeight: FontWeight.bold,
                   fontSize: 16,
                   color: Color(0xFF552619)
               ),
@@ -121,8 +121,8 @@ class ProductList extends StatelessWidget {
       children: [
         Text(product.title,
             style: const TextStyle(fontFamily: 'Pretendard',
-                fontWeight: FontWeight.w300,
-                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                fontSize: 18,
                 color: Color(0xFF552619))),
         _buildCategoryAndTime(product),
       ],

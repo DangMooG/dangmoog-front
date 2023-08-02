@@ -2,6 +2,8 @@ import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:dangmoog/models/product_class.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:dangmoog/constants/navbar_icon.dart';
+
 
 class ImageSlider extends StatefulWidget {
   final List<String> images;
@@ -93,38 +95,39 @@ class ProductDetailPage extends StatelessWidget {
             extendBodyBehindAppBar: true,
             // Text color
             body: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
                 _buildProductImage(context, product),
-                Padding(
-                  padding: const EdgeInsets.only(
-                      left: 16.0, top: 8.0, right: 8.0, bottom: 8.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      _buildTopInfoRow(context, product),
-                      const SizedBox(
-                          height: 8.0), // Add a gap of 8.0 logical pixels
-                      _buildProductTitle(product),
-                      const SizedBox(
-                          height: 8.0), // Add a gap of 8.0 logical pixels
-                      _buildProductPrice(product),
-                      const SizedBox(
-                          height: 8.0), // Add a gap of 8.0 logical pixels
-                      _buildSellerName(product),
-                      const SizedBox(
-                          height: 8.0), // Add a gap of 8.0 logical pixels
-                      _buildProductDetails(product),
-                      const SizedBox(
-                          height: 8.0), // Add a gap of 8.0 logical pixels
-                      _buildProductDescription(product),
-                    ],
-                  ),
-                ),
+                _buildTopInfoRow(context, product),
+                _buildProductInformation(product),
+
               ],
             ),
-            bottomNavigationBar: _buildChatButton(),
+            bottomNavigationBar: Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: _buildChatButton(),
+            ),
+
           );
         },
+      ),
+    );
+  }
+
+
+
+  Widget _buildProductInformation(Product product){
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children:<Widget>[
+          _buildProductTitle(product),
+          _buildProductPrice(product),
+          _buildSellerName(product),
+          _buildProductDetails(product),
+          _buildProductDescription(product),
+        ]
       ),
     );
   }
@@ -142,8 +145,11 @@ class ProductDetailPage extends StatelessWidget {
             product.notifyListeners();
           },
         ),
-        Text(
-          '${timeAgo(product.uploadTime)} | ${product.viewCount} views | ${product.likes} likes',
+        Padding(
+          padding: const EdgeInsets.only(right: 16.0),
+          child: Text(
+            '${timeAgo(product.uploadTime)} | ${product.viewCount} 명 읽음 | 좋아요 ${product.likes} 개',
+          ),
         ),
       ],
     );
@@ -152,35 +158,58 @@ class ProductDetailPage extends StatelessWidget {
   Widget _buildProductTitle(Product product) {
     return Text(
       product.title,
-      style: const TextStyle(fontSize: 24),
+      style: const TextStyle(
+          fontSize: 18,
+          color: Color(0xff552619),
+          fontFamily: 'Pretendard',
+          fontWeight: FontWeight.bold),
     );
   }
 
   Widget _buildProductPrice(Product product) {
     return Text(
       '${product.price.toStringAsFixed(2)}원',
-      style: const TextStyle(fontSize: 18, color: Colors.black),
+      style: const TextStyle(
+        fontSize: 18,
+        color: Color(0xff552619),
+        fontFamily: 'Pretendard',
+        fontWeight: FontWeight.bold),
     );
   }
 
   Widget _buildSellerName(Product product) {
     return Text(
       product.user,
-      style: const TextStyle(fontSize: 16, color: Colors.grey),
+      style: const TextStyle(
+          fontSize: 13,
+          color: Color(0xffa07272),
+          fontFamily: 'Pretendard',
+          fontWeight: FontWeight.w300),
     );
   }
 
   Widget _buildProductDetails(Product product) {
-    return Text(
-      '${product.category} | ${product.saleMethod} | ${timeAgo(product.uploadTime)}',
-      style: const TextStyle(fontSize: 16, color: Colors.grey),
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 20.0),
+      child: Text(
+        '${product.category} | ${product.saleMethod} | ${timeAgo(product.uploadTime)}',
+        style: const TextStyle(
+            fontSize: 12,
+            color: Color(0xffa07272),
+            fontFamily: 'Pretendard',
+            fontWeight: FontWeight.w200),
+      ),
     );
   }
 
   Widget _buildProductDescription(Product product) {
     return Text(
       product.description,
-      style: const TextStyle(fontSize: 16),
+      style: const TextStyle(
+          fontSize: 18,
+          color: Color(0xff421E14),
+          fontFamily: 'Pretendard',
+          fontWeight: FontWeight.w200),
     );
   }
 
@@ -214,3 +243,5 @@ class ProductDetailPage extends StatelessWidget {
     }
   }
 }
+
+
