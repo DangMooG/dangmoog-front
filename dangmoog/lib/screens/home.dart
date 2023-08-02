@@ -35,9 +35,16 @@ class _MyHomeState extends State<MyHome> {
         title: const Text(
           "전역 변수로 받아서 사용할 예정", // Header는 일단 빼고 진행해주세요
         ),
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(1.0), // You can change the height
+          child: Container(
+            color: const Color(0xffA07272), // Your line color
+            height: 2.0, // You can change the height
+          ),
+        )
       ),
       body: Center(
-        child: _bodyPage.elementAt(currentTapIndex),
+        child: Container(child: _bodyPage.elementAt(currentTapIndex)),
       ),
       bottomNavigationBar: Container(
         decoration: const BoxDecoration(

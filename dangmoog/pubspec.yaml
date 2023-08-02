@@ -79,8 +79,11 @@ flutter:
     - family: Pretendard
       fonts:
         - asset: assets/fonts/Pretendard-Regular.ttf
+          weight: 200
         - asset: assets/fonts/Pretendard-SemiBold.ttf
+          weight: 300
         - asset: assets/fonts/Pretendard-Medium.ttf
+          weight: 400
   #       - asset: fsonts/Schyler-Italic.ttf
   #         style: italic
   #   - family: Trajan Pro
