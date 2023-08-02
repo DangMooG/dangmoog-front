@@ -12,16 +12,27 @@ class ProductList extends StatelessWidget {
     return ListView.separated(
       itemCount: products.length,
       itemBuilder: (context, i) {
-        return ChangeNotifierProvider<Product>.value(
+        Widget productCard = ChangeNotifierProvider<Product>.value(
           value: products[i],
           child: _buildProductCard(context),
         );
+        double paddingValue = MediaQuery.of(context).size.width * 0.042; // 4.2% of screen width
+        // Apply extra padding to the first item only
+        if (i == 0) {
+          productCard = Padding(
+            padding: const EdgeInsets.only(top: 8.0), // Set your desired padding
+            child: productCard,
+          );
+        }
+
+        return productCard;
       },
-      separatorBuilder: (context,i){
+      separatorBuilder: (context, i) {
         return const Divider();
       },
     );
   }
+
 
   Widget _buildProductCard(BuildContext context) {
     return Consumer<Product>(
