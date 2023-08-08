@@ -1,20 +1,16 @@
-import 'dart:async';
-import 'package:dangmoog/screens/auth/nickname.dart';
 import 'package:flutter/material.dart';
 import 'package:dangmoog/screens/home.dart';
-import 'package:flutter/services.dart';
 
-class SignupPage extends StatefulWidget {
-  const SignupPage({super.key});
+class NicknamePage extends StatefulWidget {
+  const NicknamePage({super.key});
 
   @override
-  _SignupPageState createState() => _SignupPageState();
+  _NicknamePageState createState() => _NicknamePageState();
 }
 
-class _SignupPageState extends State<SignupPage> {
+class _NicknamePageState extends State<NicknamePage> {
   bool isToggled = false;
-  String email = '';
-  String number = '';
+  String nickname = '';
   String verificationCode = '';
   bool isVerificationCodeVisible = false; // New state variable
   String errorMessage = '';
@@ -36,9 +32,9 @@ class _SignupPageState extends State<SignupPage> {
     });
   }
 
-  void onEmailChanged(String value) {
+  void onNicknameChanged(String value) {
     setState(() {
-      email = value;
+      nickname = value;
       errorMessage = ''; // Clear error message when email is changed
     });
   }
@@ -49,43 +45,10 @@ class _SignupPageState extends State<SignupPage> {
     });
   }
 
-  bool isEmailValid(String email) {
+  bool isNicknameValid(String email) {
     // Email validation using a regular expression
-    final emailRegExp = RegExp(r'^[a-zA-Z0-9._%+-]+@gm\.gist\.ac\.kr$');
-    return emailRegExp.hasMatch(email);
-  }
-
-  int secondsRemaining = 4 * 60;
-  Timer? timer;
-
-  @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
-  void dispose() {
-    timer?.cancel();
-    super.dispose();
-  }
-
-  void startTimer() {
-    const oneSec = Duration(seconds: 1);
-    timer = Timer.periodic(oneSec, (timer) {
-      setState(() {
-        if (secondsRemaining > 0) {
-          secondsRemaining--;
-        } else {
-          timer.cancel();
-        }
-      });
-    });
-  }
-
-  String getFormattedTime() {
-    int minutes = secondsRemaining ~/ 60;
-    int seconds = secondsRemaining % 60;
-    return '$minutes:${seconds.toString().padLeft(2, '0')}';
+      final emailRegExp = RegExp(r'^[a-zA-Z0-9._%+-]');
+      return emailRegExp.hasMatch(nickname);
   }
 
   @override
@@ -96,10 +59,11 @@ class _SignupPageState extends State<SignupPage> {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           SizedBox(height: screenSize.height * 0.13),
+
           Padding(
             padding: EdgeInsets.fromLTRB(0, 0, screenSize.width * 0.05, 0),
             child: const Text(
-              '안녕하세요!\nGIST 이메일로 간편가입해주세요!',
+              '환영합니다!\n앱에서 사용하실 별명을 알려주세요!',
               style: TextStyle(
                 color: Color(0xFF552619),
                 fontFamily: 'Pretendard-SemiBold',
@@ -109,11 +73,13 @@ class _SignupPageState extends State<SignupPage> {
               ),
             ),
           ),
+
           SizedBox(height: screenSize.height * 0.01),
+
           Padding(
-            padding: EdgeInsets.fromLTRB(0, 0, screenSize.width * 0.08, 0),
+            padding: EdgeInsets.fromLTRB(0, 0, screenSize.width * 0.28, 0),
             child: const Text(
-              'GIST 이메일은 본인 확인 용도로 사용되며 다른 학우들에게\n공개되지 않습니다. ',
+              '도토릿 앱 내에서는 별명을 이용하실 수 있으며 \n최초 1회 변경가능하오니 이점 참고바랍니다! ',
               style: TextStyle(
                 color: Color(0xFF552619),
                 fontFamily: 'Pretendard-Regular',
@@ -123,7 +89,9 @@ class _SignupPageState extends State<SignupPage> {
               ),
             ),
           ),
+
           SizedBox(height: screenSize.height * 0.02),
+
           Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
@@ -135,10 +103,10 @@ class _SignupPageState extends State<SignupPage> {
                   height: screenSize.height * 0.03,
                   alignment: Alignment.center,
                   child: TextField(
-                    onChanged: onEmailChanged,
+                    onChanged: onNicknameChanged,
                     decoration: InputDecoration(
                       border: InputBorder.none,
-                      hintText: 'GIST 이메일 입력',
+                      hintText: '별명을 입력해주세요!',
                       hintStyle: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w400,
@@ -148,15 +116,14 @@ class _SignupPageState extends State<SignupPage> {
                   ),
                 ),
               ),
-              SizedBox(width: screenSize.width * 0.08),
+              SizedBox(width: screenSize.width * 0.15),
               ElevatedButton(
                 onPressed: () {
-                  if (isEmailValid(email)) {
+                  if (isNicknameValid(nickname)) {
                     showVerificationCodeTextField();
-                    startTimer();
                   } else {
                     setState(() {
-                      errorMessage = '유효한 이메일을 입력하세요.';
+                      errorMessage = '유효한 별명을 입력하세요.';
                     });
                   }
                 },
@@ -167,13 +134,12 @@ class _SignupPageState extends State<SignupPage> {
                     borderRadius: BorderRadius.circular(6),
                   ),
                   padding: EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                  minimumSize:
-                      Size(screenSize.width * 0.25, screenSize.height * 0.034),
+                  minimumSize: Size(screenSize.width * 0.18, screenSize.height * 0.034),
                 ),
                 child: Container(
                   alignment: Alignment.center,
                   child: const Text(
-                    '인증메일 발송',
+                    '중복확인',
                     style: TextStyle(
                       color: Color(0xFF552619),
                       fontFamily: 'Pretendard-Medium',
@@ -185,77 +151,17 @@ class _SignupPageState extends State<SignupPage> {
               ),
             ],
           ),
+
           Container(
             width: screenSize.width * 0.91,
             height: 1,
             color: Colors.brown, // 갈색 배경색
             alignment: Alignment.center,
           ),
-          SizedBox(height: screenSize.height * 0.01),
-          if (errorMessage.isNotEmpty) // Show error message if not empty
-            Padding(
-              padding: EdgeInsets.fromLTRB(0, 0, screenSize.width * 0.52, 0),
-              child: Text(
-                errorMessage,
-                style: TextStyle(
-                  color: Colors.red,
-                  fontSize: 13,
-                ),
-              ),
-            ),
-          if (isVerificationCodeVisible) // 메일발송 후
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    SizedBox(width: screenSize.width * 0.06),
-                    Padding(
-                      padding: EdgeInsets.fromLTRB(
-                          0, screenSize.height * 0.02, 0, 0),
-                      child: Container(
-                        width: screenSize.width * 0.56,
-                        height: screenSize.height * 0.03,
-                        alignment: Alignment.center,
-                        child: TextFormField(
-                          keyboardType: TextInputType.number,
-                          inputFormatters: [
-                            FilteringTextInputFormatter.allow(RegExp(r'[0-9]'))
-                          ],
-                          decoration: InputDecoration(
-                            border: InputBorder.none,
-                            hintText: '인증번호 6자리 입력',
-                            hintStyle: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w400,
-                                fontFamily: 'Pretendard-Regular',
-                                color: Color(0xFFCCBEBA)),
-                          ),
-                        ),
-                      ),
-                    ),
-                    SizedBox(width: screenSize.width * 0.25),
-                    Text(
-                      getFormattedTime(),
-                      style: TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w400,
-                          fontFamily: 'Pretendard-Regular',
-                          color: Color(0xFF552619)),
-                    ),
-                  ],
-                ),
-                Container(
-                  width: screenSize.width * 0.91,
-                  height: 1,
-                  color: Colors.brown, // 갈색 배경색
-                  alignment: Alignment.center,
-                ),
 
-                Padding(
+          Padding(
                   padding: EdgeInsets.fromLTRB(
-                          screenSize.width * 0.55, 0, 0, 0),
+                          screenSize.width * 0.48, 0, 0, 0),
                 child: TextButton(
                   onPressed: () {
 
@@ -263,7 +169,7 @@ class _SignupPageState extends State<SignupPage> {
                   child: Container(
                     alignment: Alignment.center,
                     child: const Text(
-                      '인증번호가 오지 않나요?',
+                      '별명은 어떻게 설정해야 하나요?',
                       style: TextStyle(
                         color: Color(0xFF552619),
                         fontFamily: 'Pretendard-Regular',
@@ -275,16 +181,14 @@ class _SignupPageState extends State<SignupPage> {
                   ),
                 ),
                 ),
-              ],
-            )
-          else
-            Container(),
-          SizedBox(height: screenSize.height * 0.39),
+
+          SizedBox(height: screenSize.height * 0.44),
+
           ElevatedButton(
             onPressed: () {
               Navigator.pushAndRemoveUntil(
                 context,
-                MaterialPageRoute(builder: (context) => const NicknamePage()),
+                MaterialPageRoute(builder: (context) => const MyHome()),
                 (route) => false,
               );
             },
@@ -294,13 +198,12 @@ class _SignupPageState extends State<SignupPage> {
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
-              fixedSize:
-                  Size(screenSize.width * 0.91, screenSize.height * 0.056),
+              fixedSize: Size(screenSize.width * 0.91, screenSize.height * 0.056),
             ),
             child: Container(
               alignment: Alignment.center,
               child: const Text(
-                '인증',
+                '도토릿 시작하기!',
                 style: TextStyle(
                         color: Colors.white,
                         fontFamily: 'Pretendard-Medium',
