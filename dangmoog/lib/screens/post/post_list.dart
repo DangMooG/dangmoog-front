@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../models/product_class.dart';
 import 'detail_page.dart';
 import 'package:provider/provider.dart';
+import 'package:dangmoog/screens/addpage/add_page.dart';
 
 class ProductList extends StatelessWidget {
   final List<Product> products;
@@ -9,28 +10,44 @@ class ProductList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListView.separated(
-      itemCount: products.length,
-      itemBuilder: (context, i) {
-        Widget productCard = ChangeNotifierProvider<Product>.value(
-          value: products[i],
-          child: _buildProductCard(context),
-        );
-        // Apply extra padding to the first item only
-        if (i == 0) {
-          productCard = Padding(
-            padding: const EdgeInsets.only(top: 8.0), // Set your desired padding
-            child: productCard,
+    return Scaffold(
+      body: ListView.separated(
+        itemCount: products.length,
+        itemBuilder: (context, i) {
+          Widget productCard = ChangeNotifierProvider<Product>.value(
+            value: products[i],
+            child: _buildProductCard(context),
           );
-        }
+          // Apply extra padding to the first item only
+          if (i == 0) {
+            productCard = Padding(
+              padding: const EdgeInsets.only(top: 8.0), // Set your desired padding
+              child: productCard,
+            );
+          }
 
-        return productCard;
-      },
-      separatorBuilder: (context, i) {
-        return const Divider();
-      },
+          return productCard;
+        },
+        separatorBuilder: (context, i) {
+          return const Divider();
+        },
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          // Navigate to UploadProductPage when the button is pressed
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => UploadProductPage()),
+          );
+        },
+        child: Image.asset('assets/images/add_icon.png'),
+        tooltip: 'Upload Product',
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+      ),
     );
   }
+
 
 
   Widget _buildProductCard(BuildContext context) {

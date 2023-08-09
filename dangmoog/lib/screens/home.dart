@@ -22,7 +22,7 @@ class _MyHomeState extends State<MyHome> {
     // 아래 임시 widgets을 각자 구현한 widget으로 교체해주시면 됩니다
     const MainPage(), // Post List Page
     const TempPage(), // home page (추후 업데이트를 위한 여유 페이지)
-    UploadProductPage(), // 게시글 작성 페이지로 가야하는데, 일단 임시로
+    // const TempPage(), // 게시글 작성 페이지로 가야하는데, 일단 임시로
     const ChatList(), // Chat List Page
     const MyPage() // MyPage
   ];
