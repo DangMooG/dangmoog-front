@@ -30,14 +30,13 @@ class _WelcomePageState extends State<WelcomePage> {
           return const Center(
             child: CircularProgressIndicator(),
           );
-        } 
-        else if (snapshot.hasData && snapshot.data != null) {
+        } else if (snapshot.hasData && snapshot.data != null) {
           // Future가 성공적으로 완료되었을 때 표시할 UI
           double value = snapshot.data!;
           Size screenSize = MediaQuery.of(context).size;
           return Scaffold(
             body: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 SizedBox(height: screenSize.height * 0.26),
                 Container(
@@ -57,7 +56,7 @@ class _WelcomePageState extends State<WelcomePage> {
                     height: 1.35,
                   ),
                 ),
-                SizedBox(height: screenSize.height * 0.01),
+                SizedBox(height: screenSize.height * 0.009),
                 const Text(
                   'GIST 기숙사 내에서의 간편한 중고거래!',
                   style: TextStyle(
@@ -78,8 +77,7 @@ class _WelcomePageState extends State<WelcomePage> {
                     height: 1.35,
                   ),
                 ),
-                SizedBox(height: screenSize.height * 0.21),
-                const SizedBox(height: 8),
+                SizedBox(height: screenSize.height * 0.208),
                 ElevatedButton(
                   onPressed: () {
                     Navigator.push(
