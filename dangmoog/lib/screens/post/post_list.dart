@@ -1,5 +1,8 @@
+import 'package:dangmoog/screens/auth/welcome.dart';
 import 'package:flutter/material.dart';
 import '../../../models/product_class.dart';
+
+//import '../../widgets/post/detail_page.dart';
 import 'detail_page.dart';
 import 'package:provider/provider.dart';
 
@@ -41,7 +44,7 @@ class ProductList extends StatelessWidget {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => ProductDetailPage(product: product),
+                builder: (context) => WelcomePage()
               ),
             );
           },
