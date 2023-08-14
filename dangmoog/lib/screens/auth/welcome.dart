@@ -36,7 +36,7 @@ class _WelcomePageState extends State<WelcomePage> {
           Size screenSize = MediaQuery.of(context).size;
           return Scaffold(
             body: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 SizedBox(height: screenSize.height * 0.26),
                 Container(
@@ -56,7 +56,7 @@ class _WelcomePageState extends State<WelcomePage> {
                     height: 1.35,
                   ),
                 ),
-                SizedBox(height: screenSize.height * 0.01),
+                SizedBox(height: screenSize.height * 0.009),
                 const Text(
                   'GIST 기숙사 내에서의 간편한 중고거래!',
                   style: TextStyle(
@@ -77,8 +77,7 @@ class _WelcomePageState extends State<WelcomePage> {
                     height: 1.35,
                   ),
                 ),
-                SizedBox(height: screenSize.height * 0.21),
-                const SizedBox(height: 8),
+                SizedBox(height: screenSize.height * 0.208),
                 ElevatedButton(
                   onPressed: () {
                     Navigator.push(
