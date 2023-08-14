@@ -36,6 +36,7 @@ dependencies:
   cupertino_icons: ^1.0.2
   intl: ^0.18.1
   provider: ^6.0.5
+  carousel_slider: ^4.2.1
 
 dev_dependencies:
   flutter_test:
@@ -78,9 +79,12 @@ flutter:
   fonts:
     - family: Pretendard
       fonts:
-        - asset: assets/fonts/Pretendard-Regular.ttf
-        - asset: assets/fonts/Pretendard-SemiBold.ttf
-        - asset: assets/fonts/Pretendard-Medium.ttf
+        - asset: assets/fonts/Pretendard-Regular.otf
+          weight: 200
+        - asset: assets/fonts/Pretendard-Bold.otf
+          weight: 300
+        - asset: assets/fonts/Pretendard-Medium.otf
+          weight: 400
   #       - asset: fsonts/Schyler-Italic.ttf
   #         style: italic
   #   - family: Trajan Pro
