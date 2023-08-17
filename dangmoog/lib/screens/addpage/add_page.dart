@@ -23,7 +23,14 @@ class _UploadProductPageState extends State<UploadProductPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(''),
+        title: const Text('물품 판매'),
+        leading: IconButton(
+          icon: const Icon(Icons.close),
+          onPressed: () {
+            Navigator.of(context).pop();  // this will close the current page and return to the previous page.
+          },
+        ),
+        centerTitle: true,
         actions: [buildSubmitButton()],
       ),
       body: SingleChildScrollView(
@@ -37,6 +44,7 @@ class _UploadProductPageState extends State<UploadProductPage> {
       ),
     );
   }
+
 
   Widget buildImagePickerSection() {
     return Row(
@@ -127,6 +135,13 @@ class _UploadProductPageState extends State<UploadProductPage> {
 
   Widget buildSubmitButton() {
     return ElevatedButton(
+      style: ElevatedButton.styleFrom(
+        foregroundColor: const Color(0xFFC30020),
+        backgroundColor: Colors.transparent, // This will set the color of the text and icons
+        shadowColor: Colors.transparent, // To remove any shadow (optional)
+        elevation: 0, // No elevation
+      ),
+
       onPressed: () {
         Product product = Product(
           id: DateTime.now().millisecondsSinceEpoch.toString(),

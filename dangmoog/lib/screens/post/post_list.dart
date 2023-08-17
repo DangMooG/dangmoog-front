@@ -55,10 +55,22 @@ class _ProductListState extends State<ProductList> {
                   setState(() {
                     _isPressed = false;
                   });
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => UploadProductPage()),
-                  );
+                  Navigator.push(context,
+                  PageRouteBuilder(
+                      transitionDuration: const Duration(milliseconds: 200),
+                      pageBuilder: (context, animation, secondaryAnimation) => UploadProductPage(),
+                      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+
+                        // This ensures the previous page (list page) also moves, revealing itself when swiping the detail page.
+                        var previousPageOffsetAnimation = Tween(begin: const Offset(0, 1), end: const Offset(0, 0)).animate(animation);
+
+                        return SlideTransition(
+                          position: previousPageOffsetAnimation,
+                          child: UploadProductPage(),
+                        );
+                      }
+                  ));
+
                 },
                 onTapCancel: () {
                   setState(() {
@@ -108,6 +120,12 @@ class _ProductListState extends State<ProductList> {
         if (i == 0) {
           productCard = Padding(
             padding: const EdgeInsets.only(top: 8.0), // Set your desired padding
+            child: productCard,
+          );
+        }
+        else if (i == widget.products.length-1) {
+          productCard = Padding(
+            padding: const EdgeInsets.only(bottom: 8.0), // Set your desired padding
             child: productCard,
           );
         }
