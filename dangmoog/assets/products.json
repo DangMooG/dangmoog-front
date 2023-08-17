@@ -1,0 +1,48 @@
+[
+  {
+    "id": "1",
+    "title": "한국토종여우",
+    "description": "이것은 한국인의 손맛으로 길러진 착하고 온순한 국내산 토종 여우입니다.",
+    "price": 29.99,
+    "images": ["assets/images/flickr_wild_000017.jpg", "assets/images/flickr_wild_000017.jpg", "assets/images/flickr_wild_000017.jpg", "assets/images/flickr_wild_000017.jpg"],
+    "category": "동물",
+    "uploadTime": "2023-08-17T12:00:00Z",
+    "saleMethod": "위탁판매",
+    "user": "김동우"
+  },
+  {
+    "id": "2",
+    "title": "하우스지박령",
+    "category": "괴물",
+    "uploadTime": "2023-08-17T12:00:00Z",
+    "description": "This is product 2",
+    "price": 39.99,
+    "images":["assets/images/sample.png","assets/images/flickr_wild_000017.jpg","assets/images/flickr_wild_000017.jpg"],
+    "saleMethod": "위탁판매",
+    "user": "김철희"
+  },
+  {
+    "id": "3",
+    "title": "Product 2",
+    "category": "여우",
+    "uploadTime": "2023-08-17T12:00:00Z",
+    "description": "This is product 2",
+    "price": 39.99,
+    "images": ["assets/images/flickr_wild_000017.jpg", "assets/images/flickr_wild_000017.jpg", "assets/images/flickr_wild_000017.jpg"],
+    "saleMethod" : "위탁판매",
+    "user":"배정윤"
+  },
+  {
+    "id": "4",
+    "title": "Product 3",
+    "category": "으악",
+    "uploadTime": "2023-08-17T12:00:00Z",
+    "description": "으아아아아아아아앍",
+    "price": 39.99,
+    "images": ["assets/images/flickr_wild_000017.jpg", "assets/images/flickr_wild_000017.jpg", "assets/images/flickr_wild_000017.jpg"],
+    "saleMethod" : "위탁판매",
+    "user":"세균맨"
+  }
+
+
+]
