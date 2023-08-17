@@ -2,13 +2,13 @@ import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:dangmoog/models/product_class.dart';
 import 'package:carousel_slider/carousel_slider.dart';
-import 'package:dangmoog/constants/navbar_icon.dart';
+// import 'package:dangmoog/constants/navbar_icon.dart';
 
 
 class ImageSlider extends StatefulWidget {
   final List<String> images;
 
-  ImageSlider({required this.images});
+  const ImageSlider({required this.images});
 
   @override
   _ImageSliderState createState() => _ImageSliderState();
@@ -30,7 +30,7 @@ class _ImageSliderState extends State<ImageSlider> {
             enableInfiniteScroll: false,
             onPageChanged: (index, reason) {
               setState(() {
-                _current = index;
+                _current = 0;
               });
             },
           ),
@@ -76,43 +76,51 @@ Widget _buildProductImage(BuildContext context, Product product) {
   return ImageSlider(images: product.images);
 }
 
-class ProductDetailPage extends StatelessWidget {
+class ProductDetailPage extends StatefulWidget {
   final Product product;
+
   const ProductDetailPage({Key? key, required this.product}) : super(key: key);
+
+  @override
+  _ProductDetailPageState createState() => _ProductDetailPageState();
+}
+
+class _ProductDetailPageState extends State<ProductDetailPage> {
+
+
 
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider<Product>.value(
-      value: product,
+      value: widget.product,
       child: Consumer<Product>(
         builder: (context, product, child) {
           return Scaffold(
             appBar: AppBar(
-              backgroundColor: Colors.transparent, // Transparent AppBar
-              elevation: 0, // No shadow
-              iconTheme: const IconThemeData(color: Colors.white), // Icon color
+              backgroundColor: Colors.transparent,
+              elevation: 0,
+              iconTheme: const IconThemeData(color: Colors.white),
             ),
             extendBodyBehindAppBar: true,
-            // Text color
             body: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
                 _buildProductImage(context, product),
                 _buildTopInfoRow(context, product),
                 _buildProductInformation(product),
-
               ],
             ),
             bottomNavigationBar: Padding(
-              padding: const EdgeInsets.all(20.0),
-              child: _buildChatButton(),
+              padding: const EdgeInsets.only(bottom: 16.0, right: 16.0),
+              child: _buildChatButton(product),
             ),
-
           );
         },
       ),
     );
   }
+}
+
 
 
 
@@ -134,19 +142,10 @@ class ProductDetailPage extends StatelessWidget {
 
   Widget _buildTopInfoRow(BuildContext context, Product product) {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: <Widget>[
-        IconButton(
-          icon: Icon(
-              product.isFavorited ? Icons.favorite : Icons.favorite_border),
-          color: Colors.red,
-          onPressed: () {
-            product.isFavorited = !product.isFavorited;
-            product.notifyListeners();
-          },
-        ),
+      mainAxisAlignment: MainAxisAlignment.end,
+      children: [
         Padding(
-          padding: const EdgeInsets.only(right: 16.0),
+          padding: const EdgeInsets.only(right: 16.0, top: 8.0),
           child: Text(
             '${timeAgo(product.uploadTime)} | ${product.viewCount} 명 읽음 | 좋아요 ${product.likes} 개',
           ),
@@ -154,6 +153,7 @@ class ProductDetailPage extends StatelessWidget {
       ],
     );
   }
+
 
   Widget _buildProductTitle(Product product) {
     return Text(
@@ -167,13 +167,16 @@ class ProductDetailPage extends StatelessWidget {
   }
 
   Widget _buildProductPrice(Product product) {
-    return Text(
-      '${product.price.toStringAsFixed(2)}원',
-      style: const TextStyle(
-        fontSize: 18,
-        color: Color(0xff552619),
-        fontFamily: 'Pretendard',
-        fontWeight: FontWeight.bold),
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4.0),
+      child: Text(
+        '${product.price.toStringAsFixed(2)}원',
+        style: const TextStyle(
+          fontSize: 18,
+          color: Color(0xff552619),
+          fontFamily: 'Pretendard',
+          fontWeight: FontWeight.bold),
+      ),
     );
   }
 
@@ -203,30 +206,54 @@ class ProductDetailPage extends StatelessWidget {
   }
 
   Widget _buildProductDescription(Product product) {
-    return Text(
-      product.description,
-      style: const TextStyle(
-          fontSize: 18,
-          color: Color(0xff421E14),
-          fontFamily: 'Pretendard',
-          fontWeight: FontWeight.w200),
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Text(
+        product.description,
+        style: const TextStyle(
+            fontSize: 18,
+            color: Color(0xff421E14),
+            fontFamily: 'Pretendard',
+            fontWeight: FontWeight.w200),
+      ),
     );
   }
 
-  Widget _buildChatButton() {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: ElevatedButton(
-        onPressed: () {
-          // handle chat logic
-        },
-        style: ButtonStyle(
-          backgroundColor: MaterialStateProperty.all<Color>(Colors.red),
-          minimumSize:
-              MaterialStateProperty.all<Size>(const Size(double.infinity, 50)),
+  Widget _buildChatButton(Product product) {
+    return Row(
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(right: 8.0),
+          child: IconButton(
+            icon: Icon(
+              product.isFavorited ? Icons.favorite : Icons.favorite_border,
+            ),
+            color: Colors.red,
+            onPressed: () {
+              product.isFavorited = !product.isFavorited;
+              product.notifyListeners();
+            },
+          ),
         ),
-        child: const Text('바로 채팅하기'),
-      ),
+        Expanded(
+          child: ElevatedButton(
+            onPressed: () {
+              // handle chat logic
+            },
+            style: ButtonStyle(
+              backgroundColor: MaterialStateProperty.all<Color>(const Color(0xFFC30020)),
+              minimumSize:
+              MaterialStateProperty.all<Size>(const Size(double.infinity, 50)),
+              shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(9.0)
+                )
+              )
+            ),
+            child: const Text('바로 채팅하기', style: TextStyle(color: Color(0xFFFFFFFF)),),
+          ),
+        ),
+      ],
     );
   }
 
@@ -242,6 +269,6 @@ class ProductDetailPage extends StatelessWidget {
       return '방금 전';
     }
   }
-}
+
 
 

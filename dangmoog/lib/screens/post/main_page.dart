@@ -11,6 +11,8 @@ class MainPage extends StatefulWidget {
 }
 
 class _MainPageState extends State<MainPage> {
+
+
   List<Product> products = [
     // Here you can add your list of products. I'll add a few examples.
     Product(

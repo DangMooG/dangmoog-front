@@ -30,8 +30,7 @@ class _MyHomeState extends State<MyHome> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: currentTapIndex != 2 // Check if the current page is not UploadProductPage
-          ? AppBar(
+      appBar: AppBar(
           backgroundColor: Colors.white,
           title: const Text(
             "전역 변수로 받아서 사용할 예정", // Header는 일단 빼고 진행해주세요
@@ -43,7 +42,7 @@ class _MyHomeState extends State<MyHome> {
             height: 2.0, // You can change the height
           ),
         ),
-      ):null,
+      ),
       body: Center(
         child: Container(child: _bodyPage.elementAt(currentTapIndex)),
       ),
