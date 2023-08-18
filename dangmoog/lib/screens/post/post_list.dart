@@ -57,12 +57,12 @@ class _ProductListState extends State<ProductList> {
                   });
                   Navigator.push(context,
                   PageRouteBuilder(
-                      transitionDuration: const Duration(milliseconds: 200),
+                      transitionDuration: const Duration(milliseconds: 500),
                       pageBuilder: (context, animation, secondaryAnimation) => UploadProductPage(),
                       transitionsBuilder: (context, animation, secondaryAnimation, child) {
 
                         // This ensures the previous page (list page) also moves, revealing itself when swiping the detail page.
-                        var previousPageOffsetAnimation = Tween(begin: const Offset(0, 1), end: const Offset(0, 0)).animate(animation);
+                        var previousPageOffsetAnimation = Tween(begin: const Offset(0, 1), end: const Offset(0, 0)).chain(CurveTween(curve: Curves.decelerate)).animate(animation);
 
                         return SlideTransition(
                           position: previousPageOffsetAnimation,
@@ -147,7 +147,7 @@ class _ProductListState extends State<ProductList> {
             Navigator.push(
               context,
               PageRouteBuilder(
-                  transitionDuration: const Duration(milliseconds: 200),
+                  transitionDuration: const Duration(milliseconds: 400),
                   pageBuilder: (context, animation, secondaryAnimation) => ProductDetailPage(product: product,),
                   transitionsBuilder: (context, animation, secondaryAnimation, child) {
                     const begin = Offset(1.0, 0.0);
@@ -158,7 +158,7 @@ class _ProductListState extends State<ProductList> {
                     var offsetAnimation = animation.drive(tween);
 
                     // This ensures the previous page (list page) also moves, revealing itself when swiping the detail page.
-                    var previousPageOffsetAnimation = Tween(begin: const Offset(1, 0), end: const Offset(0, 0)).animate(animation);
+                    var previousPageOffsetAnimation = Tween(begin: const Offset(1, 0), end: const Offset(0, 0)).chain(CurveTween(curve: Curves.decelerate)).animate(animation);
 
                     return SlideTransition(
                       position: previousPageOffsetAnimation,
