@@ -1,22 +1,119 @@
-import 'package:dangmoog/screens/auth/welcome.dart';
+
 import 'package:flutter/material.dart';
 import '../../../models/product_class.dart';
 
 //import '../../widgets/post/detail_page.dart';
 import 'detail_page.dart';
 import 'package:provider/provider.dart';
+import 'package:dangmoog/screens/addpage/add_page.dart';
+import 'dart:io';
 
-class ProductList extends StatelessWidget {
+
+class ProductList extends StatefulWidget {
   final List<Product> products;
   const ProductList({Key? key, required this.products}) : super(key: key);
 
   @override
+  _ProductListState createState() => _ProductListState();
+}
+
+class _ProductListState extends State<ProductList> {
+
+  bool _isPressed = false;
+
+  @override
   Widget build(BuildContext context) {
+    return Scaffold(
+      body: Platform.isIOS ? _buildIOSListView() : _buildDefaultListView(),
+        floatingActionButton: Stack(
+          children: [
+            Positioned(
+              right: 0,
+              bottom: 0,
+              child: Visibility(
+                visible: _isPressed,
+                child: SizedBox(
+                  width: 56, // Set the size to match the FloatingActionButton's size
+                  height: 56,
+                  child: Image.asset(
+                    'assets/images/add_shadow.png',
+                    fit: BoxFit.cover, // This ensures the image fills the entire container
+                  ),
+                ),
+              ),
+            ),
+            Positioned(
+              right: 0,
+              bottom: 0,
+              child: GestureDetector(
+                onTapDown: (details) {
+                  setState(() {
+                    _isPressed = true;
+                  });
+                },
+                onTapUp: (details) {
+                  setState(() {
+                    _isPressed = false;
+                  });
+                  Navigator.push(context,
+                  PageRouteBuilder(
+                      transitionDuration: const Duration(milliseconds: 500),
+                      pageBuilder: (context, animation, secondaryAnimation) => UploadProductPage(),
+                      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+
+                        // This ensures the previous page (list page) also moves, revealing itself when swiping the detail page.
+                        var previousPageOffsetAnimation = Tween(begin: const Offset(0, 1), end: const Offset(0, 0)).chain(CurveTween(curve: Curves.decelerate)).animate(animation);
+
+                        return SlideTransition(
+                          position: previousPageOffsetAnimation,
+                          child: UploadProductPage(),
+                        );
+                      }
+                  ));
+
+                },
+                onTapCancel: () {
+                  setState(() {
+                    _isPressed = false;
+                  });
+                },
+                child: Container(
+                  width: 56, // FloatingActionButton's default size
+                  height: 56, // FloatingActionButton's default size
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(28),
+                    color: Colors.transparent,
+                  ),
+                  child: Image.asset('assets/images/add_icon.png'),
+                ),
+              ),
+            ),
+          ],
+        )
+
+    );
+  }
+
+  Widget _buildIOSListView() {
+    return NotificationListener<OverscrollIndicatorNotification>(
+      onNotification: (overscroll) {
+        overscroll.disallowIndicator();
+        return true;
+      },
+      child: _buildListView(),
+    );
+  }
+
+  Widget _buildDefaultListView() {
+    return _buildListView();
+  }
+
+  Widget _buildListView() {
     return ListView.separated(
-      itemCount: products.length,
+      itemCount: widget.products.length,
       itemBuilder: (context, i) {
         Widget productCard = ChangeNotifierProvider<Product>.value(
-          value: products[i],
+          value: widget.products[i],
           child: _buildProductCard(context),
         );
         // Apply extra padding to the first item only
@@ -26,7 +123,12 @@ class ProductList extends StatelessWidget {
             child: productCard,
           );
         }
-
+        else if (i == widget.products.length-1) {
+          productCard = Padding(
+            padding: const EdgeInsets.only(bottom: 8.0), // Set your desired padding
+            child: productCard,
+          );
+        }
         return productCard;
       },
       separatorBuilder: (context, i) {
@@ -36,6 +138,7 @@ class ProductList extends StatelessWidget {
   }
 
 
+
   Widget _buildProductCard(BuildContext context) {
     return Consumer<Product>(
       builder: (context, product, child) {
@@ -43,8 +146,26 @@ class ProductList extends StatelessWidget {
           onTap: () {
             Navigator.push(
               context,
-              MaterialPageRoute(
-                builder: (context) => WelcomePage()
+              PageRouteBuilder(
+                  transitionDuration: const Duration(milliseconds: 400),
+                  pageBuilder: (context, animation, secondaryAnimation) => ProductDetailPage(product: product,),
+                  transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                    const begin = Offset(1.0, 0.0);
+                    const end = Offset.zero;
+                    const curve = Curves.easeInOut;
+
+                    var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+                    var offsetAnimation = animation.drive(tween);
+
+                    // This ensures the previous page (list page) also moves, revealing itself when swiping the detail page.
+                    var previousPageOffsetAnimation = Tween(begin: const Offset(1, 0), end: const Offset(0, 0)).chain(CurveTween(curve: Curves.decelerate)).animate(animation);
+
+                    return SlideTransition(
+                      position: previousPageOffsetAnimation,
+                      child: ProductDetailPage(product: product,),
+                    );
+                  }
+
               ),
             );
           },

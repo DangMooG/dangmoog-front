@@ -5,7 +5,7 @@ import 'package:dangmoog/constants/navbar_icon.dart';
 import 'package:dangmoog/screens/mypage/my_page.dart';
 import 'package:dangmoog/screens/chat/chat_list.dart';
 import 'package:dangmoog/screens/post/main_page.dart';
-
+import 'package:dangmoog/screens/addpage/add_page.dart';
 import 'package:dangmoog/screens/temp/temp_page.dart';
 
 class MyHome extends StatefulWidget {
@@ -22,7 +22,7 @@ class _MyHomeState extends State<MyHome> {
     // 아래 임시 widgets을 각자 구현한 widget으로 교체해주시면 됩니다
     const MainPage(), // Post List Page
     const TempPage(), // home page (추후 업데이트를 위한 여유 페이지)
-    const TempPage(), // 게시글 작성 페이지로 가야하는데, 일단 임시로
+    // const TempPage(), // 게시글 작성 페이지로 가야하는데, 일단 임시로
     const ChatList(), // Chat List Page
     const MyPage() // MyPage
   ];
@@ -31,17 +31,17 @@ class _MyHomeState extends State<MyHome> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.white,
-        title: const Text(
-          "전역 변수로 받아서 사용할 예정", // Header는 일단 빼고 진행해주세요
-        ),
+          backgroundColor: Colors.white,
+          title: const Text(
+            "전역 변수로 받아서 사용할 예정", // Header는 일단 빼고 진행해주세요
+          ),
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(1.0), // You can change the height
           child: Container(
             color: const Color(0xffA07272), // Your line color
             height: 2.0, // You can change the height
           ),
-        )
+        ),
       ),
       body: Center(
         child: Container(child: _bodyPage.elementAt(currentTapIndex)),

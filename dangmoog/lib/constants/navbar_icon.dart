@@ -11,11 +11,11 @@ List<BottomNavigationBarItem> navbarItems = [
     activeIcon: Icon(Icons.assignment),
     label: '게시판',
   ),
-  const BottomNavigationBarItem(
-    icon: Icon(Icons.add_circle_outline),
-    activeIcon: Icon(Icons.add_circle),
-    label: '추가하기',
-  ),
+  // const BottomNavigationBarItem(
+  //   icon: Icon(Icons.add_circle_outline),
+  //   activeIcon: Icon(Icons.add_circle),
+  //   label: '추가하기',
+  // ),
   const BottomNavigationBarItem(
     icon: Icon(Icons.forum_outlined),
     activeIcon: Icon(Icons.forum),

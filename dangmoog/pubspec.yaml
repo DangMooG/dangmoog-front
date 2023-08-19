@@ -37,6 +37,7 @@ dependencies:
   intl: ^0.18.1
   provider: ^6.0.5
   carousel_slider: ^4.2.1
+  image_picker: ^1.0.2
 
 dev_dependencies:
   flutter_test:
@@ -61,9 +62,12 @@ flutter:
 
   # To add assets to your application, add an assets section, like this:
   assets:
+    - assets/products.json
     - assets/images/
     - assets/images/dotorit_loading.png
     - assets/images/dotorit_welcome.png
+    - assets/images/add_icon.png
+    - assets/images/add_shadow.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
