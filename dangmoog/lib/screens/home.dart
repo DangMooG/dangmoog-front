@@ -16,13 +16,11 @@ class MyHome extends StatefulWidget {
 }
 
 class _MyHomeState extends State<MyHome> {
-  int currentTapIndex = 0;
+  int currentTabIndex = 0;
 
   final List<Widget> _bodyPage = <Widget>[
-    // 아래 임시 widgets을 각자 구현한 widget으로 교체해주시면 됩니다
     const MainPage(), // Post List Page
     const TempPage(), // home page (추후 업데이트를 위한 여유 페이지)
-    const TempPage(), // 게시글 작성 페이지로 가야하는데, 일단 임시로
     const ChatList(), // Chat List Page
     const MyPage() // MyPage
   ];
@@ -30,20 +28,26 @@ class _MyHomeState extends State<MyHome> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        title: const Text(
-          "전역 변수로 받아서 사용할 예정", // Header는 일단 빼고 진행해주세요
-        ),
-      ),
+      appBar: getAppBar(currentTabIndex),
       body: Center(
-        child: _bodyPage.elementAt(currentTapIndex),
+        child: _bodyPage.elementAt(currentTabIndex),
       ),
+      floatingActionButton: currentTabIndex == 0
+          ? FloatingActionButton(
+              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              highlightElevation: 0,
+              disabledElevation: 0,
+              onPressed: () {},
+              backgroundColor: Colors.transparent,
+              elevation: 0,
+              child: Image.asset('assets/images/add_icon.png'),
+            )
+          : null,
       bottomNavigationBar: Container(
         decoration: const BoxDecoration(
           boxShadow: [
             BoxShadow(
-              color: Colors.black38,
+              color: Color.fromARGB(96, 22, 21, 21),
               spreadRadius: 1,
               blurRadius: 8,
             ),
@@ -58,10 +62,10 @@ class _MyHomeState extends State<MyHome> {
           ),
           child: BottomNavigationBar(
             backgroundColor: Colors.white,
-            currentIndex: currentTapIndex,
+            currentIndex: currentTabIndex,
             onTap: (index) {
               setState(() {
-                currentTapIndex = index;
+                currentTabIndex = index;
               });
             },
             //BottomNavigation item list
@@ -87,4 +91,81 @@ class _MyHomeState extends State<MyHome> {
       ),
     );
   }
+}
+
+AppBar getAppBar(int currentTabIndex) {
+  switch (currentTabIndex) {
+    case 0:
+      return _postListAppbar();
+    case 1:
+      return _postListAppbar();
+    case 2:
+      return _chatListAppbar();
+    case 3:
+      return _myPageAppbar();
+    default:
+      return _postListAppbar();
+  }
+}
+
+AppBar _postListAppbar() {
+  return AppBar(
+    backgroundColor: Colors.white,
+    leadingWidth: 200,
+    leading: Container(
+      padding: const EdgeInsets.only(left: 16, top: 18),
+      child: const Text(
+        'DOTORIT',
+        style: TextStyle(
+            color: Color(0xFFC30020),
+            fontSize: 24,
+            fontWeight: FontWeight.bold),
+      ),
+    ),
+    bottom: PreferredSize(
+      preferredSize: const Size.fromHeight(1.0),
+      child: Container(
+        color: const Color(0xFFA07272),
+        height: 2.0,
+      ),
+    ),
+  );
+}
+
+AppBar _chatListAppbar() {
+  return AppBar(
+    backgroundColor: Colors.white,
+    title: const Text(
+      "채팅 내역",
+      style: TextStyle(
+        color: Color(0xff552619),
+      ),
+    ),
+    bottom: PreferredSize(
+      preferredSize: const Size.fromHeight(1.0),
+      child: Container(
+        color: const Color(0xFFA07272),
+        height: 2.0,
+      ),
+    ),
+  );
+}
+
+AppBar _myPageAppbar() {
+  return AppBar(
+    backgroundColor: Colors.white,
+    title: const Text(
+      "마이 도토릿",
+      style: TextStyle(
+        color: Color(0xff552619),
+      ),
+    ),
+    bottom: PreferredSize(
+      preferredSize: const Size.fromHeight(1.0),
+      child: Container(
+        color: const Color(0xFFA07272),
+        height: 2.0,
+      ),
+    ),
+  );
 }
