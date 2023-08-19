@@ -69,6 +69,7 @@ flutter:
     - assets/images/add_icon.png
     - assets/images/add_shadow.png
 
+
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
 
