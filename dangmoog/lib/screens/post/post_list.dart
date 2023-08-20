@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
-import '../../../models/product_class.dart';
-
-//import '../../widgets/post/detail_page.dart';
-import 'detail_page.dart';
 import 'package:provider/provider.dart';
-import 'package:dangmoog/screens/addpage/add_page.dart';
+
 import 'dart:io';
+
+import 'package:dangmoog/screens/post/detail_page.dart';
+import 'package:dangmoog/screens/addpage/add_page.dart';
+
+import 'package:dangmoog/models/product_class.dart';
 
 class ProductList extends StatefulWidget {
   final List<Product> products;
