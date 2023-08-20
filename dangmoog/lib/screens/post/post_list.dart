@@ -4,6 +4,8 @@ import '../../../models/product_class.dart';
 //import '../../widgets/post/detail_page.dart';
 import 'detail_page.dart';
 import 'package:provider/provider.dart';
+import 'package:dangmoog/screens/addpage/add_page.dart';
+import 'dart:io';
 
 class ProductList extends StatefulWidget {
   final List<Product> products;

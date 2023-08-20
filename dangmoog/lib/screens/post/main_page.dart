@@ -10,17 +10,19 @@ Future<List<Product>> _loadProductsFromAsset() async {
   final String jsonString = await rootBundle.loadString('assets/products.json');
   final List<dynamic> jsonResponse = json.decode(jsonString);
 
-  return jsonResponse.map((productData) => Product(
-    id: productData['id'],
-    title: productData['title'],
-    description: productData['description'],
-    price: productData['price'].toDouble(),
-    images: List<String>.from(productData['images']),
-    category: productData['category'],
-    uploadTime: DateTime.parse(productData['uploadTime']),
-    saleMethod: productData['saleMethod'],
-    user: productData['user'],
-  )).toList();
+  return jsonResponse
+      .map((productData) => Product(
+            id: productData['id'],
+            title: productData['title'],
+            description: productData['description'],
+            price: productData['price'].toDouble(),
+            images: List<String>.from(productData['images']),
+            category: productData['category'],
+            uploadTime: DateTime.parse(productData['uploadTime']),
+            saleMethod: productData['saleMethod'],
+            user: productData['user'],
+          ))
+      .toList();
 }
 
 class MainPage extends StatefulWidget {
@@ -46,15 +48,14 @@ class _MainPageState extends State<MainPage> {
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.done) {
           if (snapshot.hasError) {
-            return Center(child: Text('Error loading products!'));
+            return const Center(child: Text('Error loading products!'));
           }
 
           return ProductList(products: snapshot.data!);
         } else {
-          return Center(child: CircularProgressIndicator());
+          return const Center(child: CircularProgressIndicator());
         }
       },
     );
   }
 }
-

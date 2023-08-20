@@ -89,7 +89,7 @@ class _NicknamePageState extends State<NicknamePage> {
             ),
           ),
           SizedBox(height: screenSize.height * 0.02),
-          Container(
+          SizedBox(
             width: screenSize.width,
             height: screenSize.height * 0.58,
             child: Column(
@@ -98,21 +98,21 @@ class _NicknamePageState extends State<NicknamePage> {
               children: [
                 Column(
                   children: [
-                    Container(
+                    SizedBox(
                       width: screenSize.width * 0.91,
                       height: screenSize.height * 0.044,
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           Padding(
-                            padding: EdgeInsets.fromLTRB(8, 16, 0, 0),
+                            padding: const EdgeInsets.fromLTRB(8, 16, 0, 0),
                             child: Container(
                               width: screenSize.width * 0.56,
                               height: screenSize.height * 0.03,
                               alignment: Alignment.center,
                               child: TextField(
                                 onChanged: onNicknameChanged,
-                                decoration: InputDecoration(
+                                decoration: const InputDecoration(
                                   border: InputBorder.none,
                                   hintText: '별명을 입력해주세요!',
                                   hintStyle: TextStyle(
@@ -142,7 +142,7 @@ class _NicknamePageState extends State<NicknamePage> {
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(6),
                               ),
-                              padding: EdgeInsets.symmetric(
+                              padding: const EdgeInsets.symmetric(
                                   horizontal: 12, vertical: 4),
                               minimumSize: Size(screenSize.width * 0.18,
                                   screenSize.height * 0.034),
@@ -199,7 +199,7 @@ class _NicknamePageState extends State<NicknamePage> {
                     );
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Color(0xFFC30020),
+                    backgroundColor: const Color(0xFFC30020),
                     side:
                         const BorderSide(color: Color(0xFFC30020), width: 1.0),
                     shape: RoundedRectangleBorder(

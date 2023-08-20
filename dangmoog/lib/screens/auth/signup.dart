@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'package:dangmoog/screens/auth/nickname.dart';
 import 'package:flutter/material.dart';
-import 'package:dangmoog/screens/home.dart';
 import 'package:flutter/services.dart';
 
 class SignupPage extends StatefulWidget {
@@ -126,7 +125,7 @@ class _SignupPageState extends State<SignupPage> {
             ),
           ),
           SizedBox(height: screenSize.height * 0.024),
-          Container(
+          SizedBox(
             width: screenSize.width,
             height: screenSize.height * 0.58,
             child: Column(
@@ -135,7 +134,7 @@ class _SignupPageState extends State<SignupPage> {
               children: [
                 Column(
                   children: [
-                    Container(
+                    SizedBox(
                       width: screenSize.width * 0.91,
                       height: screenSize.height * 0.044,
                       child: Row(
@@ -143,12 +142,12 @@ class _SignupPageState extends State<SignupPage> {
                         children: [
                           Padding(
                             padding: const EdgeInsets.fromLTRB(8, 16, 0, 0),
-                            child: Container(
+                            child: SizedBox(
                               width: screenSize.width * 0.59,
                               height: screenSize.height * 0.034,
                               child: TextField(
                                 onChanged: onEmailChanged,
-                                decoration: InputDecoration(
+                                decoration: const InputDecoration(
                                   border: InputBorder.none,
                                   hintText: 'GIST 이메일 입력',
                                   hintStyle: TextStyle(
@@ -179,7 +178,7 @@ class _SignupPageState extends State<SignupPage> {
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(6),
                               ),
-                              padding: EdgeInsets.symmetric(
+                              padding: const EdgeInsets.symmetric(
                                   horizontal: 12, vertical: 4),
                               minimumSize: Size(screenSize.width * 0.25,
                                   screenSize.height * 0.034),
@@ -213,7 +212,7 @@ class _SignupPageState extends State<SignupPage> {
                             0, 0, screenSize.width * 0.52, 0),
                         child: Text(
                           errorMessage,
-                          style: TextStyle(
+                          style: const TextStyle(
                             color: Colors.red,
                             fontSize: 13,
                           ),
@@ -240,7 +239,7 @@ class _SignupPageState extends State<SignupPage> {
                                       FilteringTextInputFormatter.allow(
                                           RegExp(r'[0-9]'))
                                     ],
-                                    decoration: InputDecoration(
+                                    decoration: const InputDecoration(
                                       border: InputBorder.none,
                                       hintText: '인증번호 6자리 입력',
                                       hintStyle: TextStyle(
@@ -255,7 +254,7 @@ class _SignupPageState extends State<SignupPage> {
                               SizedBox(width: screenSize.width * 0.25),
                               Text(
                                 getFormattedTime(),
-                                style: TextStyle(
+                                style: const TextStyle(
                                     fontSize: 13,
                                     fontWeight: FontWeight.w400,
                                     fontFamily: 'Pretendard-Regular',
@@ -307,7 +306,7 @@ class _SignupPageState extends State<SignupPage> {
                         );
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Color(0xFFC30020),
+                        backgroundColor: const Color(0xFFC30020),
                         side: const BorderSide(
                             color: Color(0xFFC30020), width: 1.0),
                         shape: RoundedRectangleBorder(
