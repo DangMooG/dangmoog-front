@@ -4,6 +4,8 @@ import 'package:image_picker/image_picker.dart';
 import 'package:dangmoog/models/product_class.dart';
 
 class UploadProductPage extends StatefulWidget {
+  const UploadProductPage({super.key});
+
   @override
   _UploadProductPageState createState() => _UploadProductPageState();
 }
@@ -27,7 +29,8 @@ class _UploadProductPageState extends State<UploadProductPage> {
         leading: IconButton(
           icon: const Icon(Icons.close),
           onPressed: () {
-            Navigator.of(context).pop();  // this will close the current page and return to the previous page.
+            Navigator.of(context)
+                .pop(); // this will close the current page and return to the previous page.
           },
         ),
         centerTitle: true,
@@ -45,7 +48,6 @@ class _UploadProductPageState extends State<UploadProductPage> {
     );
   }
 
-
   Widget buildImagePickerSection() {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -58,15 +60,14 @@ class _UploadProductPageState extends State<UploadProductPage> {
           alignment: WrapAlignment.start,
           children: List.generate(
             images!.length + 1,
-                (index) => index < 10
+            (index) => index < 10
                 ? index == images!.length
-                ? const SizedBox.shrink()
-                : buildImage(images![index])
+                    ? const SizedBox.shrink()
+                    : buildImage(images![index])
                 : const SizedBox.shrink(),
           ),
         ),
         // Text fields and dropdown
-
       ],
     );
   }
@@ -97,18 +98,17 @@ class _UploadProductPageState extends State<UploadProductPage> {
         buildUsingCabinetCheckbox(),
         TextFormField(
           controller: priceController,
-          decoration: const InputDecoration(
-              hintText: '₩ 가격(가격 미입력 / 0 입력시 나눔)'),
+          decoration:
+              const InputDecoration(hintText: '₩ 가격(가격 미입력 / 0 입력시 나눔)'),
           keyboardType: TextInputType.number,
         ),
         TextFormField(
           controller: detailController,
           decoration: const InputDecoration(
             hintText: '본문 내용 입력하기',
-            border: InputBorder.none,),
-
+            border: InputBorder.none,
+          ),
         ),
-
       ],
     );
   }
@@ -132,16 +132,15 @@ class _UploadProductPageState extends State<UploadProductPage> {
     );
   }
 
-
   Widget buildSubmitButton() {
     return ElevatedButton(
       style: ElevatedButton.styleFrom(
         foregroundColor: const Color(0xFFC30020),
-        backgroundColor: Colors.transparent, // This will set the color of the text and icons
+        backgroundColor:
+            Colors.transparent, // This will set the color of the text and icons
         shadowColor: Colors.transparent, // To remove any shadow (optional)
         elevation: 0, // No elevation
       ),
-
       onPressed: () {
         Product product = Product(
           id: DateTime.now().millisecondsSinceEpoch.toString(),

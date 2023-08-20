@@ -1,13 +1,12 @@
-
 import 'package:flutter/material.dart';
-import '../../../models/product_class.dart';
-
-//import '../../widgets/post/detail_page.dart';
-import 'detail_page.dart';
 import 'package:provider/provider.dart';
-import 'package:dangmoog/screens/addpage/add_page.dart';
+
 import 'dart:io';
 
+import 'package:dangmoog/screens/post/detail_page.dart';
+import 'package:dangmoog/screens/addpage/add_page.dart';
+
+import 'package:dangmoog/models/product_class.dart';
 
 class ProductList extends StatefulWidget {
   final List<Product> products;
@@ -18,13 +17,12 @@ class ProductList extends StatefulWidget {
 }
 
 class _ProductListState extends State<ProductList> {
-
   bool _isPressed = false;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Platform.isIOS ? _buildIOSListView() : _buildDefaultListView(),
+        body: Platform.isIOS ? _buildIOSListView() : _buildDefaultListView(),
         floatingActionButton: Stack(
           children: [
             Positioned(
@@ -33,11 +31,13 @@ class _ProductListState extends State<ProductList> {
               child: Visibility(
                 visible: _isPressed,
                 child: SizedBox(
-                  width: 56, // Set the size to match the FloatingActionButton's size
+                  width:
+                      56, // Set the size to match the FloatingActionButton's size
                   height: 56,
                   child: Image.asset(
                     'assets/images/add_shadow.png',
-                    fit: BoxFit.cover, // This ensures the image fills the entire container
+                    fit: BoxFit
+                        .cover, // This ensures the image fills the entire container
                   ),
                 ),
               ),
@@ -55,22 +55,27 @@ class _ProductListState extends State<ProductList> {
                   setState(() {
                     _isPressed = false;
                   });
-                  Navigator.push(context,
-                  PageRouteBuilder(
-                      transitionDuration: const Duration(milliseconds: 500),
-                      pageBuilder: (context, animation, secondaryAnimation) => UploadProductPage(),
-                      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                  Navigator.push(
+                      context,
+                      PageRouteBuilder(
+                          transitionDuration: const Duration(milliseconds: 500),
+                          pageBuilder:
+                              (context, animation, secondaryAnimation) =>
+                                  const UploadProductPage(),
+                          transitionsBuilder:
+                              (context, animation, secondaryAnimation, child) {
+                            // This ensures the previous page (list page) also moves, revealing itself when swiping the detail page.
+                            var previousPageOffsetAnimation = Tween(
+                                    begin: const Offset(0, 1),
+                                    end: const Offset(0, 0))
+                                .chain(CurveTween(curve: Curves.decelerate))
+                                .animate(animation);
 
-                        // This ensures the previous page (list page) also moves, revealing itself when swiping the detail page.
-                        var previousPageOffsetAnimation = Tween(begin: const Offset(0, 1), end: const Offset(0, 0)).chain(CurveTween(curve: Curves.decelerate)).animate(animation);
-
-                        return SlideTransition(
-                          position: previousPageOffsetAnimation,
-                          child: UploadProductPage(),
-                        );
-                      }
-                  ));
-
+                            return SlideTransition(
+                              position: previousPageOffsetAnimation,
+                              child: const UploadProductPage(),
+                            );
+                          }));
                 },
                 onTapCancel: () {
                   setState(() {
@@ -89,9 +94,7 @@ class _ProductListState extends State<ProductList> {
               ),
             ),
           ],
-        )
-
-    );
+        ));
   }
 
   Widget _buildIOSListView() {
@@ -119,13 +122,14 @@ class _ProductListState extends State<ProductList> {
         // Apply extra padding to the first item only
         if (i == 0) {
           productCard = Padding(
-            padding: const EdgeInsets.only(top: 8.0), // Set your desired padding
+            padding:
+                const EdgeInsets.only(top: 8.0), // Set your desired padding
             child: productCard,
           );
-        }
-        else if (i == widget.products.length-1) {
+        } else if (i == widget.products.length - 1) {
           productCard = Padding(
-            padding: const EdgeInsets.only(bottom: 8.0), // Set your desired padding
+            padding:
+                const EdgeInsets.only(bottom: 8.0), // Set your desired padding
             child: productCard,
           );
         }
@@ -137,8 +141,6 @@ class _ProductListState extends State<ProductList> {
     );
   }
 
-
-
   Widget _buildProductCard(BuildContext context) {
     return Consumer<Product>(
       builder: (context, product, child) {
@@ -148,25 +150,33 @@ class _ProductListState extends State<ProductList> {
               context,
               PageRouteBuilder(
                   transitionDuration: const Duration(milliseconds: 400),
-                  pageBuilder: (context, animation, secondaryAnimation) => ProductDetailPage(product: product,),
-                  transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                  pageBuilder: (context, animation, secondaryAnimation) =>
+                      ProductDetailPage(
+                        product: product,
+                      ),
+                  transitionsBuilder:
+                      (context, animation, secondaryAnimation, child) {
                     const begin = Offset(1.0, 0.0);
                     const end = Offset.zero;
                     const curve = Curves.easeInOut;
 
-                    var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+                    var tween = Tween(begin: begin, end: end)
+                        .chain(CurveTween(curve: curve));
                     var offsetAnimation = animation.drive(tween);
 
                     // This ensures the previous page (list page) also moves, revealing itself when swiping the detail page.
-                    var previousPageOffsetAnimation = Tween(begin: const Offset(1, 0), end: const Offset(0, 0)).chain(CurveTween(curve: Curves.decelerate)).animate(animation);
+                    var previousPageOffsetAnimation = Tween(
+                            begin: const Offset(1, 0), end: const Offset(0, 0))
+                        .chain(CurveTween(curve: Curves.decelerate))
+                        .animate(animation);
 
                     return SlideTransition(
                       position: previousPageOffsetAnimation,
-                      child: ProductDetailPage(product: product,),
+                      child: ProductDetailPage(
+                        product: product,
+                      ),
                     );
-                  }
-
-              ),
+                  }),
             );
           },
           child: Row(
@@ -181,25 +191,29 @@ class _ProductListState extends State<ProductList> {
     );
   }
 
-
   Widget _buildProductImage(BuildContext context, Product product) {
-    double width = MediaQuery.of(context).size.width * 0.32; // 32% of screen width
-    double paddingValue = MediaQuery.of(context).size.width * 0.042; // 4.2% of screen width
+    double width =
+        MediaQuery.of(context).size.width * 0.32; // 32% of screen width
+    double paddingValue =
+        MediaQuery.of(context).size.width * 0.042; // 4.2% of screen width
 
     return Padding(
-      padding: EdgeInsets.only(right: paddingValue/2, bottom: paddingValue/2, left: paddingValue, top: paddingValue/2),
+      padding: EdgeInsets.only(
+          right: paddingValue / 2,
+          bottom: paddingValue / 2,
+          left: paddingValue,
+          top: paddingValue / 2),
       child: SizedBox(
         width: width,
         height: width, // height will also be 32% of the screen width
         child: ClipRRect(
-          borderRadius: BorderRadius.circular(15), // You can adjust this value for desired rounding
+          borderRadius: BorderRadius.circular(
+              15), // You can adjust this value for desired rounding
           child: Image.asset(product.images[0], fit: BoxFit.cover),
         ),
       ),
     );
   }
-
-
 
   Widget _buildProductDetails(Product product) {
     return Expanded(
@@ -215,7 +229,9 @@ class _ProductListState extends State<ProductList> {
                 _buildProductTexts(product),
                 IconButton(
                   icon: Icon(
-                    product.isFavorited ? Icons.favorite : Icons.favorite_border,
+                    product.isFavorited
+                        ? Icons.favorite
+                        : Icons.favorite_border,
                   ),
                   color: Colors.red,
                   onPressed: () {
@@ -224,13 +240,13 @@ class _ProductListState extends State<ProductList> {
                 ),
               ],
             ),
-            Text('${product.price}원',
+            Text(
+              '${product.price}원',
               style: const TextStyle(
                   fontFamily: 'Pretendard',
                   fontWeight: FontWeight.bold,
                   fontSize: 16,
-                  color: Color(0xFF552619)
-              ),
+                  color: Color(0xFF552619)),
             ),
             // _buildComments(product),
           ],
@@ -244,7 +260,8 @@ class _ProductListState extends State<ProductList> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(product.title,
-            style: const TextStyle(fontFamily: 'Pretendard',
+            style: const TextStyle(
+                fontFamily: 'Pretendard',
                 fontWeight: FontWeight.bold,
                 fontSize: 18,
                 color: Color(0xFF552619))),
@@ -256,16 +273,21 @@ class _ProductListState extends State<ProductList> {
   Widget _buildCategoryAndTime(Product product) {
     return Row(
       children: [
-        Text("${product.category} ",
-              style: const TextStyle(fontFamily: 'Pretendard',
-                                     fontWeight: FontWeight.w200,
-                                     fontSize: 13,
-                                     color: Color(0xFFA07272)),),
-        Text("| ${timeAgo(product.uploadTime)}",
-                style: const TextStyle(fontFamily: 'Pretendard',
-                                       fontWeight: FontWeight.w200,
-                                       fontSize: 13,
-                                       color: Color(0xFFA07272)),
+        Text(
+          "${product.category} ",
+          style: const TextStyle(
+              fontFamily: 'Pretendard',
+              fontWeight: FontWeight.w200,
+              fontSize: 13,
+              color: Color(0xFFA07272)),
+        ),
+        Text(
+          "| ${timeAgo(product.uploadTime)}",
+          style: const TextStyle(
+              fontFamily: 'Pretendard',
+              fontWeight: FontWeight.w200,
+              fontSize: 13,
+              color: Color(0xFFA07272)),
         ),
       ],
     );
