@@ -5,7 +5,7 @@ import 'package:dangmoog/constants/navbar_icon.dart';
 import 'package:dangmoog/screens/mypage/my_page.dart';
 import 'package:dangmoog/screens/chat/chat_list.dart';
 import 'package:dangmoog/screens/post/main_page.dart';
-
+import 'package:dangmoog/screens/addpage/add_page.dart';
 import 'package:dangmoog/screens/temp/temp_page.dart';
 
 class MyHome extends StatefulWidget {
