@@ -16,7 +16,9 @@ class _ChatDetailState extends State<ChatDetail> {
   late List<ChatCell> _chatDetail = <ChatCell>[];
   final TextEditingController _textController = TextEditingController();
 
-  bool _isKeyboardOn = true;
+  bool optionButton = false;
+
+  bool _isKeyboardOn = false;
 
   List<ChatCell> convertMockToChatDetail(List<dynamic> mockData) {
     return mockData.map((item) {
@@ -170,7 +172,7 @@ class _ChatDetailState extends State<ChatDetail> {
                             ),
                           ],
                         ),
-                        child: _buildTextInputField(),
+                        child: _buildTextInputField(optionButton),
                       )
                     ],
                   ),
@@ -183,9 +185,7 @@ class _ChatDetailState extends State<ChatDetail> {
     );
   }
 
-  Widget _buildTextInputField() {
-    bool optionButton = true;
-
+  Widget _buildTextInputField(bool optionOn) {
     return Container(
       padding: const EdgeInsets.only(top: 12, bottom: 12),
       margin: const EdgeInsets.symmetric(horizontal: 6.0),
@@ -196,8 +196,15 @@ class _ChatDetailState extends State<ChatDetail> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
               IconButton(
-                onPressed: () {},
-                icon: const Icon(Icons.add_circle_outline),
+                onPressed: () {
+                  setState(() {
+                    optionOn = !optionOn;
+                  });
+                },
+                icon: Transform.rotate(
+                  angle: optionButton ? 0 : 90 * (math.pi / 180),
+                  child: const Icon(Icons.add_circle_outline),
+                ),
               ),
               Flexible(
                 child: InkWell(
