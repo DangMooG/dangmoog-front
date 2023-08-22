@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:dangmoog/screens/mypage/my_page.dart';
-import 'package:dangmoog/screens/chat/chat_list.dart';
+import 'package:dangmoog/screens/chat/chat_list_page.dart';
 import 'package:dangmoog/screens/post/main_page.dart';
 import 'package:dangmoog/screens/temp/temp_page.dart';
 
@@ -21,7 +21,7 @@ class _MyHomeState extends State<MyHome> {
   final List<Widget> _bodyPage = <Widget>[
     const MainPage(), // Post List Page
     const TempPage(), // home page (추후 업데이트를 위한 여유 페이지)
-    const ChatList(), // Chat List Page
+    const ChatListPage(), // Chat List Page
     const MyPage() // MyPage
   ];
 

@@ -35,14 +35,6 @@ class _ChatCellState extends State<ChatCell> {
       },
       child: Container(
         padding: const EdgeInsets.all(8),
-        decoration: const BoxDecoration(
-          border: Border(
-            bottom: BorderSide(
-              width: 1,
-              color: Color(0xffCCBEBA),
-            ),
-          ),
-        ),
         child: SizedBox(
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.center,
