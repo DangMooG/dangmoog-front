@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 
-import 'package:dangmoog/constants/navbar_icon.dart';
-
 import 'package:dangmoog/screens/mypage/my_page.dart';
 import 'package:dangmoog/screens/chat/chat_list.dart';
 import 'package:dangmoog/screens/post/main_page.dart';
 import 'package:dangmoog/screens/temp/temp_page.dart';
 
 import 'package:dangmoog/screens/app_bar.dart';
+import 'package:dangmoog/screens/nav_bar.dart';
 
 class MyHome extends StatefulWidget {
   const MyHome({super.key});
@@ -44,51 +43,13 @@ class _MyHomeState extends State<MyHome> {
               child: Image.asset('assets/images/add_icon.png'),
             )
           : null,
-      bottomNavigationBar: Container(
-        decoration: const BoxDecoration(
-          boxShadow: [
-            BoxShadow(
-              color: Color.fromARGB(96, 22, 21, 21),
-              spreadRadius: 1,
-              blurRadius: 8,
-            ),
-          ],
-          borderRadius: BorderRadius.vertical(
-            top: Radius.circular(10.0),
-          ),
-        ),
-        child: ClipRRect(
-          borderRadius: const BorderRadius.vertical(
-            top: Radius.circular(10.0),
-          ),
-          child: BottomNavigationBar(
-            backgroundColor: Colors.white,
-            currentIndex: currentTabIndex,
-            onTap: (index) {
-              setState(() {
-                currentTabIndex = index;
-              });
-            },
-            //BottomNavigation item list
-            items: navbarItems,
-
-            // selected or unselected style
-            selectedItemColor: const Color(0xffc30020),
-            unselectedItemColor: const Color(0xffc30020),
-            selectedLabelStyle: const TextStyle(
-              fontSize: 11,
-            ),
-            unselectedLabelStyle: const TextStyle(
-              fontSize: 11,
-            ),
-
-            showUnselectedLabels: true,
-
-            //BottomNavigationBar Type -> fixed = bottom item size고정
-            //BottomNavigationBar Type -> shifting = bottom item selected 된 item이 확대
-            type: BottomNavigationBarType.fixed,
-          ),
-        ),
+      bottomNavigationBar: MainNavigationBar(
+        currentTabIndex: currentTabIndex,
+        onTap: (index) {
+          setState(() {
+            currentTabIndex = index;
+          });
+        },
       ),
     );
   }
