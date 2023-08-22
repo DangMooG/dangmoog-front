@@ -20,7 +20,7 @@ AppBar _postListAppbar() {
     backgroundColor: Colors.white,
     leadingWidth: 200,
     leading: Container(
-      padding: const EdgeInsets.only(left: 15, top: 13),
+      margin: const EdgeInsets.only(left: 15, top: 13),
       child: const Text(
         'DOTORIT',
         style: TextStyle(
@@ -30,10 +30,19 @@ AppBar _postListAppbar() {
       ),
     ),
     actions: [
-      IconButton(
-        onPressed: () {},
-        icon: const Icon(Icons.notifications_none),
-        color: const Color(0xFFA07272),
+      Container(
+        margin: const EdgeInsets.only(
+          top: 5,
+          right: 10,
+        ),
+        child: IconButton(
+          onPressed: () {},
+          icon: const Icon(
+            Icons.notifications_none,
+            size: 26,
+          ),
+          color: const Color(0xFFA07272),
+        ),
       ),
     ],
     bottom: PreferredSize(
