@@ -112,7 +112,7 @@ AppBar _postListAppbar() {
     backgroundColor: Colors.white,
     leadingWidth: 200,
     leading: Container(
-      padding: const EdgeInsets.only(left: 16, top: 18),
+      padding: const EdgeInsets.only(left: 15, top: 13),
       child: const Text(
         'DOTORIT',
         style: TextStyle(
@@ -121,6 +121,13 @@ AppBar _postListAppbar() {
             fontWeight: FontWeight.bold),
       ),
     ),
+    actions: [
+      IconButton(
+        onPressed: () {},
+        icon: const Icon(Icons.notifications_none),
+        color: const Color(0xFFA07272),
+      ),
+    ],
     bottom: PreferredSize(
       preferredSize: const Size.fromHeight(1.0),
       child: Container(
@@ -138,6 +145,8 @@ AppBar _chatListAppbar() {
       "채팅 내역",
       style: TextStyle(
         color: Color(0xff552619),
+        fontSize: 19,
+        fontWeight: FontWeight.bold,
       ),
     ),
     bottom: PreferredSize(
@@ -157,6 +166,8 @@ AppBar _myPageAppbar() {
       "마이 도토릿",
       style: TextStyle(
         color: Color(0xff552619),
+        fontSize: 19,
+        fontWeight: FontWeight.bold,
       ),
     ),
     bottom: PreferredSize(
