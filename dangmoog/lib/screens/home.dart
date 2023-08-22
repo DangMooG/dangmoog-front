@@ -32,17 +32,6 @@ class _MyHomeState extends State<MyHome> {
       body: Center(
         child: _bodyPage.elementAt(currentTabIndex),
       ),
-      floatingActionButton: currentTabIndex == 0
-          ? FloatingActionButton(
-              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-              highlightElevation: 0,
-              disabledElevation: 0,
-              onPressed: () {},
-              backgroundColor: Colors.transparent,
-              elevation: 0,
-              child: Image.asset('assets/images/add_icon.png'),
-            )
-          : null,
       bottomNavigationBar: MainNavigationBar(
         currentTabIndex: currentTabIndex,
         onTap: (index) {
