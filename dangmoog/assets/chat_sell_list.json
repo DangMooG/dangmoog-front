@@ -30,5 +30,37 @@
     "lastMsg": "백두산~ 정기뻗은~ 삼천리 강산~ 무궁한~ 대한의~ 온누리의 빛~",
     "productId": 12,
     "userId": 20
+  },
+  {
+    "userNickName": "청록이",
+    "chatId": 211,
+    "lastDate": "2022-7-1",
+    "lastMsg": "청록청록~",
+    "productId": 10,
+    "userId": 22
+  },
+  {
+    "userNickName": "주황이",
+    "chatId": 193,
+    "lastDate": "2022-6-19",
+    "lastMsg": "주황주황~",
+    "productId": 101,
+    "userId": 92
+  },
+  {
+    "userNickName": "파랑이",
+    "chatId": 190,
+    "lastDate": "2022-6-10",
+    "lastMsg": "주황주황~",
+    "productId": 196,
+    "userId": 988
+  },
+  {
+    "userNickName": "남색이",
+    "chatId": 190,
+    "lastDate": "2022-6-5",
+    "lastMsg": "남색남색~",
+    "productId": 183,
+    "userId": 112
   }
 ]
