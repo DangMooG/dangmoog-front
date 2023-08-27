@@ -65,8 +65,10 @@ flutter:
     - assets/products.json
     - assets/chat_sell_list.json
     - assets/chat_buy_list.json
+    - assets/chat_detail.json
     - assets/images/
     - assets/images/dotorit_loading.png
+    - assets/images/loading_logo.png
     - assets/images/dotorit_welcome.png
     - assets/images/add_icon.png
     - assets/images/add_shadow.png
