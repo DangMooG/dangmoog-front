@@ -26,76 +26,49 @@ class _ProductListState extends State<ProductList> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Platform.isIOS ? _buildIOSListView() : _buildDefaultListView(),
-      floatingActionButton: Stack(
-        children: [
-          Positioned(
-            right: 0,
-            bottom: 0,
-            child: Visibility(
-              visible: _isPressed,
-              child: SizedBox(
-                width:
-                    56, // Set the size to match the FloatingActionButton's size
-                height: 56,
-                child: Image.asset(
-                  'assets/images/add_shadow.png',
-                  fit: BoxFit
-                      .cover, // This ensures the image fills the entire container
-                ),
-              ),
-            ),
-          ),
-          Positioned(
-            right: 0,
-            bottom: 0,
-            child: GestureDetector(
-              onTapDown: (details) {
-                setState(() {
-                  _isPressed = true;
-                });
-              },
-              onTapUp: (details) {
-                setState(() {
-                  _isPressed = false;
-                });
-                Navigator.push(
-                    context,
-                    PageRouteBuilder(
-                        transitionDuration: const Duration(milliseconds: 500),
-                        pageBuilder: (context, animation, secondaryAnimation) =>
-                            const UploadProductPage(),
-                        transitionsBuilder:
-                            (context, animation, secondaryAnimation, child) {
-                          // This ensures the previous page (list page) also moves, revealing itself when swiping the detail page.
-                          var previousPageOffsetAnimation = Tween(
-                                  begin: const Offset(0, 1),
-                                  end: const Offset(0, 0))
-                              .chain(CurveTween(curve: Curves.decelerate))
-                              .animate(animation);
+      floatingActionButton: GestureDetector(
+        onTapDown: (details) {
+          setState(() {
+            _isPressed = true;
+          });
+        },
+        onTapUp: (details) {
+          setState(() {
+            _isPressed = false;
+          });
+          Navigator.push(
+              context,
+              PageRouteBuilder(
+                  transitionDuration: const Duration(milliseconds: 500),
+                  pageBuilder: (context, animation, secondaryAnimation) =>
+                      const UploadProductPage(),
+                  transitionsBuilder:
+                      (context, animation, secondaryAnimation, child) {
+                    var previousPageOffsetAnimation = Tween(
+                            begin: const Offset(0, 1), end: const Offset(0, 0))
+                        .chain(CurveTween(curve: Curves.decelerate))
+                        .animate(animation);
 
-                          return SlideTransition(
-                            position: previousPageOffsetAnimation,
-                            child: const UploadProductPage(),
-                          );
-                        }));
-              },
-              onTapCancel: () {
-                setState(() {
-                  _isPressed = false;
-                });
-              },
-              child: Container(
-                width: 56, // FloatingActionButton's default size
-                height: 56, // FloatingActionButton's default size
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(28),
-                  color: Colors.transparent,
-                ),
-                child: Image.asset('assets/images/add_icon.png'),
-              ),
-            ),
+                    return SlideTransition(
+                      position: previousPageOffsetAnimation,
+                      child: const UploadProductPage(),
+                    );
+                  }));
+        },
+        onTapCancel: () {
+          setState(() {
+            _isPressed = false;
+          });
+        },
+        child: Container(
+          width: 56, // FloatingActionButton's default size
+          height: 56, // FloatingActionButton's default size
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(28),
+            color: Colors.transparent,
           ),
-        ],
+          child: Image.asset('assets/images/add_icon.png'),
+        ),
       ),
     );
   }
