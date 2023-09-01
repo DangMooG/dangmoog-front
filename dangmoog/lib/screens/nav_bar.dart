@@ -31,17 +31,6 @@ class MainNavigationBar extends StatelessWidget {
         currentIndex: currentTabIndex,
         onTap: onTap,
         items: navbarItems,
-        backgroundColor: Colors.white,
-        selectedItemColor: const Color(0xffc30020),
-        unselectedItemColor: const Color(0xffc30020),
-        selectedLabelStyle: const TextStyle(
-          fontSize: 11,
-        ),
-        unselectedLabelStyle: const TextStyle(
-          fontSize: 11,
-        ),
-        showUnselectedLabels: true,
-        type: BottomNavigationBarType.fixed,
       ),
     );
   }
