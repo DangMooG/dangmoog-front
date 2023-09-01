@@ -24,9 +24,10 @@ AppBar _postListAppbar() {
       child: const Text(
         'DOTORIT',
         style: TextStyle(
-            color: Color(0xFFC30020),
-            fontSize: 24,
-            fontWeight: FontWeight.bold),
+          color: Color(0xFFE20529),
+          fontSize: 24,
+          fontWeight: FontWeight.w600,
+        ),
       ),
     ),
     actions: [
@@ -41,58 +42,50 @@ AppBar _postListAppbar() {
             Icons.notifications_none,
             size: 26,
           ),
-          color: const Color(0xFFA07272),
+          color: const Color(0xFF302E2E),
         ),
       ),
     ],
-    bottom: PreferredSize(
-      preferredSize: const Size.fromHeight(0.0),
-      child: Container(
-        color: const Color(0xFFA07272),
-        height: 2.0,
-      ),
-    ),
+    bottom: appBarBottomLine(),
   );
 }
 
 AppBar _chatListAppbar() {
   return AppBar(
     backgroundColor: Colors.white,
-    title: const Text(
-      "채팅 내역",
-      style: TextStyle(
-        color: Color(0xff552619),
-        fontSize: 19,
-        fontWeight: FontWeight.bold,
-      ),
-    ),
-    bottom: PreferredSize(
-      preferredSize: const Size.fromHeight(0.0),
-      child: Container(
-        color: const Color(0xFFA07272),
-        height: 2.0,
-      ),
-    ),
+    title: appBarTitle("채팅 내역"),
+    bottom: appBarBottomLine(),
   );
 }
 
 AppBar _myPageAppbar() {
   return AppBar(
     backgroundColor: Colors.white,
-    title: const Text(
-      "마이 도토릿",
-      style: TextStyle(
-        color: Color(0xff552619),
-        fontSize: 19,
-        fontWeight: FontWeight.bold,
-      ),
+    title: appBarTitle("마이 도토릿"),
+    bottom: appBarBottomLine(),
+  );
+}
+
+Text appBarTitle(String title) {
+  return Text(
+    title,
+    style: const TextStyle(
+      color: Color(0xff302E2E),
+      fontSize: 18,
+      fontWeight: FontWeight.w600,
     ),
-    bottom: PreferredSize(
-      preferredSize: const Size.fromHeight(0.0),
-      child: Container(
-        color: const Color(0xFFA07272),
-        height: 2.0,
-      ),
+  );
+}
+
+PreferredSize appBarBottomLine() {
+  return const PreferredSize(
+    preferredSize: Size.fromHeight(0.0),
+    child: Divider(
+      color: Color(0xFFBEBCBC),
+      height: 1,
+      thickness: 1,
+      indent: 0,
+      endIndent: 0,
     ),
   );
 }
