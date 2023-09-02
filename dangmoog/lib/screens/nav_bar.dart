@@ -16,15 +16,13 @@ class MainNavigationBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: const BoxDecoration(
-        boxShadow: [
-          BoxShadow(
-            color: Color.fromARGB(96, 22, 21, 21),
-            spreadRadius: 1,
-            blurRadius: 8,
+        border: Border(
+          top: BorderSide(
+            color: Color(
+              0xffBEBCBC,
+            ),
+            width: 0.5,
           ),
-        ],
-        borderRadius: BorderRadius.vertical(
-          top: Radius.circular(10.0),
         ),
       ),
       child: BottomNavigationBar(
