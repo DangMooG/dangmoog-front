@@ -1,25 +1,25 @@
 // /models/product_class.dart
 
-
 import 'package:flutter/material.dart';
 
-class Product extends ChangeNotifier{
-  final String id;
+class ProductModel extends ChangeNotifier {
+  final int postId;
   final String title;
   final String description;
-  final double price;
-  final List<String> images;
+  final int price;
+  final List<dynamic> images;
   final String category;
   final DateTime uploadTime;
   final String saleMethod;
-  final String user;
-  int viewCount;
-  int likes;
+  final String userName;
+  final String dealStatus;
+  final int viewCount;
+  final int chatCount;
+  final int likeCount;
   bool _isFavorited;
 
-  Product({
-
-    required this.id,
+  ProductModel({
+    required this.postId,
     required this.title,
     required this.description,
     required this.price,
@@ -27,11 +27,13 @@ class Product extends ChangeNotifier{
     required this.category,
     required this.uploadTime,
     required this.saleMethod,
-    required this.user, //id 도 만들기
-    this.viewCount = 0,
-    bool?isFavorited,
-    this.likes = 0,
-  }): _isFavorited = isFavorited ?? false;
+    required this.userName,
+    required this.dealStatus,
+    required this.viewCount,
+    required this.chatCount,
+    required this.likeCount,
+    bool? isFavorited,
+  }) : _isFavorited = isFavorited ?? false;
 
   bool get isFavorited => _isFavorited;
 
@@ -40,6 +42,3 @@ class Product extends ChangeNotifier{
     notifyListeners();
   }
 }
-
-
-
