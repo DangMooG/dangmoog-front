@@ -51,7 +51,7 @@ class _WelcomePageState extends State<WelcomePage> {
                   style: TextStyle(
                     color: Color(0xFF552619),
                     fontFamily: 'Pretendard-Regular',
-                    fontSize: 20,
+                    fontSize: 24,
                     fontWeight: FontWeight.w600,
                     height: 1.35,
                   ),
@@ -110,8 +110,7 @@ class _WelcomePageState extends State<WelcomePage> {
                 ),
                 SizedBox(height: screenSize.height * 0.02),
                 Row(
-                  mainAxisAlignment:
-                      MainAxisAlignment.center, // Row를 수평 방향으로 중앙 정렬
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     const Text(
                       '이미 계정이 있나요?',
