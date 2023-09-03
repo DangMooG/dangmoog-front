@@ -6,6 +6,8 @@ import 'package:flutter/services.dart';
 import 'package:dangmoog/models/product_class.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 
+import 'package:dangmoog/utils/convert_money_format.dart';
+
 Future<ProductModel> _loadProductFromAsset() async {
   final String jsonString =
       await rootBundle.loadString('assets/product_detail.json');
@@ -63,7 +65,6 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
             return const Center(child: Text('Error loading products!'));
           }
           return _buildProductDetail(snapshot.data!);
-          // return ProductList(productList: snapshot.data!);
         } else {
           return const Center(child: CircularProgressIndicator());
         }
@@ -84,25 +85,17 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
         children: <Widget>[
           SizedBox(
             child: Stack(
+              alignment: Alignment.bottomCenter,
               children: [
                 sliderWidget(product),
-                Positioned(
-                  bottom: 0,
-                  left: 0,
-                  right: 0,
-                  child: sliderIndicator(product),
-                ),
+                sliderIndicator(product),
               ],
             ),
           ),
-          _buildTopInfoRow(context, product),
-          _buildProductInformation(product),
+          productInfo(product),
         ],
       ),
-      bottomNavigationBar: Padding(
-        padding: const EdgeInsets.only(bottom: 16.0, right: 16.0),
-        child: _buildChatButton(product),
-      ),
+      bottomNavigationBar: _buildChatButton(product),
     );
 
     // return ChangeNotifierProvider<ProductModel>.value(
@@ -132,7 +125,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
     //                 ],
     //               ),
     //             ),
-    //             _buildTopInfoRow(context, product),
+    //             _buildProductLikeChatCount(context, product),
     //             _buildProductInformation(product),
     //           ],
     //         ),
@@ -189,12 +182,16 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
           return GestureDetector(
             onTap: () => _controller.animateToPage(entry.key),
             child: Container(
-              width: 8.0,
-              height: 8.0,
+              width: 9.0,
+              height: 9.0,
               margin:
-                  const EdgeInsets.symmetric(vertical: 10.0, horizontal: 2.0),
+                  const EdgeInsets.symmetric(vertical: 10.0, horizontal: 4.0),
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
+                border: Border.all(
+                  color: const Color(0xffCCBEBA),
+                  width: 0.5,
+                ),
                 color: _current == entry.key
                     ? const Color(0xFFCCBEBA)
                     : const Color(0xFFFFFFFF),
@@ -206,135 +203,280 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
     );
   }
 
-  Widget _buildProductInformation(ProductModel product) {
+  Widget productInfo(ProductModel product) {
     return Padding(
-      padding: const EdgeInsets.all(16.0),
+      padding: const EdgeInsets.all(17),
       child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            _buildProductTitle(product),
-            _buildProductPrice(product),
-            _buildSellerName(product),
-            _buildProductDetails(product),
-            _buildProductDescription(product),
-          ]),
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildProductInformation(product),
+              _buildProductLikeChatCount(product),
+            ],
+          ),
+          _buildProductDescription(product),
+          _buildReportButton(product),
+        ],
+      ),
     );
   }
 
-  Widget _buildTopInfoRow(BuildContext context, ProductModel product) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.end,
-      children: [
-        Padding(
-          padding: const EdgeInsets.only(right: 16.0, top: 8.0),
-          child: Text(
-            '${timeAgo(product.uploadTime)} | ${product.viewCount} 명 읽음 | 좋아요 ${product.likeCount} 개',
+  Widget _buildProductInformation(ProductModel product) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        // 거래 방식 표기
+        Text(
+          product.saleMethod,
+          style: const TextStyle(
+            color: Color(0xffE20529),
+            fontSize: 11,
+            fontWeight: FontWeight.w400,
           ),
         ),
+        _buildProductTitle(product),
+        _buildSellerName(product),
+        _buildProductDetails(product),
+        _buildProductPrice(product),
       ],
     );
   }
 
+  // 좋아요, 채팅 개수 표기
+  Widget _buildProductLikeChatCount(ProductModel product) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.end,
+      children: [
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            const Icon(
+              Icons.favorite_border,
+              color: Color(0xffA19E9E),
+              size: 15,
+            ),
+            const SizedBox(
+              width: 6,
+            ),
+            Text(
+              product.likeCount.toString(),
+              style: const TextStyle(
+                fontWeight: FontWeight.w400,
+                fontSize: 11,
+                color: Color(0xffA19E9E),
+              ),
+            ),
+            const SizedBox(
+              width: 10,
+            ),
+            const Icon(
+              Icons.forum_outlined,
+              color: Color(0xffA19E9E),
+              size: 15,
+            ),
+            const SizedBox(
+              width: 6,
+            ),
+            Text(
+              product.chatCount.toString(),
+              style: const TextStyle(
+                fontWeight: FontWeight.w400,
+                fontSize: 11,
+                color: Color(0xffA19E9E),
+              ),
+            ),
+          ],
+        )
+      ],
+    );
+  }
+
+  // 게시글 제목 표기
   Widget _buildProductTitle(ProductModel product) {
-    return Text(
-      product.title,
-      style: const TextStyle(
+    return Container(
+      margin: const EdgeInsets.only(top: 5),
+      child: Text(
+        product.title,
+        style: const TextStyle(
           fontSize: 18,
-          color: Color(0xff552619),
-          fontFamily: 'Pretendard',
-          fontWeight: FontWeight.bold),
-    );
-  }
-
-  Widget _buildProductPrice(ProductModel product) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4.0),
-      child: Text(
-        '${product.price.toStringAsFixed(2)}원',
-        style: const TextStyle(
-            fontSize: 18,
-            color: Color(0xff552619),
-            fontFamily: 'Pretendard',
-            fontWeight: FontWeight.bold),
+          color: Color(0xff302E2E),
+          fontWeight: FontWeight.w600,
+        ),
       ),
     );
   }
 
+  // 판매자 닉네임 표기
   Widget _buildSellerName(ProductModel product) {
-    return Text(
-      product.userName,
-      style: const TextStyle(
-          fontSize: 13,
-          color: Color(0xffa07272),
-          fontFamily: 'Pretendard',
-          fontWeight: FontWeight.w300),
-    );
-  }
-
-  Widget _buildProductDetails(ProductModel product) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 20.0),
-      child: Text(
-        '${product.category} | ${product.saleMethod} | ${timeAgo(product.uploadTime)}',
-        style: const TextStyle(
-            fontSize: 12,
-            color: Color(0xffa07272),
-            fontFamily: 'Pretendard',
-            fontWeight: FontWeight.w200),
+    return Container(
+      margin: const EdgeInsets.only(top: 5),
+      child: Row(
+        children: [
+          Text(
+            product.userName,
+            style: const TextStyle(
+              fontSize: 14,
+              color: Color(0xff726E6E),
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          const Text(
+            '님',
+            style: TextStyle(
+              fontSize: 14,
+              color: Color(0xff726E6E),
+              fontWeight: FontWeight.w400,
+            ),
+          )
+        ],
       ),
     );
   }
 
+  // 카테고리, 올린 날짜
+  Widget _buildProductDetails(ProductModel product) {
+    return Container(
+      margin: const EdgeInsets.only(top: 4),
+      child: Text(
+        '${product.category} | ${timeAgo(product.uploadTime)}',
+        style: const TextStyle(
+          fontSize: 11,
+          color: Color(0xffA19E9E),
+          fontWeight: FontWeight.w400,
+        ),
+      ),
+    );
+  }
+
+  // 판매 물품 가격 표기
+  Widget _buildProductPrice(ProductModel product) {
+    return Container(
+      margin: const EdgeInsets.only(top: 6),
+      child: product.price != 0
+          ? Text(
+              convertoneyFormat(product.price),
+              style: const TextStyle(
+                fontWeight: FontWeight.w600,
+                fontSize: 18,
+                color: Color(0xFF302E2E),
+              ),
+            )
+          : const Text('나눔 🐿️'),
+    );
+  }
+
+  // 게시글 본문 내용
   Widget _buildProductDescription(ProductModel product) {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
+    return Container(
+      margin: const EdgeInsets.only(
+        top: 28,
+      ),
       child: Text(
         product.description,
         style: const TextStyle(
-            fontSize: 18,
-            color: Color(0xff421E14),
-            fontFamily: 'Pretendard',
-            fontWeight: FontWeight.w200),
+          fontSize: 16,
+          color: Color(0xff302E2E),
+          fontWeight: FontWeight.w400,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildReportButton(ProductModel product) {
+    return Container(
+      margin: const EdgeInsets.only(
+        top: 8,
+      ),
+      child: InkWell(
+        onTap: () {},
+        child: const Text(
+          '신고하기',
+          style: TextStyle(
+            color: Color(0xff726E6E),
+            fontSize: 11,
+            fontWeight: FontWeight.w400,
+            decoration: TextDecoration.underline,
+            decorationColor: Color(0xff726E6E),
+          ),
+        ),
       ),
     );
   }
 
   Widget _buildChatButton(ProductModel product) {
-    return Row(
-      children: [
-        Padding(
-          padding: const EdgeInsets.only(right: 8.0),
-          child: IconButton(
-            icon: Icon(
-              product.isFavorited ? Icons.favorite : Icons.favorite_border,
+    return Container(
+      height: 85,
+      padding: const EdgeInsets.only(top: 14, bottom: 24),
+      decoration: const BoxDecoration(
+        border: Border(
+          top: BorderSide(
+            color: Color(
+              0xffBEBCBC,
             ),
-            color: Colors.red,
-            onPressed: () {
-              // product.isFavorited = !product.isFavorited;
-              // product.notifyListeners();
-            },
+            width: 0.5,
           ),
         ),
-        Expanded(
-          child: ElevatedButton(
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            margin: const EdgeInsets.only(right: 25),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Material(
+                  child: GestureDetector(
+                    // borderRadius: BorderRadius.circular(20), // 물린 효과의 모서리를 둥글게
+                    // radius: 60.0,
+                    onTap: () {
+                      product.isFavorited = !product.isFavorited;
+                      product.notifyListeners();
+                    },
+                    child: Icon(
+                      product.isFavorited
+                          ? Icons.favorite
+                          : Icons.favorite_border,
+                      color: const Color(0xffE20529),
+                      size: 30,
+                    ),
+                  ),
+                ),
+                Text(
+                  "${product.likeCount}",
+                  style: const TextStyle(
+                    color: Color(0xffE20529),
+                    fontSize: 11,
+                    fontWeight: FontWeight.w400,
+                  ),
+                )
+              ],
+            ),
+          ),
+          ElevatedButton(
             onPressed: () {
               // handle chat logic
             },
             style: ButtonStyle(
                 backgroundColor:
-                    MaterialStateProperty.all<Color>(const Color(0xFFC30020)),
-                minimumSize: MaterialStateProperty.all<Size>(
-                    const Size(double.infinity, 50)),
+                    MaterialStateProperty.all<Color>(const Color(0xFFE20529)),
+                minimumSize:
+                    MaterialStateProperty.all<Size>(const Size(269, 46)),
                 shape: MaterialStateProperty.all<RoundedRectangleBorder>(
                     RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(9.0)))),
+                        borderRadius: BorderRadius.circular(12)))),
             child: const Text(
-              '바로 채팅하기',
+              '채팅하기',
               style: TextStyle(color: Color(0xFFFFFFFF)),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 

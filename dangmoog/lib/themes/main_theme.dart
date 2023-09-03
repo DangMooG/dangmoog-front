@@ -5,6 +5,7 @@ ThemeData mainThemeData() {
     useMaterial3: true,
     brightness: Brightness.light,
     primaryColor: const Color(0xFFE20529),
+    scaffoldBackgroundColor: Colors.white,
     fontFamily: 'Pretendard',
     // textTheme: const TextTheme(
     //   displayLarge: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),

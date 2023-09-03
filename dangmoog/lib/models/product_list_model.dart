@@ -9,7 +9,7 @@ class ProductListModel extends ChangeNotifier {
   final DateTime uploadTime;
   final String saleMethod;
   final String userName;
-  final String dealStatus;
+  final int dealStatus;
   final int viewCount;
   final int chatCount;
   final int likeCount;
