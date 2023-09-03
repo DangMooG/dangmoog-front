@@ -21,7 +21,10 @@ class _MyHomeState extends State<MyHome> {
     const MainPage(), // Post List Page
     const TempPage(), // home page (추후 업데이트를 위한 여유 페이지)
     const ChatList(), // Chat List Page
-    const MyPage() // MyPage
+    const MyPage(
+      nickname: '',
+      email: '',
+    ) // MyPage
   ];
 
   @override

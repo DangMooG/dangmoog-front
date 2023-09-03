@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-
-// import 'package:dangmoog/screens/home.dart';
 import 'package:dangmoog/screens/auth/welcome.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -29,6 +27,7 @@ class _SplashScreenState extends State<SplashScreen> {
   Widget build(BuildContext context) {
     Size screenSize = MediaQuery.of(context).size;
     return Scaffold(
+      resizeToAvoidBottomInset : false,
         body: Column(
       mainAxisAlignment: MainAxisAlignment.start,
       children: [

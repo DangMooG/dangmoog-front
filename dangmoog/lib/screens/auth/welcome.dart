@@ -1,5 +1,7 @@
+import 'package:dangmoog/screens/auth/login.dart';
 import 'package:flutter/material.dart';
 import 'package:dangmoog/screens/auth/signup.dart';
+import 'package:dangmoog/widgets/auth_button.dart';
 
 class WelcomePage extends StatefulWidget {
   const WelcomePage({super.key});
@@ -35,15 +37,14 @@ class _WelcomePageState extends State<WelcomePage> {
           double value = snapshot.data!;
           Size screenSize = MediaQuery.of(context).size;
           return Scaffold(
+            resizeToAvoidBottomInset: false,
             body: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 SizedBox(height: screenSize.height * 0.26),
-                Container(
-                  child: Image.asset(
-                    'assets/images/dotorit_welcome.png',
-                    width: screenSize.width * 0.31,
-                  ),
+                Image.asset(
+                  'assets/images/dotorit_welcome.png',
+                  width: screenSize.width * 0.31,
                 ),
                 SizedBox(height: screenSize.height * 0.02),
                 const Text(
@@ -78,7 +79,9 @@ class _WelcomePageState extends State<WelcomePage> {
                   ),
                 ),
                 SizedBox(height: screenSize.height * 0.208),
-                ElevatedButton(
+                AuthButton(
+                  text: '시작하기',
+                  color: Color(0xFFE20529),
                   onPressed: () {
                     Navigator.push(
                       context,
@@ -87,26 +90,6 @@ class _WelcomePageState extends State<WelcomePage> {
                               const SignupPage()), // LoginPage로 이동합니다.
                     );
                   },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFFC30020),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  child: Container(
-                    width: screenSize.width * 0.81,
-                    height: screenSize.height * 0.056,
-                    alignment: Alignment.center,
-                    child: const Text(
-                      '시작하기',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontFamily: 'Pretendard-Medium',
-                        fontSize: 13,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ),
                 ),
                 SizedBox(height: screenSize.height * 0.02),
                 Row(
@@ -125,7 +108,12 @@ class _WelcomePageState extends State<WelcomePage> {
                     ),
                     TextButton(
                       onPressed: () {
-                        print("시작하기 버튼이 눌렸습니다.");
+                        Navigator.pushAndRemoveUntil(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const LoginPage()),
+                          (route) => false,
+                        );
                       },
                       child: Container(
                         alignment: Alignment.center,

@@ -1,19 +1,19 @@
 import 'dart:async';
-import 'package:dangmoog/screens/auth/nickname.dart';
+import 'package:dangmoog/screens/home.dart';
 import 'package:dangmoog/widgets/auth_button.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:dangmoog/providers/provider.dart';
 import 'package:flutter/services.dart';
 
-class SignupPage extends StatefulWidget {
-  const SignupPage({super.key});
+class LoginPage extends StatefulWidget {
+  const LoginPage({super.key});
 
   @override
-  _SignupPageState createState() => _SignupPageState();
+  _LoginPageState createState() => _LoginPageState();
 }
 
-class _SignupPageState extends State<SignupPage> {
+class _LoginPageState extends State<LoginPage> {
   bool isToggled = false;
   String email = '';
   String number = '';
@@ -121,9 +121,9 @@ class _SignupPageState extends State<SignupPage> {
           SizedBox(height: screenSize.height * 0.13),
           Padding(
             padding: EdgeInsets.fromLTRB(
-                screenSize.width * 0.04, 0, screenSize.width * 0.1, 0),
+                screenSize.width * 0.04, 0, screenSize.width * 0.15, 0),
             child: const Text(
-              '안녕하세요!\nGIST 이메일로 간편가입해주세요!',
+              '안녕하세요!\nGIST 이메일로 로그인해주세요!',
               style: TextStyle(
                 color: Color(0xFF552619),
                 fontFamily: 'Pretendard-SemiBold',
@@ -148,7 +148,7 @@ class _SignupPageState extends State<SignupPage> {
               ),
             ),
           ),
-          SizedBox(height: screenSize.height * 0.02),
+          SizedBox(height: screenSize.height * 0.024),
           SizedBox(
             width: screenSize.width,
             height: screenSize.height * 0.58,
@@ -164,22 +164,27 @@ class _SignupPageState extends State<SignupPage> {
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          Expanded(
-                            child: TextField(
-                              controller: emailController,
-                              onChanged: onEmailChanged,
-                              maxLength: null,
-                              decoration: const InputDecoration(
-                                border: InputBorder.none,
-                                hintText: 'GIST 이메일 입력',
-                                hintStyle: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w400,
-                                    fontFamily: 'Pretendard-Regular',
-                                    color: Color(0xFFCCBEBA)),
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(8, 16, 0, 0),
+                            child: SizedBox(
+                              width: screenSize.width * 0.59,
+                              height: screenSize.height * 0.034,
+                              child: TextField(
+                                controller: emailController,
+                                onChanged: onEmailChanged,
+                                decoration: const InputDecoration(
+                                  border: InputBorder.none,
+                                  hintText: 'GIST 이메일 입력',
+                                  hintStyle: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w400,
+                                      fontFamily: 'Pretendard-Regular',
+                                      color: Color(0xFFCCBEBA)),
+                                ),
                               ),
                             ),
                           ),
+                          SizedBox(width: screenSize.width * 0.04),
                           ElevatedButton(
                             onPressed: () {
                               if (isEmailValid(email)) {
@@ -262,8 +267,7 @@ class _SignupPageState extends State<SignupPage> {
                                     keyboardType: TextInputType.number,
                                     inputFormatters: [
                                       FilteringTextInputFormatter.allow(
-                                          RegExp(r'[0-9]')),
-                                      LengthLimitingTextInputFormatter(6),
+                                          RegExp(r'[0-9]'))
                                     ],
                                     decoration: const InputDecoration(
                                       border: InputBorder.none,
@@ -323,15 +327,15 @@ class _SignupPageState extends State<SignupPage> {
                 Column(
                   children: [
                     AuthButton(
-                      text: '인증',
+                      text: '로그인',
                       color: _isButton2Pressed
-                          ? const Color(0xFFC30020)
+                          ? const Color(0xFFE20529)
                           : const Color(0xFFDADADA),
                       onPressed: () {
                         Navigator.pushAndRemoveUntil(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => const NicknamePage()),
+                              builder: (context) => const MyHome()),
                           (route) => false,
                         );
                       },
