@@ -3,8 +3,20 @@ import 'package:flutter/material.dart';
 import 'package:dangmoog/constants/mock_data/chat_detail_mock.dart';
 import 'package:dangmoog/models/chat_cell_class.dart';
 import 'package:dangmoog/screens/chat/chat_detail_cell.dart';
+import 'package:dangmoog/models/chat_detail_model.dart';
 
 import 'dart:math';
+import 'package:intl/intl.dart';
+import 'dart:convert';
+import 'package:flutter/services.dart';
+
+Future<ChatDetailModel> _loadChatDetailFromAsset(String url) async {
+  final String jsonChatDetail = await rootBundle.loadString(url);
+  final Map<String, dynamic> jsonChatDetailResponse =
+      json.decode(jsonChatDetail);
+
+  return ChatDetailModel.fromJson(jsonChatDetailResponse);
+}
 
 class ChatDetail extends StatefulWidget {
   const ChatDetail({super.key});
@@ -15,7 +27,11 @@ class ChatDetail extends StatefulWidget {
 
 class _ChatDetailState extends State<ChatDetail> {
   late List<ChatCell> _chatDetail = <ChatCell>[];
+
+  late Future<ChatDetailModel> _chatDetail2;
+
   final TextEditingController _textController = TextEditingController();
+  final ScrollController _scrollController = ScrollController();
 
   bool _isOptionOn = false;
   bool _isKeyboardOn = false;
@@ -57,64 +73,97 @@ class _ChatDetailState extends State<ChatDetail> {
     setState(() {
       _chatDetail = convertMockToChatDetail(chatDetailMock);
     });
+
+    _chatDetail2 = _loadChatDetailFromAsset('assets/chat_detail.json');
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: _buildChatDetailAppBar('상대 닉네임'),
+      appBar: _buildChatDetailAppBar(_chatDetail2),
       body: Center(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            _buildChatProductInfo(
-                'assets/images/temp_product_img.png', '게시글 제목', 30000),
+            _buildChatProductInfo(_chatDetail2),
             Expanded(
               child: GestureDetector(
                 onTap: unFocusKeyBoard,
                 child: Expanded(
                   child: Column(
                     children: <Widget>[
-                      Flexible(
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 10),
-                          child: ListView.builder(
-                            padding: const EdgeInsets.all(8.0),
-                            reverse: true,
-                            itemBuilder: (_, index) {
-                              if (_chatDetail.isNotEmpty) {
-                                final chatDetailItem = _chatDetail[index];
-
-                                // 전 cell과 같은 user인지
-                                var omit = false;
-                                if (index != _chatDetail.length - 1) {
-                                  if (_chatDetail[index + 1].me ==
-                                      chatDetailItem.me) {
-                                    omit = true;
-                                  }
-                                }
-
-                                return ChatMessage(
-                                  text: chatDetailItem.text,
-                                  me: chatDetailItem.me,
-                                  omit: omit,
+                      _buildChatContents(),
+                      Stack(
+                        clipBehavior: Clip.none,
+                        children: [
+                          _buildInputField(),
+                          Positioned(
+                            right: 15,
+                            top: -60,
+                            child: FloatingActionButton(
+                              onPressed: () {
+                                _scrollController.animateTo(
+                                  _scrollController.position.minScrollExtent,
+                                  duration: const Duration(milliseconds: 300),
+                                  curve: Curves.easeOut,
                                 );
-                              }
-                              return Container();
-                            },
-                            itemCount: _chatDetail.isNotEmpty
-                                ? _chatDetail.length
-                                : 1, // 비어 있을 경우 하나의 빈 아이템을 가진 리스트를 만듭니다.
-                          ),
-                        ),
-                      ),
-                      _buildInputField(),
+                              },
+                              mini: true,
+                              elevation: 0,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(50),
+                              ),
+                              backgroundColor: const Color(0xFFCCBEBA),
+                              child: const Icon(
+                                Icons.arrow_downward,
+                                color: Colors.white,
+                              ),
+                            ),
+                          )
+                        ],
+                      )
                     ],
                   ),
                 ),
               ),
             )
           ],
+        ),
+      ),
+    );
+  }
+
+  Flexible _buildChatContents() {
+    return Flexible(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 10),
+        child: ListView.builder(
+          padding: const EdgeInsets.all(8.0),
+          reverse: true,
+          controller: _scrollController,
+          itemBuilder: (_, index) {
+            if (_chatDetail.isNotEmpty) {
+              final chatDetailItem = _chatDetail[index];
+
+              // 전 cell과 같은 user인지
+              var omit = false;
+              if (index != _chatDetail.length - 1) {
+                if (_chatDetail[index + 1].me == chatDetailItem.me) {
+                  omit = true;
+                }
+              }
+
+              return ChatMessage(
+                text: chatDetailItem.text,
+                me: chatDetailItem.me,
+                omit: omit,
+              );
+            }
+            return Container();
+          },
+          itemCount: _chatDetail.isNotEmpty
+              ? _chatDetail.length
+              : 1, // 비어 있을 경우 하나의 빈 아이템을 가진 리스트를 만듭니다.
         ),
       ),
     );
@@ -171,7 +220,7 @@ class _ChatDetailState extends State<ChatDetail> {
                         }
                       },
                       icon: Transform.rotate(
-                        angle: _isOptionOn ? 45 * (pi / 180) : 0,
+                        angle: _isOptionOn ? (pi / 4) : 0,
                         child: const Icon(
                           Icons.add_circle_outline,
                           color: Color(0xFFA07272),
@@ -246,7 +295,7 @@ class _ChatDetailState extends State<ChatDetail> {
   Widget _buildAdditionalWidget() {
     return AnimatedContainer(
       height: _isOptionOn ? 250.0 : 0,
-      duration: const Duration(milliseconds: 300),
+      duration: const Duration(milliseconds: 0),
       curve: Curves.ease,
       color: Colors.white,
       child: Center(
@@ -337,11 +386,25 @@ class _ChatDetailState extends State<ChatDetail> {
   }
 }
 
-AppBar _buildChatDetailAppBar(String nickName) {
+// AppBar
+AppBar _buildChatDetailAppBar(Future<ChatDetailModel> futureChatDetail) {
   return AppBar(
-    title: Text(
-      nickName,
-      style: const TextStyle(color: Color(0xFF552619)),
+    title: FutureBuilder<ChatDetailModel>(
+      future: futureChatDetail,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.done) {
+          if (snapshot.hasError) {
+            return const Center(
+              child: Text('Error loading chat list!'),
+            );
+          }
+          return Text(
+            snapshot.data!.chatInfo.userNickName,
+            style: const TextStyle(color: Color(0xFF552619)),
+          );
+        }
+        return const Center(child: CircularProgressIndicator());
+      },
     ),
     backgroundColor: Colors.white,
     shape: const Border(
@@ -353,8 +416,8 @@ AppBar _buildChatDetailAppBar(String nickName) {
   );
 }
 
-Container _buildChatProductInfo(
-    String imgUrl, String postTitle, int productPrice) {
+// ProductInfo
+Container _buildChatProductInfo(Future<ChatDetailModel> futureChatDetail) {
   return Container(
     decoration: const BoxDecoration(
         border: Border(
@@ -367,42 +430,207 @@ Container _buildChatProductInfo(
       horizontal: 20,
       vertical: 12,
     ),
-    child: Row(
-      children: [
-        const Padding(
-          padding: EdgeInsets.only(right: 8),
-          child: Image(
-            image: AssetImage('assets/images/temp_product_img.png'),
-            width: 48,
-          ),
-        ),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Row(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.only(right: 10),
-                  child: Container(
-                    padding: const EdgeInsets.all(3),
-                    decoration: BoxDecoration(border: Border.all(width: 1)),
-                    child: const Text('거래상태'), // 공통 widget으로 교체 예정
-                  ),
+    child: FutureBuilder<ChatDetailModel>(
+      future: futureChatDetail,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.done) {
+          if (snapshot.hasError) {
+            return const Center(
+              child: Text('Error loading chat list!'),
+            );
+          }
+          return Row(
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(right: 8),
+                child: Image(
+                  image: AssetImage(snapshot.data!.chatInfo.productPhotoUrl),
+                  width: 48,
                 ),
-                const Text(
-                  '게시글 제목',
-                  style: TextStyle(color: Color(0xFF552619)),
-                )
-              ],
-            ),
-            const Text(
-              '제품 가격',
-              style: TextStyle(color: Color(0xFF552619)),
-            ),
-          ],
-        ),
-      ],
+              ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(right: 10),
+                        child: Container(
+                          padding: const EdgeInsets.all(3),
+                          decoration:
+                              BoxDecoration(border: Border.all(width: 1)),
+                          child: const Text('거래상태'), // 공통 widget으로 교체 예정
+                        ),
+                      ),
+                      Text(
+                        snapshot.data!.chatInfo.postTitle,
+                        style: const TextStyle(
+                          color: Color(0xFF552619),
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      )
+                    ],
+                  ),
+                  Text(
+                    NumberFormat('###,###,###원', 'ko_KR')
+                        .format(snapshot.data!.chatInfo.productPrice),
+                    style: const TextStyle(
+                      color: Color(0xFF552619),
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          );
+        }
+        return const Center(child: CircularProgressIndicator());
+      },
     ),
   );
 }
+    
+
+// Container _buildChatProductInfo(
+//     String imgUrl, String postTitle, int productPrice) {
+//   return Container(
+//     decoration: const BoxDecoration(
+//         border: Border(
+//             bottom: BorderSide(
+//                 width: 1,
+//                 color: Color(
+//                   0xFFCCBEBA,
+//                 )))),
+//     padding: const EdgeInsets.symmetric(
+//       horizontal: 20,
+//       vertical: 12,
+//     ),
+//     child: Row(
+//       children: [
+//         const Padding(
+//           padding: EdgeInsets.only(right: 8),
+//           child: Image(
+//             image: AssetImage('assets/images/temp_product_img.png'),
+//             width: 48,
+//           ),
+//         ),
+//         Column(
+//           crossAxisAlignment: CrossAxisAlignment.start,
+//           mainAxisAlignment: MainAxisAlignment.spaceBetween,
+//           children: [
+//             Row(
+//               children: [
+//                 Padding(
+//                   padding: const EdgeInsets.only(right: 10),
+//                   child: Container(
+//                     padding: const EdgeInsets.all(3),
+//                     decoration: BoxDecoration(border: Border.all(width: 1)),
+//                     child: const Text('거래상태'), // 공통 widget으로 교체 예정
+//                   ),
+//                 ),
+//                 const Text(
+//                   '게시글 제목',
+//                   style: TextStyle(color: Color(0xFF552619)),
+//                 )
+//               ],
+//             ),
+//             const Text(
+//               '제품 가격',
+//               style: TextStyle(color: Color(0xFF552619)),
+//             ),
+//           ],
+//         ),
+//       ],
+//     ),
+//   );
+// }
+
+
+
+
+
+
+// AppBar _buildChatDetailAppBar(String nickName) {
+//   return AppBar(
+//     title: Text(
+//       nickName,
+//       style: const TextStyle(color: Color(0xFF552619)),
+//     ),
+//     backgroundColor: Colors.white,
+//     shape: const Border(
+//       bottom: BorderSide(
+//         color: Color(0xFFA07272),
+//         width: 1,
+//       ),
+//     ),
+//   );
+// }
+
+
+
+
+// Widget build(BuildContext context) {
+//     return Scaffold(
+//       // appBar: _buildChatDetailAppBar('상대 닉네임'),
+//       appBar: _buildChatDetailAppBar(_chatInfo.userNickName),
+//       body: Center(
+//         child: Column(
+//           crossAxisAlignment: CrossAxisAlignment.center,
+//           children: [
+//             // _buildChatProductInfo(
+//             // 'assets/images/temp_product_img.png', '게시글 제목', 30000), 
+//             _buildChatProductInfo(_chatInfo.productPhotoUrl,
+//                 _chatInfo.postTitle, _chatInfo.productPrice),
+//             Expanded(
+//               child: GestureDetector(
+//                 onTap: unFocusKeyBoard,
+//                 child: Expanded(
+//                   child: Column(
+//                     children: <Widget>[
+//                       Flexible(
+//                         child: Padding(
+//                           padding: const EdgeInsets.symmetric(horizontal: 10),
+//                           child: ListView.builder(
+//                             padding: const EdgeInsets.all(8.0),
+//                             reverse: true,
+//                             itemBuilder: (_, index) {
+//                               if (_chatDetail.isNotEmpty) {
+//                                 final chatDetailItem = _chatDetail[index];
+
+//                                 // 전 cell과 같은 user인지
+//                                 var omit = false;
+//                                 if (index != _chatDetail.length - 1) {
+//                                   if (_chatDetail[index + 1].me ==
+//                                       chatDetailItem.me) {
+//                                     omit = true;
+//                                   }
+//                                 }
+
+//                                 return ChatMessage(
+//                                   text: chatDetailItem.text,
+//                                   me: chatDetailItem.me,
+//                                   omit: omit,
+//                                 );
+//                               }
+//                               return Container();
+//                             },
+//                             itemCount: _chatDetail.isNotEmpty
+//                                 ? _chatDetail.length
+//                                 : 1, // 비어 있을 경우 하나의 빈 아이템을 가진 리스트를 만듭니다.
+//                           ),
+//                         ),
+//                       ),
+//                       _buildInputField(),
+//                     ],
+//                   ),
+//                 ),
+//               ),
+//             )
+//           ],
+//         ),
+//       ),
+//     );
+//   }

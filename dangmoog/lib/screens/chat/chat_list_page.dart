@@ -112,11 +112,11 @@ class ChatSelectionButton extends StatelessWidget {
     required this.onBuyPressed,
   });
 
-  final Color activeButtonColor = const Color(0xFF552619);
+  final Color activeButtonColor = const Color(0xFFE20529);
   final Color activeTextColor = Colors.white;
 
   final Color deActiveButtonColor = Colors.white;
-  final Color deActiveTextColor = const Color(0xFF552619);
+  final Color deActiveTextColor = const Color(0xFFE20529);
 
   @override
   Widget build(BuildContext context) {
@@ -141,7 +141,7 @@ class ChatSelectionButton extends StatelessWidget {
                   ),
                 ),
                 side: const BorderSide(
-                  color: Color(0xFF552619),
+                  color: Color(0xFFE20529),
                   width: 1.0,
                 ),
               ),
@@ -172,7 +172,7 @@ class ChatSelectionButton extends StatelessWidget {
                   ),
                 ),
                 side: const BorderSide(
-                  color: Color(0xFF552619),
+                  color: Color(0xFFE20529),
                   width: 1.0,
                 ),
               ),
@@ -234,7 +234,7 @@ class ChatListView extends StatelessWidget {
         },
         separatorBuilder: (context, _) {
           return const Divider(
-            color: Color(0xFFCCBEBA),
+            color: Color(0xFFD3D2D2),
           );
         });
   }
