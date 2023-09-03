@@ -1,29 +1,26 @@
-// /models/product_class.dart
-
 import 'package:flutter/material.dart';
 
-class ProductModel extends ChangeNotifier {
+class ProductListModel extends ChangeNotifier {
   final int postId;
   final String title;
-  final String description;
   final int price;
-  final List<dynamic> images;
+  final String image;
   final String category;
   final DateTime uploadTime;
   final String saleMethod;
   final String userName;
-  final String dealStatus;
+  final int dealStatus;
   final int viewCount;
   final int chatCount;
   final int likeCount;
+
   bool _isFavorited;
 
-  ProductModel({
+  ProductListModel({
     required this.postId,
     required this.title,
-    required this.description,
     required this.price,
-    required this.images,
+    required this.image,
     required this.category,
     required this.uploadTime,
     required this.saleMethod,

@@ -74,7 +74,7 @@ class CellBox extends StatelessWidget {
       constraints: const BoxConstraints(
         maxWidth: 220,
       ),
-      padding: const EdgeInsets.only(top: 9, bottom: 9, left: 12, right: 12),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
           color: me ? const Color(0xFF552619) : const Color(0xFFCCBEBA),
           borderRadius: const BorderRadius.all(Radius.circular(16))),

@@ -29,20 +29,17 @@ class _SplashScreenState extends State<SplashScreen> {
   Widget build(BuildContext context) {
     Size screenSize = MediaQuery.of(context).size;
     return Scaffold(
-        body: Column(
-      mainAxisAlignment: MainAxisAlignment.start,
-      children: [
-        SizedBox(height: screenSize.height * 0.24),
-        Padding(
-          padding: EdgeInsets.only(left: screenSize.width * 0.21),
-          child: Container(
-            child: Image.asset(
-              'assets/images/dotorit_loading.png',
-              width: screenSize.width * 0.54,
-            ),
+        body: Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          SizedBox(height: screenSize.height * 0.24),
+          Image.asset(
+            'assets/images/loading_logo.png',
+            width: screenSize.width * 0.57,
           ),
-        ),
-      ],
+        ],
+      ),
     ));
   }
 }

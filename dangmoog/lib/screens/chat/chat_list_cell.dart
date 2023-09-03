@@ -1,5 +1,6 @@
-import 'package:dangmoog/screens/chat/chat_detail.dart';
 import 'package:flutter/material.dart';
+
+import 'package:dangmoog/screens/chat/chat_detail_page.dart';
 
 class ChatCell extends StatefulWidget {
   final String userNickName, lastMsg;
@@ -8,7 +9,6 @@ class ChatCell extends StatefulWidget {
 
   const ChatCell({
     super.key,
-    // required this.cellInfo,
     required this.userNickName,
     required this.lastMsg,
     required this.productId,
@@ -34,14 +34,9 @@ class _ChatCellState extends State<ChatCell> {
         );
       },
       child: Container(
-        padding: const EdgeInsets.all(8),
-        decoration: const BoxDecoration(
-          border: Border(
-            bottom: BorderSide(
-              width: 1,
-              color: Color(0xffCCBEBA),
-            ),
-          ),
+        padding: const EdgeInsets.symmetric(
+          vertical: 4,
+          horizontal: 2,
         ),
         child: SizedBox(
           child: Row(

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'package:dangmoog/themes/main_theme.dart';
+
 import 'package:dangmoog/screens/auth/splash_page.dart';
 
 void main() {
@@ -14,9 +16,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'DangMooG',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        useMaterial3: true,
-      ),
+      theme: mainThemeData(),
       home: const SplashScreen(),
     );
   }
