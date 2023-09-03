@@ -5,7 +5,6 @@ import 'package:provider/provider.dart';
 import 'dart:io';
 
 import 'package:dangmoog/screens/post/detail_page.dart';
-import 'package:dangmoog/screens/addpage/add_page.dart';
 
 import 'package:dangmoog/models/product_list_model.dart';
 
@@ -48,7 +47,7 @@ class _ProductListState extends State<ProductList> {
             PageRouteBuilder(
                 transitionDuration: const Duration(milliseconds: 500),
                 pageBuilder: (context, animation, secondaryAnimation) =>
-                    const UploadProductPage(),
+                    const AddPostPage(),
                 transitionsBuilder:
                     (context, animation, secondaryAnimation, child) {
                   var previousPageOffsetAnimation =
