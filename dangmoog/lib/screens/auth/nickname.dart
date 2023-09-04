@@ -1,5 +1,8 @@
+import 'package:dangmoog/widgets/auth_button.dart';
 import 'package:flutter/material.dart';
 import 'package:dangmoog/screens/home.dart';
+import 'package:provider/provider.dart';
+import 'package:dangmoog/providers/provider.dart';
 
 class NicknamePage extends StatefulWidget {
   const NicknamePage({super.key});
@@ -51,10 +54,20 @@ class _NicknamePageState extends State<NicknamePage> {
     return emailRegExp.hasMatch(nickname);
   }
 
+  final TextEditingController nicknameController = TextEditingController();
+
+  void _login(BuildContext context) {
+    String enteredNickname = nicknameController.text;
+    Provider.of<UserProvider>(context, listen: false)
+        .setNickname(enteredNickname);
+    // 로그인 처리 로직 추가
+  }
+
   @override
   Widget build(BuildContext context) {
     Size screenSize = MediaQuery.of(context).size;
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
@@ -111,6 +124,7 @@ class _NicknamePageState extends State<NicknamePage> {
                               height: screenSize.height * 0.03,
                               alignment: Alignment.center,
                               child: TextField(
+                                controller: nicknameController,
                                 onChanged: onNicknameChanged,
                                 decoration: const InputDecoration(
                                   border: InputBorder.none,
@@ -129,6 +143,9 @@ class _NicknamePageState extends State<NicknamePage> {
                             onPressed: () {
                               if (isNicknameValid(nickname)) {
                                 showVerificationCodeTextField();
+                                Provider.of<UserProvider>(context,
+                                        listen: false)
+                                    .setNickname(nicknameController.text);
                               } else {
                                 setState(() {
                                   errorMessage = '유효한 별명을 입력하세요.';
@@ -190,37 +207,16 @@ class _NicknamePageState extends State<NicknamePage> {
                     ),
                   ],
                 ),
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.pushAndRemoveUntil(
-                      context,
-                      MaterialPageRoute(builder: (context) => const MyHome()),
-                      (route) => false,
-                    );
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFFC30020),
-                    side:
-                        const BorderSide(color: Color(0xFFC30020), width: 1.0),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    fixedSize: Size(
-                        screenSize.width * 0.91, screenSize.height * 0.056),
-                  ),
-                  child: Container(
-                    alignment: Alignment.center,
-                    child: const Text(
-                      '도토릿 시작하기!',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontFamily: 'Pretendard-Medium',
-                        fontSize: 13,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ),
-                ),
+                AuthButton(
+                    text: '도토릿 시작하기!',
+                    color: Color(0xFFE20529),
+                    onPressed: () {
+                      Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute(builder: (context) => const MyHome()),
+                        (route) => false,
+                      );
+                    }),
               ],
             ),
           ),

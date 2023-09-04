@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-
-// import 'package:dangmoog/screens/home.dart';
 import 'package:dangmoog/screens/auth/welcome.dart';
 
 class SplashScreen extends StatefulWidget {

@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 
+import 'package:provider/provider.dart';
+import 'package:dangmoog/providers/provider.dart';
+
 import 'package:dangmoog/themes/main_theme.dart';
 
 import 'package:dangmoog/screens/auth/splash_page.dart';
@@ -13,11 +16,15 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'DangMooG',
-      debugShowCheckedModeBanner: false,
-      theme: mainThemeData(),
-      home: const SplashScreen(),
+    return ChangeNotifierProvider(
+      create: (context) => UserProvider(),
+      child: MaterialApp(
+        title: 'DangMooG',
+        debugShowCheckedModeBanner: false,
+        theme: mainThemeData(),
+        home: const SplashScreen(),
+      ),
+
     );
   }
 }
