@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
+
 import 'package:provider/provider.dart';
 import 'package:dangmoog/providers/provider.dart';
+
+import 'package:dangmoog/themes/main_theme.dart';
+
 import 'package:dangmoog/screens/auth/splash_page.dart';
 
 void main() {
@@ -17,11 +21,10 @@ class MyApp extends StatelessWidget {
       child: MaterialApp(
         title: 'DangMooG',
         debugShowCheckedModeBanner: false,
-        theme: ThemeData(
-          useMaterial3: true,
-        ),
+        theme: mainThemeData(),
         home: const SplashScreen(),
       ),
+
     );
   }
 }
