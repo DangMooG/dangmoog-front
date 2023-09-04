@@ -50,7 +50,7 @@ class _WelcomePageState extends State<WelcomePage> {
                 const Text(
                   'HOUSE 안에서 편하게 거래하자!',
                   style: TextStyle(
-                    color: Color(0xFF552619),
+                    color: Color(0xFF302E2E),
                     fontFamily: 'Pretendard-Regular',
                     fontSize: 20,
                     fontWeight: FontWeight.w600,
@@ -61,7 +61,7 @@ class _WelcomePageState extends State<WelcomePage> {
                 const Text(
                   'GIST 기숙사 내에서의 간편한 중고거래!',
                   style: TextStyle(
-                    color: Color(0xFF552619),
+                    color: Color(0xFF302E2E),
                     fontFamily: 'Pretendard-Regular',
                     fontSize: 16,
                     fontWeight: FontWeight.w400,
@@ -71,7 +71,7 @@ class _WelcomePageState extends State<WelcomePage> {
                 const Text(
                   '지금 가입하고 시작해보세요!',
                   style: TextStyle(
-                    color: Color(0xFF552619),
+                    color: Color(0xFF302E2E),
                     fontFamily: 'Pretendard-SemiBold',
                     fontSize: 16,
                     fontWeight: FontWeight.w400,
