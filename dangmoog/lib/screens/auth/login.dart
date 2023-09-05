@@ -1,10 +1,12 @@
 import 'dart:async';
+import 'package:dangmoog/screens/auth/welcome.dart';
 import 'package:dangmoog/screens/home.dart';
 import 'package:dangmoog/widgets/auth_button.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:dangmoog/providers/provider.dart';
 import 'package:flutter/services.dart';
+import 'package:dangmoog/widgets/back_appbar.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -115,10 +117,12 @@ class _LoginPageState extends State<LoginPage> {
     Size screenSize = MediaQuery.of(context).size;
     return Scaffold(
       resizeToAvoidBottomInset: false,
+      appBar: BackAppBar(
+        MyTargetScreen: WelcomePage(),
+      ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          SizedBox(height: screenSize.height * 0.13),
           Padding(
             padding: EdgeInsets.fromLTRB(
                 screenSize.width * 0.04, 0, screenSize.width * 0.15, 0),
