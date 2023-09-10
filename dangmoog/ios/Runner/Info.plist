@@ -5,7 +5,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
-	<string>Dangmoog</string>
+	<string>Dotorit</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -13,7 +13,7 @@
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
-	<string>dangmoog</string>
+	<string>dotorit</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
@@ -48,11 +48,12 @@
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 
-	<key>NSCameraUsageDescription</key>
-	<string>앱에 사진을 업로드 하려면 DangmooG가 사진 라이브러리에 액세스할 수 있어야 합니다.</string>
-	<key>NSMicrophoneUsageDescription</key>
-	<string>Used to capture audio for image picker plugin</string>
-	<key>NSPhotoLibraryUsageDescription</key>
-	<string>앱에 사진을 업로드 하려면 DangmooG가 사진 라이브러리에 액세스할 수 있어야 합니다.</string>
+	<!-- Permission options for the `camera` group -->
+    <key>NSCameraUsageDescription</key>
+    <string>"Dotorit"의 게시글 사진, 프로필 사진, 채팅 사진 기능을 사용하기 위해선 카메라에 대한 접근 권한이 필요합니다.</string>
+
+	<!-- Permission options for the `photos` group -->
+    <key>NSPhotoLibraryUsageDescription</key>
+	<string>"Dotorit"의 게시글 사진, 프로필 사진, 채팅 사진 기능을 사용하기 위해선 앨범에 대한 접근 권한이 필요합니다.</string>
 </dict>
 </plist>
