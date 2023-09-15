@@ -19,7 +19,7 @@ class MyApp extends StatelessWidget {
     return ChangeNotifierProvider(
       create: (context) => UserProvider(),
       child: MaterialApp(
-        title: 'DangMooG',
+        title: 'Dotorit',
         debugShowCheckedModeBanner: false,
         theme: mainThemeData(),
         home: const SplashScreen(),

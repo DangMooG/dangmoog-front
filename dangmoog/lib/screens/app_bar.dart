@@ -1,21 +1,21 @@
 import 'package:flutter/material.dart';
 
-AppBar mainAppBar(int currentTabIndex) {
+AppBar mainAppBar(int currentTabIndex, BuildContext context) {
   switch (currentTabIndex) {
     case 0:
-      return _postListAppbar();
+      return _postListAppbar(context);
     case 1:
-      return _postListAppbar();
+      return _postListAppbar(context);
     case 2:
       return _chatListAppbar();
     case 3:
       return _myPageAppbar();
     default:
-      return _postListAppbar();
+      return _postListAppbar(context);
   }
 }
 
-AppBar _postListAppbar() {
+AppBar _postListAppbar(BuildContext context) {
   return AppBar(
     backgroundColor: Colors.white,
     leadingWidth: 200,
@@ -37,7 +37,24 @@ AppBar _postListAppbar() {
           right: 10,
         ),
         child: IconButton(
-          onPressed: () {},
+          onPressed: () {
+            showDialog(
+              context: context,
+              barrierDismissible: true,
+              builder: (BuildContext context) {
+                Size screenSize = MediaQuery.of(context).size;
+                return AlertDialog(
+                  content: SizedBox(
+                    width: screenSize.width * 0.74,
+                    height: screenSize.height * 0.08,
+                    child: const Center(
+                      child: Text("서비스 예정입니다"),
+                    ),
+                  ),
+                );
+              },
+            );
+          },
           icon: const Icon(
             Icons.notifications_none,
             size: 26,
