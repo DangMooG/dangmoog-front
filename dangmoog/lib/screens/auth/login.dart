@@ -332,6 +332,7 @@ class _LoginPageState extends State<LoginPage> {
                   children: [
                     AuthButton(
                       text: '로그인',
+                      textcolor: Colors.white,
                       color: _isButton2Pressed
                           ? const Color(0xFFE20529)
                           : const Color(0xFFDADADA),

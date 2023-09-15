@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 import 'package:dangmoog/providers/provider.dart';
 import 'package:flutter/services.dart';
 import 'package:dangmoog/widgets/back_appbar.dart';
+import 'package:dangmoog/widgets/text_with_buttion.dart';
 
 class SignupPage extends StatefulWidget {
   const SignupPage({super.key});
@@ -17,16 +18,18 @@ class SignupPage extends StatefulWidget {
 
 class _SignupPageState extends State<SignupPage> {
   bool isToggled = false;
-  String email = '';
+  // String email = '';
   String number = '';
   String verificationCode = '';
   bool isVerificationCodeVisible = false; // New state variable
   String errorMessage = '';
-  bool _isButton1Pressed = false;
-  bool _isButton2Pressed = false;
-  bool isButtonDisabled = false;
-  bool _isEditingEnabled = true;
+  // bool _isButton1Pressed = false;
+  // bool _isButton2Pressed = false;
+  // bool isButtonDisabled = false;
+  // bool _isEditingEnabled = true;
   bool isContainerVisible = false;
+  bool isEmail = false; // New state variable to track email validity
+
   void toggleButton() {
     setState(() {
       isToggled = !isToggled;
@@ -42,23 +45,6 @@ class _SignupPageState extends State<SignupPage> {
     setState(() {
       isVerificationCodeVisible = true;
     });
-  }
-
-  void onEmailChanged(String value) {
-    setState(() {
-      email = value;
-      errorMessage = ''; // Clear error message when email is changed
-      _updateButtonState();
-    });
-  }
-
-  void _updateButtonState() {
-    bool isValidEmailFormat = isEmailValid(email);
-    if (isValidEmailFormat) {
-      setState(() {
-        _isButton1Pressed = true; // 이메일 형식 맞으면 버튼 색 업데이트
-      });
-    }
   }
 
   void onVerificationCodeChanged(String value) {
@@ -112,13 +98,20 @@ class _SignupPageState extends State<SignupPage> {
     return '$minutes:${seconds.toString().padLeft(2, '0')}';
   }
 
+  void resetTimer() {
+    setState(() {
+      secondsRemaining = 4 * 60;
+      timer?.cancel();
+    });
+  }
+
   final TextEditingController emailController = TextEditingController();
 
-  void _login(BuildContext context) {
-    String enteredEmail = emailController.text;
-    Provider.of<UserProvider>(context, listen: false).setEmail(enteredEmail);
-    // 로그인 처리 로직 추가
-  }
+  // void _login(BuildContext context) {
+  //   String enteredEmail = emailController.text;
+  //   Provider.of<UserProvider>(context, listen: false).setEmail(enteredEmail);
+  //   // 로그인 처리 로직 추가
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -163,7 +156,6 @@ class _SignupPageState extends State<SignupPage> {
           ),
           SizedBox(height: screenSize.height * 0.02),
           SizedBox(
-            width: screenSize.width,
             height: screenSize.height * 0.58,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
@@ -171,100 +163,20 @@ class _SignupPageState extends State<SignupPage> {
               children: [
                 Column(
                   children: [
-                    SizedBox(
-                      width: screenSize.width * 0.91,
-                      height: screenSize.height * 0.044,
-                      child: Row(
-                        //crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          SizedBox(width: screenSize.width * 0.02),
-                          Expanded(
-                            child: TextField(
-                              controller: emailController,
-                              onChanged: onEmailChanged,
-                              readOnly: !_isEditingEnabled,
-                              maxLength: null,
-                              decoration: const InputDecoration(
-                                border: InputBorder.none,
-                                hintText: 'GIST 이메일 입력',
-                                hintStyle: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w400,
-                                    fontFamily: 'Pretendard-Regular',
-                                    color: Color(0xFFA19E9E)),
-                              ),
-                            ),
-                          ),
-                          ElevatedButton(
-                            onPressed: _isEditingEnabled
-                                ? () {
-                                    if (isEmailValid(email)) {
-                                      setState(() {
-                                        _isEditingEnabled = false; // 입력 비활성화
-                                        _isButton2Pressed = true; // 버튼 비활성화
-                                      });
-                                      showVerificationCodeTextField();
-                                      startTimer();
-
-                                      Provider.of<UserProvider>(context,
-                                              listen: false)
-                                          .setEmail(emailController.text);
-                                      //_updateButtonState();
-                                    } else {
-                                      setState(() {
-                                        errorMessage =
-                                            '이메일 양식이 올바르지 않습니다. 다시 입력해주세요.';
-                                      });
-                                    }
-                                  }
-                                : null,
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: _isButton1Pressed
-                                  ? const Color(0xFFE20529)
-                                  : const Color(0xFFD3D2D2),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(6),
-                              ),
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 12, vertical: 4),
-                              minimumSize: Size(screenSize.width * 0.25,
-                                  screenSize.height * 0.034),
-                            ),
-                            child: Container(
-                              child: const Text(
-                                '인증메일 발송',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontFamily: 'Pretendard-Medium',
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
+                    CustomTextFieldButton(
+                      hintText: '이메일을 입력하세요',
+                      error: '이메일 양식이 올바르지 않습니다. 다시 입력해주세요',
+                      onPressed: (email) {
+                        showVerificationCodeTextField();
+                        startTimer();
+                        Provider.of<UserProvider>(context, listen: false)
+                            .setEmail(emailController.text);
+                        // 이메일이 유효한지 확인하고 상태 업데이트
+                      },
+                      resetTimer: () {
+                        resetTimer(); // CustomTextFieldButton을 누를 때 타이머 리셋
+                      },
                     ),
-                    Container(
-                      width: screenSize.width * 0.91,
-                      height: 1,
-                      color: Color(0xFF726E6E),
-                      alignment: Alignment.center,
-                    ),
-                    SizedBox(height: screenSize.height * 0.01),
-                    if (errorMessage
-                        .isNotEmpty) // Show error message if not empty
-                      Padding(
-                        padding: EdgeInsets.fromLTRB(
-                            0, 0, screenSize.width * 0.3, 0),
-                        child: Text(
-                          errorMessage,
-                          style: const TextStyle(
-                            color: Color(0xFFE20529),
-                            fontSize: 11,
-                          ),
-                        ),
-                      ),
                     if (isVerificationCodeVisible) // 메일발송 후
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.center,
@@ -296,6 +208,8 @@ class _SignupPageState extends State<SignupPage> {
                                           fontFamily: 'Pretendard-Regular',
                                           color: Color(0xFFCCBEBA)),
                                     ),
+                                    onChanged:
+                                        onVerificationCodeChanged, // 인증번호 입력 변경 리스너 추가
                                   ),
                                 ),
                               ),
@@ -341,7 +255,6 @@ class _SignupPageState extends State<SignupPage> {
                           isContainerVisible
                               ? Container(
                                   width: screenSize.width * 0.91,
-                                  //height: screenSize.height * 0.15,
                                   decoration: BoxDecoration(
                                       border: Border.all(
                                         color: const Color(0xFFD3D2D2),
@@ -394,16 +307,22 @@ class _SignupPageState extends State<SignupPage> {
                   children: [
                     AuthButton(
                       text: '인증',
-                      color: _isButton2Pressed
-                          ? const Color(0xFFE20529)
+                      textcolor: Colors.white,
+                      color: verificationCode.length == 6
+                          ? const Color(
+                              0xFFE20529) // 인증번호 6자리 입력 및 이메일 유효성 검사 완료 시 빨간색으로 변경
                           : const Color(0xFFDADADA),
                       onPressed: () {
-                        Navigator.pushAndRemoveUntil(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => const NicknamePage()),
-                          (route) => false,
-                        );
+                        if (verificationCode.length == 6) {
+                          Navigator.pushAndRemoveUntil(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => const NicknamePage()),
+                            (route) => false,
+                          );
+                        } else {
+                          errorMessage = '인증번호를 잘못 입력하셨습니다. 다시 입력해주세요.';
+                        }
                       },
                     ),
                   ],
