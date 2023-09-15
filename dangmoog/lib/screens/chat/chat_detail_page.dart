@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import 'package:dangmoog/constants/mock_data/chat_detail_mock.dart';
@@ -9,6 +11,13 @@ import 'dart:math';
 import 'package:intl/intl.dart';
 import 'dart:convert';
 import 'package:flutter/services.dart';
+
+// 키보드 높이
+import 'package:keyboard_height_plugin/keyboard_height_plugin.dart';
+
+import 'package:image_picker/image_picker.dart';
+
+import 'package:permission_handler/permission_handler.dart';
 
 Future<ChatDetailModel> _loadChatDetailFromAsset(String url) async {
   final String jsonChatDetail = await rootBundle.loadString(url);
@@ -26,6 +35,9 @@ class ChatDetail extends StatefulWidget {
 }
 
 class _ChatDetailState extends State<ChatDetail> {
+  // 클릭 방지
+  bool _blockInteraction = false;
+
   late List<ChatCell> _chatDetail = <ChatCell>[];
 
   late Future<ChatDetailModel> _chatDetail2;
@@ -33,8 +45,69 @@ class _ChatDetailState extends State<ChatDetail> {
   final TextEditingController _textController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
 
+  FocusNode chatInputFocus = FocusNode();
+
+  // 현재 option box가 on이면 true
   bool _isOptionOn = false;
+  // 현재 키보드가 on이면 true
   bool _isKeyboardOn = false;
+  // 키보드가 한 번이라도 쓰였으면 true
+
+  double _keyboardHeight = 291;
+  final KeyboardHeightPlugin _keyboardHeightPlugin = KeyboardHeightPlugin();
+
+  bool resizeScreenKeyboard = true;
+
+  Future getImageFromCamera(BuildContext context) async {
+    PermissionStatus status = await Permission.camera.request();
+
+    final ImagePicker picker = ImagePicker();
+    final List<String> imageList = <String>[];
+
+    if (status.isGranted || status.isLimited) {
+      try {
+        final XFile? pickedImage =
+            await picker.pickImage(source: ImageSource.camera);
+
+        if (pickedImage != null) {
+          String imagePath = pickedImage.path;
+
+          setState(() {
+            imageList.add(imagePath);
+          });
+        }
+      } catch (e) {
+        print("Error picking images: $e");
+      }
+    } else if (status.isPermanentlyDenied) {
+      // 나중에 ios는 cupertino로 바꿔줄 필요 있음
+      await showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text("사진 권한 필요"),
+            content:
+                const Text("이 기능을 사용하기 위해서는 권한이 필요합니다. 설정으로 이동하여 권한을 허용해주세요."),
+            actions: <Widget>[
+              TextButton(
+                child: const Text("취소"),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+              TextButton(
+                child: const Text("설정으로 이동"),
+                onPressed: () {
+                  openAppSettings();
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          );
+        },
+      );
+    }
+  }
 
   void toggleOption() {
     setState(() {
@@ -42,6 +115,7 @@ class _ChatDetailState extends State<ChatDetail> {
     });
   }
 
+  // option box 숨기기
   void hideOption() {
     setState(() {
       _isOptionOn = false;
@@ -67,6 +141,19 @@ class _ChatDetailState extends State<ChatDetail> {
     }).toList();
   }
 
+  final StreamController<double> keyboardHeightController =
+      StreamController<double>();
+
+  // 조건 확인 함수
+  void isKeyboardRemoved() {
+    final currentKeyboardHeight = MediaQuery.of(context).viewInsets.bottom;
+
+    // 키보드 높이가 0인지 확인하고, 해당 조건이 충족되면 스트림에 이벤트 추가
+    if (currentKeyboardHeight == 0.0) {
+      keyboardHeightController.sink.add(currentKeyboardHeight);
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -75,59 +162,74 @@ class _ChatDetailState extends State<ChatDetail> {
     });
 
     _chatDetail2 = _loadChatDetailFromAsset('assets/chat_detail.json');
+
+    // 키보드의 높이가 바뀌면 update
+    // 키보드가 unfocus돼서 내려가는 건 update 안함
+    _keyboardHeightPlugin.onKeyboardHeightChanged((double height) {
+      if (height != 0) {
+        setState(() {
+          _keyboardHeight = height;
+        });
+      }
+    });
+
+    // 키보드 높이 감지 로직 추가
+    keyboardHeightController.stream.listen((height) {
+      if (height == 0.0) {
+        setState(() {
+          resizeScreenKeyboard = true;
+          _blockInteraction = false;
+        });
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    keyboardHeightController.close();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: resizeScreenKeyboard,
       appBar: _buildChatDetailAppBar(_chatDetail2),
+      // floatingActionButton: FloatingActionButton(
+      //   onPressed: () {
+      //     _scrollController.animateTo(
+      //       _scrollController.position.minScrollExtent,
+      //       duration: const Duration(milliseconds: 300),
+      //       curve: Curves.easeOut,
+      //     );
+      //   },
+      //   mini: true,
+      //   elevation: 0,
+      //   shape: RoundedRectangleBorder(
+      //     borderRadius: BorderRadius.circular(50),
+      //   ),
+      //   backgroundColor: const Color(0xFFCCBEBA),
+      //   child: const Icon(
+      //     Icons.arrow_downward,
+      //     color: Colors.white,
+      //   ),
+      // ),
       body: Center(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            _buildChatProductInfo(_chatDetail2),
-            Expanded(
-              child: GestureDetector(
-                onTap: unFocusKeyBoard,
-                child: Expanded(
-                  child: Column(
-                    children: <Widget>[
-                      _buildChatContents(),
-                      Stack(
-                        clipBehavior: Clip.none,
-                        children: [
-                          _buildInputField(),
-                          Positioned(
-                            right: 15,
-                            top: -60,
-                            child: FloatingActionButton(
-                              onPressed: () {
-                                _scrollController.animateTo(
-                                  _scrollController.position.minScrollExtent,
-                                  duration: const Duration(milliseconds: 300),
-                                  curve: Curves.easeOut,
-                                );
-                              },
-                              mini: true,
-                              elevation: 0,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(50),
-                              ),
-                              backgroundColor: const Color(0xFFCCBEBA),
-                              child: const Icon(
-                                Icons.arrow_downward,
-                                color: Colors.white,
-                              ),
-                            ),
-                          )
-                        ],
-                      )
-                    ],
-                  ),
+        child: AbsorbPointer(
+          absorbing: _blockInteraction,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              _buildChatProductInfo(_chatDetail2),
+              Expanded(
+                child: GestureDetector(
+                  onTap: unFocusKeyBoard,
+                  child: _buildChatContents(),
                 ),
               ),
-            )
-          ],
+              _buildInputField(context),
+            ],
+          ),
         ),
       ),
     );
@@ -169,9 +271,17 @@ class _ChatDetailState extends State<ChatDetail> {
     );
   }
 
-  Widget _buildInputField() {
+  Widget _buildInputField(BuildContext context) {
+    // 채팅 전송
     void handleSubmitted(String text) {
+      // 채팅 보내고 서버에서 응답 오면 clear, scroll down
       _textController.clear();
+
+      _scrollController.animateTo(
+        _scrollController.position.minScrollExtent,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOut,
+      );
       var message = ChatCell(
         text: text,
         me: true,
@@ -184,20 +294,11 @@ class _ChatDetailState extends State<ChatDetail> {
     return Column(
       children: [
         Container(
-          decoration: BoxDecoration(
-            borderRadius: const BorderRadius.only(
-              topLeft: Radius.circular(10.0),
-              topRight: Radius.circular(10.0),
+          decoration: const BoxDecoration(
+            border: Border(
+              top: BorderSide(width: 0.5, color: Color(0xffBEBCBC)),
             ),
             color: Colors.white,
-            boxShadow: [
-              BoxShadow(
-                color: Colors.grey.withOpacity(0.5),
-                spreadRadius: 1,
-                blurRadius: 5,
-                offset: const Offset(0, -3),
-              ),
-            ],
           ),
           child: Container(
             padding: const EdgeInsets.only(top: 12, bottom: 12),
@@ -210,35 +311,115 @@ class _ChatDetailState extends State<ChatDetail> {
                   children: <Widget>[
                     // Option Button
                     IconButton(
-                      onPressed: () {
-                        if (_isKeyboardOn == false) {
-                          toggleOption();
+                      onPressed: () async {
+                        // 이미 option box가 올라와있었을 경우
+                        // // chat input field에 focus를 주고 keyboard를 올려준다
+                        if (_isOptionOn == true && _isKeyboardOn == false) {
+                          setState(() {
+                            // 잠깐 keyboard가 screen에 영향을 주지 않도록 설정
+                            resizeScreenKeyboard = false;
+                            // 다른 동작이 수행되지 않도록 방지
+                            _blockInteraction = true;
+                            _isKeyboardOn = true;
+                          });
+                          FocusScope.of(context).requestFocus(chatInputFocus);
+
+                          Timer.periodic(const Duration(milliseconds: 100),
+                              (timer) {
+                            double keyboardHeight =
+                                MediaQuery.of(context).viewInsets.bottom ?? 0;
+                            if (keyboardHeight == _keyboardHeight) {
+                              timer.cancel();
+                              // 다시 키보드가 Screen 영역에 영향을 주도록 변경
+                              setState(() {
+                                resizeScreenKeyboard = true;
+                                _blockInteraction = false;
+                                _isOptionOn = false;
+                              });
+                            }
+                          });
+
+                          return;
                         }
+                        // 키보드가 올라와있지 않았을 경우
+                        if (_isKeyboardOn == false) {
+                          setState(() {
+                            _isOptionOn = true;
+                          });
+                          return;
+                        }
+
+                        // 키보드가 올라외있었을 경우
                         if (_isKeyboardOn == true) {
+                          setState(() {
+                            // 잠깐 keyboard가 screen에 영향을 주지 않도록 설정
+                            resizeScreenKeyboard = false;
+                            // 다른 동작이 수행되지 않도록 방지
+                            _blockInteraction = true;
+                            _isOptionOn = true;
+                          });
+
                           unFocusKeyBoard();
-                          toggleOption();
+                          // isKeyboardRemoved();
+                          // 키보드의 높이가 0이 될 때가지 0.1초를 주기로 확인
+                          Timer.periodic(const Duration(milliseconds: 100),
+                              (timer) {
+                            double keyboardHeight =
+                                MediaQuery.of(context).viewInsets.bottom ?? 0;
+                            if (keyboardHeight == 0) {
+                              timer.cancel();
+                              // 다시 키보드가 Screen 영역에 영향을 주도록 변경
+                              setState(() {
+                                resizeScreenKeyboard = true;
+                                _blockInteraction = false;
+                              });
+                            }
+                          });
                         }
                       },
-                      icon: Transform.rotate(
-                        angle: _isOptionOn ? (pi / 4) : 0,
-                        child: const Icon(
-                          Icons.add_circle_outline,
-                          color: Color(0xFFA07272),
-                        ),
+                      icon: Icon(
+                        _isKeyboardOn
+                            ? Icons.add_circle_outline
+                            : _isOptionOn
+                                ? Icons.highlight_remove_outlined
+                                : Icons.add_circle_outline,
+                        color: const Color(0xFFA07272),
                       ),
                     ),
                     // Text Input
                     Flexible(
                       child: TextField(
+                        focusNode: chatInputFocus,
                         onTap: () {
                           if (_isKeyboardOn == false) {
                             setState(() {
                               _isKeyboardOn = true;
                             });
                           }
-
+                          // option box가 띄워져있었을 경우
                           if (_isOptionOn == true) {
-                            toggleOption();
+                            setState(() {
+                              // 잠깐 keyboard가 screen에 영향을 주지 않도록 설정
+                              resizeScreenKeyboard = false;
+                              // 다른 동작이 수행되지 않도록 방지
+                              _blockInteraction = true;
+                            });
+
+                            // 키보드가 완전히 올라올 떄가지 0.1초를 주기로 확인
+                            Timer.periodic(const Duration(milliseconds: 100),
+                                (timer) {
+                              if (MediaQuery.of(context).viewInsets.bottom ==
+                                  _keyboardHeight) {
+                                timer.cancel();
+                                setState(() {
+                                  _isOptionOn = false;
+                                  // 다시 keyboard가 screen에 영향을 주도록 설정
+                                  resizeScreenKeyboard = true;
+
+                                  _blockInteraction = false; // 다시 상호작용을 허용
+                                });
+                              }
+                            });
                           }
                         },
                         style: const TextStyle(fontSize: 14.0),
@@ -253,8 +434,8 @@ class _ChatDetailState extends State<ChatDetail> {
                               Radius.circular(30.0),
                             ),
                             borderSide: BorderSide(
-                              color: Color(0xFFA07272),
-                              width: 3,
+                              color: Color(0xFFBEBCBC),
+                              width: 1,
                             ),
                           ),
                           contentPadding: EdgeInsets.symmetric(
@@ -279,9 +460,10 @@ class _ChatDetailState extends State<ChatDetail> {
                   ],
                 ),
                 AnimatedContainer(
+                  duration: const Duration(microseconds: 300),
                   height: _isKeyboardOn || _isOptionOn ? 0 : 25,
-                  duration: const Duration(milliseconds: 100),
-                  curve: Curves.linear,
+                  curve: Curves.easeOut,
+                  child: const SizedBox(),
                 ),
               ],
             ),
@@ -293,93 +475,73 @@ class _ChatDetailState extends State<ChatDetail> {
   }
 
   Widget _buildAdditionalWidget() {
-    return AnimatedContainer(
-      height: _isOptionOn ? 250.0 : 0,
-      duration: const Duration(milliseconds: 0),
-      curve: Curves.ease,
-      color: Colors.white,
+    Widget circelWidget(IconData icon, String iconText, Function onTap) {
+      return Container(
+        margin: const EdgeInsets.symmetric(horizontal: 22, vertical: 10),
+        child: Column(
+          children: [
+            Container(
+              width: 72,
+              height: 72,
+              margin: const EdgeInsets.only(bottom: 10, left: 10, right: 10),
+              decoration: const BoxDecoration(
+                color: Color(0xffE83754),
+                borderRadius: BorderRadius.all(
+                  Radius.circular(36),
+                ),
+              ),
+              child: GestureDetector(
+                onTap: () {
+                  onTap();
+                },
+                child: Icon(
+                  icon,
+                  size: 33,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+            Text(
+              iconText,
+              style: const TextStyle(
+                color: Color(0xff302E2E),
+                fontSize: 13,
+                fontWeight: FontWeight.w400,
+              ),
+            )
+          ],
+        ),
+      );
+    }
+
+    return SizedBox(
+      height: _isOptionOn ? _keyboardHeight : 0,
       child: Center(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(
-            horizontal: 20,
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              TextButton(
-                style: const ButtonStyle(
-                  shape: MaterialStatePropertyAll(
-                    RoundedRectangleBorder(borderRadius: BorderRadius.zero),
-                  ),
-                ),
-                onPressed: () {},
-                child: const Text(
-                  '사진 업로드',
-                  style: TextStyle(
-                    color: Color(0xFF552619),
-                    fontSize: 16,
-                  ),
-                ),
-              ),
-              const Divider(
-                height: 1,
-                color: Color(0xFFCCBEBA),
-              ),
-              TextButton(
-                style: const ButtonStyle(
-                  shape: MaterialStatePropertyAll(
-                    RoundedRectangleBorder(borderRadius: BorderRadius.zero),
-                  ),
-                ),
-                onPressed: () {},
-                child: const Text(
-                  '사진 촬영',
-                  style: TextStyle(
-                    color: Color(0xFF552619),
-                    fontSize: 16,
-                  ),
-                ),
-              ),
-              const Divider(
-                height: 1,
-                color: Color(0xFFCCBEBA),
-              ),
-              TextButton(
-                style: const ButtonStyle(
-                  shape: MaterialStatePropertyAll(
-                    RoundedRectangleBorder(borderRadius: BorderRadius.zero),
-                  ),
-                ),
-                onPressed: () {},
-                child: const Text(
-                  '계좌 정보 전송',
-                  style: TextStyle(
-                    color: Color(0xFF552619),
-                    fontSize: 16,
-                  ),
-                ),
-              ),
-              const Divider(
-                height: 1,
-                color: Color(0xFFCCBEBA),
-              ),
-              TextButton(
-                style: const ButtonStyle(
-                  shape: MaterialStatePropertyAll(
-                    RoundedRectangleBorder(borderRadius: BorderRadius.zero),
-                  ),
-                ),
-                onPressed: () {},
-                child: const Text(
-                  '위탁 사물함 번호 및 비밀번호 발송',
-                  style: TextStyle(
-                    color: Color(0xFF552619),
-                    fontSize: 16,
-                  ),
-                ),
-              ),
-            ],
-          ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                circelWidget(Icons.camera_alt_outlined, '카메라', () {
+                  getImageFromCamera(context);
+                }),
+                circelWidget(Icons.image_outlined, '앨범', () {}),
+              ],
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                circelWidget(Icons.credit_card_outlined, '거래정보 발송', () {}),
+                circelWidget(Icons.vpn_key_outlined, '사물함 정보 발송', () {}),
+              ],
+            ),
+            // option box가 정중앙에 있으면 살짝 아래에 있는 느낌이 들어서 추가한 위젯
+            const SizedBox(
+              height: 15,
+            )
+          ],
         ),
       ),
     );
@@ -492,145 +654,3 @@ Container _buildChatProductInfo(Future<ChatDetailModel> futureChatDetail) {
     ),
   );
 }
-    
-
-// Container _buildChatProductInfo(
-//     String imgUrl, String postTitle, int productPrice) {
-//   return Container(
-//     decoration: const BoxDecoration(
-//         border: Border(
-//             bottom: BorderSide(
-//                 width: 1,
-//                 color: Color(
-//                   0xFFCCBEBA,
-//                 )))),
-//     padding: const EdgeInsets.symmetric(
-//       horizontal: 20,
-//       vertical: 12,
-//     ),
-//     child: Row(
-//       children: [
-//         const Padding(
-//           padding: EdgeInsets.only(right: 8),
-//           child: Image(
-//             image: AssetImage('assets/images/temp_product_img.png'),
-//             width: 48,
-//           ),
-//         ),
-//         Column(
-//           crossAxisAlignment: CrossAxisAlignment.start,
-//           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//           children: [
-//             Row(
-//               children: [
-//                 Padding(
-//                   padding: const EdgeInsets.only(right: 10),
-//                   child: Container(
-//                     padding: const EdgeInsets.all(3),
-//                     decoration: BoxDecoration(border: Border.all(width: 1)),
-//                     child: const Text('거래상태'), // 공통 widget으로 교체 예정
-//                   ),
-//                 ),
-//                 const Text(
-//                   '게시글 제목',
-//                   style: TextStyle(color: Color(0xFF552619)),
-//                 )
-//               ],
-//             ),
-//             const Text(
-//               '제품 가격',
-//               style: TextStyle(color: Color(0xFF552619)),
-//             ),
-//           ],
-//         ),
-//       ],
-//     ),
-//   );
-// }
-
-
-
-
-
-
-// AppBar _buildChatDetailAppBar(String nickName) {
-//   return AppBar(
-//     title: Text(
-//       nickName,
-//       style: const TextStyle(color: Color(0xFF552619)),
-//     ),
-//     backgroundColor: Colors.white,
-//     shape: const Border(
-//       bottom: BorderSide(
-//         color: Color(0xFFA07272),
-//         width: 1,
-//       ),
-//     ),
-//   );
-// }
-
-
-
-
-// Widget build(BuildContext context) {
-//     return Scaffold(
-//       // appBar: _buildChatDetailAppBar('상대 닉네임'),
-//       appBar: _buildChatDetailAppBar(_chatInfo.userNickName),
-//       body: Center(
-//         child: Column(
-//           crossAxisAlignment: CrossAxisAlignment.center,
-//           children: [
-//             // _buildChatProductInfo(
-//             // 'assets/images/temp_product_img.png', '게시글 제목', 30000), 
-//             _buildChatProductInfo(_chatInfo.productPhotoUrl,
-//                 _chatInfo.postTitle, _chatInfo.productPrice),
-//             Expanded(
-//               child: GestureDetector(
-//                 onTap: unFocusKeyBoard,
-//                 child: Expanded(
-//                   child: Column(
-//                     children: <Widget>[
-//                       Flexible(
-//                         child: Padding(
-//                           padding: const EdgeInsets.symmetric(horizontal: 10),
-//                           child: ListView.builder(
-//                             padding: const EdgeInsets.all(8.0),
-//                             reverse: true,
-//                             itemBuilder: (_, index) {
-//                               if (_chatDetail.isNotEmpty) {
-//                                 final chatDetailItem = _chatDetail[index];
-
-//                                 // 전 cell과 같은 user인지
-//                                 var omit = false;
-//                                 if (index != _chatDetail.length - 1) {
-//                                   if (_chatDetail[index + 1].me ==
-//                                       chatDetailItem.me) {
-//                                     omit = true;
-//                                   }
-//                                 }
-
-//                                 return ChatMessage(
-//                                   text: chatDetailItem.text,
-//                                   me: chatDetailItem.me,
-//                                   omit: omit,
-//                                 );
-//                               }
-//                               return Container();
-//                             },
-//                             itemCount: _chatDetail.isNotEmpty
-//                                 ? _chatDetail.length
-//                                 : 1, // 비어 있을 경우 하나의 빈 아이템을 가진 리스트를 만듭니다.
-//                           ),
-//                         ),
-//                       ),
-//                       _buildInputField(),
-//                     ],
-//                   ),
-//                 ),
-//               ),
-//             )
-//           ],
-//         ),
-//       ),
-//     );
-//   }
