@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-
-// import 'package:dangmoog/screens/home.dart';
 import 'package:dangmoog/screens/auth/welcome.dart';
 
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
