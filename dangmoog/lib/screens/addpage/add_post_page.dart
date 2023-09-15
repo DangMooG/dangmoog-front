@@ -78,20 +78,59 @@ class _AddPostPageState extends State<AddPostPage> {
     }
   }
 
-  // // 카메라에서 이미지를 가져오는 함수
-  // Future getImagesFromCamera() async {
-  //   try {
-  //     final  pickedImage = await picker.pickImage(source: ImageSource.camera);
+  Future getImagesFromCamera(BuildContext context) async {
+    PermissionStatus status = await Permission.camera.request();
 
-  //     if (!pickedImage.isNull) {
-  //       setState(() {
-  //         _imageList.add(pickedImage);
-  //       });
-  //     }
-  //   } catch (e) {
-  //     print("Error picking images: $e");
-  //   }
-  // }
+    // 사진 선택 -> limited
+    // 모두 허용 -> grated
+    // 허용 안함 -> permanantlydenied
+    // // 팝업 띄워서 설정으로 이동하도록 유도 -> openAppSettings()로 연결
+    // // 설정에서 사진 선택 or 모두 허용으로 변경 시 그 다음부터는 권한 문제 없음
+
+    if (status.isGranted || status.isLimited) {
+      try {
+        final XFile? pickedImage =
+            await picker.pickImage(source: ImageSource.camera);
+
+        if (pickedImage != null) {
+          String imagePath = pickedImage.path;
+
+          setState(() {
+            _imageList.add(imagePath);
+          });
+        }
+      } catch (e) {
+        print("Error picking images: $e");
+      }
+    } else if (status.isPermanentlyDenied) {
+      // 나중에 ios는 cupertino로 바꿔줄 필요 있음
+      await showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text("사진 권한 필요"),
+            content:
+                const Text("이 기능을 사용하기 위해서는 권한이 필요합니다. 설정으로 이동하여 권한을 허용해주세요."),
+            actions: <Widget>[
+              TextButton(
+                child: const Text("취소"),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+              TextButton(
+                child: const Text("설정으로 이동"),
+                onPressed: () {
+                  openAppSettings();
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          );
+        },
+      );
+    }
+  }
 
   String dropdownValue = 'Category 1';
   bool useCabinet = false;
@@ -106,27 +145,11 @@ class _AddPostPageState extends State<AddPostPage> {
   TextEditingController priceController = TextEditingController();
   TextEditingController detailController = TextEditingController();
 
+  ScrollController scrollController = ScrollController();
+
   @override
   void initState() {
     super.initState();
-    // priceController.addListener(() {
-    //   String text = priceController.text;
-    //   if (text.isEmpty || text == '₩') {
-    //     setState(() {
-    //       priceController.text = '';
-    //     });
-    //   } else if (!text.startsWith('₩')) {
-    //     text = text.replaceAll('₩', '').replaceAll(',', ''); // 기호 제거
-    //     final formattedText =
-    //         '₩${NumberFormat('#,###').format(int.parse(text))}';
-    //     setState(() {
-    //       priceController.text = formattedText;
-    //       priceController.selection = TextSelection.fromPosition(
-    //         TextPosition(offset: priceController.text.length),
-    //       );
-    //     });
-    //   }
-    // });
   }
 
   @override
@@ -147,27 +170,34 @@ class _AddPostPageState extends State<AddPostPage> {
       body: GestureDetector(
         onTap: () => FocusScope.of(context).unfocus(),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Expanded(
               child: SingleChildScrollView(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  children: [
-                    _imagePickerSection(context),
-                    _textFieldsAndDropdown(),
-                  ],
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    children: [
+                      _imagePickerSection(context),
+                      _textFieldsAndDropdown(),
+                    ],
+                  ),
                 ),
               ),
             ),
-            const Divider(
-              color: Color(
-                0xffBEBCBC,
-              ),
-              thickness: 0.5,
-              height: 0.5,
-            ),
-            _submitButton(context, screenSize)
+            Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Divider(
+                  color: Color(
+                    0xffBEBCBC,
+                  ),
+                  thickness: 0.5,
+                  height: 0.5,
+                ),
+                _submitButton(context, screenSize)
+              ],
+            )
           ],
         ),
       ),
@@ -266,7 +296,7 @@ class _AddPostPageState extends State<AddPostPage> {
                       children: [
                         addPhotoButtonPopUp(
                             screenSize, Icons.add_a_photo_outlined, '카메라', () {
-                          getImagesFromAlbum(context);
+                          getImagesFromCamera(context);
                         }),
                         const SizedBox(
                           width: 30,
@@ -513,6 +543,7 @@ class _AddPostPageState extends State<AddPostPage> {
   // 카테고리 선택 위젯
   Widget _categorySelect() {
     void _toggleListVisibility() {
+      FocusScope.of(context).unfocus();
       setState(() {
         _isSelectListVisible = !_isSelectListVisible;
       });
@@ -629,14 +660,16 @@ class _AddPostPageState extends State<AddPostPage> {
           TextFormField(
             controller: priceController,
             onChanged: (value) {
-              String formattedValue = addCommas(value);
+              if (value.length <= 20) {
+                String formattedValue = addCommas(value);
 
-              int cursorPosition = priceController.selection.start;
+                int cursorPosition = priceController.selection.start;
 
-              priceController.text = formattedValue;
-              priceController.selection = TextSelection.collapsed(
-                  offset:
-                      cursorPosition + (formattedValue.length - value.length));
+                priceController.text = formattedValue;
+                priceController.selection = TextSelection.collapsed(
+                    offset: cursorPosition +
+                        (formattedValue.length - value.length));
+              }
             },
             keyboardType: TextInputType.number,
             textAlign: TextAlign.left,
