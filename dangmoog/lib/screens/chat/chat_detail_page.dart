@@ -58,6 +58,8 @@ class _ChatDetailState extends State<ChatDetail> {
 
   bool resizeScreenKeyboard = true;
 
+  Timer? timer;
+
   Future getImageFromCamera(BuildContext context) async {
     PermissionStatus status = await Permission.camera.request();
 
@@ -187,6 +189,8 @@ class _ChatDetailState extends State<ChatDetail> {
   @override
   void dispose() {
     keyboardHeightController.close();
+    timer?.cancel();
+
     super.dispose();
   }
 
@@ -324,8 +328,8 @@ class _ChatDetailState extends State<ChatDetail> {
                           });
                           FocusScope.of(context).requestFocus(chatInputFocus);
 
-                          Timer.periodic(const Duration(milliseconds: 100),
-                              (timer) {
+                          timer = Timer.periodic(
+                              const Duration(milliseconds: 100), (timer) {
                             double keyboardHeight =
                                 MediaQuery.of(context).viewInsets.bottom ?? 0;
                             if (keyboardHeight == _keyboardHeight) {
@@ -362,8 +366,8 @@ class _ChatDetailState extends State<ChatDetail> {
                           unFocusKeyBoard();
                           // isKeyboardRemoved();
                           // 키보드의 높이가 0이 될 때가지 0.1초를 주기로 확인
-                          Timer.periodic(const Duration(milliseconds: 100),
-                              (timer) {
+                          timer = Timer.periodic(
+                              const Duration(milliseconds: 100), (timer) {
                             double keyboardHeight =
                                 MediaQuery.of(context).viewInsets.bottom ?? 0;
                             if (keyboardHeight == 0) {
