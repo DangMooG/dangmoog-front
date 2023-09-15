@@ -28,7 +28,7 @@ class _MyHomeState extends State<MyHome> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: mainAppBar(currentTabIndex),
+      appBar: mainAppBar(currentTabIndex, context),
       body: Center(
         child: _bodyPage.elementAt(currentTabIndex),
       ),
