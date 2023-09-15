@@ -1,3 +1,4 @@
+import 'package:dangmoog/screens/post/like_chat_count.dart';
 import 'package:flutter/material.dart';
 
 import 'dart:convert';
@@ -214,7 +215,8 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _buildProductInformation(product),
-              _buildProductLikeChatCount(product),
+              // _buildProductLikeChatCount(product),
+              LikeChatCount(product: product)
             ],
           ),
           _buildProductDescription(product),
