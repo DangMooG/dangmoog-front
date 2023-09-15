@@ -81,6 +81,7 @@ class _WelcomePageState extends State<WelcomePage> {
                 SizedBox(height: screenSize.height * 0.208),
                 AuthButton(
                   text: '시작하기',
+                  textcolor: Colors.white,
                   color: Color(0xFFE20529),
                   onPressed: () {
                     Navigator.push(

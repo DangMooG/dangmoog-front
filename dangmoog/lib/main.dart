@@ -24,7 +24,6 @@ class MyApp extends StatelessWidget {
         theme: mainThemeData(),
         home: const SplashScreen(),
       ),
-
     );
   }
 }

@@ -39,8 +39,8 @@ class _MyPageState extends State<MyPage> {
           // Future가 성공적으로 완료되었을 때 표시할 UI
           double value = snapshot.data!;
           Size screenSize = MediaQuery.of(context).size;
-          return Scaffold(
-            body: Column(
+          return SingleChildScrollView(
+            child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 SizedBox(height: screenSize.width * 0.042),
@@ -50,54 +50,81 @@ class _MyPageState extends State<MyPage> {
                     borderRadius: BorderRadius.circular(50),
                     child: Image.asset(
                       'assets/images/sample.png',
-                      width: screenSize.width * 0.20,
+                      width: screenSize.width * 0.14,
                     ),
                   ),
                   SizedBox(width: screenSize.width * 0.042),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        '$userNickname',
-                        style: TextStyle(
-                          color: Color(0xFF552619),
-                          fontFamily: 'Pretendard-SemiBold',
-                          fontSize: 18,
-                          fontWeight: FontWeight.w600,
+                  Expanded(
+                    // width: screenSize.width * 0.44,
+                    //height: screenSize.height * 0.06,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          '$userNickname',
+                          style: TextStyle(
+                            color: Color(0xFF552619),
+                            fontFamily: 'Pretendard-SemiBold',
+                            fontSize: 18,
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
+                        Text(
+                          '$userEmail',
+                          style: TextStyle(
+                            color: Color(0xFFA07272),
+                            fontFamily: 'Pretendard-Regular',
+                            fontSize: 14,
+                            fontWeight: FontWeight.w400,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  ElevatedButton(
+                    onPressed: () {},
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFFE20529),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(6),
                       ),
-                      SizedBox(height: 8),
-                      Text(
-                        '$userEmail',
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 4),
+                      minimumSize: Size(
+                        screenSize.width * 0.2,
+                        screenSize.height * 0.029,
+                      ),
+                    ),
+                    child: Container(
+                      alignment: Alignment.center,
+                      child: Text(
+                        '프로필 변경',
                         style: TextStyle(
-                          color: Color(0xFFA07272),
-                          fontFamily: 'Pretendard-Regular',
-                          fontSize: 14,
+                          color: const Color(0xFFFFFFFF),
+                          fontFamily: 'Pretendard-Medium',
+                          fontSize: 13,
                           fontWeight: FontWeight.w400,
                         ),
                       ),
-                    ],
+                    ),
                   ),
+                  SizedBox(width: screenSize.width * 0.045),
                 ]),
-                SizedBox(height: screenSize.width * 0.043),
-                Padding(
-                  padding: EdgeInsets.only(left: screenSize.width * 0.043),
-                  child: Container(
-                    width: screenSize.width * 0.91,
-                    height: 1,
-                    color: Color(0XFFCCBEBA), // 갈색 배경색
-                    alignment: Alignment.center,
-                  ),
+                SizedBox(height: screenSize.height * 0.019),
+                Container(
+                  width: screenSize.width,
+                  height: 1,
+                  color: Color(0XFFD3D2D2),
                 ),
-                SizedBox(height: screenSize.height * 0.043),
                 Padding(
-                  padding: EdgeInsets.only(left: screenSize.width * 0.04),
+                  padding: EdgeInsets.fromLTRB(screenSize.width * 0.04,
+                      screenSize.height * 0.019, 0, screenSize.height * 0.009),
                   child: Text(
                     '마이거래',
                     style: TextStyle(
-                      color: Color(0xFF552619),
+                      color: Color(0xFF302E2E),
                       fontFamily: 'Pretendard-Semibold',
-                      fontSize: 18,
+                      fontSize: 16,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
@@ -114,35 +141,78 @@ class _MyPageState extends State<MyPage> {
                     text: '구매내역',
                     icon: Icons.local_mall_outlined,
                     onPressed: () {}),
-                SizedBox(height: screenSize.height * 0.1),
-                Padding(
-                  padding: EdgeInsets.only(left: screenSize.width * 0.043),
-                  child: Container(
-                    width: screenSize.width * 0.91,
-                    height: 1,
-                    color: Color(0XFFCCBEBA), // 갈색 배경색
-                    alignment: Alignment.center,
-                  ),
+                MypageText(
+                    text: '내 계좌정보',
+                    icon: Icons.credit_card_outlined,
+                    onPressed: () {}),
+                SizedBox(height: screenSize.height * 0.009),
+                Container(
+                  width: screenSize.width,
+                  height: 1,
+                  color: Color(0XFFD3D2D2),
                 ),
-                SizedBox(height: screenSize.height * 0.043),
                 Padding(
-                  padding: EdgeInsets.only(left: screenSize.width * 0.04),
+                  padding: EdgeInsets.fromLTRB(screenSize.width * 0.04,
+                      screenSize.height * 0.019, 0, screenSize.height * 0.009),
                   child: Text(
                     '설정',
                     style: TextStyle(
-                      color: Color(0xFF552619),
+                      color: Color(0xFF302E2E),
                       fontFamily: 'Pretendard-Semibold',
-                      fontSize: 18,
+                      fontSize: 16,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
                 ),
                 MypageText(
-                    text: '내 계정', icon: Icons.person_outline, onPressed: () {}),
-                MypageText(
-                    text: '거래정보',
-                    icon: Icons.table_chart_outlined,
+                    text: '알람 및 소리',
+                    icon: Icons.notifications_outlined,
                     onPressed: () {}),
+                MypageText(
+                    text: '차단 관리',
+                    icon: Icons.voice_over_off_outlined,
+                    onPressed: () {}),
+                SizedBox(height: screenSize.height * 0.009),
+                Container(
+                  width: screenSize.width,
+                  height: 1,
+                  color: Color(0XFFD3D2D2),
+                ),
+                Padding(
+                  padding: EdgeInsets.fromLTRB(screenSize.width * 0.04,
+                      screenSize.height * 0.019, 0, screenSize.height * 0.009),
+                  child: Text(
+                    '기타',
+                    style: TextStyle(
+                      color: Color(0xFF302E2E),
+                      fontFamily: 'Pretendard-Semibold',
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+                MypageText(
+                    text: '공지사항',
+                    icon: Icons.campaign_outlined,
+                    onPressed: () {}),
+                MypageText(
+                    text: '자주 묻는 질문',
+                    icon: Icons.support_agent_outlined,
+                    onPressed: () {}),
+                MypageText(
+                    text: '도토릿 소개',
+                    icon: Icons.support_agent_outlined,
+                    onPressed: () {}),
+                MypageText(
+                    text: '버전 정보',
+                    icon: Icons.device_hub_outlined,
+                    onPressed: () {}),
+                MypageText(
+                    text: '로그아웃',
+                    icon: Icons.logout_outlined,
+                    onPressed: () {}),
+                MypageText(
+                    text: '탈퇴하기', icon: Icons.tram_sharp, onPressed: () {}),
               ],
             ),
           );

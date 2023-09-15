@@ -1,68 +1,31 @@
-import 'package:dangmoog/screens/auth/signup.dart';
-import 'package:dangmoog/widgets/auth_button.dart';
-import 'package:flutter/material.dart';
+import 'package:dangmoog/screens/auth/profile.dart';
 import 'package:dangmoog/screens/home.dart';
+import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:dangmoog/providers/provider.dart';
-import 'package:dangmoog/widgets/back_appbar.dart';
+import 'package:dangmoog/widgets/auth_button.dart';
 
 class NicknamePage extends StatefulWidget {
-  const NicknamePage({super.key});
+  const NicknamePage({Key? key}) : super(key: key);
 
   @override
   _NicknamePageState createState() => _NicknamePageState();
 }
 
 class _NicknamePageState extends State<NicknamePage> {
-  bool isToggled = false;
   String nickname = '';
-  String verificationCode = '';
-  bool isVerificationCodeVisible = false; // New state variable
   String errorMessage = '';
-
-  void toggleButton() {
-    setState(() {
-      isToggled = !isToggled;
-      if (!isToggled) {
-        verificationCode = '';
-        isVerificationCodeVisible = false; // Reset visibility when toggled off
-        errorMessage = '';
-      }
-    });
-  }
-
-  void showVerificationCodeTextField() {
-    setState(() {
-      isVerificationCodeVisible = true;
-    });
-  }
 
   void onNicknameChanged(String value) {
     setState(() {
       nickname = value;
-      errorMessage = ''; // Clear error message when email is changed
+      if (nickname.length >= 2) {
+        errorMessage = ''; // Clear error message when nickname is valid
+      } else {
+        errorMessage = '최소 2글자 이상 입력해주세요.';
+      }
+      Provider.of<UserProvider>(context, listen: false).setNickname(nickname);
     });
-  }
-
-  void onVerificationCodeChanged(String value) {
-    setState(() {
-      verificationCode = value;
-    });
-  }
-
-  bool isNicknameValid(String email) {
-    // Email validation using a regular expression
-    final emailRegExp = RegExp(r'^[a-zA-Z0-9._%+-]');
-    return emailRegExp.hasMatch(nickname);
-  }
-
-  final TextEditingController nicknameController = TextEditingController();
-
-  void _login(BuildContext context) {
-    String enteredNickname = nicknameController.text;
-    Provider.of<UserProvider>(context, listen: false)
-        .setNickname(enteredNickname);
-    // 로그인 처리 로직 추가
   }
 
   @override
@@ -70,12 +33,10 @@ class _NicknamePageState extends State<NicknamePage> {
     Size screenSize = MediaQuery.of(context).size;
     return Scaffold(
       resizeToAvoidBottomInset: false,
-      appBar: BackAppBar(
-        MyTargetScreen: const SignupPage(),
-      ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
+          SizedBox(height: screenSize.height * 0.14),
           Padding(
             padding: EdgeInsets.fromLTRB(
                 screenSize.width * 0.04, 0, screenSize.width * 0.05, 0),
@@ -128,7 +89,6 @@ class _NicknamePageState extends State<NicknamePage> {
                               height: screenSize.height * 0.03,
                               alignment: Alignment.center,
                               child: TextField(
-                                controller: nicknameController,
                                 onChanged: onNicknameChanged,
                                 decoration: const InputDecoration(
                                   border: InputBorder.none,
@@ -145,13 +105,9 @@ class _NicknamePageState extends State<NicknamePage> {
                           SizedBox(width: screenSize.width * 0.14),
                           ElevatedButton(
                             onPressed: () {
-                              if (isNicknameValid(nickname)) {
-                                showVerificationCodeTextField();
-                                Provider.of<UserProvider>(context,
-                                        listen: false)
-                                    .setNickname(nicknameController.text);
-                                //Message = '멋진 이름이에요! 별명을 사용하실 수 있습니다!';
-                              } else if (nickname.length < 2) {
+                              if (nickname.length >= 2) {
+                                // Continue with the action
+                              } else {
                                 setState(() {
                                   errorMessage = '최소 2글자 이상 입력해주세요.';
                                 });
@@ -191,8 +147,7 @@ class _NicknamePageState extends State<NicknamePage> {
                       alignment: Alignment.center,
                     ),
                     SizedBox(height: screenSize.height * 0.01),
-                    if (errorMessage
-                        .isNotEmpty) // Show error message if not empty
+                    if (errorMessage.isNotEmpty)
                       Padding(
                         padding: EdgeInsets.fromLTRB(
                             0, 0, screenSize.width * 0.55, 0),
@@ -227,15 +182,18 @@ class _NicknamePageState extends State<NicknamePage> {
                   ],
                 ),
                 AuthButton(
-                    text: '도토릿 시작하기!',
-                    color: Color(0xFFE20529),
-                    onPressed: () {
-                      Navigator.pushAndRemoveUntil(
-                        context,
-                        MaterialPageRoute(builder: (context) => const MyHome()),
-                        (route) => false,
-                      );
-                    }),
+                  text: '도토릿 시작하기!',
+                  textcolor: Colors.white,
+                  color: Color(0xFFE20529),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => ProfilePage(),
+                      ),
+                    );
+                  },
+                ),
               ],
             ),
           ),
