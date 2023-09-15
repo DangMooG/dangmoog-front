@@ -14,7 +14,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'DangMooG',
+      title: 'Dotorit',
       debugShowCheckedModeBanner: false,
       theme: mainThemeData(),
       home: const SplashScreen(),
