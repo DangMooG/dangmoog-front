@@ -1,4 +1,5 @@
 import 'package:dangmoog/screens/addpage/add_post_page.dart';
+import 'package:dangmoog/screens/post/like_chat_count.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -31,7 +32,7 @@ class _ProductListState extends State<ProductList> {
   }
 
   // 게시물 추가하기 버튼
-  GestureDetector addPostButton(BuildContext context) {
+  Widget addPostButton(BuildContext context) {
     return GestureDetector(
       onTapDown: (details) {
         setState(() {
@@ -116,7 +117,6 @@ class _ProductListState extends State<ProductList> {
   Widget _postCard(BuildContext context) {
     return Consumer<ProductListModel>(
       builder: (context, product, child) {
-        // 4.2% of screen width
         double paddingValue = MediaQuery.of(context).size.width * 0.042;
         return InkWell(
           onTap: () {
@@ -173,10 +173,8 @@ class _ProductListState extends State<ProductList> {
 
   // 게시물 내역 이미지
   Widget _buildProductImage(BuildContext context, ProductListModel product) {
-    double size =
-        MediaQuery.of(context).size.width * 0.32; // 32% of screen width
-    double paddingValue =
-        MediaQuery.of(context).size.width * 0.042; // 4.2% of screen width
+    double size = MediaQuery.of(context).size.width * 0.28;
+    double paddingValue = MediaQuery.of(context).size.width * 0.042;
 
     return Padding(
       padding: EdgeInsets.only(
@@ -205,7 +203,7 @@ class _ProductListState extends State<ProductList> {
   }
 
   Widget _buildProductDetails(BuildContext context, ProductListModel product) {
-    double height = MediaQuery.of(context).size.width * 0.32;
+    double height = MediaQuery.of(context).size.width * 0.28;
     return Expanded(
       child: SizedBox(
         height: height,
@@ -214,7 +212,8 @@ class _ProductListState extends State<ProductList> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _buildProductTexts(product),
-            _buildProductLikeChatCount(product),
+            // _buildProductLikeChatCount(product),
+            LikeChatCount(product: product)
           ],
         ),
       ),
@@ -284,7 +283,14 @@ class _ProductListState extends State<ProductList> {
                       color: Color(0xFF302E2E),
                     ),
                   )
-                : const Text('나눔 🐿️'),
+                : const Text(
+                    '나눔 🐿️',
+                    style: TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 16,
+                      color: Color(0xFF302E2E),
+                    ),
+                  ),
           ],
         ),
       ],
@@ -317,54 +323,5 @@ class _ProductListState extends State<ProductList> {
             ),
           )
         : const SizedBox.shrink();
-  }
-
-  // 좋아요, 채팅 개수 표시
-  Row _buildProductLikeChatCount(ProductListModel product) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.end,
-      children: [
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            const Icon(
-              Icons.favorite_border,
-              color: Color(0xffA19E9E),
-              size: 15,
-            ),
-            const SizedBox(
-              width: 6,
-            ),
-            Text(
-              product.likeCount.toString(),
-              style: const TextStyle(
-                fontWeight: FontWeight.w400,
-                fontSize: 11,
-                color: Color(0xffA19E9E),
-              ),
-            ),
-            const SizedBox(
-              width: 10,
-            ),
-            const Icon(
-              Icons.forum_outlined,
-              color: Color(0xffA19E9E),
-              size: 15,
-            ),
-            const SizedBox(
-              width: 6,
-            ),
-            Text(
-              product.chatCount.toString(),
-              style: const TextStyle(
-                fontWeight: FontWeight.w400,
-                fontSize: 11,
-                color: Color(0xffA19E9E),
-              ),
-            ),
-          ],
-        )
-      ],
-    );
   }
 }
