@@ -2,8 +2,6 @@ PODS:
   - Flutter (1.0.0)
   - flutter_secure_storage (6.0.0):
     - Flutter
-  - flutter_secure_storage (6.0.0):
-    - Flutter
   - image_picker_ios (0.0.1):
     - Flutter
   - keyboard_height_plugin (0.0.1):
@@ -27,8 +25,6 @@ EXTERNAL SOURCES:
     :path: Flutter
   flutter_secure_storage:
     :path: ".symlinks/plugins/flutter_secure_storage/ios"
-  flutter_secure_storage:
-    :path: ".symlinks/plugins/flutter_secure_storage/ios"
   image_picker_ios:
     :path: ".symlinks/plugins/image_picker_ios/ios"
   keyboard_height_plugin:
@@ -46,6 +42,6 @@ SPEC CHECKSUMS:
   path_provider_foundation: 29f094ae23ebbca9d3d0cec13889cd9060c0e943
   permission_handler_apple: e76247795d700c14ea09e3a2d8855d41ee80a2e6
 
-PODFILE CHECKSUM: 98662901cb7823ad597f4792e661dbb2df2ce60a
+PODFILE CHECKSUM: b0cae05985174aee13703bf5a2d6829ae62844e5
 
 COCOAPODS: 1.12.1
