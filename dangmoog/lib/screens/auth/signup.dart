@@ -1,9 +1,12 @@
 import 'dart:async';
+import 'package:dangmoog/widgets/back_appbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import 'package:dangmoog/screens/auth/submit_button.dart';
+import 'package:provider/provider.dart';
+import 'package:dangmoog/providers/provider.dart';
 
+import 'package:dangmoog/widgets/submit_button.dart';
 import 'package:dangmoog/screens/auth/nickname.dart';
 
 class SignupPage extends StatefulWidget {
@@ -69,6 +72,22 @@ class _SignupPageState extends State<SignupPage> {
 
   void submitEmail() {
     if (isEmailFormatValid(inputEmail)) {
+      // BaseOptions options = BaseOptions(
+      //   baseUrl:
+      //       'https://port-0-dangmoog-api-server-p8xrq2mlfc80j33.sel3.cloudtype.app/meta/',
+      // );
+      // Dio dio = Dio();
+      // try {
+      //   Response response = await dio.post("account/mail_send",
+      //       data: {'email': inputEmail, 'password': 'string'});
+      //   print("Response:");
+      //   print("Status: ${response.statusCode}");
+      //   print("Header:\n${response.headers}");
+      //   print("Data:\n${response.data}");
+      // } catch (e) {
+      //   print("Exception: $e");
+      // }
+
       showVerificationCodeTextField();
       startTimer();
       setState(() {
@@ -94,6 +113,17 @@ class _SignupPageState extends State<SignupPage> {
         isSubmitVerificationCodeActive = false;
       });
     }
+  }
+
+  void _login() {
+    String enteredEmail = inputEmail;
+    Provider.of<UserProvider>(context, listen: false).setEmail(enteredEmail);
+
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(builder: (context) => const NicknamePage()),
+      (route) => false,
+    );
   }
 
   // 인증번호 입력 제한 시간 타이머
@@ -144,63 +174,49 @@ class _SignupPageState extends State<SignupPage> {
   Widget build(BuildContext context) {
     Size screenSize = MediaQuery.of(context).size;
 
-    double keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
     return Scaffold(
-      appBar: AppBar(),
+      appBar: const BackAppBar(),
+      resizeToAvoidBottomInset: false,
       body: GestureDetector(
         onTap: () => FocusScope.of(context).unfocus(),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Expanded(
-              child: SingleChildScrollView(
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 18),
-                  child: Column(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 18),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  Row(
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          _signUpMessage(screenSize),
-                        ],
-                      ),
-                      SizedBox(height: screenSize.height * 0.024),
-                      _inputField(screenSize),
+                      _signUpMessage(screenSize),
                     ],
                   ),
+                  SizedBox(height: screenSize.height * 0.024),
+                  _inputField(screenSize),
+                ],
+              ),
+              SizedBox(
+                height: screenSize.height * 0.2,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    AuthSubmitButton(
+                      onPressed: isSubmitVerificationCodeActive
+                          ? () {
+                              _login();
+                            }
+                          : () {},
+                      buttonText: '인증',
+                      isActive: isSubmitVerificationCodeActive ? true : false,
+                    ),
+                  ],
                 ),
               ),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(bottom: 0),
-              child: isSubmitVerificationCodeActive
-                  ? AuthSubmitButton(
-                      onPressed: () {
-                        Navigator.pushAndRemoveUntil(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => const NicknamePage()),
-                          (route) => false,
-                        );
-                      },
-                      buttonText: '인증',
-                      isActive: true,
-                    )
-                  : AuthSubmitButton(
-                      onPressed: () {},
-                      buttonText: '인증',
-                      isActive: false,
-                    ),
-            ),
-            AnimatedContainer(
-              duration: const Duration(microseconds: 100),
-              curve: Curves.linear,
-              child: SizedBox(
-                height: keyboardHeight < 50 ? 40 : 15,
-              ),
-            )
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -231,19 +247,15 @@ class _SignupPageState extends State<SignupPage> {
     );
   }
 
-  SizedBox _inputField(Size screenSize) {
-    return SizedBox(
-      width: screenSize.width,
-      height: screenSize.height * 0.58,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          _emailInput(screenSize),
-          isVerificationCodeVisible
-              ? _verificationNumberWidget(screenSize)
-              : const SizedBox.shrink()
-        ],
-      ),
+  Widget _inputField(Size screenSize) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        _emailInput(screenSize),
+        isVerificationCodeVisible
+            ? _verificationNumberWidget(screenSize)
+            : const SizedBox.shrink()
+      ],
     );
   }
 
@@ -423,26 +435,34 @@ class _SignupPageState extends State<SignupPage> {
 
     // 인증번호가 오지 않을 때 안내사항
     Widget verificationCodeMissing() {
-      Widget TextCell(String text) {
-        return ListTile(
-            title: Row(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            const Icon(Icons.circle,
-                size:
-                    5.0), // 또는 CircleAvatar(backgroundColor: Colors.black, radius: 5.0),
-            const SizedBox(width: 5.0),
-            Text(
-              text,
-              style: const TextStyle(
-                fontSize: 11,
-                fontWeight: FontWeight.w400,
-                color: Color(0xff302E2E),
+      Widget textCell(String text) {
+        return Padding(
+          padding: const EdgeInsets.only(left: 8.0, bottom: 4.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                "• ",
+                style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w400,
+                  color: Color(0xff302E2E),
+                ),
               ),
-            )
-          ],
-        ));
+              Expanded(
+                child: Text(
+                  text,
+                  style: const TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w400,
+                    color: Color(0xff302E2E),
+                  ),
+                ),
+              )
+            ],
+          ),
+        );
       }
 
       return Padding(
@@ -462,68 +482,25 @@ class _SignupPageState extends State<SignupPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
-                  const Text(
-                    '다음 사항을 꼭 확인해주세요!',
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: Color(0xff302E2E),
+                  const Padding(
+                    padding: EdgeInsets.only(bottom: 8),
+                    child: Text(
+                      '다음 사항을 꼭 확인해주세요!',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: Color(0xff302E2E),
+                      ),
                     ),
                   ),
-                  TextCell("이메일 주소에 오타가 없는지 다시 한 번 확인해주세요."),
-                  TextCell("이메일 주소에 오타가 없는지 다시 한 번 확인해주세요."),
+                  textCell("이메일 주소에 오타가 없는지 다시 한 번 확인해주세요."),
+                  textCell("스팸메일함을 체크해주세요."),
+                  textCell(
+                      "수신메일함의 용량이 부족하여 메일을 받지 못할 수 있습니다. 받은 메일함의 용량을 정리해주세요."),
+                  textCell(
+                      "위 모든 사항을 확인했음에도 인증번호가 발송되지 않을 경우 관리자 메일(dotorit@gmail.com)로 문의주시면 감사하겠습니다."),
                 ],
               ),
-              // child: const Column(
-              //   crossAxisAlignment: CrossAxisAlignment.start,
-              //   children: [
-              //     Text(
-              //       '다음 사항을 꼭 확인해주세요!',
-              //       style: TextStyle(
-              //         fontSize: 14,
-              //         fontWeight: FontWeight.w600,
-              //         color: Color(0xff302E2E),
-              //       ),
-              //     ),
-              //     Column(
-              //       crossAxisAlignment: CrossAxisAlignment.start,
-              //       children: [
-              //         Text(
-              //           "∙ 이메일 주소에 오타가 없는지 다시 한 번 확인해주세요.",
-              //           style: TextStyle(
-              //             fontSize: 11,
-              //             fontWeight: FontWeight.w400,
-              //             color: Color(0xff302E2E),
-              //           ),
-              //         ),
-              //         Text(
-              //           "∙ 스팸메일함을 확인해주세요.",
-              //           style: TextStyle(
-              //             fontSize: 11,
-              //             fontWeight: FontWeight.w400,
-              //             color: Color(0xff302E2E),
-              //           ),
-              //         ),
-              //         Text(
-              //           "∙ 수신메일함의 용량이 부족하여 메일을 받지 못할 수 있습니다. 메일함의 용량을 정리해주세요.",
-              //           style: TextStyle(
-              //             fontSize: 11,
-              //             fontWeight: FontWeight.w400,
-              //             color: Color(0xff302E2E),
-              //           ),
-              //         ),
-              //         Text(
-              //           "∙ 위 모든 사항을 확인했음에도 인증번호가 발송되지 않을 경우 관리자 메일(dotorit@gmai.com)로 문의주시면 감사하겠습니다.",
-              //           style: TextStyle(
-              //             fontSize: 11,
-              //             fontWeight: FontWeight.w400,
-              //             color: Color(0xff302E2E),
-              //           ),
-              //         ),
-              //       ],
-              //     )
-              //   ],
-              // ),
             )),
           ],
         ),

@@ -7,10 +7,14 @@ var options = BaseOptions(
 );
 
 Dio dioAuthAPI() {
-  return Dio(BaseOptions(
-    baseUrl:
-        'https://port-0-dangmoog-api-server-p8xrq2mlfc80j33.sel3.cloudtype.app/meta/',
-  ));
+  return Dio(
+    BaseOptions(
+      baseUrl:
+          'https://port-0-dangmoog-api-server-p8xrq2mlfc80j33.sel3.cloudtype.app/meta/',
+      connectTimeout: const Duration(microseconds: 5000),
+      receiveTimeout: const Duration(microseconds: 3000),
+    ),
+  );
 }
 
 Dio dioAPI() {

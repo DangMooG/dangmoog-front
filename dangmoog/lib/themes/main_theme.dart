@@ -12,6 +12,9 @@ ThemeData mainThemeData() {
     //   titleLarge: TextStyle(fontSize: 36.0, fontStyle: FontStyle.italic),
     //   bodyMedium: TextStyle(fontSize: 14.0, fontFamily: 'Hind'),
     // ),
+    appBarTheme: const AppBarTheme(
+      backgroundColor: Colors.white,
+    ),
     bottomNavigationBarTheme: const BottomNavigationBarThemeData(
       backgroundColor: Colors.white,
       showUnselectedLabels: true,

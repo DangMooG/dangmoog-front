@@ -8,7 +8,7 @@
     "productPrice": 20000,
     "postTitle": "시의 이해 교재 팔아요~",
     "dealStatus": 0,
-    "productPhotoUrl": "assets/images/temp_product_img.png"
+    "productPhotoUrl": "assets/images/flickr_wild_000017.jpg"
   },
   "chatContents": [
     {
@@ -60,6 +60,31 @@
       "chatDateTime": "2023-08-22T12:57:15Z",
       "chatText": "감사합니다. 물건은 내일 발송 예정입니다.",
       "isMe": true
+    },
+    {
+      "chatDateTime": "2023-08-23T12:20:15Z",
+      "chatText": "물건 배송 하셨나요?",
+      "isMe": false
+    },
+    {
+      "chatDateTime": "2023-08-24T11:00:15Z",
+      "chatText": "저기요....?",
+      "isMe": false
+    },
+    {
+      "chatDateTime": "2023-08-25T15:57:15Z",
+      "chatText": "신고할게요^^",
+      "isMe": false
+    },
+    {
+      "chatDateTime": "2023-08-25T16:57:15Z",
+      "chatText": "죄송합니다ㅠㅠ 오늘 보내겠습니다.ㅠㅠㅠㅠ",
+      "isMe": true
+    },
+    {
+      "chatDateTime": "2023-08-25T03:02:15Z",
+      "chatText": "물건 잘 받았습니다! 수고하세요~~",
+      "isMe": false
     }
   ]
 }

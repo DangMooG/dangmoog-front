@@ -212,7 +212,6 @@ class _ProductListState extends State<ProductList> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _buildProductTexts(product),
-            // _buildProductLikeChatCount(product),
             LikeChatCount(product: product)
           ],
         ),

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class AuthSubmitButton extends StatelessWidget {
-  final Function onPressed;
+  final VoidCallback onPressed;
   final String buttonText;
   final bool isActive;
 
@@ -17,21 +17,21 @@ class AuthSubmitButton extends StatelessWidget {
     Size screenSize = MediaQuery.of(context).size;
 
     return ElevatedButton(
-      onPressed: () {
-        onPressed();
-      },
+      onPressed: onPressed,
       style: ButtonStyle(
         backgroundColor: MaterialStateProperty.resolveWith<Color>(
             (Set<MaterialState> states) {
           if (isActive) {
             if (states.contains(MaterialState.pressed)) {
-              return const Color(0xFFEC5870); // pressed 상태일 때의 배경색
+              return const Color(0xFFEC5870);
             }
-            return const Color(0xFFE20529); // 기본 배경색
+            return const Color(0xFFE20529);
           } else {
             return const Color(0xffD3D2D2);
           }
         }),
+        // padding: MaterialStateProperty.all(EdgeInsets.zero),
+        surfaceTintColor: MaterialStateProperty.all(Colors.transparent),
         overlayColor: MaterialStateProperty.all(Colors.transparent),
         shape: MaterialStateProperty.all<RoundedRectangleBorder>(
           RoundedRectangleBorder(
@@ -41,7 +41,7 @@ class AuthSubmitButton extends StatelessWidget {
       ),
       child: Container(
         width: screenSize.width * 0.80,
-        height: screenSize.height * 0.056,
+        height: 47,
         alignment: Alignment.center,
         child: Text(
           buttonText,

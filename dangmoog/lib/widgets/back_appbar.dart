@@ -1,28 +1,23 @@
 import 'package:flutter/material.dart';
 
 class BackAppBar extends StatelessWidget implements PreferredSizeWidget {
-  final Widget MyTargetScreen;
-
-  BackAppBar({required this.MyTargetScreen});
+  const BackAppBar({super.key});
 
   @override
-  Size get preferredSize => Size.fromHeight(kToolbarHeight);
+  Size get preferredSize =>
+      const Size.fromHeight(kToolbarHeight); // 기본 AppBar 높이
 
   @override
   Widget build(BuildContext context) {
     return AppBar(
-      leading: IconButton(
-        icon: Icon(
-          Icons.keyboard_backspace,
+      leading: GestureDetector(
+        child: const Icon(
+          Icons.arrow_back_ios_outlined,
           color: Color(0xFF726E6E),
+          size: 24,
         ),
-        onPressed: () {
-          Navigator.of(context).popUntil((route) => route.isFirst);
-          Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (context) => MyTargetScreen,
-            ),
-          );
+        onTap: () {
+          Navigator.of(context).pop();
         },
       ),
     );

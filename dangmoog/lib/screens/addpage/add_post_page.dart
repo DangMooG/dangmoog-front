@@ -108,7 +108,7 @@ class _AddPostPageState extends State<AddPostPage> {
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
-            title: const Text("사진 권한 필요"),
+            title: const Text("카메라 권한 필요"),
             content:
                 const Text("이 기능을 사용하기 위해서는 권한이 필요합니다. 설정으로 이동하여 권한을 허용해주세요."),
             actions: <Widget>[
@@ -277,11 +277,15 @@ class _AddPostPageState extends State<AddPostPage> {
           builder: (BuildContext context) {
             Size screenSize = MediaQuery.of(context).size;
             return AlertDialog(
+              shape: RoundedRectangleBorder(
+                borderRadius:
+                    BorderRadius.circular(14), // 여기서 원하는 값으로 둥글게 조절할 수 있습니다.
+              ),
               content: SizedBox(
-                width: screenSize.width * 0.74,
-                height: screenSize.height * 0.25,
+                width: screenSize.width * 0.55,
+                height: screenSize.height * 0.21,
                 child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     const Text(
                       '사진 업로드 방식을\n선택해주세요!',
@@ -317,8 +321,8 @@ class _AddPostPageState extends State<AddPostPage> {
                         alignment: Alignment.center,
                         decoration: BoxDecoration(
                           border: Border.all(
-                            color: const Color(0xffE20529),
-                            width: 2.0,
+                            color: const Color(0xff726E6E),
+                            width: 1.0,
                           ),
                           borderRadius: BorderRadius.circular(6),
                         ),
@@ -327,7 +331,7 @@ class _AddPostPageState extends State<AddPostPage> {
                           style: TextStyle(
                             fontSize: 13,
                             fontWeight: FontWeight.w400,
-                            color: Color(0xffE20529),
+                            color: Color(0xff726E6E),
                           ),
                         ),
                       ),

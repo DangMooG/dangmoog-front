@@ -3,21 +3,25 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import 'package:dangmoog/services/custom_dio.dart';
 
+class EmailSend {
+  final Dio api = dioAuthAPI();
+}
+
 final dangmoogAPI = {
+  // 이메일 인증
   "emailSend": (email) async {
     final api = dioAuthAPI();
 
     try {
-      Response response = await api.post('/account/login', data: {
+      Response response = await api.post('/account/mail_send/', data: {
         "email": email,
       });
-      if (response.statusCode == 100) {
-        // 인증번호 입력
-      }
+      return response;
     } catch (e) {
       print(e);
     }
   },
+  // 이메일 인증번호
   "emailVerification": (verification_number) async {
     final api = dioAuthAPI();
     const storage = FlutterSecureStorage();
