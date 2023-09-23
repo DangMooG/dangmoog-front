@@ -1,11 +1,13 @@
 import 'dart:async';
-import 'package:dangmoog/screens/auth/welcome.dart';
 import 'package:dangmoog/screens/home.dart';
-import 'package:dangmoog/widgets/auth_button.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+
 import 'package:provider/provider.dart';
 import 'package:dangmoog/providers/provider.dart';
-import 'package:flutter/services.dart';
+
+import 'package:dangmoog/widgets/submit_button.dart';
+
 import 'package:dangmoog/widgets/back_appbar.dart';
 
 class LoginPage extends StatefulWidget {
@@ -16,24 +18,51 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  bool isToggled = false;
-  String email = '';
-  String number = '';
+  // 이메일, 인증번호
+  String inputEmail = '';
   String verificationCode = '';
-  bool isVerificationCodeVisible = false; // New state variable
-  String errorMessage = '';
-  bool _isButton1Pressed = false;
-  bool _isButton2Pressed = false;
 
-  void toggleButton() {
+  // 인증번호 입력 위젯 visible state
+  bool isVerificationCodeVisible = false;
+
+  // 에러 메시지
+  String errorMessageEmail = '';
+  String errorMessageVerificationCode = '';
+
+  // 인증메일 발송 버튼 활성화 state
+  bool isSubmitEmailVisible = false;
+  // 인증메일 발송 여부
+  bool isEmailSend = false;
+
+  // 인증번호 인증 버튼 활성화 state
+  bool isSubmitVerificationCodeActive = false;
+  // 인증번호 활성화 여부
+  bool isExpired = false;
+
+  // 인증번호 오지 않을 경우 안내문
+  bool isVerificationCodeMissing = false;
+
+  void onEmailChanged(String value) {
     setState(() {
-      isToggled = !isToggled;
-      if (!isToggled) {
-        verificationCode = '';
-        isVerificationCodeVisible = false; // Reset visibility when toggled off
-        errorMessage = '';
-      }
+      inputEmail = value;
+      errorMessageEmail = '';
     });
+    // 이메일 형식이 올바를 경우 인증메일 발송 버튼 활성화
+    if (isEmailFormatValid(inputEmail)) {
+      setState(() {
+        isSubmitEmailVisible = true;
+      });
+    } else {
+      setState(() {
+        isSubmitEmailVisible = false;
+      });
+    }
+  }
+
+  bool isEmailFormatValid(String email) {
+    final emailRegExp = RegExp(r'^[a-zA-Z0-9._%+-]+@(gm\.)?gist\.ac\.kr$',
+        caseSensitive: false);
+    return emailRegExp.hasMatch(email);
   }
 
   void showVerificationCodeTextField() {
@@ -42,20 +71,34 @@ class _LoginPageState extends State<LoginPage> {
     });
   }
 
-  void onEmailChanged(String value) {
-    setState(() {
-      email = value;
-      errorMessage = ''; // Clear error message when email is changed
-      _updateButtonState();
-    });
-  }
+  void submitEmail() {
+    if (isEmailFormatValid(inputEmail)) {
+      // BaseOptions options = BaseOptions(
+      //   baseUrl:
+      //       'https://port-0-dangmoog-api-server-p8xrq2mlfc80j33.sel3.cloudtype.app/meta/',
+      // );
+      // Dio dio = Dio();
+      // try {
+      //   Response response = await dio.post("account/mail_send",
+      //       data: {'email': inputEmail, 'password': 'string'});
+      //   print("Response:");
+      //   print("Status: ${response.statusCode}");
+      //   print("Header:\n${response.headers}");
+      //   print("Data:\n${response.data}");
+      // } catch (e) {
+      //   print("Exception: $e");
+      // }
 
-  void _updateButtonState() {
-    bool isValidEmailFormat = isEmailValid(email);
-    if (isValidEmailFormat) {
+      showVerificationCodeTextField();
+      startTimer();
       setState(() {
-        _isButton1Pressed = true; // 버튼 색 업데이트
+        isEmailSend = true;
       });
+    } else {
+      setState(() {
+        errorMessageEmail = '유효한 이메일을 입력하세요.';
+      });
+      print('안됐슈');
     }
   }
 
@@ -63,16 +106,54 @@ class _LoginPageState extends State<LoginPage> {
     setState(() {
       verificationCode = value;
     });
+    if (value.length == 6) {
+      setState(() {
+        isSubmitVerificationCodeActive = true;
+      });
+    } else {
+      setState(() {
+        isSubmitVerificationCodeActive = false;
+      });
+    }
   }
 
-  bool isEmailValid(String email) {
-    // Email validation using a regular expression
-    final emailRegExp = RegExp(r'^[a-zA-Z0-9._%+-]+@gm\.gist\.ac\.kr$');
-    return emailRegExp.hasMatch(email);
+  void _login() {
+    String enteredEmail = inputEmail;
+    Provider.of<UserProvider>(context, listen: false).setEmail(enteredEmail);
+
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(builder: (context) => const MyHome()),
+      (route) => false,
+    );
   }
 
-  int secondsRemaining = 4 * 60;
+  // 인증번호 입력 제한 시간 타이머
+  int secondsRemaining = 5 * 60;
   Timer? timer;
+  void startTimer() {
+    timer?.cancel();
+
+    secondsRemaining = 5 * 60;
+
+    setState(() {
+      isExpired = false;
+    });
+
+    const oneSec = Duration(seconds: 1);
+    timer = Timer.periodic(oneSec, (timer) {
+      setState(() {
+        if (secondsRemaining > 0) {
+          secondsRemaining--;
+        } else {
+          timer.cancel();
+          setState(() {
+            isExpired = true;
+          });
+        }
+      });
+    });
+  }
 
   @override
   void initState() {
@@ -85,273 +166,357 @@ class _LoginPageState extends State<LoginPage> {
     super.dispose();
   }
 
-  void startTimer() {
-    const oneSec = Duration(seconds: 1);
-    timer = Timer.periodic(oneSec, (timer) {
-      setState(() {
-        if (secondsRemaining > 0) {
-          secondsRemaining--;
-        } else {
-          timer.cancel();
-        }
-      });
-    });
-  }
-
   String getFormattedTime() {
     int minutes = secondsRemaining ~/ 60;
     int seconds = secondsRemaining % 60;
-    return '$minutes:${seconds.toString().padLeft(2, '0')}';
-  }
-
-  final TextEditingController emailController = TextEditingController();
-
-  void _login(BuildContext context) {
-    String enteredEmail = emailController.text;
-    Provider.of<UserProvider>(context, listen: false).setEmail(enteredEmail);
-    // 로그인 처리 로직 추가
+    return '${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
   }
 
   @override
   Widget build(BuildContext context) {
     Size screenSize = MediaQuery.of(context).size;
+
     return Scaffold(
+      appBar: const BackAppBar(),
       resizeToAvoidBottomInset: false,
-      appBar: BackAppBar(
-        MyTargetScreen: WelcomePage(),
-      ),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Padding(
-            padding: EdgeInsets.fromLTRB(
-                screenSize.width * 0.04, 0, screenSize.width * 0.15, 0),
-            child: const Text(
-              '안녕하세요!\nGIST 이메일로 로그인해주세요!',
-              style: TextStyle(
-                color: Color(0xFF552619),
-                fontFamily: 'Pretendard-SemiBold',
-                fontSize: 24,
-                fontWeight: FontWeight.w600,
-                height: 1.35,
+      body: GestureDetector(
+        onTap: () => FocusScope.of(context).unfocus(),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 18),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      _signUpMessage(screenSize),
+                    ],
+                  ),
+                  SizedBox(height: screenSize.height * 0.024),
+                  _inputField(screenSize),
+                ],
               ),
-            ),
-          ),
-          SizedBox(height: screenSize.height * 0.01),
-          Padding(
-            padding: EdgeInsets.fromLTRB(
-                screenSize.width * 0.04, 0, screenSize.width * 0.14, 0),
-            child: const Text(
-              'GIST 이메일은 본인 확인 용도로 사용되며 다른 학우들에게\n공개되지 않습니다. ',
-              style: TextStyle(
-                color: Color(0xFF552619),
-                fontFamily: 'Pretendard-Regular',
-                fontSize: 13,
-                fontWeight: FontWeight.w400,
-                height: 1.35,
-              ),
-            ),
-          ),
-          SizedBox(height: screenSize.height * 0.024),
-          SizedBox(
-            width: screenSize.width,
-            height: screenSize.height * 0.58,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Column(
+              SizedBox(
+                height: screenSize.height * 0.2,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
                   children: [
-                    SizedBox(
-                      width: screenSize.width * 0.91,
-                      height: screenSize.height * 0.044,
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.fromLTRB(8, 16, 0, 0),
-                            child: SizedBox(
-                              width: screenSize.width * 0.59,
-                              height: screenSize.height * 0.034,
-                              child: TextField(
-                                controller: emailController,
-                                onChanged: onEmailChanged,
-                                decoration: const InputDecoration(
-                                  border: InputBorder.none,
-                                  hintText: 'GIST 이메일 입력',
-                                  hintStyle: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w400,
-                                      fontFamily: 'Pretendard-Regular',
-                                      color: Color(0xFFCCBEBA)),
-                                ),
-                              ),
-                            ),
-                          ),
-                          SizedBox(width: screenSize.width * 0.04),
-                          ElevatedButton(
-                            onPressed: () {
-                              if (isEmailValid(email)) {
-                                showVerificationCodeTextField();
-                                startTimer();
-                                _isButton2Pressed = !_isButton2Pressed;
-                                Provider.of<UserProvider>(context,
-                                        listen: false)
-                                    .setEmail(emailController.text);
-                                _updateButtonState();
-                              } else {
-                                setState(() {
-                                  errorMessage = '유효한 이메일을 입력하세요.';
-                                });
-                              }
-                            },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: _isButton1Pressed
-                                  ? const Color(0xFF552619)
-                                  : const Color(0xFFDADADA),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(6),
-                              ),
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 12, vertical: 4),
-                              minimumSize: Size(screenSize.width * 0.25,
-                                  screenSize.height * 0.034),
-                            ),
-                            child: Container(
-                              child: const Text(
-                                '인증메일 발송',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontFamily: 'Pretendard-Medium',
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
+                    AuthSubmitButton(
+                      onPressed: isSubmitVerificationCodeActive
+                          ? () {
+                              _login();
+                            }
+                          : () {},
+                      buttonText: '인증',
+                      isActive: isSubmitVerificationCodeActive ? true : false,
                     ),
-                    Container(
-                      width: screenSize.width * 0.91,
-                      height: 1,
-                      color: Colors.brown, // 갈색 배경색
-                      alignment: Alignment.center,
-                    ),
-                    SizedBox(height: screenSize.height * 0.01),
-                    if (errorMessage
-                        .isNotEmpty) // Show error message if not empty
-                      Padding(
-                        padding: EdgeInsets.fromLTRB(
-                            0, 0, screenSize.width * 0.52, 0),
-                        child: Text(
-                          errorMessage,
-                          style: const TextStyle(
-                            color: Colors.red,
-                            fontSize: 13,
-                          ),
-                        ),
-                      ),
-                    if (isVerificationCodeVisible) // 메일발송 후
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              SizedBox(width: screenSize.width * 0.06),
-                              Padding(
-                                padding: EdgeInsets.fromLTRB(
-                                    0, screenSize.height * 0.02, 0, 0),
-                                child: Container(
-                                  width: screenSize.width * 0.56,
-                                  height: screenSize.height * 0.03,
-                                  alignment: Alignment.center,
-                                  child: TextFormField(
-                                    keyboardType: TextInputType.number,
-                                    inputFormatters: [
-                                      FilteringTextInputFormatter.allow(
-                                          RegExp(r'[0-9]'))
-                                    ],
-                                    decoration: const InputDecoration(
-                                      border: InputBorder.none,
-                                      hintText: '인증번호 6자리 입력',
-                                      hintStyle: TextStyle(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.w400,
-                                          fontFamily: 'Pretendard-Regular',
-                                          color: Color(0xFFCCBEBA)),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              SizedBox(width: screenSize.width * 0.25),
-                              Text(
-                                getFormattedTime(),
-                                style: const TextStyle(
-                                    fontSize: 13,
-                                    fontWeight: FontWeight.w400,
-                                    fontFamily: 'Pretendard-Regular',
-                                    color: Color(0xFF552619)),
-                              ),
-                            ],
-                          ),
-                          Container(
-                            width: screenSize.width * 0.91,
-                            height: 1,
-                            color: Colors.brown, // 갈색 배경색
-                            alignment: Alignment.center,
-                          ),
-                          Padding(
-                            padding: EdgeInsets.fromLTRB(
-                                screenSize.width * 0.55, 0, 0, 0),
-                            child: TextButton(
-                              onPressed: () {},
-                              child: Container(
-                                alignment: Alignment.center,
-                                child: const Text(
-                                  '인증번호가 오지 않나요?',
-                                  style: TextStyle(
-                                    color: Color(0xFF552619),
-                                    fontFamily: 'Pretendard-Regular',
-                                    fontSize: 13,
-                                    fontWeight: FontWeight.w400,
-                                    decoration: TextDecoration.underline,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      )
-                    else
-                      Container(),
                   ],
                 ),
-                Column(
-                  children: [
-                    AuthButton(
-                      text: '로그인',
-                      textcolor: Colors.white,
-                      color: _isButton2Pressed
-                          ? const Color(0xFFE20529)
-                          : const Color(0xFFDADADA),
-                      onPressed: () {
-                        Navigator.pushAndRemoveUntil(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => const MyHome()),
-                          (route) => false,
-                        );
-                      },
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _signUpMessage(Size screenSize) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          '안녕하세요!\nGIST 이메일로 로그인해주세요!',
+          style: TextStyle(
+            color: Color(0xFF302E2E),
+            fontSize: 24,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        SizedBox(height: screenSize.height * 0.01),
+        const Text(
+          'GIST 이메일은 본인 확인 용도로 사용되며 다른 학우들에게\n공개되지 않습니다. ',
+          style: TextStyle(
+            color: Color(0xFF302E2E),
+            fontSize: 14,
+            fontWeight: FontWeight.w400,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _inputField(Size screenSize) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        _emailInput(screenSize),
+        isVerificationCodeVisible
+            ? _verificationNumberWidget(screenSize)
+            : const SizedBox.shrink()
+      ],
+    );
+  }
+
+  // 이메일 입력 위젯
+  Widget _emailInput(Size screenSize) {
+    return Column(
+      children: [
+        Container(
+          height: screenSize.height * 0.05,
+          decoration: const BoxDecoration(
+            border: Border(
+              bottom: BorderSide(
+                width: 1,
+                color: Color(0xffD3D2D2),
+              ),
+            ),
+          ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: TextField(
+                  onChanged: onEmailChanged,
+                  decoration: const InputDecoration(
+                    border: InputBorder.none,
+                    hintText: 'GIST 이메일 입력',
+                    hintStyle: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w400,
+                      color: Color(0xFFA19E9E),
                     ),
-                  ],
+                    contentPadding: EdgeInsets.symmetric(horizontal: 8),
+                    isDense: true,
+                  ),
+                ),
+              ),
+              ElevatedButton(
+                onPressed: submitEmail,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: isEmailSend
+                      ? const Color(0xFFFFFFFF)
+                      : isSubmitEmailVisible
+                          ? const Color(0xffE20529)
+                          : const Color(0xffD3D2D2),
+                  surfaceTintColor: isEmailSend
+                      ? const Color(0xFFFFFFFF)
+                      : isSubmitEmailVisible
+                          ? const Color(0xffE20529)
+                          : const Color(0xffD3D2D2),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(6),
+                      side: isEmailSend
+                          ? const BorderSide(color: Color(0xffE20529))
+                          : const BorderSide(color: Colors.transparent)
+                      //isEmailSend
+                      ),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                  minimumSize: const Size(0, 0),
+                ),
+                child: Text(
+                  '인증메일 발송',
+                  style: TextStyle(
+                    color: isEmailSend
+                        ? const Color(0xffE20529)
+                        : const Color(0xFFFFFFFF),
+                    fontSize: 13,
+                    fontWeight: FontWeight.w400,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        if (errorMessageEmail.isNotEmpty)
+          Container(
+            padding: const EdgeInsets.only(left: 8, top: 8),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  errorMessageEmail,
+                  style: const TextStyle(
+                    color: Colors.red,
+                    fontSize: 13,
+                  ),
                 ),
               ],
             ),
           ),
+      ],
+    );
+  }
+
+  // 인증번호 입력 위젯
+  Widget _verificationNumberWidget(Size screenSize) {
+    // input field
+    Widget verificationNumberInputField(Size screenSize) {
+      return Container(
+        height: screenSize.height * 0.05,
+        decoration: const BoxDecoration(
+          border: Border(
+            bottom: BorderSide(
+              width: 1,
+              color: Color(0xffD3D2D2),
+            ),
+          ),
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Expanded(
+              child: TextField(
+                maxLength: 6,
+                onChanged: (value) {
+                  onVerificationCodeChanged(value);
+                },
+                keyboardType: TextInputType.number,
+                inputFormatters: [
+                  FilteringTextInputFormatter.allow(RegExp(r'[0-9]'))
+                ],
+                decoration: const InputDecoration(
+                  counterText: "",
+                  border: InputBorder.none,
+                  hintText: '인증번호 6자리 입력',
+                  hintStyle: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w400,
+                    color: Color(0xFFA19E9E),
+                  ),
+                  contentPadding: EdgeInsets.symmetric(horizontal: 8),
+                  isDense: true,
+                ),
+              ),
+            ),
+            Text(
+              getFormattedTime(),
+              style: const TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w400,
+                  color: Color(0xFF726E6E)),
+            ),
+          ],
+        ),
+      );
+    }
+
+    // 인증번호가 오지 않나요?
+    Widget verificationNumberQuestion() {
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          Container(
+            padding: const EdgeInsets.only(top: 8),
+            child: InkWell(
+              onTap: () {
+                setState(() {
+                  isVerificationCodeMissing = !isVerificationCodeMissing;
+                });
+              },
+              child: const Text(
+                '인증번호가 오지 않나요?',
+                style: TextStyle(
+                  color: Color(0xFF726E6E),
+                  fontSize: 11,
+                  fontWeight: FontWeight.w400,
+                  decoration: TextDecoration.underline,
+                ),
+              ),
+            ),
+          ),
         ],
-      ),
+      );
+    }
+
+    // 인증번호가 오지 않을 때 안내사항
+    Widget verificationCodeMissing() {
+      Widget textCell(String text) {
+        return Padding(
+          padding: const EdgeInsets.only(left: 8.0, bottom: 4.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                "• ",
+                style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w400,
+                  color: Color(0xff302E2E),
+                ),
+              ),
+              Expanded(
+                child: Text(
+                  text,
+                  style: const TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w400,
+                    color: Color(0xff302E2E),
+                  ),
+                ),
+              )
+            ],
+          ),
+        );
+      }
+
+      return Padding(
+        padding: const EdgeInsets.only(top: 10),
+        child: Row(
+          children: [
+            Expanded(
+                child: Container(
+              decoration: BoxDecoration(
+                border: Border.all(
+                  width: 1,
+                  color: const Color(0xffD3D2D2),
+                ),
+                borderRadius: const BorderRadius.all(Radius.circular(10)),
+              ),
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  const Padding(
+                    padding: EdgeInsets.only(bottom: 8),
+                    child: Text(
+                      '다음 사항을 꼭 확인해주세요!',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: Color(0xff302E2E),
+                      ),
+                    ),
+                  ),
+                  textCell("이메일 주소에 오타가 없는지 다시 한 번 확인해주세요."),
+                  textCell("스팸메일함을 체크해주세요."),
+                  textCell(
+                      "수신메일함의 용량이 부족하여 메일을 받지 못할 수 있습니다. 받은 메일함의 용량을 정리해주세요."),
+                  textCell(
+                      "위 모든 사항을 확인했음에도 인증번호가 발송되지 않을 경우 관리자 메일(dotorit@gmail.com)로 문의주시면 감사하겠습니다."),
+                ],
+              ),
+            )),
+          ],
+        ),
+      );
+    }
+
+    return Column(
+      children: [
+        verificationNumberInputField(screenSize),
+        verificationNumberQuestion(),
+        isVerificationCodeMissing
+            ? verificationCodeMissing()
+            : const SizedBox.shrink()
+      ],
     );
   }
 }

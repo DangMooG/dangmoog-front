@@ -1,7 +1,8 @@
+import 'package:dangmoog/screens/auth/login.dart';
 import 'package:flutter/material.dart';
 import 'package:dangmoog/screens/auth/signup.dart';
 
-import 'package:dangmoog/screens/auth/submit_button.dart';
+import 'package:dangmoog/widgets/submit_button.dart';
 
 class WelcomePage extends StatefulWidget {
   const WelcomePage({super.key});
@@ -79,7 +80,13 @@ class _WelcomePageState extends State<WelcomePage> {
                       width: screenSize.height * 0.01,
                     ),
                     InkWell(
-                      onTap: () {},
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const LoginPage()),
+                        );
+                      },
                       child: Container(
                         alignment: Alignment.center,
                         child: const Text(
