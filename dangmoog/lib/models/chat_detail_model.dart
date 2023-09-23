@@ -1,20 +1,22 @@
+
+
 class ChatDetailModel {
-  final ChatInfo chatInfo;
-  final List<ChatContent> chatContents;
+  final ChatDetailInfo chatInfo;
+  final List<ChatDetailContent> chatContents;
 
   ChatDetailModel({required this.chatInfo, required this.chatContents});
 
   factory ChatDetailModel.fromJson(Map<String, dynamic> json) {
     return ChatDetailModel(
-      chatInfo: ChatInfo.fromJson(json['chatInfo']),
+      chatInfo: ChatDetailInfo.fromJson(json['chatInfo']),
       chatContents: (json['chatContents'] as List)
-          .map((e) => ChatContent.fromJson(e as Map<String, dynamic>))
+          .map((e) => ChatDetailContent.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
   }
 }
 
-class ChatInfo {
+class ChatDetailInfo {
   final String userNickName;
   final String userPhotoUrl;
   final int chatId;
@@ -25,7 +27,7 @@ class ChatInfo {
   final int productPrice;
   final String productPhotoUrl;
 
-  ChatInfo({
+  ChatDetailInfo({
     required this.userNickName,
     required this.userPhotoUrl,
     required this.chatId,
@@ -37,8 +39,8 @@ class ChatInfo {
     required this.productPhotoUrl,
   });
 
-  factory ChatInfo.fromJson(Map<String, dynamic> json) {
-    return ChatInfo(
+  factory ChatDetailInfo.fromJson(Map<String, dynamic> json) {
+    return ChatDetailInfo(
       userNickName: json['userNickName'],
       userPhotoUrl: json['userPhotoUrl'],
       chatId: json['chatId'],
@@ -52,19 +54,19 @@ class ChatInfo {
   }
 }
 
-class ChatContent {
+class ChatDetailContent {
   final DateTime chatDateTime;
   final String chatText;
   final bool isMe;
 
-  ChatContent({
+  ChatDetailContent({
     required this.chatDateTime,
     required this.chatText,
     required this.isMe,
   });
 
-  factory ChatContent.fromJson(Map<String, dynamic> json) {
-    return ChatContent(
+  factory ChatDetailContent.fromJson(Map<String, dynamic> json) {
+    return ChatDetailContent(
       chatDateTime: DateTime.parse(json['chatDateTime']),
       chatText: json['chatText'],
       isMe: json['isMe'],
