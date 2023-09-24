@@ -1,4 +1,5 @@
 import 'package:dangmoog/screens/addpage/add_post_page.dart';
+import 'package:dangmoog/screens/addpage/choose_locker_page.dart';
 import 'package:dangmoog/screens/post/like_chat_count.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -34,43 +35,67 @@ class _ProductListState extends State<ProductList> {
   // 게시물 추가하기 버튼
   Widget addPostButton(BuildContext context) {
     return GestureDetector(
-      onTapDown: (details) {
-        setState(() {
-          _isPressed = true;
-        });
-      },
-      onTapUp: (details) {
-        setState(() {
-          _isPressed = false;
-        });
-        Navigator.push(
-            context,
-            PageRouteBuilder(
-                transitionDuration: const Duration(milliseconds: 500),
-                pageBuilder: (context, animation, secondaryAnimation) =>
-                    const AddPostPage(),
-                transitionsBuilder:
-                    (context, animation, secondaryAnimation, child) {
-                  var previousPageOffsetAnimation =
-                      Tween(begin: const Offset(0, 1), end: const Offset(0, 0))
-                          .chain(CurveTween(curve: Curves.decelerate))
-                          .animate(animation);
+      onTap: () {
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return Dialog(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
+              elevation: 5,
+              child: Container(
+                padding: EdgeInsets.all(20),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      '거래 방식을 \n선택해주세요!',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                    ),
+                    SizedBox(height: 20),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        _customButton(context, '직접거래', () {
+                          Navigator.of(context).pop(); // close the dialog
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => AddPostPage(),
+                            ),
+                          );
+                        }),
+                        _customButton(context, '사물함 거래', () {
+                          Navigator.of(context).pop(); // close the dialog
+                          Navigator.push(context,
+                              MaterialPageRoute(
+                                  builder: (context) => ChooseLockerPage(),
+                              ),
+                          );
 
-                  return SlideTransition(
-                    position: previousPageOffsetAnimation,
-                    // child: const UploadProductPage(),
-                    child: const AddPostPage(),
-                  );
-                }));
-      },
-      onTapCancel: () {
-        setState(() {
-          _isPressed = false;
-        });
+                          // For now, it just closes the dialog, but you can add navigation or other logic here
+                        }),
+                      ],
+                    ),
+                    SizedBox(height: 20),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.of(context).pop(); // close the dialog
+                      },
+                      child: Text('취소하기'),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
       },
       child: Container(
-        width: 56, // FloatingActionButton's default size
-        height: 56, // FloatingActionButton's default size
+        width: 56,
+        height: 56,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(28),
           color: Colors.transparent,
@@ -79,6 +104,26 @@ class _ProductListState extends State<ProductList> {
       ),
     );
   }
+
+  Widget _customButton(BuildContext context, String label, VoidCallback onPressed) {
+    return SizedBox(
+      width: 100, // same width and height
+      height: 100, // same width and height
+      child: ElevatedButton(
+        onPressed: onPressed,
+        style: ElevatedButton.styleFrom(
+          primary: Colors.red, // button color
+          onPrimary: Colors.white, // text color
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.zero,
+          ),
+        ),
+        child: Text(label),
+      ),
+    );
+  }
+
+
 
   Widget _buildIOSListView() {
     return NotificationListener<OverscrollIndicatorNotification>(
