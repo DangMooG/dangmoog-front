@@ -82,6 +82,8 @@ flutter:
     - assets/images/choose_locker.png
     - assets/images/s_image.png
     - assets/images/l_image.png
+    - assets/images/direct_icon.png
+    - assets/images/move_to_inbox.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

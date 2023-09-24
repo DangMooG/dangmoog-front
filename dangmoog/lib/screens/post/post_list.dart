@@ -22,7 +22,7 @@ class ProductList extends StatefulWidget {
 }
 
 class _ProductListState extends State<ProductList> {
-  bool _isPressed = false;
+  final bool _isPressed = false;
 
   @override
   Widget build(BuildContext context) {
@@ -45,33 +45,33 @@ class _ProductListState extends State<ProductList> {
               ),
               elevation: 5,
               child: Container(
-                padding: EdgeInsets.all(20),
+                padding: const EdgeInsets.all(20),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text(
+                    const Text(
                       '거래 방식을 \n선택해주세요!',
                       textAlign: TextAlign.center,
-                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                     ),
-                    SizedBox(height: 20),
+                    const SizedBox(height: 20),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: [
-                        _customButton(context, '직접거래', () {
+                        _customButton(context, '직접거래', 'assets/images/direct_icon.png', () {
                           Navigator.of(context).pop(); // close the dialog
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => AddPostPage(),
+                              builder: (context) => const AddPostPage(),
                             ),
                           );
                         }),
-                        _customButton(context, '사물함 거래', () {
+                        _customButton(context, '사물함 거래','assets/images/move_to_inbox.png', () {
                           Navigator.of(context).pop(); // close the dialog
                           Navigator.push(context,
                               MaterialPageRoute(
-                                  builder: (context) => ChooseLockerPage(),
+                                  builder: (context) => const ChooseLockerPage(),
                               ),
                           );
 
@@ -79,12 +79,34 @@ class _ProductListState extends State<ProductList> {
                         }),
                       ],
                     ),
-                    SizedBox(height: 20),
-                    TextButton(
-                      onPressed: () {
-                        Navigator.of(context).pop(); // close the dialog
-                      },
-                      child: Text('취소하기'),
+                    const SizedBox(height: 20),
+                    Container(
+                      width: 300,
+                      child: TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pop(); // close the dialog
+                        },
+                        style: ButtonStyle(
+                          backgroundColor: MaterialStateProperty.resolveWith<Color>(
+                                (Set<MaterialState> states) {
+                              if (states.contains(MaterialState.pressed)) {
+                                return Colors.red[600]!; // Color when pressed
+                              }
+                              return Colors.transparent; // Regular color
+                            },
+                          ),
+
+                          foregroundColor: MaterialStateProperty.all<Color>(const Color(0xFF726E6E)),
+                          shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                            RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(6),
+                              side: const BorderSide(color: Color(0xFF726E6E)),
+                            ),
+                          ),
+
+                        ),
+                        child: const Text('취소하기'),
+                      ),
                     ),
                   ],
                 ),
@@ -105,20 +127,26 @@ class _ProductListState extends State<ProductList> {
     );
   }
 
-  Widget _customButton(BuildContext context, String label, VoidCallback onPressed) {
+  Widget _customButton(BuildContext context, String label,String imagePath, VoidCallback onPressed) {
     return SizedBox(
       width: 100, // same width and height
       height: 100, // same width and height
       child: ElevatedButton(
         onPressed: onPressed,
         style: ElevatedButton.styleFrom(
-          primary: Colors.red, // button color
-          onPrimary: Colors.white, // text color
+          foregroundColor: Colors.white, backgroundColor: const Color(0xFFE20529), // text color
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.zero,
+            borderRadius: BorderRadius.circular(6),
           ),
         ),
-        child: Text(label),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center, // center the children vertically
+          children: [
+            Image.asset(imagePath, width: 24, height: 24), // replace 'path_to_your_image.png' with your image's path
+            const SizedBox(height: 5), // adjust the space between the image and text
+            Text(label, style: const TextStyle(fontSize: 11),),
+          ],
+        ),
       ),
     );
   }
