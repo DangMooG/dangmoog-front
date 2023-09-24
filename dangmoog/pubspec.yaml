@@ -80,6 +80,8 @@ flutter:
     - assets/images/add_icon.png
     - assets/images/add_shadow.png
     - assets/images/choose_locker.png
+    - assets/images/s_image.png
+    - assets/images/l_image.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

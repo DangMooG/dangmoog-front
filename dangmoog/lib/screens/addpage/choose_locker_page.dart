@@ -35,9 +35,21 @@ class ChooseLockerPage extends StatelessWidget {
                       style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                     ),
                     SizedBox(height: 10),
-                    Text('S 너비 : 500mm / 높이 : 365mm / 깊이 : 600mm'),
+                    Row(
+                      children: [
+                        Image(image: AssetImage('assets/images/s_image.png'), height: 16,width: 16,),
+                        SizedBox(width: 6,),
+                        Text('너비 : 500mm / 높이 : 365mm / 깊이 : 600mm'),
+                      ],
+                    ),
                     SizedBox(height: 5),
-                    Text('L 너비 : 500mm / 높이 : 700mm / 깊이 : 600mm'),
+                    Row(
+                      children: [
+                        Image(image: AssetImage('assets/images/l_image.png'), width: 16, height: 16,),
+                        SizedBox(width: 6,),
+                        Text('너비 : 500mm / 높이 : 700mm / 깊이 : 600mm'),
+                      ],
+                    ),
                   ],
                 ),
               ),
@@ -45,7 +57,7 @@ class ChooseLockerPage extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
                 child: ListView.builder(
                   shrinkWrap: true,
-                  physics: NeverScrollableScrollPhysics(),
+                  physics: const NeverScrollableScrollPhysics(),
                   itemCount: 4,
                   itemBuilder: (BuildContext context, int index) {
                     if (index < 3) {
@@ -55,7 +67,7 @@ class ChooseLockerPage extends StatelessWidget {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             buildButton("A0${index + 1}", 106),
-                            SizedBox(width: 16),
+                            const SizedBox(width: 16),
                             buildButton("B0${index + 1}", 106),
                           ],
                         ),
@@ -65,13 +77,38 @@ class ChooseLockerPage extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           buildButton("A04", 212),
-                          SizedBox(width: 8),
+                          const SizedBox(width: 8),
                           buildButton("B04", 212),
                         ],
                       );
                     }
                   },
                 ),
+              ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  const Padding(
+                    padding: EdgeInsets.only(left:12.0, bottom: 10),
+                    child: Text(
+                      "사물함 거래 시 유의사항",
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xff302E2E),
+                      ),
+                    ),
+                  ),
+                  textCell("하나의 사물함에 위탁된 물품은 모두 한번에 거래되어야 합니다."),
+                  textCell("기본적으로 인당 1개의 사물함을 이용할 수 있으나, 보증금을 지불하여 최대 3개까지 이용이 가능합니다."),
+                  textCell("1개 사물함을 초과하는 건당 5,000원의 보증금이 부과되며, 해당 보증금은 5일 이내 거래가 이루어질 경우 전액 반환됩니다."),
+                  textCell("인당 최대 1개의 사물함을 이용할 수 있습니다."),
+                  textCell("등록 이후 14일이 지난 물품은 판매자 직접 회수를 원칙으로 하며, 회수 되지 않을 시 관리자가 회수를 진행합니다."),
+                  textCell("관리자에 의해 회수된 물품은 최대 1개월간 보호 후 폐기 처리됩니다."),
+                  textCell("신고 누적 혹은 이용 규정 미준수 물품에 대해서는 조기 회수 및 폐기 처리될 수 있습니다."),
+                  textCell("사용자의 부주의로 인한 사물함 파손 시 수리비용이 청구될 수 있습니다."),
+                  const SizedBox(height: 80),
+                ],
               ),
             ],
           ),
@@ -83,15 +120,24 @@ class ChooseLockerPage extends StatelessWidget {
               onTap: () {
                 Navigator.pop(context);
               },
-              child: Icon(Icons.arrow_back, color: Colors.black), // Icon color adjusted for visibility
+              child: const Icon(Icons.arrow_back, color: Colors.black), // Icon color adjusted for visibility
             ),
           ),
         ]
       ),
+
+
     );
   }
 
   Expanded buildButton(String label, double height) {
+    String determineImage(String label) {
+      if (label == "A04" || label == "B04") {
+        return 'assets/images/l_image.png';
+      }
+      return 'assets/images/s_image.png';
+    }
+
     return Expanded(
       child: ElevatedButton(
         onPressed: null,
@@ -101,12 +147,57 @@ class ChooseLockerPage extends StatelessWidget {
             borderRadius: BorderRadius.circular(12),
           ),
         ),
-        child: Container(
-          height: height,
-          alignment: Alignment.topLeft,
-          padding: EdgeInsets.all(8),
-          child: Text(label),
+        child: Stack(
+          children: [
+            Container(
+              height: height,
+              alignment: Alignment.topLeft,
+              padding: const EdgeInsets.all(8),
+              child: Text(label),
+            ),
+            Positioned(
+              right: 5, // Position from the right
+              bottom: 5, // Position from the bottom
+              child: Image.asset(
+                determineImage(label), // call the function to get image path
+                width: 20, // Adjust as per your needs
+                height: 20, // Adjust as per your needs
+              ),
+            ),
+          ],
         ),
+      ),
+    );
+  }
+
+
+
+  Widget textCell(String text) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 16.0, bottom: 6.0, right:16.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            "• ",
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w400,
+              color: Color(0xff302E2E),
+            ),
+          ),
+          Expanded(
+            child: Text(
+              text,
+              style: const TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w400,
+                color: Color(0xff302E2E),
+              ),
+            ),
+          )
+        ],
       ),
     );
   }
