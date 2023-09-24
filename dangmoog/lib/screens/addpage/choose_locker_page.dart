@@ -5,11 +5,7 @@ import '../post/main_page.dart';
 
 class ChooseLockerPage extends StatefulWidget {
 
-  // ChooseLockerPage({super.key});
-
-
   const ChooseLockerPage({super.key});
-
 
   @override
   State<ChooseLockerPage> createState()=>_ChooseLockerPageState();
@@ -27,19 +23,41 @@ class _ChooseLockerPageState extends State<ChooseLockerPage>{
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Container(
-                  width: MediaQuery
-                      .of(context)
-                      .size
-                      .width,
-                  height: MediaQuery
-                      .of(context)
-                      .size
-                      .height * 0.3,
-                  decoration: const BoxDecoration(
-                    image: DecorationImage(
-                      image: AssetImage('assets/images/choose_locker.png'),
-                      fit: BoxFit.fill,
+                GestureDetector(
+                  onTap: () {
+                    showDialog(
+                      context: context,
+                      builder: (context) => AlertDialog(
+                        contentPadding: EdgeInsets.zero,
+                        insetPadding: const EdgeInsets.all(10), // Some padding around the dialog
+                        content: AspectRatio(
+                          aspectRatio: 1, // Set your desired aspect ratio if needed
+                          child:
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(20.0),
+                            child:Image.asset('assets/images/choose_locker.png', fit: BoxFit.fill),)
+                        ),
+                        actions: <Widget>[
+                          TextButton(
+                            child: const Text('닫기', style: TextStyle(color:  Color(0xFFE20529)
+                            )
+                            ),
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                            },
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                  child: Container(
+                    width: MediaQuery.of(context).size.width,
+                    height: MediaQuery.of(context).size.height * 0.3,
+                    decoration: const BoxDecoration(
+                      image: DecorationImage(
+                        image: AssetImage('assets/images/choose_locker.png'),
+                        fit: BoxFit.fill,
+                      ),
                     ),
                   ),
                 ),

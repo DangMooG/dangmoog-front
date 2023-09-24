@@ -80,7 +80,7 @@ class _ProductListState extends State<ProductList> {
                       ],
                     ),
                     const SizedBox(height: 20),
-                    Container(
+                    SizedBox(
                       width: 300,
                       child: TextButton(
                         onPressed: () {
