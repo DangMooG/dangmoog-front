@@ -38,6 +38,7 @@ class _ProductListState extends State<ProductList> {
       onTap: () {
         showDialog(
           context: context,
+          barrierDismissible: false,
           builder: (BuildContext context) {
             return Dialog(
               shape: RoundedRectangleBorder(
@@ -63,7 +64,7 @@ class _ProductListState extends State<ProductList> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => const AddPostPage(),
+                              builder: (context) => AddPostPage(title: '직접거래 등록'),
                             ),
                           );
                         }),

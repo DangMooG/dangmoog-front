@@ -1,8 +1,6 @@
 import 'package:dangmoog/screens/addpage/add_post_page.dart';
 import 'package:flutter/material.dart';
 
-import '../post/main_page.dart';
-
 class ChooseLockerPage extends StatefulWidget {
 
   const ChooseLockerPage({super.key});
@@ -61,13 +59,12 @@ class _ChooseLockerPageState extends State<ChooseLockerPage>{
                     ),
                   ),
                 ),
-                const SizedBox(height: 20),
+                const SizedBox(height: 16),
                 const Padding(
                   padding: EdgeInsets.symmetric(horizontal: 16.0),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      SizedBox(height: 8),
                       Text(
                         '사물함을 선택해주세요!',
                         style: TextStyle(
@@ -83,13 +80,13 @@ class _ChooseLockerPageState extends State<ChooseLockerPage>{
                           Text('너비 : 500mm / 높이 : 365mm / 깊이 : 600mm'),
                         ],
                       ),
-                      SizedBox(height: 5),
+                      SizedBox(height: 4),
                       Row(
                         children: [
                           Image(image: AssetImage('assets/images/l_image.png'),
                             width: 16,
                             height: 16,),
-                          SizedBox(width: 6,),
+                          SizedBox(width: 4,),
                           Text('너비 : 500mm / 높이 : 700mm / 깊이 : 600mm'),
                         ],
                       ),
@@ -100,6 +97,7 @@ class _ChooseLockerPageState extends State<ChooseLockerPage>{
                   padding: const EdgeInsets.symmetric(horizontal: 16.0),
                   child: ListView.builder(
                     shrinkWrap: true,
+                    padding: const EdgeInsets.symmetric(vertical: 20.0),
                     physics: const NeverScrollableScrollPhysics(),
                     itemCount: 4,
                     itemBuilder: (BuildContext context, int index) {
@@ -120,12 +118,23 @@ class _ChooseLockerPageState extends State<ChooseLockerPage>{
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             buildButton("A04", 212),
-                            const SizedBox(width: 8),
+                            const SizedBox(width: 16),
                             buildButton("B04", 212),
                           ],
                         );
                       }
                     },
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(left: 16.0, bottom: 8.0),
+                  child: Row(
+                    children: [
+                      _buildIconWithText('assets/images/using.png', '사용중'),
+                      _buildIconWithText('assets/images/possible.png', '선택가능'),
+                      _buildIconWithText('assets/images/selected.png', '선택됨'),
+                      _buildIconWithText('assets/images/fixing.png', '점검중'),
+                    ],
                   ),
                 ),
                 Column(
@@ -178,8 +187,25 @@ class _ChooseLockerPageState extends State<ChooseLockerPage>{
       ),
 
 
+
     );
   }
+
+  Widget _buildIconWithText(String imagePath, String label) {
+    return Padding(
+      padding: const EdgeInsets.only(right: 16.0),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Image(image: AssetImage(imagePath), width: 16, height: 16),
+          const SizedBox(width: 6),
+          Text(label),
+        ],
+      ),
+    );
+  }
+
+
 
   Expanded buildButton(String label, double height) {
     String determineImage(String label) {
@@ -194,6 +220,7 @@ class _ChooseLockerPageState extends State<ChooseLockerPage>{
         onPressed: () async{
           await showDialog<bool>(
               context: context,
+              barrierDismissible: false,
               builder: (BuildContext context){
                 return AlertDialog(
                   title: Column(
@@ -258,7 +285,7 @@ class _ChooseLockerPageState extends State<ChooseLockerPage>{
                             child: TextButton(onPressed: () {
                               Navigator.push(
                                 context,
-                                MaterialPageRoute(builder: (context) => const AddPostPage()
+                                MaterialPageRoute(builder: (context) => const AddPostPage(title: '사물함거래 등록'),
                                 ),
                               ); // Returns true to the caller of showDialog
                               },
@@ -308,37 +335,37 @@ class _ChooseLockerPageState extends State<ChooseLockerPage>{
                               child: const Text('다시 고르기'),
                             ),
                           ),
-                          SizedBox(
-                            width: 300,
-                            child: TextButton(onPressed: (){
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(builder: (context) => const MainPage()
-                                  ),
-                              );
-                            },
-                              style: ButtonStyle(
-                                backgroundColor: MaterialStateProperty.resolveWith<Color>(
-                                      (Set<MaterialState> states) {
-                                    if (states.contains(MaterialState.pressed)) {
-                                      return Colors.red[600]!; // Color when pressed
-                                    }
-                                    return Colors.transparent; // Regular color
-                                  },
-                                ),
-
-                                foregroundColor: MaterialStateProperty.all<Color>(const Color(0xFF726E6E)),
-                                shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                                  RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(6),
-                                    side: const BorderSide(color: Color(0xFF726E6E)),
-                                  ),
-                                ),
-
-                              ),
-                              child: const Text('취소하기'),
-                            ),
-                          ),
+                          // SizedBox(
+                          //   width: 300,
+                          //   child: TextButton(onPressed: (){
+                          //     Navigator.push(
+                          //       context,
+                          //       MaterialPageRoute(builder: (context) => const MainPage()
+                          //         ),
+                          //     );
+                          //   },
+                          //     style: ButtonStyle(
+                          //       backgroundColor: MaterialStateProperty.resolveWith<Color>(
+                          //             (Set<MaterialState> states) {
+                          //           if (states.contains(MaterialState.pressed)) {
+                          //             return Colors.red[600]!; // Color when pressed
+                          //           }
+                          //           return Colors.transparent; // Regular color
+                          //         },
+                          //       ),
+                          //
+                          //       foregroundColor: MaterialStateProperty.all<Color>(const Color(0xFF726E6E)),
+                          //       shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                          //         RoundedRectangleBorder(
+                          //           borderRadius: BorderRadius.circular(6),
+                          //           side: const BorderSide(color: Color(0xFF726E6E)),
+                          //         ),
+                          //       ),
+                          //
+                          //     ),
+                          //     child: const Text('취소하기'),
+                          //   ),
+                          // ),
                         ],
                       ),
                     ],

@@ -7,11 +7,12 @@ import 'package:image_picker/image_picker.dart';
 import 'package:dangmoog/constants/category_list.dart';
 import 'package:intl/intl.dart';
 
-// 권환 확인
+// 권한 확인
 import 'package:permission_handler/permission_handler.dart';
 
 class AddPostPage extends StatefulWidget {
-  const AddPostPage({super.key});
+  final String title;
+  const AddPostPage({Key? key, required this.title}) : super(key: key);
 
   @override
   State<AddPostPage> createState() => _AddPostPageState();
@@ -21,6 +22,18 @@ class _AddPostPageState extends State<AddPostPage> {
   final List<String> _imageList = <String>[];
   final ImagePicker picker = ImagePicker();
   final List<XFile> vac = <XFile>[];
+
+  bool get isImageUploaded => _imageList.isNotEmpty;
+  bool get isProductNameFilled => productNameController.text.isNotEmpty;
+  bool get isCategorySelected => _selectedItem.isNotEmpty;
+  bool get isPriceFilled => priceController.text.isNotEmpty;
+  bool get isDescriptionProvided => detailController.text.isNotEmpty;
+  bool get isButtonEnabled => isProductNameFilled && isCategorySelected && isPriceFilled && isDescriptionProvided;
+  String? productNameError;
+  String? productCategoryError;
+  String? productPriceError;
+  String? productDescriptionError;
+
 
   // 앨범에서 이미지를 가져오는 함수
   Future getImagesFromAlbum(BuildContext context) async {
@@ -132,7 +145,6 @@ class _AddPostPageState extends State<AddPostPage> {
     }
   }
 
-  String dropdownValue = 'Category 1';
   bool useCabinet = false;
   int userId = 3;
 
@@ -150,6 +162,28 @@ class _AddPostPageState extends State<AddPostPage> {
   @override
   void initState() {
     super.initState();
+    productNameController.addListener(() {
+      if (isProductNameFilled) {
+        setState(() {
+          productNameError = null;
+        });
+      }
+    });
+    priceController.addListener(() {
+      if (isPriceFilled){
+        setState(() {
+          productPriceError =null;
+        });
+      }
+    });
+    detailController.addListener(() {
+      if (isDescriptionProvided){
+        setState(() {
+          productDescriptionError =null;
+        });
+      }
+    });
+
   }
 
   @override
@@ -158,11 +192,19 @@ class _AddPostPageState extends State<AddPostPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('물품 판매'),
+        title: Text(widget.title),
         leading: IconButton(
           icon: const Icon(Icons.close),
           onPressed: () {
-            Navigator.of(context).pop();
+            if (isImageUploaded ||
+                isProductNameFilled ||
+                isCategorySelected ||
+                isPriceFilled ||
+                isDescriptionProvided) {
+              _showExitConfirmationDialog(context);
+            } else {
+              Navigator.of(context).pop();
+            }
           },
         ),
         centerTitle: true,
@@ -539,6 +581,20 @@ class _AddPostPageState extends State<AddPostPage> {
             ),
             maxLength: 64,
           ),
+          if (productNameError!=null)
+            Padding(
+              padding: const EdgeInsets.only(top: 8.0),
+              child: Row(
+                children: [
+                  const Icon(Icons.error, color: Color(0xFFE20529), size: 12), // Error icon
+                  const SizedBox(width: 4), // Some spacing between icon and text
+                  Text(
+                    productNameError!,
+                    style: const TextStyle(color: Color(0xFFE20529), fontSize: 12),
+                  ),
+                ],
+              ),
+            ),
         ],
       ),
     );
@@ -557,6 +613,10 @@ class _AddPostPageState extends State<AddPostPage> {
       setState(() {
         _selectedItem = item;
         _isSelectListVisible = false;
+
+        if(_selectedItem.isNotEmpty){
+          productCategoryError=null;
+        }
       });
     }
 
@@ -579,7 +639,7 @@ class _AddPostPageState extends State<AddPostPage> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    (_selectedItem == "")
+                    (_selectedItem == '')
                         ? const Text(
                             '항목 선택',
                             textAlign: TextAlign.left,
@@ -606,8 +666,23 @@ class _AddPostPageState extends State<AddPostPage> {
                           : const Color(0xffA19E9E),
                     )
                   ],
-                )),
+                )
+            ),
           ),
+          if (productCategoryError!=null)
+            Padding(
+              padding: const EdgeInsets.only(top: 8.0),
+              child: Row(
+                children: [
+                  const Icon(Icons.error, color: Color(0xFFE20529), size: 12), // Error icon
+                  const SizedBox(width: 4), // Some spacing between icon and text
+                  Text(
+                    productCategoryError!,
+                    style: const TextStyle(color: Color(0xFFE20529), fontSize: 12),
+                  ),
+                ],
+              ),
+            ),
           if (_isSelectListVisible)
             Container(
               margin: const EdgeInsets.only(top: 8),
@@ -616,27 +691,29 @@ class _AddPostPageState extends State<AddPostPage> {
                 borderRadius: const BorderRadius.all(Radius.circular(4)),
               ),
               constraints: const BoxConstraints(maxHeight: 3 * 41.0),
-              child: ListView(
-                padding: EdgeInsets.zero,
-                physics: const AlwaysScrollableScrollPhysics(),
-                shrinkWrap: true,
-                children: categeryItems.map((category) {
-                  return ListTile(
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 8),
-                    dense: true,
-                    visualDensity: VisualDensity.compact,
-                    hoverColor: const Color(0xffF1F1F1),
-                    title: Text(
-                      category,
-                      style: const TextStyle(
-                        color: Color(0xff302E2E),
-                        fontSize: 14,
-                        fontWeight: FontWeight.w400,
+              child: Scrollbar( // <- Wrap ListView inside Scrollbar
+                child: ListView(
+                  padding: EdgeInsets.zero,
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  shrinkWrap: true,
+                  children: categeryItems.map((category) {
+                    return ListTile(
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 8),
+                      dense: true,
+                      visualDensity: VisualDensity.compact,
+                      hoverColor: const Color(0xffF1F1F1),
+                      title: Text(
+                        category,
+                        style: const TextStyle(
+                          color: Color(0xff302E2E),
+                          fontSize: 14,
+                          fontWeight: FontWeight.w400,
+                        ),
                       ),
-                    ),
-                    onTap: () => _selectItem(category),
-                  );
-                }).toList(),
+                      onTap: () => _selectItem(category),
+                    );
+                  }).toList(),
+                ),
               ),
             ),
         ],
@@ -718,6 +795,20 @@ class _AddPostPageState extends State<AddPostPage> {
             ),
             maxLength: 20,
           ),
+          if (productPriceError!=null)
+            Padding(
+              padding: const EdgeInsets.only(top: 8.0),
+              child: Row(
+                children: [
+                  const Icon(Icons.error, color: Color(0xFFE20529), size: 12), // Error icon
+                  const SizedBox(width: 4), // Some spacing between icon and text
+                  Text(
+                    productPriceError!,
+                    style: const TextStyle(color: Color(0xFFE20529), fontSize: 12),
+                  ),
+                ],
+              ),
+            ),
           Container(
             padding: const EdgeInsets.only(top: 8),
             child: Row(
@@ -726,8 +817,7 @@ class _AddPostPageState extends State<AddPostPage> {
                   width: 20,
                   height: 20,
                   child: Checkbox(
-                    overlayColor:
-                        const MaterialStatePropertyAll(Colors.transparent),
+                    overlayColor: MaterialStateProperty.all(const Color(0xffBEBCBC)),
                     value: isFree,
                     splashRadius: 12,
                     shape: RoundedRectangleBorder(
@@ -738,8 +828,14 @@ class _AddPostPageState extends State<AddPostPage> {
                       ),
                     ),
                     activeColor: const Color(0xffBEBCBC),
-                    fillColor:
-                        const MaterialStatePropertyAll(Color(0xffBEBCBC)),
+                    fillColor: MaterialStateProperty.resolveWith<Color>(
+                          (Set<MaterialState> states) {
+                        if (states.contains(MaterialState.selected)) {
+                          return const Color(0xFFE20529); // Checked (red)
+                        }
+                        return const Color(0xffBEBCBC); // Unchecked (transparent)
+                      },
+                    ),
                     checkColor: Colors.white,
                     onChanged: (value) {
                       if (isFree) {
@@ -752,6 +848,7 @@ class _AddPostPageState extends State<AddPostPage> {
                       });
                     },
                   ),
+
                 ),
                 const Padding(
                   padding: EdgeInsets.only(left: 8.0),
@@ -813,6 +910,20 @@ class _AddPostPageState extends State<AddPostPage> {
               ),
             ),
           ),
+          if (productDescriptionError!=null)
+            Padding(
+              padding: const EdgeInsets.only(top: 8.0),
+              child: Row(
+                children: [
+                  const Icon(Icons.error, color: Color(0xFFE20529), size: 12), // Error icon
+                  const SizedBox(width: 4), // Some spacing between icon and text
+                  Text(
+                    productDescriptionError!,
+                    style: const TextStyle(color: Color(0xFFE20529), fontSize: 12),
+                  ),
+                ],
+              ),
+            ),
         ],
       ),
     );
@@ -839,29 +950,118 @@ class _AddPostPageState extends State<AddPostPage> {
       padding: const EdgeInsets.only(top: 14, bottom: 35),
       child: ElevatedButton(
         onPressed: () {
-          // 쉼표 제거
-          int price;
-          if (priceController.text != "") {
-            price = int.parse(priceController.text.replaceAll(',', ''));
-          } else {
-            price = 0;
+
+
+          _setFieldErrors();
+          setState(() {});
+
+          if(isButtonEnabled){
+            if(_imageList.isEmpty){
+              showDialog(
+                  context: context,
+                  barrierDismissible: false,
+                  builder: (BuildContext context){
+                    return Dialog(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      elevation: 5,
+                      child: Container(
+                        padding: const EdgeInsets.all(20),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Text(
+                              '사진을 올리지 않았습니다!\n그래도 판매글을 업로드하시겠어요?',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                            ),
+                            SizedBox(height: 8,),
+                            const Text(
+                              '사진이 없는 게시글은\n사진이 있는 게시물보다 전환율이 낮습니다.\n그래도 사진없이 업로드하시겠어요?',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(fontSize: 14 ),
+                            ),
+                            SizedBox(height: 16,),
+                            SizedBox(
+                              width: 300,
+                              child: TextButton(
+                                onPressed: () {
+                                  Navigator.of(context).pop(); // TODO : 서버로 정보 보내고 홈 화면으로!
+                                },
+                                style: ButtonStyle(
+                                  backgroundColor: MaterialStateProperty.resolveWith<Color>(
+                                        (Set<MaterialState> states) {
+                                      if (states.contains(MaterialState.pressed)) {
+                                        return Colors.red[600]!; // Color when pressed
+                                      }
+                                      return Color(0xffE20529); // Regular color
+                                    },
+                                  ),
+
+                                  foregroundColor: MaterialStateProperty.all<Color>(Colors.white),
+                                  shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                                    RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(6),
+                                      side: const BorderSide(color: Color(0xFF726E6E)),
+                                    ),
+                                  ),
+
+                                ),
+                                child: const Text('업로드'),
+                              ),
+                            ),
+                            SizedBox(height: 8,),
+                            SizedBox(
+                              width: 300,
+                              child: TextButton(
+                                onPressed: () {
+                                  Navigator.of(context).pop(); // close the dialog
+                                },
+                                style: ButtonStyle(
+                                  backgroundColor: MaterialStateProperty.resolveWith<Color>(
+                                        (Set<MaterialState> states) {
+                                      if (states.contains(MaterialState.pressed)) {
+                                        return Colors.red[600]!; // Color when pressed
+                                      }
+                                      return Colors.transparent; // Regular color
+                                    },
+                                  ),
+
+                                  foregroundColor: MaterialStateProperty.all<Color>(const Color(0xFF726E6E)),
+                                  shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                                    RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(6),
+                                      side: const BorderSide(color: Color(0xFF726E6E)),
+                                    ),
+                                  ),
+
+                                ),
+                                child: const Text('취소하기'),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+              );
+            }
+            else{
+              // // TODO : 서버로 정보 보내고 홈 화면으로!
+            }
+
           }
-          // NewPostModel newPost = NewPostModel(
-          //   userId: userId,
-          //   title: productNameController.text,
-          //   description: detailController.text,
-          //   price: price,
-          //   images: _imageList,
-          //   category: dropdownValue,
-          //   saleMethod: useCabinet ? "위탁판매" : "직접판매",
-          // );
-          Navigator.pop(context);
+
+
+          if (priceController.text.isNotEmpty) {
+          } else {
+          }
+
+
         },
         style: ButtonStyle(
-          backgroundColor: MaterialStateProperty.resolveWith<Color>(
-              (Set<MaterialState> states) {
-            return const Color(0xffBEBCBC);
-          }),
+          backgroundColor: MaterialStateProperty.all(const Color(0xFFE20529)),
           overlayColor: MaterialStateProperty.all(Colors.transparent),
           shape: MaterialStateProperty.all<RoundedRectangleBorder>(
             RoundedRectangleBorder(
@@ -885,4 +1085,138 @@ class _AddPostPageState extends State<AddPostPage> {
       ),
     );
   }
+
+  void _setFieldErrors() {
+    // Check for product name
+    if (!isProductNameFilled) {
+      productNameError = '물품 이름을 입력해주세요!';
+    } else {
+      productNameError = null;
+    }
+
+    // Check for category
+    if (!isCategorySelected) {
+      productCategoryError = '카테고리 항목을 선택해주세요!';
+    } else {
+      productCategoryError = null;
+    }
+
+    // Check for product description
+    if (!isDescriptionProvided) {
+      productDescriptionError = '상세내용을 1자 이상 작성해주세요!';
+    } else {
+      productDescriptionError = null;
+    }
+
+    // Check for product price
+    if (!isPriceFilled) {
+      productPriceError = '가격을 입력해주세요!';
+    } else {
+      productPriceError = null;
+    }
+
+    // Similarly, reset error messages for other fields if their conditions are satisfied
+  }
+
+  void _showExitConfirmationDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Column(
+            children: [
+              Padding(
+                padding: EdgeInsets.all(8.0),
+                child: Text('작성 중인 판매글을 삭제하시겠어요?',
+                  style: TextStyle(
+                    fontSize: 16,
+
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+              Text('삭제하기를 누르시면 저장되지 않습니다.',
+                style: TextStyle(
+
+                  fontSize: 14,
+                ),
+                textAlign: TextAlign.center,),
+            ],
+          ),
+          // content: ,
+          actions: <Widget>[
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                SizedBox(
+                  width: 300,
+                  child: TextButton(
+                    child: Text('삭제하기'),
+                    onPressed: () {
+                      Navigator.of(context).pop(true);  // Close the dialog and confirm exit without saving
+                    },
+                    style: ButtonStyle(
+                      backgroundColor: MaterialStateProperty.resolveWith<Color>(
+                            (Set<MaterialState> states) {
+                          if (states.contains(MaterialState.pressed)) {
+                            return Colors.red[600]!; // Color when pressed
+                          }
+                          return const Color(0xFFE20529); // Regular color
+                        },
+                      ),
+
+                      foregroundColor: MaterialStateProperty.all<Color>(Colors.white),
+                      shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                        RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                      ),
+
+                    ),
+                  ),
+                ),
+                SizedBox(
+                  width: 300,
+                  child: TextButton(
+                    child: Text('취소하기'),
+                    onPressed: () {
+                      // Add logic here to save the progress if needed
+                      //TODO:취소하기 만들기
+                    },
+                    style: ButtonStyle(
+                      backgroundColor: MaterialStateProperty.resolveWith<Color>(
+                            (Set<MaterialState> states) {
+                          if (states.contains(MaterialState.pressed)) {
+                            return Colors.red[600]!; // Color when pressed
+                          }
+                          return Colors.transparent; // Regular color
+                        },
+                      ),
+
+                      foregroundColor: MaterialStateProperty.all<Color>(const Color(0xFF726E6E)),
+                      shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                        RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(6),
+                          side: const BorderSide(color: Color(0xFF726E6E)),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+
+          ],
+        );
+      },
+    ).then((shouldExit) {
+      if (shouldExit == true) {
+        Navigator.of(context).pop();  // Exit the AddPostPage
+      }
+    });
+  }
+
+
+
 }

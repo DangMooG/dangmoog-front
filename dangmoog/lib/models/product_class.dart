@@ -7,7 +7,7 @@ class ProductModel extends ChangeNotifier {
   final String title;
   final String description;
   final int price;
-  final List<dynamic> images;
+  final List<String> images;
   final String category;
   final DateTime uploadTime;
   final String saleMethod;
