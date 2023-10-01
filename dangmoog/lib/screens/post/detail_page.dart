@@ -9,27 +9,34 @@ import 'package:carousel_slider/carousel_slider.dart';
 
 import 'package:dangmoog/utils/convert_money_format.dart';
 
-Future<ProductModel> _loadProductFromAsset() async {
+Future<ProductModel?> _loadProductFromAsset(int postId) async {
   final String jsonString =
-      await rootBundle.loadString('assets/product_detail.json');
-  final dynamic productDetailData = json.decode(jsonString);
+  await rootBundle.loadString('assets/products.json');
+  final List<dynamic> jsonResponse = json.decode(jsonString);
 
-  return ProductModel(
-    postId: productDetailData['postId'],
-    title: productDetailData['title'],
-    description: productDetailData['description'],
-    price: productDetailData['price'],
-    images: productDetailData['images'],
-    category: productDetailData['category'],
-    uploadTime: DateTime.parse(productDetailData['uploadTime']),
-    saleMethod: productDetailData['saleMethod'],
-    userName: productDetailData['userName'],
-    dealStatus: productDetailData['dealStatus'],
-    viewCount: productDetailData['viewCount'],
-    chatCount: productDetailData['chatCount'],
-    likeCount: productDetailData['likeCount'],
-    isFavorited: productDetailData['isFavorited'],
-  );
+  for (var productDetailData in jsonResponse){
+    if (productDetailData['postId']==postId){
+      return ProductModel(
+        postId: productDetailData['postId'],
+        title: productDetailData['title'],
+        description: productDetailData['description'],
+        price: productDetailData['price'],
+        images: List<String>.from(productDetailData['images']),
+        category: productDetailData['category'],
+        uploadTime: DateTime.parse(productDetailData['uploadTime']),
+        saleMethod: productDetailData['saleMethod'],
+        userName: productDetailData['userName'],
+        dealStatus: productDetailData['dealStatus'],
+        viewCount: productDetailData['viewCount'],
+        chatCount: productDetailData['chatCount'],
+        likeCount: productDetailData['likeCount'],
+        isFavorited: productDetailData['isFavorited'],
+      );
+    }
+  }
+
+  return null;
+
 }
 
 class ProductDetailPage extends StatefulWidget {
@@ -48,23 +55,28 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
   int _current = 0;
   final CarouselController _controller = CarouselController();
 
-  late Future<ProductModel> futureProductDetail;
+  late Future<ProductModel?> futureProductDetail;
 
   @override
   void initState() {
     super.initState();
-    futureProductDetail = _loadProductFromAsset();
+    futureProductDetail = _loadProductFromAsset(widget.postId);
   }
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<ProductModel>(
+    return FutureBuilder<ProductModel?>(
       future: futureProductDetail,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.done) {
           if (snapshot.hasError) {
+            print('Error: ${snapshot.error}');
             return const Center(child: Text('Error loading products!'));
           }
+          if (snapshot.data == null) {
+            return const Center(child: Text('Product not found!'));
+          }
+
           return _buildProductDetail(snapshot.data!);
         } else {
           return const Center(child: CircularProgressIndicator());
@@ -186,7 +198,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
               width: 9.0,
               height: 9.0,
               margin:
-                  const EdgeInsets.symmetric(vertical: 10.0, horizontal: 4.0),
+              const EdgeInsets.symmetric(vertical: 10.0, horizontal: 4.0),
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 border: Border.all(
@@ -359,13 +371,13 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
       margin: const EdgeInsets.only(top: 6),
       child: product.price != 0
           ? Text(
-              convertoneyFormat(product.price),
-              style: const TextStyle(
-                fontWeight: FontWeight.w600,
-                fontSize: 18,
-                color: Color(0xFF302E2E),
-              ),
-            )
+        convertoneyFormat(product.price),
+        style: const TextStyle(
+          fontWeight: FontWeight.w600,
+          fontSize: 18,
+          color: Color(0xFF302E2E),
+        ),
+      )
           : const Text('나눔 🐿️'),
     );
   }
@@ -466,9 +478,9 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
             },
             style: ButtonStyle(
                 backgroundColor:
-                    MaterialStateProperty.all<Color>(const Color(0xFFE20529)),
+                MaterialStateProperty.all<Color>(const Color(0xFFE20529)),
                 minimumSize:
-                    MaterialStateProperty.all<Size>(const Size(269, 46)),
+                MaterialStateProperty.all<Size>(const Size(269, 46)),
                 shape: MaterialStateProperty.all<RoundedRectangleBorder>(
                     RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12)))),

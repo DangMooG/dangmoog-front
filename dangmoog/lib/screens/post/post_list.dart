@@ -8,12 +8,12 @@ import 'dart:io';
 
 import 'package:dangmoog/screens/post/detail_page.dart';
 
-import 'package:dangmoog/models/product_list_model.dart';
+import 'package:dangmoog/models/product_class.dart';
 
 import 'package:dangmoog/utils/convert_money_format.dart';
 
 class ProductList extends StatefulWidget {
-  final List<ProductListModel> productList;
+  final List<ProductModel> productList;
 
   const ProductList({Key? key, required this.productList}) : super(key: key);
 
@@ -22,7 +22,6 @@ class ProductList extends StatefulWidget {
 }
 
 class _ProductListState extends State<ProductList> {
-  final bool _isPressed = false;
 
   @override
   Widget build(BuildContext context) {
@@ -64,16 +63,16 @@ class _ProductListState extends State<ProductList> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => AddPostPage(title: '직접거래 등록'),
+                              builder: (context) => const AddPostPage(title: '직접거래 등록'),
                             ),
                           );
                         }),
                         _customButton(context, '사물함 거래','assets/images/move_to_inbox.png', () {
                           Navigator.of(context).pop(); // close the dialog
                           Navigator.push(context,
-                              MaterialPageRoute(
-                                  builder: (context) => const ChooseLockerPage(),
-                              ),
+                            MaterialPageRoute(
+                              builder: (context) => const ChooseLockerPage(),
+                            ),
                           );
 
                           // For now, it just closes the dialog, but you can add navigation or other logic here
@@ -173,7 +172,7 @@ class _ProductListState extends State<ProductList> {
     return ListView.separated(
       itemCount: widget.productList.length,
       itemBuilder: (context, index) {
-        Widget productCard = ChangeNotifierProvider<ProductListModel>.value(
+        Widget productCard = ChangeNotifierProvider<ProductModel>.value(
           value: widget.productList[index],
           child: _postCard(context),
         );
@@ -189,7 +188,7 @@ class _ProductListState extends State<ProductList> {
 
   // 게시물 리스트에서 게시물 하나에 대한 위젯
   Widget _postCard(BuildContext context) {
-    return Consumer<ProductListModel>(
+    return Consumer<ProductModel>(
       builder: (context, product, child) {
         double paddingValue = MediaQuery.of(context).size.width * 0.042;
         return InkWell(
@@ -200,8 +199,8 @@ class _ProductListState extends State<ProductList> {
                 transitionDuration: const Duration(milliseconds: 400),
                 pageBuilder: (context, animation, secondaryAnimation) =>
                     ProductDetailPage(
-                  postId: product.postId,
-                ),
+                      postId: product.postId,
+                    ),
                 transitionsBuilder:
                     (context, animation, secondaryAnimation, child) {
                   // const begin = Offset(1.0, 0.0);
@@ -214,9 +213,9 @@ class _ProductListState extends State<ProductList> {
 
                   // This ensures the previous page (list page) also moves, revealing itself when swiping the detail page.
                   var previousPageOffsetAnimation =
-                      Tween(begin: const Offset(1, 0), end: const Offset(0, 0))
-                          .chain(CurveTween(curve: Curves.decelerate))
-                          .animate(animation);
+                  Tween(begin: const Offset(1, 0), end: const Offset(0, 0))
+                      .chain(CurveTween(curve: Curves.decelerate))
+                      .animate(animation);
 
                   return SlideTransition(
                     position: previousPageOffsetAnimation,
@@ -246,7 +245,7 @@ class _ProductListState extends State<ProductList> {
   }
 
   // 게시물 내역 이미지
-  Widget _buildProductImage(BuildContext context, ProductListModel product) {
+  Widget _buildProductImage(BuildContext context, ProductModel product) {
     double size = MediaQuery.of(context).size.width * 0.28;
     double paddingValue = MediaQuery.of(context).size.width * 0.042;
 
@@ -268,7 +267,7 @@ class _ProductListState extends State<ProductList> {
         child: ClipRRect(
           borderRadius: BorderRadius.circular(8),
           child: Image.asset(
-            product.image,
+            product.images.isNotEmpty ? product.images[0] : '/assets/images/sample.png',
             fit: BoxFit.cover,
           ),
         ),
@@ -276,7 +275,7 @@ class _ProductListState extends State<ProductList> {
     );
   }
 
-  Widget _buildProductDetails(BuildContext context, ProductListModel product) {
+  Widget _buildProductDetails(BuildContext context, ProductModel product) {
     double height = MediaQuery.of(context).size.width * 0.28;
     return Expanded(
       child: SizedBox(
@@ -294,7 +293,7 @@ class _ProductListState extends State<ProductList> {
   }
 
   // 게시글 제목, 카테고리, 시간, 가격 표시
-  Widget _buildProductTexts(ProductListModel product) {
+  Widget _buildProductTexts(ProductModel product) {
     String timeAgo(DateTime date) {
       Duration diff = DateTime.now().difference(date);
 
@@ -349,21 +348,21 @@ class _ProductListState extends State<ProductList> {
             _buildDealStatus(product.dealStatus),
             product.price != 0
                 ? Text(
-                    convertoneyFormat(product.price),
-                    style: const TextStyle(
-                      fontWeight: FontWeight.w600,
-                      fontSize: 16,
-                      color: Color(0xFF302E2E),
-                    ),
-                  )
+              convertoneyFormat(product.price),
+              style: const TextStyle(
+                fontWeight: FontWeight.w600,
+                fontSize: 16,
+                color: Color(0xFF302E2E),
+              ),
+            )
                 : const Text(
-                    '나눔 🐿️',
-                    style: TextStyle(
-                      fontWeight: FontWeight.w600,
-                      fontSize: 16,
-                      color: Color(0xFF302E2E),
-                    ),
-                  ),
+              '나눔 🐿️',
+              style: TextStyle(
+                fontWeight: FontWeight.w600,
+                fontSize: 16,
+                color: Color(0xFF302E2E),
+              ),
+            ),
           ],
         ),
       ],
@@ -373,28 +372,28 @@ class _ProductListState extends State<ProductList> {
   Widget _buildDealStatus(int status) {
     return status != 0
         ? Container(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 8,
-              vertical: 2.5,
-            ),
-            margin: const EdgeInsets.only(right: 6),
-            decoration: BoxDecoration(
-              borderRadius: const BorderRadius.all(
-                Radius.circular(3),
-              ),
-              color: status == 1
-                  ? const Color(0xffEC5870)
-                  : const Color(0xff726E6E),
-            ),
-            child: Text(
-              status == 1 ? '예약중' : '판매완료',
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 11,
-                fontWeight: FontWeight.w400,
-              ),
-            ),
-          )
+      padding: const EdgeInsets.symmetric(
+        horizontal: 8,
+        vertical: 2.5,
+      ),
+      margin: const EdgeInsets.only(right: 6),
+      decoration: BoxDecoration(
+        borderRadius: const BorderRadius.all(
+          Radius.circular(3),
+        ),
+        color: status == 1
+            ? const Color(0xffEC5870)
+            : const Color(0xff726E6E),
+      ),
+      child: Text(
+        status == 1 ? '예약중' : '판매완료',
+        style: const TextStyle(
+          color: Colors.white,
+          fontSize: 11,
+          fontWeight: FontWeight.w400,
+        ),
+      ),
+    )
         : const SizedBox.shrink();
   }
 }
