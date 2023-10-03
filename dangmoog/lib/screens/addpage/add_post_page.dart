@@ -34,7 +34,6 @@ class _AddPostPageState extends State<AddPostPage> {
   String? productPriceError;
   String? productDescriptionError;
 
-
   // 앨범에서 이미지를 가져오는 함수
   Future getImagesFromAlbum(BuildContext context) async {
     PermissionStatus status = await Permission.photos.request();
@@ -152,6 +151,7 @@ class _AddPostPageState extends State<AddPostPage> {
   String _selectedItem = '';
 
   bool isFree = false;
+  bool _showPrice = false;
 
   TextEditingController productNameController = TextEditingController();
   TextEditingController priceController = TextEditingController();
@@ -546,7 +546,7 @@ class _AddPostPageState extends State<AddPostPage> {
   // 게시물 제목 입력 위젯
   Widget _postTitle() {
     return Padding(
-      padding: const EdgeInsets.only(top: 20),
+      padding: const EdgeInsets.only(top: 16),
       child: Column(
         // mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -621,7 +621,7 @@ class _AddPostPageState extends State<AddPostPage> {
     }
 
     return Padding(
-      padding: const EdgeInsets.only(top: 20),
+      padding: const EdgeInsets.only(top: 16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -733,7 +733,7 @@ class _AddPostPageState extends State<AddPostPage> {
     }
 
     return Padding(
-      padding: const EdgeInsets.only(top: 20),
+      padding: const EdgeInsets.only(top: 16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -809,6 +809,19 @@ class _AddPostPageState extends State<AddPostPage> {
                 ],
               ),
             ),
+          Padding(
+            padding: const EdgeInsets.only(top:8.0), // 가격 텍스트랑 ai 추천 가격 사이 칸
+            child: Container(
+                padding: const EdgeInsets.only(left: 8),
+                height: 48,
+                // padding: const EdgeInsets.symmetric(horizontal:8),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF1F1F1),
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                child: _showPrice ? _recommendedPriceButtons():_initialAiRecommended(),
+            ),
+          ),
           Container(
             padding: const EdgeInsets.only(top: 8),
             child: Row(
@@ -976,13 +989,13 @@ class _AddPostPageState extends State<AddPostPage> {
                               textAlign: TextAlign.center,
                               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                             ),
-                            SizedBox(height: 8,),
+                            const SizedBox(height: 8,),
                             const Text(
                               '사진이 없는 게시글은\n사진이 있는 게시물보다 전환율이 낮습니다.\n그래도 사진없이 업로드하시겠어요?',
                               textAlign: TextAlign.center,
                               style: TextStyle(fontSize: 14 ),
                             ),
-                            SizedBox(height: 16,),
+                            const SizedBox(height: 16,),
                             SizedBox(
                               width: 300,
                               child: TextButton(
@@ -995,7 +1008,7 @@ class _AddPostPageState extends State<AddPostPage> {
                                       if (states.contains(MaterialState.pressed)) {
                                         return Colors.red[600]!; // Color when pressed
                                       }
-                                      return Color(0xffE20529); // Regular color
+                                      return const Color(0xffE20529); // Regular color
                                     },
                                   ),
 
@@ -1011,7 +1024,7 @@ class _AddPostPageState extends State<AddPostPage> {
                                 child: const Text('업로드'),
                               ),
                             ),
-                            SizedBox(height: 8,),
+                            const SizedBox(height: 8,),
                             SizedBox(
                               width: 300,
                               child: TextButton(
@@ -1086,6 +1099,101 @@ class _AddPostPageState extends State<AddPostPage> {
     );
   }
 
+  Widget _initialAiRecommended(){
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        const SizedBox(
+          width: 212,
+          height: 32,
+          child: Text(
+            '중고가를 어떻게 설정해야 할지 모르겠다면?\nAI가 대표사진을 분석하여 가격을 추천해줘요!',
+            style: TextStyle(
+              fontFamily: 'Pretendard',
+              fontSize: 11,
+              height: 1.45,
+              color: Color(0xFF302E2E),
+              fontWeight: FontWeight.w400,
+            ),
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.only(right:8.0),
+          child: TextButton(
+            onPressed: () {
+              setState(() {
+                _showPrice = true;
+              });
+            },
+            style: TextButton.styleFrom(
+              minimumSize: const Size(111, 24),
+              backgroundColor: const Color(0xFFEC5870),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+            ),
+            child: const Text(
+              'AI 가격 추천(BETA)',
+              style: TextStyle(
+                fontFamily: 'Pretendard',
+                fontSize: 11,
+                color: Colors.white,
+                fontWeight: FontWeight.w400,
+              ),
+            ),
+          ),
+        ),
+
+      ],
+    );
+  }
+
+  Widget _recommendedPriceButtons() {
+    return Row(
+      children: [
+        ...<String>['₩ 1,011,000', '₩ 1,212,000', '₩ 1,413,000']
+            .map((price) => Padding(
+          padding: const EdgeInsets.only(right: 4.0), // This gives each button a right padding of 4.0
+          child: TextButton(
+            onPressed: () {
+              priceController.text = price.replaceFirst('₩ ', '');
+              if (isFree == true) {
+                setState(() {
+                  isFree = !isFree;
+                });
+              }
+            },
+            style: TextButton.styleFrom(
+              backgroundColor: const Color(0xFFEC5870),
+              padding: const EdgeInsets.symmetric(vertical: 8), // Vertical padding of 8 for buttons
+              minimumSize: const Size(82, 24),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+            ),
+            child: Text(
+              price,
+              style: const TextStyle(
+                fontFamily: 'Pretendard',
+                fontSize: 11,
+                color: Colors.white,
+                fontWeight: FontWeight.w400,
+              ),
+            ),
+          ),
+        ))
+            .toList(),
+        const Spacer(),
+        IconButton(
+          icon: const Image(image: AssetImage('assets/images/Vector.png'), width: 12.5, height: 12.5,),
+          onPressed: () {
+            setState(() {
+              _showPrice = false; // Switching back to the _initialAiRecommended widget
+            });
+          },
+        ),
+      ],
+    );
+  }
+
+
+
   void _setFieldErrors() {
     // Check for product name
     if (!isProductNameFilled) {
@@ -1152,7 +1260,6 @@ class _AddPostPageState extends State<AddPostPage> {
                 SizedBox(
                   width: 300,
                   child: TextButton(
-                    child: Text('삭제하기'),
                     onPressed: () {
                       Navigator.of(context).pop(true);  // Close the dialog and confirm exit without saving
                     },
@@ -1174,12 +1281,12 @@ class _AddPostPageState extends State<AddPostPage> {
                       ),
 
                     ),
+                    child: const Text('삭제하기'),
                   ),
                 ),
                 SizedBox(
                   width: 300,
                   child: TextButton(
-                    child: Text('취소하기'),
                     onPressed: () {
                       // Add logic here to save the progress if needed
                       //TODO:취소하기 만들기
@@ -1202,6 +1309,7 @@ class _AddPostPageState extends State<AddPostPage> {
                         ),
                       ),
                     ),
+                    child: const Text('취소하기'),
                   ),
                 ),
               ],
@@ -1216,7 +1324,5 @@ class _AddPostPageState extends State<AddPostPage> {
       }
     });
   }
-
-
 
 }
