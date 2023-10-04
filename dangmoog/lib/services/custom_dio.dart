@@ -1,32 +1,39 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
-var options = BaseOptions(
-  baseUrl:
-      'https://port-0-dangmoog-api-server-p8xrq2mlfc80j33.sel3.cloudtype.app/meta/',
-);
+const BASE_URL =
+    'https://port-0-dangmoog-api-server-p8xrq2mlfc80j33.sel3.cloudtype.app/meta/';
 
-Dio dioAuthAPI() {
-  return Dio(
-    BaseOptions(
-      baseUrl:
-          'https://port-0-dangmoog-api-server-p8xrq2mlfc80j33.sel3.cloudtype.app/meta/',
-      connectTimeout: const Duration(microseconds: 5000),
-      receiveTimeout: const Duration(microseconds: 3000),
-    ),
-  );
-}
+class DioClient {
+  final Dio _publicClient;
+  final Dio _authClient;
 
-Dio dioAPI() {
-  const storage = FlutterSecureStorage();
+  static const storage = FlutterSecureStorage();
 
-  final token = storage.read(key: 'login');
+  DioClient()
+      : _publicClient = Dio(
+          BaseOptions(
+            baseUrl: BASE_URL,
+          ),
+        ),
+        _authClient = Dio(
+          BaseOptions(
+            baseUrl: BASE_URL,
+          ),
+        ) {
+    _authClient.interceptors.add(
+      InterceptorsWrapper(
+        onRequest: (options, handler) async {
+          String? accessToken = await storage.read(key: 'accessToken');
+          if (accessToken != null && accessToken.isNotEmpty) {
+            options.headers['Authorization'] = 'Bearer $accessToken';
+          }
+          return handler.next(options);
+        },
+      ),
+    );
+  }
 
-  return Dio(BaseOptions(
-      baseUrl:
-          'https://port-0-dangmoog-api-server-p8xrq2mlfc80j33.sel3.cloudtype.app/meta/',
-      headers: {
-        "access_token": storage.read(key: 'access_token'),
-        "refresh_token": storage.read(key: 'refresh_token'),
-      }));
+  Dio get publicClient => _publicClient;
+  Dio get authClient => _authClient;
 }
