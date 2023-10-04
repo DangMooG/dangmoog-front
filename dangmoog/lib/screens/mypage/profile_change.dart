@@ -1,25 +1,23 @@
+import 'package:dangmoog/screens/mypage/nickname_change.dart';
 import 'package:flutter/material.dart';
-import 'package:dangmoog/screens/auth/login.dart';
+
 import 'package:provider/provider.dart';
 import 'package:dangmoog/providers/provider.dart';
-import 'package:dangmoog/screens/home.dart';
-import 'package:dangmoog/widgets/auth_button.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 
-class ProfilePage extends StatefulWidget {
-  const ProfilePage({Key? key}) : super(key: key);
+class ProfileChangePage extends StatefulWidget {
+  const ProfileChangePage({Key? key}) : super(key: key);
 
   @override
-  _ProfilePageState createState() => _ProfilePageState();
+  _ProfileChangePageState createState() => _ProfileChangePageState();
 }
 
-class _ProfilePageState extends State<ProfilePage> {
+class _ProfileChangePageState extends State<ProfileChangePage> {
   File? _image;
   late String imagePath;
   final ImagePicker _picker = ImagePicker();
   Color buttonColor = Color(0xFFDADADA); // 초기 버튼 색상
-  bool isSubmitVerificationCodeActive = false;
 
   @override
   void initState() {
@@ -34,7 +32,7 @@ class _ProfilePageState extends State<ProfilePage> {
       setState(() {
         _image = File(pickedFile.path);
         imagePath = pickedFile.path;
-        isSubmitVerificationCodeActive = true;
+
         // 이미지를 선택한 경우 버튼의 색상을 빨간색으로 변경
         buttonColor = Color(0xFFE20529); // 빨간색
 
@@ -47,46 +45,27 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   Widget build(BuildContext context) {
     Size screenSize = MediaQuery.of(context).size;
+    String userEmail = Provider.of<UserProvider>(context).inputEmail;
+    String userNickname = Provider.of<UserProvider>(context).nickname;
+    File? userImage = Provider.of<UserProvider>(context).userImage;
+
     return Scaffold(
       resizeToAvoidBottomInset: false,
+      appBar: AppBar(),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           SizedBox(height: screenSize.height * 0.19),
-          const Text(
-            '잠깐! 프로필을 설정해보세요!',
-            style: TextStyle(
-              color: Color(0xFF302E2E),
-              fontFamily: 'Pretendard-Regular',
-              fontSize: 24,
-              fontWeight: FontWeight.w600,
-              height: 1.35,
-            ),
-          ),
-          SizedBox(height: screenSize.height * 0.018),
-          const Text(
-            '개성있는 사진으로 프로필 사진을 설정해보세요.\n'
-            '프로필 사진은 마이페이지에서 언제든지 수정 가능합니다!\n'
-            '생략할 경우 현재 보이는 사진이 기본 프로필이 됩니다.',
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              color: Color(0xFF302E2E),
-              fontFamily: 'Pretendard-Regular',
-              fontSize: 14,
-              fontWeight: FontWeight.w400,
-              height: 1.35,
-            ),
-          ),
-          SizedBox(height: screenSize.height * 0.078),
           Stack(
+            alignment: Alignment.center,
             children: [
               Container(
                 width: screenSize.width * 0.56,
                 height: screenSize.width * 0.56,
                 child: ClipOval(
-                  child: _image != null
+                  child: userImage != null
                       ? Image.file(
-                          _image!,
+                          userImage,
                           fit: BoxFit.cover,
                         )
                       : Image.asset(
@@ -123,7 +102,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       ),
                     ),
                     child: Icon(
-                      Icons.mode_outlined,
+                      Icons.camera_alt_outlined,
                       color: Color(0xFFEC5870),
                     ),
                   ),
@@ -131,60 +110,62 @@ class _ProfilePageState extends State<ProfilePage> {
               ),
             ],
           ),
-          SizedBox(height: screenSize.height * 0.15),
-          Padding(
-            padding: const EdgeInsets.only(bottom: 0),
-            child: isSubmitVerificationCodeActive
-                ? AuthButton(
-                    text: '프로필 설정 완료!',
-                    textcolor: Colors.white,
-                    color: buttonColor, // 버튼의 색상을 buttonColor로 설정
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const MyHome(),
-                        ),
-                      ); // 프로필 설정 완료 버튼 누를 때의 동작
-                    },
-                  )
-                : AuthButton(
-                    text: '프로필 설정 완료!',
-                    textcolor: Colors.white,
-                    color: buttonColor, // 버튼의 색상을 buttonColor로 설정
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const MyHome(),
-                        ),
-                      ); // 프로필 설정 완료 버튼 누를 때의 동작
-                    },
-                  ),
-          ),
           SizedBox(height: screenSize.height * 0.02),
-          TextButton(
+          Text(
+            '$userNickname',
+            style: TextStyle(
+              color: Color(0xFF302E2E),
+              fontSize: 24,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          ElevatedButton(
             onPressed: () {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => const MyHome(),
+                  builder: (context) => const NicknameChangePage(),
                 ),
               );
             },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFFE20529),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(6),
+              ),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+              minimumSize: Size(
+                screenSize.width * 0.2,
+                screenSize.height * 0.029,
+              ),
+            ),
             child: Container(
               alignment: Alignment.center,
+              width: screenSize.width * 0.16,
+              height: screenSize.height * 0.023,
               child: const Text(
-                '건너뛰고 시작하기',
+                '닉네임 변경',
                 style: TextStyle(
-                  color: Color(0xFFE20529),
+                  color: Color(0xFFFFFFFF),
                   fontFamily: 'Pretendard-Medium',
                   fontSize: 13,
-                  fontWeight: FontWeight.w500,
+                  fontWeight: FontWeight.w400,
                 ),
               ),
             ),
           ),
+          Text(
+            '$userEmail',
+            style: const TextStyle(
+              color: Color(0xFF302E2E),
+              fontSize: 16,
+              fontWeight: FontWeight.w400,
+            ),
+          ),
+          SizedBox(height: screenSize.height * 0.02),
+          Container(
+            alignment: Alignment.center,
+          )
         ],
       ),
     );

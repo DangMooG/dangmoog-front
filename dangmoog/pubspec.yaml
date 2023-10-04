@@ -73,13 +73,17 @@ flutter:
     - assets/chat_sell_list.json
     - assets/chat_buy_list.json
     - assets/chat_detail.json
+    - assets/mysell_products.json
+    - assets/mypurchase_products.json
+    - assets/mylike_products.json
     - assets/images/
     - assets/images/dotorit_loading.png
     - assets/images/loading_logo.png
     - assets/images/dotorit_welcome.png
     - assets/images/add_icon.png
     - assets/images/add_shadow.png
-
+    - assets/images/sample.png
+    - assets/images/dotorit_intro_icon.png
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
 

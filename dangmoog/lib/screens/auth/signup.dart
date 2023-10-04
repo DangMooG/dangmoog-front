@@ -1,7 +1,8 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-
+import 'package:provider/provider.dart';
+import 'package:dangmoog/providers/provider.dart';
 import 'package:dangmoog/screens/auth/submit_button.dart';
 
 import 'package:dangmoog/screens/auth/nickname.dart';
@@ -42,6 +43,7 @@ class _SignupPageState extends State<SignupPage> {
     setState(() {
       inputEmail = value;
       errorMessageEmail = '';
+      Provider.of<UserProvider>(context, listen: false).setEmail(inputEmail);
     });
     // 이메일 형식이 올바를 경우 인증메일 발송 버튼 활성화
     if (isEmailFormatValid(inputEmail)) {
