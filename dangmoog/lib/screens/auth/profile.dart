@@ -1,7 +1,11 @@
+import 'package:dangmoog/services/api.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:dangmoog/screens/home.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
+
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import 'package:dangmoog/widgets/submit_button.dart';
 
@@ -17,7 +21,7 @@ class ProfilePage extends StatefulWidget {
 
 class _ProfilePageState extends State<ProfilePage> {
   File? _image;
-  late String imagePath;
+  String imagePath = 'assets/images/basic_profile.png';
   final ImagePicker picker = ImagePicker();
   Color buttonColor = const Color(0xFFDADADA); // 초기 버튼 색상
 
@@ -26,11 +30,13 @@ class _ProfilePageState extends State<ProfilePage> {
   // 이미지 설정 시 유의사항 visibility
   bool isHelpVisible = false;
 
-  @override
-  void initState() {
-    super.initState();
-    imagePath = 'assets/images/basic_profile.png';
-  }
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   // imagePath = 'assets/images/basic_profile.png';
+  // }
+
+  static const storage = FlutterSecureStorage();
 
   Future<void> getImagesFromCamera() async {
     PermissionStatus status = await Permission.camera.request();
@@ -100,6 +106,7 @@ class _ProfilePageState extends State<ProfilePage> {
     } else if (status.isPermanentlyDenied) {
       await showDialog(
         context: context,
+        barrierDismissible: false,
         builder: (BuildContext context) {
           return AlertDialog(
             title: const Text("카메라 권한 필요"),
@@ -133,6 +140,24 @@ class _ProfilePageState extends State<ProfilePage> {
 
           buttonAcitve = true;
         });
+      }
+    }
+  }
+
+  void profileSubmit() async {
+    if (_image != null) {
+      try {
+        Response response = await ApiService().setUserProfile(_image!);
+        print(response);
+        if (response.statusCode == 200) {
+          Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(builder: (context) => const ProfilePage()),
+            (route) => false,
+          );
+        }
+      } catch (e) {
+        print(e);
       }
     }
   }
