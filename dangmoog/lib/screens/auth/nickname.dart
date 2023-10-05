@@ -1,3 +1,5 @@
+import 'package:dangmoog/services/api.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 
 import 'package:dangmoog/widgets/submit_button.dart';
@@ -16,32 +18,40 @@ class NicknamePage extends StatefulWidget {
 class _NicknamePageState extends State<NicknamePage> {
   String nickname = '';
   String errorMessage = '';
+  bool isRedText = true;
 
   bool _isChecked = false;
   bool _isRightFormat = false;
 
   bool isHelpVisible = false;
 
+  void setErrorMessage(String message, bool isRed) {
+    setState(() {
+      errorMessage = message;
+      isRedText = isRed;
+    });
+  }
+
   void onNicknameChanged(String value) {
-    RegExp regex = RegExp(r'[^a-zA-Z0-9가-힣]');
+    RegExp wrongRegex = RegExp(r'[^a-zA-Z0-9가-힣]');
 
     setState(() {
       nickname = value;
-
-      // 이미 중복확인하고 별명 수정하면 중복확인 다시 하도록 설정
-      if (_isChecked == true) {
-        _isChecked = false;
-      }
-
-      if (value.length < 2) {
-        errorMessage = '2글자 이상 입력해주세요';
-      } else if (regex.hasMatch(value)) {
-        errorMessage = '숫자, 한글, 또는 영문 조합으로 입력해주세요.';
-      } else if (checkNicknameFormat(value)) {
-        errorMessage = '';
-        _isRightFormat = true;
-      }
     });
+
+    // 이미 중복확인하고 별명 수정하면 중복확인 다시 하도록 설정
+    if (_isChecked == true) {
+      _isChecked = false;
+    }
+
+    if (value.length < 2) {
+      setErrorMessage('2글자 이상 입력해주세요', true);
+    } else if (wrongRegex.hasMatch(value)) {
+      setErrorMessage('숫자, 한글, 또는 영문 조합으로 입력해주세요.', true);
+    } else if (checkNicknameFormat(value)) {
+      setErrorMessage("", false);
+      _isRightFormat = true;
+    }
   }
 
   bool checkNicknameFormat(String value) {
@@ -49,13 +59,42 @@ class _NicknamePageState extends State<NicknamePage> {
     return regex.hasMatch(value);
   }
 
-  void nickNameSubmit() {
-    Provider.of<UserProvider>(context, listen: false).setNickname(nickname);
-    Navigator.pushAndRemoveUntil(
-      context,
-      MaterialPageRoute(builder: (context) => const ProfilePage()),
-      (route) => false,
-    );
+  void isNicknameDuplicate() async {
+    try {
+      Response response = await ApiService().checkDuplicateNickname(nickname);
+      if (response.statusCode == 200) {
+        setErrorMessage('사용 가능한 별명입니다.', false);
+
+        setState(() {
+          _isChecked = true;
+        });
+      } else if (response.statusCode == 409) {
+        setErrorMessage('이미 존재하는 별명입니다.', true);
+        setState(() {
+          _isChecked = false;
+        });
+      }
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  void nickNameSubmit() async {
+    try {
+      Response response = await ApiService().setUserNickname(nickname);
+
+      if (response.statusCode == 200) {
+        Provider.of<UserProvider>(context, listen: false).setNickname(nickname);
+
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (context) => const ProfilePage()),
+          (route) => false,
+        );
+      }
+    } catch (e) {
+      print(e);
+    }
   }
 
   @override
@@ -189,14 +228,7 @@ class _NicknamePageState extends State<NicknamePage> {
               ElevatedButton(
                 onPressed: () {
                   if (checkNicknameFormat(nickname)) {
-                    // api 요청해서 중복 확인
-                    // 중복 없으면
-                    // if (중복확인 요청 api response)
-                    setState(() {
-                      _isChecked = true;
-                    });
-                    // else
-                    // errorMessage = '중복된 별명입니다. 다른 별명을 입력해주세요.'
+                    isNicknameDuplicate();
                   }
                 },
                 style: ElevatedButton.styleFrom(
@@ -247,8 +279,8 @@ class _NicknamePageState extends State<NicknamePage> {
         if (errorMessage.isNotEmpty)
           Text(
             errorMessage,
-            style: const TextStyle(
-              color: Color(0xFFE20529),
+            style: TextStyle(
+              color: isRedText ? const Color(0xFFE20529) : Colors.blue,
               fontSize: 11,
             ),
           ),

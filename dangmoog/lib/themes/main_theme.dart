@@ -7,13 +7,9 @@ ThemeData mainThemeData() {
     primaryColor: const Color(0xFFE20529),
     scaffoldBackgroundColor: Colors.white,
     fontFamily: 'Pretendard',
-    // textTheme: const TextTheme(
-    //   displayLarge: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
-    //   titleLarge: TextStyle(fontSize: 36.0, fontStyle: FontStyle.italic),
-    //   bodyMedium: TextStyle(fontSize: 14.0, fontFamily: 'Hind'),
-    // ),
     appBarTheme: const AppBarTheme(
       backgroundColor: Colors.white,
+      surfaceTintColor: Colors.white,
     ),
     bottomNavigationBarTheme: const BottomNavigationBarThemeData(
       backgroundColor: Colors.white,

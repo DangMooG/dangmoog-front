@@ -1,22 +1,31 @@
-import 'dart:async';
-import 'package:dangmoog/widgets/back_appbar.dart';
+import 'package:dangmoog/screens/home.dart';
+import 'package:dangmoog/services/api.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'dart:async';
+import 'package:dio/dio.dart';
 
 import 'package:provider/provider.dart';
-import 'package:dangmoog/providers/provider.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
-import 'package:dangmoog/widgets/submit_button.dart';
 import 'package:dangmoog/screens/auth/nickname.dart';
+import 'package:dangmoog/providers/provider.dart';
+import 'package:dangmoog/widgets/back_appbar.dart';
+import 'package:dangmoog/widgets/submit_button.dart';
 
-class SignupPage extends StatefulWidget {
-  const SignupPage({super.key});
+class AuthPage extends StatefulWidget {
+  final bool isLogin;
+
+  const AuthPage({super.key, required this.isLogin});
 
   @override
-  _SignupPageState createState() => _SignupPageState();
+  _AuthPageState createState() => _AuthPageState();
 }
 
-class _SignupPageState extends State<SignupPage> {
+class _AuthPageState extends State<AuthPage> {
+  // 로그인인지 회원가입인지 구분
+  late bool isLogin;
+
   // 이메일, 인증번호
   String inputEmail = '';
   String verificationCode = '';
@@ -40,6 +49,9 @@ class _SignupPageState extends State<SignupPage> {
 
   // 인증번호 오지 않을 경우 안내문
   bool isVerificationCodeMissing = false;
+
+  // 토큰과 user ID 저장
+  static const storage = FlutterSecureStorage();
 
   void onEmailChanged(String value) {
     setState(() {
@@ -70,29 +82,55 @@ class _SignupPageState extends State<SignupPage> {
     });
   }
 
-  void submitEmail() {
+  void submitEmail(BuildContext context) async {
     if (isEmailFormatValid(inputEmail)) {
-      // BaseOptions options = BaseOptions(
-      //   baseUrl:
-      //       'https://port-0-dangmoog-api-server-p8xrq2mlfc80j33.sel3.cloudtype.app/meta/',
-      // );
-      // Dio dio = Dio();
-      // try {
-      //   Response response = await dio.post("account/mail_send",
-      //       data: {'email': inputEmail, 'password': 'string'});
-      //   print("Response:");
-      //   print("Status: ${response.statusCode}");
-      //   print("Header:\n${response.headers}");
-      //   print("Data:\n${response.data}");
-      // } catch (e) {
-      //   print("Exception: $e");
-      // }
-
       showVerificationCodeTextField();
       startTimer();
       setState(() {
         isEmailSend = true;
       });
+
+      try {
+        Response response = await ApiService().emailSend(inputEmail);
+        print(response);
+        if (response.statusCode == 200) {
+          // 이미 존재하는 계정 : true
+          // 존재하지 않는 계정 : false
+          int status = int.parse(response.data[0]['status'].toString());
+          bool isExistingAccount = status == 1 ? true : false;
+          // 유저가 선택한 플로우와 이메일의 계정 존재 여부가 일치하지 않을 경우
+          // // 로그인 and 존재하지 않는 계정
+          // // 회원가입 and 이미 존재하는 계정
+
+          if (isLogin != isExistingAccount) {
+            setState(() {
+              isLogin = isExistingAccount;
+            });
+
+            showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return AlertDialog(
+                  // title: const Text("카메라 권한 필요"),
+                  content: isExistingAccount
+                      ? const Text("입력하신 이메일은 이미 존재하는 계정입니다. 로그인을 진행하겠습니다.")
+                      : const Text("입력하신 이메일은 존재하지 않는 계정입니다. 회원가입을 진행하겠습니다."),
+                  actions: <Widget>[
+                    TextButton(
+                      child: const Text("확인"),
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                    ),
+                  ],
+                );
+              },
+            );
+          }
+        }
+      } catch (e) {
+        print("Exception: $e");
+      }
     } else {
       setState(() {
         errorMessageEmail = '유효한 이메일을 입력하세요.';
@@ -115,15 +153,51 @@ class _SignupPageState extends State<SignupPage> {
     }
   }
 
-  void _login() {
-    String enteredEmail = inputEmail;
-    Provider.of<UserProvider>(context, listen: false).setEmail(enteredEmail);
+  void _login() async {
+    try {
+      Response response =
+          await ApiService().verifyCode(inputEmail, verificationCode);
 
-    Navigator.pushAndRemoveUntil(
-      context,
-      MaterialPageRoute(builder: (context) => const NicknamePage()),
-      (route) => false,
-    );
+      if (response.statusCode == 200) {
+        String accessToken = response.data['access_token'];
+        int userId = response.data['account_id'];
+
+        await storage.write(key: 'accessToken', value: accessToken);
+        await storage.write(key: 'userId', value: userId.toString());
+
+        // 인증에 성공한 이메일을 전역 상태로 저장
+        Provider.of<UserProvider>(context, listen: false).setEmail(inputEmail);
+
+        if (isLogin) {
+          bool hasNickname =
+              int.parse(response.data["is_username"].toString()) == 1
+                  ? true
+                  : false;
+          if (!hasNickname) {
+            Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(builder: (context) => const NicknamePage()),
+              (route) => false,
+            );
+          } else {
+            Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(builder: (context) => const MyHome()),
+              (route) => false,
+            );
+          }
+        } else {
+          // 별명 설정 페이지로 이동
+          Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(builder: (context) => const NicknamePage()),
+            (route) => false,
+          );
+        }
+      }
+    } catch (e) {
+      print("Exception: $e");
+    }
   }
 
   // 인증번호 입력 제한 시간 타이머
@@ -156,6 +230,8 @@ class _SignupPageState extends State<SignupPage> {
   @override
   void initState() {
     super.initState();
+
+    isLogin = widget.isLogin;
   }
 
   @override
@@ -191,7 +267,7 @@ class _SignupPageState extends State<SignupPage> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
-                      _signUpMessage(screenSize),
+                      _signUpMessage(screenSize, isLogin),
                     ],
                   ),
                   SizedBox(height: screenSize.height * 0.024),
@@ -222,13 +298,15 @@ class _SignupPageState extends State<SignupPage> {
     );
   }
 
-  Widget _signUpMessage(Size screenSize) {
+  Widget _signUpMessage(Size screenSize, bool isLogin) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          '안녕하세요!\nGIST 이메일로 간편가입해주세요!',
-          style: TextStyle(
+        Text(
+          isLogin
+              ? '안녕하세요!\nGIST 이메일로 로그인해주세요!'
+              : '안녕하세요!\nGIST 이메일로 간편가입해주세요!',
+          style: const TextStyle(
             color: Color(0xFF302E2E),
             fontSize: 24,
             fontWeight: FontWeight.w600,
@@ -294,7 +372,9 @@ class _SignupPageState extends State<SignupPage> {
                 ),
               ),
               ElevatedButton(
-                onPressed: submitEmail,
+                onPressed: () {
+                  submitEmail(context);
+                },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: isEmailSend
                       ? const Color(0xFFFFFFFF)

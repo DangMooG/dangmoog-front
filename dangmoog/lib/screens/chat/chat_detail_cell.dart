@@ -19,8 +19,7 @@ class SingleChatMessage extends StatelessWidget {
       margin: EdgeInsets.only(top: omit ? 4 : 8),
       child: IntrinsicHeight(
         child: Row(
-          crossAxisAlignment:
-              CrossAxisAlignment.stretch, // Row의 자식들이 가능한 높이까지 확장되도록 설정
+          crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment:
               me ? MainAxisAlignment.end : MainAxisAlignment.start,
           children: me

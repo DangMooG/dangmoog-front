@@ -1,6 +1,9 @@
+import 'package:dangmoog/providers/chat_provider.dart';
+import 'package:dangmoog/providers/chat_setting_provider.dart';
 import 'package:flutter/material.dart';
 
 import 'package:dangmoog/screens/chat/chat_detail_page.dart';
+import 'package:provider/provider.dart';
 
 class ChatCell extends StatefulWidget {
   final String userNickName, lastMsg;
@@ -29,7 +32,11 @@ class _ChatCellState extends State<ChatCell> {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => const ChatDetail(),
+            builder: (context) => MultiProvider(providers: [
+              ChangeNotifierProvider(create: (context) => ChatProvider()),
+              ChangeNotifierProvider(
+                  create: (context) => ChatSettingProvider()),
+            ], child: const ChatDetail()),
           ),
         );
       },
