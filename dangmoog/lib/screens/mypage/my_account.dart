@@ -23,6 +23,7 @@ class _MyaccountPageState extends State<MyaccountPage> {
 
   final bool _first = false;
   String buttonext = '';
+  bool isClicked = false;
 
   @override
   Widget build(BuildContext context) {
@@ -112,15 +113,28 @@ class _MyaccountPageState extends State<MyaccountPage> {
           height: screenSize.height * 0.06,
           child: TextField(
             onChanged: onAccountChanged,
+            onTap: () {
+              setState(() {
+                isClicked = true;
+              });
+            },
             keyboardType: TextInputType.number,
             inputFormatters: [
               FilteringTextInputFormatter.allow(RegExp(r'[0-9]'))
             ],
             decoration: InputDecoration(
-              border: OutlineInputBorder(
+              focusedBorder: OutlineInputBorder(
                 borderSide: BorderSide(
-                  color: Color(0xFFA19E9E), // 원하는 border 색상 설정
-                  width: 2.0, // 원하는 border 너비 설정
+                  color: isClicked
+                      ? Color(0xFF302E2E)
+                      : Color(0xFFA19E9E), // 클릭 시 테두리 색상
+                  width: 1.0,
+                ),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderSide: BorderSide(
+                  color: Color(0xFFA19E9E), // 클릭 전 테두리 색상
+                  width: 1.0,
                 ),
               ),
               hintText: '계좌번호 입력(-제외)',
@@ -144,6 +158,7 @@ class _MyaccountPageState extends State<MyaccountPage> {
       FocusScope.of(context).unfocus();
       setState(() {
         _isSelectListVisible = !_isSelectListVisible;
+        isClicked = true;
       });
     }
 
@@ -172,11 +187,17 @@ class _MyaccountPageState extends State<MyaccountPage> {
         children: [
           _titleEachSection("은행 선택"),
           GestureDetector(
-            onTap: _toggleListVisibility,
+            onTap: () {
+              setState(() {
+                _toggleListVisibility();
+              });
+            },
             child: Container(
                 height: 38,
                 decoration: BoxDecoration(
-                  border: Border.all(color: const Color(0xffD3D2D2)),
+                  border: Border.all(
+                    color: isClicked ? Color(0xFFA19E9E) : Color(0xFFD3D2D2),
+                  ),
                   borderRadius: const BorderRadius.all(Radius.circular(4)),
                 ),
                 padding: const EdgeInsets.all(8),
@@ -310,7 +331,6 @@ class _MyaccountPageState extends State<MyaccountPage> {
                 ElevatedButton(
                   onPressed: () {
                     showCustomPopup(context, screenSize);
-
                     Navigator.of(context).pop();
                   },
                   style: ElevatedButton.styleFrom(

@@ -19,6 +19,7 @@ class _LikeMainPageState extends State<LikeMainPage> {
   bool sortByDealStatus = false;
   bool sortByDealStatus2 = false;
   bool sortByDealStatus3 = false;
+  int index = 0;
   @override
   void initState() {
     super.initState();
@@ -111,32 +112,51 @@ class _LikeMainPageState extends State<LikeMainPage> {
 
   @override
   Widget build(BuildContext context) {
-    Size screenSize = MediaQuery.of(context).size;
+    final List<String> ButtonList = ['전체', '거래중', '예약중', '거래완료'];
+
     return Scaffold(
       appBar: AppBar(
-        title: Text(
+        title: const Text(
           '관심목록',
+          style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w600,
+              color: Color(0xFF302E2E)),
         ),
         actions: [
-          Container(
-            width: 100,
-            height: 40,
-            decoration: BoxDecoration(
-                border: Border.all(color: Color(0xFFE20529)),
-                borderRadius: BorderRadius.circular(6)),
-            child: TextButton.icon(
+          Padding(
+            padding: const EdgeInsets.only(right: 16.0),
+            child: ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                padding: EdgeInsets.all(5),
+                minimumSize: const Size(40, 24),
+                side: const BorderSide(
+                  color: Color(0xFFE20529), // 원하는 border 색상 설정
+                  width: 1.0, // border의 두께 설정
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(6.0), // 버튼의 모서리를 둥글게 설정
+                ),
+              ),
+              child: Row(
+                children: [
+                  Text(
+                    ButtonList[index],
+                    style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w400,
+                        color: Color(0xFFE20529)),
+                  ),
+                  Icon(
+                    Icons.keyboard_arrow_down_sharp,
+                    color: Color(0xFFE20529),
+                    size: 16,
+                  ),
+                ],
+              ),
               onPressed: () {
-                _accountPopup(context);
+                _accountPopup(context, index);
               },
-              label: Text(
-                '최신순',
-                style: TextStyle(color: Color(0xFFE20529)),
-              ),
-              icon: Icon(
-                Icons.keyboard_arrow_down_sharp,
-                color: Color(0xFFE20529),
-                size: 16,
-              ),
             ),
           ),
         ],
@@ -164,211 +184,131 @@ class _LikeMainPageState extends State<LikeMainPage> {
     );
   }
 
-  Future<void> _accountPopup(BuildContext context) async {
-    final double popupWidth = 270;
-    final double popupHeight = 186;
-
+  Future<void> _accountPopup(BuildContext context, int currentindex) async {
+    Size screenSize = MediaQuery.of(context).size;
+    int newindex = currentindex;
     await showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
+          contentPadding: EdgeInsets.zero,
           backgroundColor: const Color(0xFFFFFFFF),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(14.0),
           ),
-          content: Container(
-            width: popupWidth, // 팝업의 가로 크기 설정
-            height: popupHeight, // 팝업의 세로 크기 설정
+          content: SizedBox(
+            width: 270,
+            height: screenSize.height * 0.22,
             child: Column(
               children: [
-                TextButton(
+                CustomTextButtonWithBorder(
+                  text: '전체보기',
                   onPressed: () {
-                    // 버튼이 클릭되었을 때 실행될 코드
+                    _toggleSortingOrder();
                     Navigator.of(context).pop();
+                    newindex = 0;
                   },
-                  style: ButtonStyle(
-                    fixedSize: MaterialStateProperty.all<Size>(
-                      Size(popupWidth, 36),
-                    ),
-                    padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
-                      EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-                    ), // 패딩 조정
-                  ),
-                  child: const Text(
-                    '전체보기',
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w400,
-                      color: Color(0xFFE20529),
-                    ),
-                  ),
+                  height: screenSize.height * 0.044,
+                ),
+                CustomTextButtonWithBorder(
+                  text: '거래중',
+                  onPressed: () {
+                    _toggleSortByDealStatus2();
+                    Navigator.of(context).pop();
+                    newindex = 1;
+                  },
+                  height: screenSize.height * 0.044,
+                ),
+                CustomTextButtonWithBorder(
+                  text: '예약중',
+                  onPressed: () {
+                    _toggleSortByDealStatus3();
+                    Navigator.of(context).pop();
+                    newindex = 2;
+                  },
+                  height: screenSize.height * 0.044,
+                ),
+                CustomTextButtonWithBorder(
+                  text: '거래완료',
+                  onPressed: () {
+                    _toggleSortByDealStatus();
+                    Navigator.of(context).pop();
+                    newindex = 3;
+                  },
+                  height: screenSize.height * 0.044,
                 ),
                 Container(
-                  width: popupWidth, // 선의 길이
-                  height: 0.5, // 선의 두께
-                  color: Colors.grey, // 선의 색상 (회색)
+                  height: screenSize.height * 0.044,
+                  child: TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    style: ButtonStyle(
+                      fixedSize: MaterialStateProperty.all<Size>(
+                        Size(375, 36), // 크기를 원하는대로 설정
+                      ),
+                    ),
+                    child: const Text(
+                      '취소',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w400,
+                        color: Color(0xFFA19E9E),
+                      ),
+                    ),
+                  ),
                 ),
-                // 나머지 버튼들 추가
               ],
             ),
           ),
         );
       },
     );
+    setState(() {
+      index = newindex; // 인덱스 업데이트를 상태 변경과 함께 수행
+    });
   }
 }
 
-Future<void> _accountPopup(BuildContext context) async {
-  final double popupWidth = 270;
-  final double popupHeight = 186;
+class CustomTextButtonWithBorder extends StatelessWidget {
+  final String text;
+  final VoidCallback onPressed;
+  final double height;
 
-  await showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return AlertDialog(
-        backgroundColor: const Color(0xFFFFFFFF),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(14.0),
-        ),
-        content: Container(
-          width: popupWidth, // 팝업의 가로 크기 설정
-          height: popupHeight, // 팝업의 세로 크기 설정
-          child: Column(
-            children: [
-              TextButton(
-                onPressed: () {
-                  // "전체보기" 버튼이 클릭되었을 때 실행될 코드
-                  Navigator.of(context).pop();
-                },
-                style: ButtonStyle(
-                  fixedSize: MaterialStateProperty.all<Size>(
-                    Size(popupWidth, 36),
-                  ),
-                  padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
-                    EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-                  ), // 패딩 조정
-                ),
-                child: const Text(
-                  '전체보기',
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w400,
-                    color: Color(0xFFE20529),
-                  ),
-                ),
-              ),
-              Container(
-                width: popupWidth, // 선의 길이
-                height: 0.5, // 선의 두께
-                color: Colors.grey, // 선의 색상 (회색)
-              ),
-              TextButton(
-                onPressed: () {
-                  // "거래중" 버튼이 클릭되었을 때 실행될 코드
-                  Navigator.of(context).pop();
-                },
-                style: ButtonStyle(
-                  fixedSize: MaterialStateProperty.all<Size>(
-                    Size(popupWidth, 36),
-                  ),
-                  padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
-                    EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-                  ), // 패딩 조정
-                ),
-                child: const Text(
-                  '거래중',
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w400,
-                    color: Color(0xFFE20529),
-                  ),
-                ),
-              ),
-              Container(
-                width: popupWidth, // 선의 길이
-                height: 0.5, // 선의 두께
-                color: Colors.grey, // 선의 색상 (회색)
-              ),
-              TextButton(
-                onPressed: () {
-                  // "예약중" 버튼이 클릭되었을 때 실행될 코드
-                  Navigator.of(context).pop();
-                },
-                style: ButtonStyle(
-                  fixedSize: MaterialStateProperty.all<Size>(
-                    Size(popupWidth, 36),
-                  ),
-                  padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
-                    EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-                  ), // 패딩 조정
-                ),
-                child: const Text(
-                  '예약중',
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w400,
-                    color: Color(0xFFE20529),
-                  ),
-                ),
-              ),
-              Container(
-                width: popupWidth, // 선의 길이
-                height: 0.5, // 선의 두께
-                color: Colors.grey, // 선의 색상 (회색)
-              ),
-              TextButton(
-                onPressed: () {
-                  // "거래완료" 버튼이 클릭되었을 때 실행될 코드
-                  Navigator.of(context).pop();
-                },
-                style: ButtonStyle(
-                  fixedSize: MaterialStateProperty.all<Size>(
-                    Size(popupWidth, 36),
-                  ),
-                  padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
-                    EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-                  ), // 패딩 조정
-                ),
-                child: const Text(
-                  '거래완료',
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w400,
-                    color: Color(0xFFE20529),
-                  ),
-                ),
-              ),
-              Container(
-                width: popupWidth, // 선의 길이
-                height: 0.5, // 선의 두께
-                color: Colors.grey, // 선의 색상 (회색)
-              ),
-              TextButton(
-                onPressed: () {
-                  // "취소" 버튼이 클릭되었을 때 실행될 코드
-                  Navigator.of(context).pop();
-                },
-                style: ButtonStyle(
-                  fixedSize: MaterialStateProperty.all<Size>(
-                    Size(popupWidth, 36),
-                  ),
-                  padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
-                    EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-                  ), // 패딩 조정
-                ),
-                child: const Text(
-                  '취소',
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w400,
-                    color: Color(0xFFA19E9E),
-                  ),
-                ),
-              ),
-            ],
+  const CustomTextButtonWithBorder({
+    required this.text,
+    required this.onPressed,
+    this.height = 36,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        border: Border(
+          bottom: BorderSide(
+            color: Colors.grey, // 원하는 색상 설정
+            width: 0.5, // 라인 두께 설정
           ),
         ),
-      );
-    },
-  );
+      ),
+      height: height,
+      child: TextButton(
+        onPressed: onPressed,
+        style: ButtonStyle(
+          fixedSize: MaterialStateProperty.all<Size>(
+            Size(375, height), // 크기를 원하는대로 설정
+          ),
+        ),
+        child: Text(
+          text,
+          style: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w400,
+            color: Color(0xFFE20529),
+          ),
+        ),
+      ),
+    );
+  }
 }

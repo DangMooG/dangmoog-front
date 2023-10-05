@@ -19,7 +19,8 @@ class _MySellMainPageState extends State<MySellMainPage> {
   SortingOrder sortingOrder = SortingOrder.descending; // 정렬 순서 기본값
   bool sortByDealStatus = false;
   bool sortByDealStatus2 = false;
-
+  bool sortByDealStatus3 = false;
+  int index = 0;
   @override
   void initState() {
     super.initState();
@@ -54,6 +55,7 @@ class _MySellMainPageState extends State<MySellMainPage> {
     setState(() {
       sortByDealStatus = false;
       sortByDealStatus2 = false;
+      sortByDealStatus3 = false;
       sortingOrder = SortingOrder.descending;
     });
   }
@@ -65,10 +67,12 @@ class _MySellMainPageState extends State<MySellMainPage> {
           filteredProducts.where((product) => product.dealStatus == 2).toList();
     }
     if (sortByDealStatus2) {
-      filteredProducts = filteredProducts
-          .where(
-              (product) => product.dealStatus == 0 || product.dealStatus == 1)
-          .toList();
+      filteredProducts =
+          filteredProducts.where((product) => product.dealStatus == 0).toList();
+    }
+    if (sortByDealStatus3) {
+      filteredProducts =
+          filteredProducts.where((product) => product.dealStatus == 1).toList();
     }
 
     // 필터링된 데이터를 정렬 순서에 따라 정렬한 후 반환
@@ -81,32 +85,80 @@ class _MySellMainPageState extends State<MySellMainPage> {
     }
   }
 
+  //거래완료
   void _toggleSortByDealStatus() {
     setState(() {
       sortByDealStatus = true;
       sortByDealStatus2 = false;
+      sortByDealStatus3 = false;
     });
   }
 
+  //거래중
   void _toggleSortByDealStatus2() {
     setState(() {
       sortByDealStatus = false;
       sortByDealStatus2 = true;
+      sortByDealStatus3 = false;
+    });
+  }
+
+  //예약중
+  void _toggleSortByDealStatus3() {
+    setState(() {
+      sortByDealStatus = false;
+      sortByDealStatus2 = false;
+      sortByDealStatus3 = true;
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    Size screenSize = MediaQuery.of(context).size;
+    final List<String> ButtonList = ['전체', '거래중', '예약중', '거래완료'];
     return Scaffold(
       appBar: AppBar(
-        title: Text('판매내역'),
+        title: Text(
+          '판매내역',
+          style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w600,
+              color: Color(0xFF302E2E)),
+        ),
         actions: [
-          TextButton(
-            onPressed: () {
-              _accountPopup(screenSize, context);
-            },
-            child: Text('최신순'),
+          Padding(
+            padding: const EdgeInsets.only(right: 16.0),
+            child: ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                padding: EdgeInsets.all(5),
+                minimumSize: const Size(40, 24),
+                side: const BorderSide(
+                  color: Color(0xFFE20529), // 원하는 border 색상 설정
+                  width: 1.0, // border의 두께 설정
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(6.0), // 버튼의 모서리를 둥글게 설정
+                ),
+              ),
+              child: Row(
+                children: [
+                  Text(
+                    ButtonList[index],
+                    style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w400,
+                        color: Color(0xFFE20529)),
+                  ),
+                  Icon(
+                    Icons.keyboard_arrow_down_sharp,
+                    color: Color(0xFFE20529),
+                    size: 16,
+                  ),
+                ],
+              ),
+              onPressed: () {
+                _accountPopup(context, index);
+              },
+            ),
           ),
         ],
       ),
@@ -132,114 +184,131 @@ class _MySellMainPageState extends State<MySellMainPage> {
     );
   }
 
-  Future<void> _accountPopup(Size screenSize, BuildContext context) async {
-    final double popupWidth = MediaQuery.of(context).size.width;
+  Future<void> _accountPopup(BuildContext context, int currentindex) async {
+    Size screenSize = MediaQuery.of(context).size;
+    int newindex = currentindex;
     await showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
+          contentPadding: EdgeInsets.zero,
           backgroundColor: const Color(0xFFFFFFFF),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(14.0),
           ),
-          actions: [
-            Column(
+          content: SizedBox(
+            width: 270,
+            height: screenSize.height * 0.22,
+            child: Column(
               children: [
-                TextButton(
+                CustomTextButtonWithBorder(
+                  text: '전체보기',
                   onPressed: () {
                     _toggleSortingOrder();
                     Navigator.of(context).pop();
+                    newindex = 0;
                   },
-                  style: ButtonStyle(
-                    fixedSize: MaterialStateProperty.all<Size>(
-                      Size(popupWidth, 36),
-                    ),
-                  ),
-                  child: const Text(
-                    '전체보기',
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w400,
-                      color: Color(0xFFE20529),
-                    ),
-                  ),
+                  height: screenSize.height * 0.044,
                 ),
-                Container(
-                  width: screenSize.width, // 선의 길이
-                  height: 0.5, // 선의 두께
-                  color: Colors.grey, // 선의 색상 (회색)
-                ),
-                TextButton(
+                CustomTextButtonWithBorder(
+                  text: '거래중',
                   onPressed: () {
                     _toggleSortByDealStatus2();
                     Navigator.of(context).pop();
+                    newindex = 1;
                   },
-                  style: ButtonStyle(
-                    fixedSize: MaterialStateProperty.all<Size>(
-                      Size(popupWidth, 36),
-                    ),
-                  ),
-                  child: const Text(
-                    '거래완료 제외',
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w400,
-                      color: Color(0xFFE20529),
-                    ),
-                  ),
+                  height: screenSize.height * 0.044,
                 ),
-                Container(
-                  width: screenSize.width, // 선의 길이
-                  height: 0.5, // 선의 두께
-                  color: Colors.grey, // 선의 색상 (회색)
+                CustomTextButtonWithBorder(
+                  text: '예약중',
+                  onPressed: () {
+                    _toggleSortByDealStatus3();
+                    Navigator.of(context).pop();
+                    newindex = 2;
+                  },
+                  height: screenSize.height * 0.044,
                 ),
-                TextButton(
+                CustomTextButtonWithBorder(
+                  text: '거래완료',
                   onPressed: () {
                     _toggleSortByDealStatus();
                     Navigator.of(context).pop();
+                    newindex = 3;
                   },
-                  style: ButtonStyle(
-                    fixedSize: MaterialStateProperty.all<Size>(
-                      Size(popupWidth, 36),
-                    ),
-                  ),
-                  child: const Text(
-                    '거래완료만',
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w400,
-                      color: Color(0xFFE20529),
-                    ),
-                  ),
+                  height: screenSize.height * 0.044,
                 ),
                 Container(
-                  width: screenSize.width, // 선의 길이
-                  height: 0.5, // 선의 두께
-                  color: Colors.grey, // 선의 색상 (회색)
-                ),
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                  style: ButtonStyle(
-                    fixedSize: MaterialStateProperty.all<Size>(
-                      Size(popupWidth, 36),
+                  height: screenSize.height * 0.044,
+                  child: TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    style: ButtonStyle(
+                      fixedSize: MaterialStateProperty.all<Size>(
+                        Size(375, 36), // 크기를 원하는대로 설정
+                      ),
                     ),
-                  ),
-                  child: const Text(
-                    '취소',
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w400,
-                      color: Color(0xFFE20529),
+                    child: const Text(
+                      '취소',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w400,
+                        color: Color(0xFFA19E9E),
+                      ),
                     ),
                   ),
                 ),
               ],
             ),
-          ],
+          ),
         );
       },
+    );
+    setState(() {
+      index = newindex; // 인덱스 업데이트를 상태 변경과 함께 수행
+    });
+  }
+}
+
+class CustomTextButtonWithBorder extends StatelessWidget {
+  final String text;
+  final VoidCallback onPressed;
+  final double height;
+
+  const CustomTextButtonWithBorder({
+    required this.text,
+    required this.onPressed,
+    this.height = 36,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        border: Border(
+          bottom: BorderSide(
+            color: Colors.grey, // 원하는 색상 설정
+            width: 0.5, // 라인 두께 설정
+          ),
+        ),
+      ),
+      height: height,
+      child: TextButton(
+        onPressed: onPressed,
+        style: ButtonStyle(
+          fixedSize: MaterialStateProperty.all<Size>(
+            Size(375, height), // 크기를 원하는대로 설정
+          ),
+        ),
+        child: Text(
+          text,
+          style: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w400,
+            color: Color(0xFFE20529),
+          ),
+        ),
+      ),
     );
   }
 }

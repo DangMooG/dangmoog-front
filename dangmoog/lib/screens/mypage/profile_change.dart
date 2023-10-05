@@ -48,10 +48,19 @@ class _ProfileChangePageState extends State<ProfileChangePage> {
     String userEmail = Provider.of<UserProvider>(context).inputEmail;
     String userNickname = Provider.of<UserProvider>(context).nickname;
     File? userImage = Provider.of<UserProvider>(context).userImage;
+    final userProvider = Provider.of<UserProvider>(context);
+    late bool isButtonDisabled = userProvider.isButtonDisabled;
 
     return Scaffold(
       resizeToAvoidBottomInset: false,
-      appBar: AppBar(),
+      appBar: AppBar(
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+        ),
+      ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
@@ -120,14 +129,16 @@ class _ProfileChangePageState extends State<ProfileChangePage> {
             ),
           ),
           ElevatedButton(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const NicknameChangePage(),
-                ),
-              );
-            },
+            onPressed: isButtonDisabled
+                ? () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const NicknameChangePage(),
+                      ),
+                    );
+                  }
+                : null,
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFFE20529),
               shape: RoundedRectangleBorder(

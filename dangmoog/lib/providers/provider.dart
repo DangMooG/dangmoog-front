@@ -17,6 +17,10 @@ class UserProvider with ChangeNotifier {
 
   String get account => _account;
 
+  late bool _isButtonDisabled = true;
+
+  bool get isButtonDisabled => _isButtonDisabled;
+
   void setEmail(String inputEmail) {
     _inputEmail = inputEmail;
     notifyListeners();
@@ -39,6 +43,11 @@ class UserProvider with ChangeNotifier {
 
   void setUserImage(File newImage) {
     userImage = newImage;
+    notifyListeners();
+  }
+
+  void updateBoolValue(bool newValue) {
+    _isButtonDisabled = newValue;
     notifyListeners();
   }
 }

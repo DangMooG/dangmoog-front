@@ -42,13 +42,21 @@ class _NicknameChangePageState extends State<NicknameChangePage> {
     Size screenSize = MediaQuery.of(context).size;
     String changeUserNickname = Provider.of<UserProvider>(context).nickname;
     File? userImage = Provider.of<UserProvider>(context).userImage;
+    final user = Provider.of<UserProvider>(context);
+    bool isButtonDisabled = user.isButtonDisabled;
 
     return Scaffold(
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back), // 뒤로 가기 아이콘
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+        ),
         actions: [
-          _changeNicknameButton(
-              screenSize, context, nickname, changeUserNickname),
+          _changeNicknameButton(screenSize, context, nickname,
+              changeUserNickname, isButtonDisabled),
         ],
       ),
       body: Column(
@@ -117,7 +125,7 @@ class _NicknameChangePageState extends State<NicknameChangePage> {
 }
 
 Widget _changeNicknameButton(Size screenSize, BuildContext context,
-    String nickname, String changeUserNickname) {
+    String nickname, String changeUserNickname, bool isButtonDisabled) {
   return TextButton(
     onPressed: () {
       if (nickname.length >= 2) {
@@ -170,6 +178,8 @@ Widget _changeNicknameButton(Size screenSize, BuildContext context,
                       onPressed: () {
                         Provider.of<UserProvider>(context, listen: false)
                             .setNickname(nickname);
+                        Provider.of<UserProvider>(context, listen: false)
+                            .updateBoolValue(false);
                         Navigator.push(
                           context,
                           MaterialPageRoute(

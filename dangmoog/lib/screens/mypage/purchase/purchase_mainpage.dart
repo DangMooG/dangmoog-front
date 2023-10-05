@@ -48,7 +48,13 @@ class _PurchaseMainPageState extends State<PurchaseMainPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('구매내역'),
+        title: Text(
+          '구매내역',
+          style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w600,
+              color: Color(0xFF302E2E)),
+        ),
         actions: [],
       ),
       body: FutureBuilder<List<ProductListModel>>(
