@@ -7,12 +7,12 @@ class ProductModel extends ChangeNotifier {
   final String title;
   final String description;
   final int price;
-  final List<dynamic> images;
+  final List<String> images;
   final String category;
   final DateTime uploadTime;
   final String saleMethod;
   final String userName;
-  final String dealStatus;
+  final int dealStatus; // "거래 중" "예약 중" "거래 완료" ""
   final int viewCount;
   final int chatCount;
   final int likeCount;
