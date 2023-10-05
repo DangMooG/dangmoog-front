@@ -1,4 +1,3 @@
-import 'package:dangmoog/screens/auth/login.dart';
 import 'package:flutter/material.dart';
 import 'package:dangmoog/screens/auth/signup.dart';
 
@@ -58,7 +57,10 @@ class _WelcomePageState extends State<WelcomePage> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                          builder: (context) => const SignupPage()),
+                        builder: (context) => const AuthPage(
+                          isLogin: false,
+                        ),
+                      ),
                     );
                   },
                   buttonText: '시작하기',
@@ -84,7 +86,11 @@ class _WelcomePageState extends State<WelcomePage> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => const LoginPage()),
+                            // builder: (context) => const LoginPage()),
+                            builder: (context) => const AuthPage(
+                              isLogin: true,
+                            ),
+                          ),
                         );
                       },
                       child: Container(
