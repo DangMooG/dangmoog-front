@@ -114,7 +114,8 @@
     "images": [
       "assets/images/sample.png",
       "assets/images/sample.png",
-      "assets/images/sample.png"],
+      "assets/images/sample.png"
+    ],
     "saleMethod": "위탁판매",
     "userName": "김철희",
     "dealStatus": 2,

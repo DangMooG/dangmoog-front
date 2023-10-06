@@ -1,6 +1,6 @@
+import 'package:dangmoog/models/product_class.dart';
 import 'package:dangmoog/screens/mypage/like/like_postlist.dart';
 import 'package:flutter/material.dart';
-import 'package:dangmoog/models/product_list_model.dart';
 import 'dart:convert';
 import 'package:flutter/services.dart';
 
@@ -14,7 +14,7 @@ class LikeMainPage extends StatefulWidget {
 }
 
 class _LikeMainPageState extends State<LikeMainPage> {
-  late Future<List<ProductListModel>> futureProducts;
+  late Future<List<ProductModel>> futureProducts;
   SortingOrder sorting = SortingOrder.descending; // 정렬 순서 기본값
   bool sortByDealStatus = false;
   bool sortByDealStatus2 = false;
@@ -26,17 +26,18 @@ class _LikeMainPageState extends State<LikeMainPage> {
     futureProducts = _loadProductsFromAsset();
   }
 
-  Future<List<ProductListModel>> _loadProductsFromAsset() async {
+  Future<List<ProductModel>> _loadProductsFromAsset() async {
     final String jsonString =
         await rootBundle.loadString('assets/mylike_products.json');
     final List<dynamic> jsonResponse = json.decode(jsonString);
 
     return jsonResponse
-        .map((productData) => ProductListModel(
+        .map((productData) => ProductModel(
               postId: productData['postId'],
               title: productData['title'],
+              description: productData['description'],
               price: productData['price'],
-              image: productData['image'],
+              images: List<String>.from(productData['images']),
               category: productData['category'],
               uploadTime: DateTime.parse(productData['uploadTime']),
               saleMethod: productData['saleMethod'],
@@ -58,8 +59,8 @@ class _LikeMainPageState extends State<LikeMainPage> {
     });
   }
 
-  List<ProductListModel> _sortProducts(List<ProductListModel> products) {
-    List<ProductListModel> filteredProducts = products;
+  List<ProductModel> _sortProducts(List<ProductModel> products) {
+    List<ProductModel> filteredProducts = products;
     if (sortByDealStatus) {
       filteredProducts =
           filteredProducts.where((product) => product.dealStatus == 2).toList();
@@ -128,7 +129,7 @@ class _LikeMainPageState extends State<LikeMainPage> {
             padding: const EdgeInsets.only(right: 16.0),
             child: ElevatedButton(
               style: ElevatedButton.styleFrom(
-                padding: EdgeInsets.all(5),
+                padding: const EdgeInsets.all(5),
                 minimumSize: const Size(40, 24),
                 side: const BorderSide(
                   color: Color(0xFFE20529), // 원하는 border 색상 설정
@@ -142,12 +143,12 @@ class _LikeMainPageState extends State<LikeMainPage> {
                 children: [
                   Text(
                     ButtonList[index],
-                    style: TextStyle(
+                    style: const TextStyle(
                         fontSize: 11,
                         fontWeight: FontWeight.w400,
                         color: Color(0xFFE20529)),
                   ),
-                  Icon(
+                  const Icon(
                     Icons.keyboard_arrow_down_sharp,
                     color: Color(0xFFE20529),
                     size: 16,
@@ -161,7 +162,7 @@ class _LikeMainPageState extends State<LikeMainPage> {
           ),
         ],
       ),
-      body: FutureBuilder<List<ProductListModel>>(
+      body: FutureBuilder<List<ProductModel>>(
         future: futureProducts,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.done) {
@@ -237,7 +238,7 @@ class _LikeMainPageState extends State<LikeMainPage> {
                   },
                   height: screenSize.height * 0.044,
                 ),
-                Container(
+                SizedBox(
                   height: screenSize.height * 0.044,
                   child: TextButton(
                     onPressed: () {
@@ -245,7 +246,7 @@ class _LikeMainPageState extends State<LikeMainPage> {
                     },
                     style: ButtonStyle(
                       fixedSize: MaterialStateProperty.all<Size>(
-                        Size(375, 36), // 크기를 원하는대로 설정
+                        const Size(375, 36), // 크기를 원하는대로 설정
                       ),
                     ),
                     child: const Text(
@@ -276,6 +277,7 @@ class CustomTextButtonWithBorder extends StatelessWidget {
   final double height;
 
   const CustomTextButtonWithBorder({
+    super.key,
     required this.text,
     required this.onPressed,
     this.height = 36,
@@ -284,7 +286,7 @@ class CustomTextButtonWithBorder extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
         border: Border(
           bottom: BorderSide(
             color: Colors.grey, // 원하는 색상 설정
@@ -302,7 +304,7 @@ class CustomTextButtonWithBorder extends StatelessWidget {
         ),
         child: Text(
           text,
-          style: TextStyle(
+          style: const TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w400,
             color: Color(0xFFE20529),

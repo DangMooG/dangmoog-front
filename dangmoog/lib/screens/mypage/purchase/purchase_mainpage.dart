@@ -1,20 +1,21 @@
+import 'package:dangmoog/models/product_class.dart';
 import 'package:dangmoog/screens/mypage/purchase/purchase_postlist.dart';
 import 'package:flutter/material.dart';
-import 'package:dangmoog/models/product_list_model.dart';
 import 'dart:convert';
 import 'package:flutter/services.dart';
 
-Future<List<ProductListModel>> _loadProductsFromAsset() async {
+Future<List<ProductModel>> _loadProductsFromAsset() async {
   final String jsonString =
       await rootBundle.loadString('assets/mypurchase_products.json');
   final List<dynamic> jsonResponse = json.decode(jsonString);
 
   return jsonResponse
-      .map((productData) => ProductListModel(
+      .map((productData) => ProductModel(
             postId: productData['postId'],
             title: productData['title'],
+            description: productData['description'],
             price: productData['price'],
-            image: productData['image'],
+            images: List<String>.from(productData['images']),
             category: productData['category'],
             uploadTime: DateTime.parse(productData['uploadTime']),
             saleMethod: productData['saleMethod'],
@@ -36,7 +37,7 @@ class PurchaseMainPage extends StatefulWidget {
 }
 
 class _PurchaseMainPageState extends State<PurchaseMainPage> {
-  late Future<List<ProductListModel>> futureProducts;
+  late Future<List<ProductModel>> futureProducts;
 
   @override
   void initState() {
@@ -48,16 +49,16 @@ class _PurchaseMainPageState extends State<PurchaseMainPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
+        title: const Text(
           '구매내역',
           style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w600,
               color: Color(0xFF302E2E)),
         ),
-        actions: [],
+        actions: const [],
       ),
-      body: FutureBuilder<List<ProductListModel>>(
+      body: FutureBuilder<List<ProductModel>>(
         future: futureProducts,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.done) {

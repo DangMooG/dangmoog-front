@@ -165,7 +165,7 @@ class _MyPageState extends State<MyPage> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => LikeMainPage(),
+                          builder: (context) => const LikeMainPage(),
                         ),
                       );
                     }),
@@ -176,7 +176,7 @@ class _MyPageState extends State<MyPage> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => MySellMainPage(),
+                          builder: (context) => const MySellMainPage(),
                         ),
                       );
                     }),
@@ -187,7 +187,7 @@ class _MyPageState extends State<MyPage> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => PurchaseMainPage(),
+                          builder: (context) => const PurchaseMainPage(),
                         ),
                       );
                     }),
@@ -283,15 +283,14 @@ class _MyPageState extends State<MyPage> {
                       }
                     }),
                 MypageText(
-                    text: '탈퇴하기',
-                    icon: Icons.delete_outline_outlined,
-                    onPressed: () async {
+                  text: '탈퇴하기',
+                  icon: Icons.delete_outline_outlined,
+                  onPressed: () async {
                     Response response = await ApiService().deleteAccount();
                     print(response);
                     if (response.statusCode == 200) {
                       await storage.delete(key: 'accessToken');
                       await storage.delete(key: 'userId');
-                      await storage.delete(key: 'userEmail');
 
                       Navigator.pushAndRemoveUntil(
                         context,
@@ -317,8 +316,11 @@ class mypageButton extends StatelessWidget {
   final String imageUrl;
   final VoidCallback onPressed;
 
-  mypageButton(
-      {required this.text, required this.imageUrl, required this.onPressed});
+  const mypageButton(
+      {super.key,
+      required this.text,
+      required this.imageUrl,
+      required this.onPressed});
 
   @override
   Widget build(BuildContext context) {
@@ -330,16 +332,16 @@ class mypageButton extends StatelessWidget {
         onTap: onPressed,
         child: Row(
           children: [
-            SizedBox(width: 12),
+            const SizedBox(width: 12),
             Image.asset(
               imageUrl,
               width: 24,
               height: 24,
             ),
-            SizedBox(width: 8),
+            const SizedBox(width: 8),
             Text(
               text,
-              style: TextStyle(
+              style: const TextStyle(
                 color: Color(0xFF302E2E),
                 fontSize: 16,
                 fontWeight: FontWeight.w400,
