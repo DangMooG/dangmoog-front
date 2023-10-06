@@ -75,22 +75,6 @@ flutter:
     - assets/chat_buy_list.json
     - assets/chat_detail.json
     - assets/images/
-#    - assets/images/dotorit_loading.png
-#    - assets/images/loading_logo.png
-#    - assets/images/dotorit_welcome.png
-#    - assets/images/add_icon.png
-#    - assets/images/add_shadow.png
-#    - assets/images/choose_locker.png
-#    - assets/images/s_image.png
-#    - assets/images/l_image.png
-#    - assets/images/direct_icon.png
-#    - assets/images/move_to_inbox.png
-#    - assets/images/using.png
-#    - assets/images/possible.png
-#    - assets/images/selected.png
-#    - assets/images/fixing.png
-#    - assets/images/flickr_wild_000017.jpg
-#    - assets/images/sample.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
