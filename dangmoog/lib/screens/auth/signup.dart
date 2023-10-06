@@ -2,11 +2,13 @@ import 'package:dangmoog/screens/home.dart';
 import 'package:dangmoog/services/api.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+
 import 'dart:async';
 import 'package:dio/dio.dart';
 
 import 'package:provider/provider.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+
 
 import 'package:dangmoog/screens/auth/nickname.dart';
 import 'package:dangmoog/providers/provider.dart';
@@ -57,6 +59,7 @@ class _AuthPageState extends State<AuthPage> {
     setState(() {
       inputEmail = value;
       errorMessageEmail = '';
+      Provider.of<UserProvider>(context, listen: false).setEmail(inputEmail);
     });
     // 이메일 형식이 올바를 경우 인증메일 발송 버튼 활성화
     if (isEmailFormatValid(inputEmail)) {

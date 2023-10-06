@@ -74,6 +74,9 @@ flutter:
     - assets/chat_sell_list.json
     - assets/chat_buy_list.json
     - assets/chat_detail.json
+    - assets/mysell_products.json
+    - assets/mypurchase_products.json
+    - assets/mylike_products.json
     - assets/images/
 
   # An image asset can refer to one or more resolution-specific "variants", see
