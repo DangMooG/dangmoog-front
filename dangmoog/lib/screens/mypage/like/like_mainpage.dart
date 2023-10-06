@@ -19,6 +19,7 @@ class _LikeMainPageState extends State<LikeMainPage> {
   bool sortByDealStatus = false;
   bool sortByDealStatus2 = false;
   bool sortByDealStatus3 = false;
+  bool like = false;
   int index = 0;
   @override
   void initState() {
@@ -52,35 +53,44 @@ class _LikeMainPageState extends State<LikeMainPage> {
 
   void _toggleSortingOrder() {
     setState(() {
+      like = true;
       sortByDealStatus = false;
       sortByDealStatus2 = false;
-      sorting = SortingOrder.descending;
+      sortByDealStatus3 = false;
     });
   }
 
   List<ProductListModel> _sortProducts(List<ProductListModel> products) {
-    List<ProductListModel> filteredProducts = products;
+    List<ProductListModel> filteredProducts =
+        List<ProductListModel>.from(products);
+
+    if (like) {
+      filteredProducts = filteredProducts
+          .where((product) => product.isFavorited == true)
+          .toList();
+    }
     if (sortByDealStatus) {
-      filteredProducts =
-          filteredProducts.where((product) => product.dealStatus == 2).toList();
+      filteredProducts = filteredProducts
+          .where((product) =>
+              product.isFavorited == true && product.dealStatus == 2)
+          .toList();
     }
     if (sortByDealStatus2) {
-      filteredProducts =
-          filteredProducts.where((product) => product.dealStatus == 0).toList();
+      filteredProducts = filteredProducts
+          .where((product) =>
+              product.isFavorited == true && product.dealStatus == 0)
+          .toList();
     }
     if (sortByDealStatus3) {
-      filteredProducts =
-          filteredProducts.where((product) => product.dealStatus == 1).toList();
+      filteredProducts = filteredProducts
+          .where((product) =>
+              product.isFavorited == true && product.dealStatus == 1)
+          .toList();
     }
 
-    // 필터링된 데이터를 정렬 순서에 따라 정렬한 후 반환
-    if (sorting == SortingOrder.ascending) {
-      return filteredProducts
-        ..sort((a, b) => a.uploadTime.compareTo(b.uploadTime));
-    } else {
-      return filteredProducts
-        ..sort((a, b) => b.uploadTime.compareTo(a.uploadTime));
-    }
+    return filteredProducts = filteredProducts
+        .where((product) => product.isFavorited == true)
+        .toList();
   }
 
   //거래완료

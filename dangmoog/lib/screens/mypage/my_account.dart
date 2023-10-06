@@ -24,6 +24,7 @@ class _MyaccountPageState extends State<MyaccountPage> {
   final bool _first = false;
   String buttonext = '';
   bool isClicked = false;
+  bool isClick = true;
 
   @override
   Widget build(BuildContext context) {
@@ -98,10 +99,12 @@ class _MyaccountPageState extends State<MyaccountPage> {
 
   // 계좌번호 입력 위젯
   Widget _accountNumber(Size screenSize) {
+    bool isTextEntered = false;
     void onAccountChanged(String value) {
       setState(() {
         account = value;
         Provider.of<UserProvider>(context, listen: false).setAccount(account);
+        isTextEntered = value.isNotEmpty;
       });
     }
 
@@ -115,25 +118,23 @@ class _MyaccountPageState extends State<MyaccountPage> {
             onChanged: onAccountChanged,
             onTap: () {
               setState(() {
-                isClicked = true;
+                isClick = true;
               });
             },
             keyboardType: TextInputType.number,
             inputFormatters: [
               FilteringTextInputFormatter.allow(RegExp(r'[0-9]'))
             ],
-            decoration: InputDecoration(
+            decoration: const InputDecoration(
               focusedBorder: OutlineInputBorder(
                 borderSide: BorderSide(
-                  color: isClicked
-                      ? Color(0xFF302E2E)
-                      : Color(0xFFA19E9E), // 클릭 시 테두리 색상
+                  color: Color(0xFF302E2E), // 클릭 시 테두리 색상
                   width: 1.0,
                 ),
               ),
               enabledBorder: OutlineInputBorder(
                 borderSide: BorderSide(
-                  color: Color(0xFFA19E9E), // 클릭 전 테두리 색상
+                  color: Color(0xFFA19E9E),
                   width: 1.0,
                 ),
               ),
