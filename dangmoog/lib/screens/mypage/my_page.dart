@@ -1,3 +1,4 @@
+import 'package:dangmoog/screens/mypage/like/like_mainpage.dart';
 import 'package:dangmoog/screens/auth/welcome.dart';
 import 'package:dangmoog/services/api.dart';
 import 'package:dio/dio.dart';
@@ -5,6 +6,11 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:dangmoog/providers/provider.dart';
 import 'package:dangmoog/widgets/mypage_text.dart';
+import 'package:dangmoog/screens/mypage/profile_change.dart';
+import 'package:dangmoog/screens/mypage/my_account.dart';
+import 'package:dangmoog/screens/mypage/sell/my_sell_mainpage.dart';
+import 'package:dangmoog/screens/mypage/purchase/purchase_mainpage.dart';
+import 'dart:io';
 
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
@@ -30,8 +36,9 @@ class _MyPageState extends State<MyPage> {
 
   @override
   Widget build(BuildContext context) {
-    String userEmail = Provider.of<UserProvider>(context).email;
+    String userEmail = Provider.of<UserProvider>(context).inputEmail;
     String userNickname = Provider.of<UserProvider>(context).nickname;
+    File? userImage = Provider.of<UserProvider>(context).userImage;
     return FutureBuilder<double?>(
       future: tillGetSource(Stream<double>.periodic(
           const Duration(milliseconds: 100),
@@ -53,12 +60,20 @@ class _MyPageState extends State<MyPage> {
                 SizedBox(height: screenSize.width * 0.042),
                 Row(children: [
                   SizedBox(width: screenSize.width * 0.042),
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(50),
-                    child: Image.asset(
-                      'assets/images/sample.png',
-                      width: screenSize.width * 0.14,
-                    ),
+                  ClipOval(
+                    //borderRadius: BorderRadius.circular(50),
+                    child: userImage != null // UserProvider에서 이미지를 가져옴
+                        ? Image.file(
+                            userImage,
+                            width: screenSize.width * 0.14,
+                            height: screenSize.width * 0.14,
+                            fit: BoxFit.cover,
+                          )
+                        : Image.asset(
+                            'assets/images/sample.png', // 기본 이미지
+                            width: screenSize.width * 0.14,
+                            height: screenSize.width * 0.14,
+                          ),
                   ),
                   SizedBox(width: screenSize.width * 0.042),
                   Expanded(
@@ -89,7 +104,14 @@ class _MyPageState extends State<MyPage> {
                     ),
                   ),
                   ElevatedButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const ProfileChangePage(),
+                        ),
+                      );
+                    },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFFE20529),
                       shape: RoundedRectangleBorder(
@@ -139,19 +161,47 @@ class _MyPageState extends State<MyPage> {
                 MypageText(
                     text: '관심목록',
                     icon: Icons.favorite_border,
-                    onPressed: () {}),
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => LikeMainPage(),
+                        ),
+                      );
+                    }),
                 MypageText(
                     text: '판매내역',
                     icon: Icons.monetization_on_outlined,
-                    onPressed: () {}),
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => MySellMainPage(),
+                        ),
+                      );
+                    }),
                 MypageText(
                     text: '구매내역',
                     icon: Icons.local_mall_outlined,
-                    onPressed: () {}),
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => PurchaseMainPage(),
+                        ),
+                      );
+                    }),
                 MypageText(
                     text: '내 계좌정보',
                     icon: Icons.credit_card_outlined,
-                    onPressed: () {}),
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const MyaccountPage(),
+                        ),
+                      );
+                    }),
                 SizedBox(height: screenSize.height * 0.009),
                 Container(
                   width: screenSize.width,
@@ -206,9 +256,9 @@ class _MyPageState extends State<MyPage> {
                     text: '자주 묻는 질문',
                     icon: Icons.support_agent_outlined,
                     onPressed: () {}),
-                MypageText(
+                mypageButton(
                     text: '도토릿 소개',
-                    icon: Icons.support_agent_outlined,
+                    imageUrl: 'assets/images/dotorit_intro_icon.png',
                     onPressed: () {}),
                 MypageText(
                     text: '버전 정보',
@@ -233,9 +283,9 @@ class _MyPageState extends State<MyPage> {
                       }
                     }),
                 MypageText(
-                  text: '탈퇴하기',
-                  icon: Icons.tram_sharp,
-                  onPressed: () async {
+                    text: '탈퇴하기',
+                    icon: Icons.delete_outline_outlined,
+                    onPressed: () async {
                     Response response = await ApiService().deleteAccount();
                     print(response);
                     if (response.statusCode == 200) {
@@ -258,6 +308,46 @@ class _MyPageState extends State<MyPage> {
         }
         return Container();
       },
+    );
+  }
+}
+
+class mypageButton extends StatelessWidget {
+  final String text;
+  final String imageUrl;
+  final VoidCallback onPressed;
+
+  mypageButton(
+      {required this.text, required this.imageUrl, required this.onPressed});
+
+  @override
+  Widget build(BuildContext context) {
+    Size screenSize = MediaQuery.of(context).size;
+    return SizedBox(
+      height: screenSize.height * 0.049,
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: onPressed,
+        child: Row(
+          children: [
+            SizedBox(width: 12),
+            Image.asset(
+              imageUrl,
+              width: 24,
+              height: 24,
+            ),
+            SizedBox(width: 8),
+            Text(
+              text,
+              style: TextStyle(
+                color: Color(0xFF302E2E),
+                fontSize: 16,
+                fontWeight: FontWeight.w400,
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
