@@ -1,3 +1,4 @@
+import 'package:dangmoog/models/product_class.dart';
 import 'package:dangmoog/screens/mypage/like/like_mainpage.dart';
 import 'package:dangmoog/screens/post/like_chat_count.dart';
 import 'package:flutter/material.dart';
@@ -7,12 +8,10 @@ import 'dart:io';
 
 import 'package:dangmoog/screens/post/detail_page.dart';
 
-import 'package:dangmoog/models/product_list_model.dart';
-
 import 'package:dangmoog/utils/convert_money_format.dart';
 
 class ProductList extends StatefulWidget {
-  final List<ProductListModel> productList;
+  final List<ProductModel> productList;
 
   const ProductList(
       {Key? key, required this.productList, required SortingOrder sortingOrder})
@@ -23,7 +22,7 @@ class ProductList extends StatefulWidget {
 }
 
 class _ProductListState extends State<ProductList> {
-  bool _isPressed = false;
+  final bool _isPressed = false;
 
   @override
   Widget build(BuildContext context) {
@@ -50,7 +49,7 @@ class _ProductListState extends State<ProductList> {
     return ListView.separated(
       itemCount: widget.productList.length,
       itemBuilder: (context, index) {
-        Widget productCard = ChangeNotifierProvider<ProductListModel>.value(
+        Widget productCard = ChangeNotifierProvider<ProductModel>.value(
           value: widget.productList[index],
           child: _postCard(context),
         );
@@ -66,7 +65,7 @@ class _ProductListState extends State<ProductList> {
 
   // 게시물 리스트에서 게시물 하나에 대한 위젯
   Widget _postCard(BuildContext context) {
-    return Consumer<ProductListModel>(
+    return Consumer<ProductModel>(
       builder: (context, product, child) {
         double paddingValue = MediaQuery.of(context).size.width * 0.042;
         return InkWell(
@@ -123,7 +122,7 @@ class _ProductListState extends State<ProductList> {
   }
 
   // 게시물 내역 이미지
-  Widget _buildProductImage(BuildContext context, ProductListModel product) {
+  Widget _buildProductImage(BuildContext context, ProductModel product) {
     double size = MediaQuery.of(context).size.width * 0.28;
     double paddingValue = MediaQuery.of(context).size.width * 0.042;
 
@@ -145,7 +144,7 @@ class _ProductListState extends State<ProductList> {
         child: ClipRRect(
           borderRadius: BorderRadius.circular(8),
           child: Image.asset(
-            product.image,
+            product.images[0],
             fit: BoxFit.cover,
           ),
         ),
@@ -153,7 +152,7 @@ class _ProductListState extends State<ProductList> {
     );
   }
 
-  Widget _buildProductDetails(BuildContext context, ProductListModel product) {
+  Widget _buildProductDetails(BuildContext context, ProductModel product) {
     double height = MediaQuery.of(context).size.width * 0.28;
     return Expanded(
       child: SizedBox(
@@ -172,7 +171,7 @@ class _ProductListState extends State<ProductList> {
   }
 
   // 게시글 제목, 카테고리, 시간, 가격 표시
-  Widget _buildProductTexts(ProductListModel product) {
+  Widget _buildProductTexts(ProductModel product) {
     String timeAgo(DateTime date) {
       Duration diff = DateTime.now().difference(date);
 

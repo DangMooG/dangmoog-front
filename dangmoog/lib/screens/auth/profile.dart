@@ -132,17 +132,19 @@ class _ProfilePageState extends State<ProfilePage> {
 
       final pickedFile = await picker.pickImage(source: ImageSource.gallery);
 
-    if (pickedFile != null) {
-      setState(() {
-        _image = File(pickedFile.path);
-        imagePath = pickedFile.path;
-        buttonAcitve = true;
-        // 이미지를 선택한 경우 버튼의 색상을 빨간색으로 변경
-        buttonColor = Color(0xFFE20529); // 빨간색
+      if (pickedFile != null) {
+        setState(() {
+          _image = File(pickedFile.path);
+          imagePath = pickedFile.path;
+          buttonAcitve = true;
+          // 이미지를 선택한 경우 버튼의 색상을 빨간색으로 변경
+          buttonColor = const Color(0xFFE20529); // 빨간색
 
-        // 이미지를 Provider에 저장
-        Provider.of<UserProvider>(context, listen: false).setUserImage(_image!);
-      });
+          // 이미지를 Provider에 저장
+          Provider.of<UserProvider>(context, listen: false)
+              .setUserImage(_image!);
+        });
+      }
     }
   }
 

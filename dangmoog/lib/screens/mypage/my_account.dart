@@ -1,10 +1,9 @@
 import 'package:dangmoog/constants/account_list.dart';
 import 'package:flutter/material.dart';
-import 'package:dangmoog/screens/auth/submit_button.dart';
+import 'package:dangmoog/widgets/submit_button.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:dangmoog/providers/provider.dart';
-import 'dart:io';
 
 class MyaccountPage extends StatefulWidget {
   const MyaccountPage({Key? key}) : super(key: key);
@@ -126,24 +125,25 @@ class _MyaccountPageState extends State<MyaccountPage> {
               focusedBorder: OutlineInputBorder(
                 borderSide: BorderSide(
                   color: isClicked
-                      ? Color(0xFF302E2E)
-                      : Color(0xFFA19E9E), // 클릭 시 테두리 색상
+                      ? const Color(0xFF302E2E)
+                      : const Color(0xFFA19E9E), // 클릭 시 테두리 색상
                   width: 1.0,
                 ),
               ),
-              enabledBorder: OutlineInputBorder(
+              enabledBorder: const OutlineInputBorder(
                 borderSide: BorderSide(
                   color: Color(0xFFA19E9E), // 클릭 전 테두리 색상
                   width: 1.0,
                 ),
               ),
               hintText: '계좌번호 입력(-제외)',
-              hintStyle: TextStyle(
+              hintStyle: const TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w400,
                 color: Color(0xFFA19E9E),
               ),
-              contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+              contentPadding:
+                  const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
               isDense: true,
             ),
           ),
@@ -196,7 +196,9 @@ class _MyaccountPageState extends State<MyaccountPage> {
                 height: 38,
                 decoration: BoxDecoration(
                   border: Border.all(
-                    color: isClicked ? Color(0xFFA19E9E) : Color(0xFFD3D2D2),
+                    color: isClicked
+                        ? const Color(0xFFA19E9E)
+                        : const Color(0xFFD3D2D2),
                   ),
                   borderRadius: const BorderRadius.all(Radius.circular(4)),
                 ),
@@ -363,7 +365,8 @@ class _MyaccountPageState extends State<MyaccountPage> {
                     backgroundColor: const Color(0xFFFFFFFF),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(6),
-                      side: BorderSide(color: Color(0xFF726E6E), width: 1),
+                      side:
+                          const BorderSide(color: Color(0xFF726E6E), width: 1),
                     ),
                     padding:
                         const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
@@ -428,7 +431,7 @@ class _MyaccountPageState extends State<MyaccountPage> {
           width: screenSize.width * 0.47,
           height: screenSize.height * 0.064,
           decoration: BoxDecoration(
-            color: Color(0xFF302E2E).withOpacity(0.8),
+            color: const Color(0xFF302E2E).withOpacity(0.8),
             borderRadius: BorderRadius.circular(14),
           ),
           child: Center(
@@ -436,7 +439,7 @@ class _MyaccountPageState extends State<MyaccountPage> {
               padding: const EdgeInsets.all(20.0),
               child: Text(
                 text,
-                style: TextStyle(
+                style: const TextStyle(
                   color: Colors.white,
                   fontSize: 14,
                   fontWeight: FontWeight.w400,
@@ -451,7 +454,7 @@ class _MyaccountPageState extends State<MyaccountPage> {
 
     Overlay.of(context).insert(overlayEntry);
 
-    Future.delayed(Duration(seconds: 1), () {
+    Future.delayed(const Duration(seconds: 1), () {
       overlayEntry.remove();
     });
   }
