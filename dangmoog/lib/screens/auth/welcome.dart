@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:dangmoog/screens/auth/signup.dart';
 
-import 'package:dangmoog/screens/auth/submit_button.dart';
+import 'package:dangmoog/widgets/submit_button.dart';
 
 class WelcomePage extends StatefulWidget {
   const WelcomePage({super.key});
@@ -47,51 +47,68 @@ class _WelcomePageState extends State<WelcomePage> {
               ),
             ],
           ),
-          Column(
-            children: [
-              AuthSubmitButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const SignupPage()),
-                  );
-                },
-                buttonText: '시작하기',
-                isActive: true,
-              ),
-              SizedBox(height: screenSize.height * 0.03),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Text(
-                    '이미 계정이 있나요?',
-                    style: TextStyle(
-                      color: Color(0xFF726E6E),
-                      fontSize: 13,
-                      fontWeight: FontWeight.w400,
+          SizedBox(
+            height: screenSize.height * 0.2,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                AuthSubmitButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const AuthPage(
+                          isLogin: false,
+                        ),
+                      ),
+                    );
+                  },
+                  buttonText: '시작하기',
+                  isActive: true,
+                ),
+                const SizedBox(height: 30),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text(
+                      '이미 계정이 있나요?',
+                      style: TextStyle(
+                        color: Color(0xFF726E6E),
+                        fontSize: 13,
+                        fontWeight: FontWeight.w400,
+                      ),
                     ),
-                  ),
-                  SizedBox(
-                    width: screenSize.height * 0.01,
-                  ),
-                  InkWell(
-                    onTap: () {},
-                    child: Container(
-                      alignment: Alignment.center,
-                      child: const Text(
-                        '로그인',
-                        style: TextStyle(
-                          color: Color(0xFFE20529),
-                          fontSize: 13,
-                          fontWeight: FontWeight.w400,
+                    SizedBox(
+                      width: screenSize.height * 0.01,
+                    ),
+                    InkWell(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            // builder: (context) => const LoginPage()),
+                            builder: (context) => const AuthPage(
+                              isLogin: true,
+                            ),
+                          ),
+                        );
+                      },
+                      child: Container(
+                        alignment: Alignment.center,
+                        child: const Text(
+                          '로그인',
+                          style: TextStyle(
+                            color: Color(0xFFE20529),
+                            fontSize: 13,
+                            fontWeight: FontWeight.w400,
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                ],
-              ),
-              SizedBox(height: screenSize.height * 0.07),
-            ],
+                  ],
+                ),
+              ],
+            ),
           )
         ],
       ),

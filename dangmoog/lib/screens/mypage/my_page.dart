@@ -1,4 +1,7 @@
 import 'package:dangmoog/screens/mypage/like/like_mainpage.dart';
+import 'package:dangmoog/screens/auth/welcome.dart';
+import 'package:dangmoog/services/api.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:dangmoog/providers/provider.dart';
@@ -9,9 +12,11 @@ import 'package:dangmoog/screens/mypage/sell/my_sell_mainpage.dart';
 import 'package:dangmoog/screens/mypage/purchase/purchase_mainpage.dart';
 import 'dart:io';
 
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+
 class MyPage extends StatefulWidget {
   final String email;
-  const MyPage({required this.email, required String nickname});
+  const MyPage({super.key, required this.email, required String nickname});
 
   @override
   State<MyPage> createState() => _MyPageState();
@@ -27,6 +32,8 @@ Future<double?> tillGetSource(Stream<double> source) async {
 }
 
 class _MyPageState extends State<MyPage> {
+  final storage = const FlutterSecureStorage();
+
   @override
   Widget build(BuildContext context) {
     String userEmail = Provider.of<UserProvider>(context).inputEmail;
@@ -76,17 +83,19 @@ class _MyPageState extends State<MyPage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          '$userNickname',
-                          style: TextStyle(
-                            color: Color(0xFF302E2E),
+                          userNickname,
+                          style: const TextStyle(
+                            color: Color(0xFF552619),
+                            fontFamily: 'Pretendard-SemiBold',
                             fontSize: 18,
                             fontWeight: FontWeight.w600,
                           ),
                         ),
                         Text(
-                          '$userEmail',
-                          style: TextStyle(
-                            color: Color(0xFF726E6E),
+                          userEmail,
+                          style: const TextStyle(
+                            color: Color(0xFFA07272),
+                            fontFamily: 'Pretendard-Regular',
                             fontSize: 14,
                             fontWeight: FontWeight.w400,
                           ),
@@ -117,10 +126,10 @@ class _MyPageState extends State<MyPage> {
                     ),
                     child: Container(
                       alignment: Alignment.center,
-                      child: Text(
+                      child: const Text(
                         '프로필 변경',
                         style: TextStyle(
-                          color: const Color(0xFFFFFFFF),
+                          color: Color(0xFFFFFFFF),
                           fontFamily: 'Pretendard-Medium',
                           fontSize: 13,
                           fontWeight: FontWeight.w400,
@@ -134,12 +143,12 @@ class _MyPageState extends State<MyPage> {
                 Container(
                   width: screenSize.width,
                   height: 1,
-                  color: Color(0XFFD3D2D2),
+                  color: const Color(0XFFD3D2D2),
                 ),
                 Padding(
                   padding: EdgeInsets.fromLTRB(screenSize.width * 0.04,
                       screenSize.height * 0.019, 0, screenSize.height * 0.009),
-                  child: Text(
+                  child: const Text(
                     '마이거래',
                     style: TextStyle(
                       color: Color(0xFF302E2E),
@@ -197,12 +206,12 @@ class _MyPageState extends State<MyPage> {
                 Container(
                   width: screenSize.width,
                   height: 1,
-                  color: Color(0XFFD3D2D2),
+                  color: const Color(0XFFD3D2D2),
                 ),
                 Padding(
                   padding: EdgeInsets.fromLTRB(screenSize.width * 0.04,
                       screenSize.height * 0.019, 0, screenSize.height * 0.009),
-                  child: Text(
+                  child: const Text(
                     '설정',
                     style: TextStyle(
                       color: Color(0xFF302E2E),
@@ -224,12 +233,12 @@ class _MyPageState extends State<MyPage> {
                 Container(
                   width: screenSize.width,
                   height: 1,
-                  color: Color(0XFFD3D2D2),
+                  color: const Color(0XFFD3D2D2),
                 ),
                 Padding(
                   padding: EdgeInsets.fromLTRB(screenSize.width * 0.04,
                       screenSize.height * 0.019, 0, screenSize.height * 0.009),
-                  child: Text(
+                  child: const Text(
                     '기타',
                     style: TextStyle(
                       color: Color(0xFF302E2E),
@@ -258,11 +267,41 @@ class _MyPageState extends State<MyPage> {
                 MypageText(
                     text: '로그아웃',
                     icon: Icons.logout_outlined,
-                    onPressed: () {}),
+                    onPressed: () async {
+                      try {
+                        await storage.delete(key: 'accessToken');
+                        await storage.delete(key: 'userId');
+
+                        Navigator.pushAndRemoveUntil(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const WelcomePage()),
+                          (route) => false,
+                        );
+                      } catch (e) {
+                        print("로그아웃에 실패했습니다.");
+                      }
+                    }),
                 MypageText(
                     text: '탈퇴하기',
                     icon: Icons.delete_outline_outlined,
-                    onPressed: () {}),
+                    onPressed: () async {
+                    Response response = await ApiService().deleteAccount();
+                    print(response);
+                    if (response.statusCode == 200) {
+                      await storage.delete(key: 'accessToken');
+                      await storage.delete(key: 'userId');
+                      await storage.delete(key: 'userEmail');
+
+                      Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const WelcomePage()),
+                        (route) => false,
+                      );
+                    }
+                  },
+                ),
               ],
             ),
           );

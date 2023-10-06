@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'package:dangmoog/widgets/bottom_popup.dart';
+
 AppBar mainAppBar(int currentTabIndex, BuildContext context) {
   switch (currentTabIndex) {
     case 0:
@@ -38,22 +40,7 @@ AppBar _postListAppbar(BuildContext context) {
         ),
         child: IconButton(
           onPressed: () {
-            showDialog(
-              context: context,
-              barrierDismissible: true,
-              builder: (BuildContext context) {
-                Size screenSize = MediaQuery.of(context).size;
-                return AlertDialog(
-                  content: SizedBox(
-                    width: screenSize.width * 0.74,
-                    height: screenSize.height * 0.08,
-                    child: const Center(
-                      child: Text("서비스 예정입니다"),
-                    ),
-                  ),
-                );
-              },
-            );
+            showPopup(context, "서비스 예정입니다");
           },
           icon: const Icon(
             Icons.notifications_none,

@@ -1,63 +1,66 @@
+import 'dart:io';
+
 import 'package:dio/dio.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import 'package:dangmoog/services/custom_dio.dart';
 
-final dangmoogAPI = {
-  "emailSend": (email) async {
-    final api = dioAuthAPI();
+class ApiService {
+  // 토큰이 필요한 요청은 authClient를
+  // 토큰이 필요하지 않은 요청은 publicCient를 사용한다
+  final Dio _publicClient = DioClient().publicClient;
+  final Dio _authClient = DioClient().authClient;
 
-    try {
-      Response response = await api.post('/account/login', data: {
-        "email": email,
-      });
-      if (response.statusCode == 100) {
-        // 인증번호 입력
-      }
-    } catch (e) {
-      print(e);
-    }
-  },
-  "emailVerification": (verification_number) async {
-    final api = dioAuthAPI();
-    const storage = FlutterSecureStorage();
+  /////////////////////////////
+  /// 로그인, 회원가입, 계정 관련 ///
+  /////////////////////////////
 
-    try {
-      Response response = await api.post('인증번호 전송 API 주소', data: {
-        "number": verification_number,
-      });
-      if (response.statusCode == 200) {
-        String refreshToken = response.data['refresh_token'];
-        String accessToken = response.data['access_token'];
-        String userId = response.data['user_id'];
-
-        await storage.write(
-          key: 'access_token',
-          value: accessToken,
-        );
-        await storage.write(
-          key: 'refresh_token',
-          value: refreshToken,
-        );
-        await storage.write(
-          key: 'user_id',
-          value: userId,
-        );
-      }
-    } catch (e) {
-      print(e);
-    }
-  },
-  "userNickname": (nickName) async {
-    final api = dioAPI();
-
-    try {
-      Response response = await api.post('닉네임 주소', data: {
-        "nick_name": nickName,
-      });
-      if (response.statusCode == 200) {}
-    } catch (e) {
-      print(e);
-    }
+  // 자동 로그인
+  Future<Response> autoLogin() async {
+    return await _authClient.post("account/me");
   }
-};
+
+  // 이메일 전송
+  Future<Response> emailSend(inputEmail) async {
+    return await _publicClient
+        .post("account/mail_send", data: {'email': inputEmail});
+  }
+
+  // 인증번호 인증
+  Future<Response> verifyCode(
+      String inputEmail, String verificationCode) async {
+    _publicClient.options.headers['Content-Type'] =
+        "application/x-www-form-urlencoded";
+
+    return await _publicClient.post("account/verification", data: {
+      "username": inputEmail.split("@").first.toString(),
+      "password": verificationCode.toString(),
+    });
+  }
+
+  // 별명 중복확인
+  Future<Response> checkDuplicateNickname(String nickname) async {
+    return await _publicClient.post("account/check_name_duplication", data: {
+      "username": nickname,
+    });
+  }
+
+  // 별명 설정
+  Future<Response> setUserNickname(String nickname) async {
+    return await _authClient.patch("account/set_username", data: {
+      "username": nickname,
+    });
+  }
+
+  // 프로필 사진 설정
+  Future<Response> setUserProfile(File image) async {
+    return await _authClient.patch("account/set_user_profile_photo", data: {
+      "req": "string",
+      "file": image,
+    });
+  }
+
+  // 탈퇴하기
+  Future<Response> deleteAccount() async {
+    return await _authClient.delete("account");
+  }
+}
