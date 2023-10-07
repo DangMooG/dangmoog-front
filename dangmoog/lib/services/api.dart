@@ -61,6 +61,6 @@ class ApiService {
 
   // 탈퇴하기
   Future<Response> deleteAccount() async {
-    return await _authClient.delete("account");
+    return await _authClient.delete("account/");
   }
 }
