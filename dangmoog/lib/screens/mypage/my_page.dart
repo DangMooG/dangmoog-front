@@ -286,18 +286,21 @@ class _MyPageState extends State<MyPage> {
                   text: '탈퇴하기',
                   icon: Icons.delete_outline_outlined,
                   onPressed: () async {
-                    Response response = await ApiService().deleteAccount();
-                    print(response);
-                    if (response.statusCode == 200) {
-                      await storage.delete(key: 'accessToken');
-                      await storage.delete(key: 'userId');
+                    try {
+                      Response response = await ApiService().deleteAccount();
+                      if (response.statusCode == 204) {
+                        await storage.delete(key: 'accessToken');
+                        await storage.delete(key: 'userId');
 
-                      Navigator.pushAndRemoveUntil(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const WelcomePage()),
-                        (route) => false,
-                      );
+                        Navigator.pushAndRemoveUntil(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const WelcomePage()),
+                          (route) => false,
+                        );
+                      }
+                    } catch (e) {
+                      print(e);
                     }
                   },
                 ),
