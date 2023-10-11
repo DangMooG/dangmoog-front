@@ -38,12 +38,6 @@ class _AddPostPageState extends State<AddPostPage> {
   Future getImagesFromAlbum(BuildContext context) async {
     PermissionStatus status = await Permission.photos.request();
 
-    // 사진 선택 -> limited
-    // 모두 허용 -> grated
-    // 허용 안함 -> permanantlydenied
-    // // 팝업 띄워서 설정으로 이동하도록 유도 -> openAppSettings()로 연결
-    // // 설정에서 사진 선택 or 모두 허용으로 변경 시 그 다음부터는 권한 문제 없음
-
     if (status.isGranted || status.isLimited) {
       try {
         final List<XFile> pickedImages = await picker.pickMultiImage();
@@ -53,6 +47,29 @@ class _AddPostPageState extends State<AddPostPage> {
               .where((image) => !_imageList.contains(image.path))
               .map((image) => image.path)
               .toList();
+
+          // Check if adding new images will exceed the limit
+          int overflowCount = _imageList.length + imagesPath.length - 10;
+          if (overflowCount > 0) {
+            // Trim the imagesPath list
+            imagesPath = imagesPath.take(imagesPath.length - overflowCount).toList();
+
+            // Inform the user about the trimmed images
+            showDialog(
+              context: context,
+              builder: (context) => AlertDialog(
+                title: const Text('Image Limit Reached'),
+                content: Text('$overflowCount images were not added due to the 10 image limit.'),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    child: Text('OK'),
+                  ),
+                ],
+              ),
+            );
+          }
+
           setState(() {
             _imageList.addAll(imagesPath);
           });
@@ -61,14 +78,13 @@ class _AddPostPageState extends State<AddPostPage> {
         print("Error picking images: $e");
       }
     } else if (status.isPermanentlyDenied) {
-      // 나중에 ios는 cupertino로 바꿔줄 필요 있음
       await showDialog(
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
             title: const Text("앨범 권한 필요"),
             content:
-                const Text("이 기능을 사용하기 위해서는 권한이 필요합니다. 설정으로 이동하여 권한을 허용해주세요."),
+            const Text("이 기능을 사용하기 위해서는 권한이 필요합니다. 설정으로 이동하여 권한을 허용해주세요."),
             actions: <Widget>[
               TextButton(
                 child: const Text("취소"),
@@ -90,39 +106,50 @@ class _AddPostPageState extends State<AddPostPage> {
     }
   }
 
+
   Future getImagesFromCamera(BuildContext context) async {
     PermissionStatus status = await Permission.camera.request();
-
-    // 사진 선택 -> limited
-    // 모두 허용 -> grated
-    // 허용 안함 -> permanantlydenied
-    // // 팝업 띄워서 설정으로 이동하도록 유도 -> openAppSettings()로 연결
-    // // 설정에서 사진 선택 or 모두 허용으로 변경 시 그 다음부터는 권한 문제 없음
 
     if (status.isGranted || status.isLimited) {
       try {
         final XFile? pickedImage =
-            await picker.pickImage(source: ImageSource.camera);
+        await picker.pickImage(source: ImageSource.camera);
 
         if (pickedImage != null) {
           String imagePath = pickedImage.path;
 
-          setState(() {
-            _imageList.add(imagePath);
-          });
+          if (_imageList.length >= 10) {
+            // Inform the user that they've reached the limit
+            showDialog(
+              context: context,
+              builder: (context) => AlertDialog(
+                title: Text('Error'),
+                content: Text('You can only select up to 10 images.'),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    child: Text('OK'),
+                  ),
+                ],
+              ),
+            );
+          } else {
+            setState(() {
+              _imageList.add(imagePath);
+            });
+          }
         }
       } catch (e) {
         print("Error picking images: $e");
       }
     } else if (status.isPermanentlyDenied) {
-      // 나중에 ios는 cupertino로 바꿔줄 필요 있음
       await showDialog(
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
             title: const Text("카메라 권한 필요"),
             content:
-                const Text("이 기능을 사용하기 위해서는 권한이 필요합니다. 설정으로 이동하여 권한을 허용해주세요."),
+            const Text("이 기능을 사용하기 위해서는 권한이 필요합니다. 설정으로 이동하여 권한을 허용해주세요."),
             actions: <Widget>[
               TextButton(
                 child: const Text("취소"),
@@ -143,6 +170,7 @@ class _AddPostPageState extends State<AddPostPage> {
       );
     }
   }
+
 
   bool useCabinet = false;
   int userId = 3;
@@ -560,7 +588,7 @@ class _AddPostPageState extends State<AddPostPage> {
               fontSize: 14,
               fontWeight: FontWeight.w400,
             ),
-            decoration: const InputDecoration(
+            decoration: InputDecoration(
               isDense: true,
               contentPadding: EdgeInsets.all(8),
               hintText: '물품 이름',
@@ -571,11 +599,15 @@ class _AddPostPageState extends State<AddPostPage> {
               ),
               counterText: "",
               enabledBorder: OutlineInputBorder(
-                borderSide: BorderSide(color: Color(0xffD3D2D2)),
+                borderSide: BorderSide(
+                    color: productNameError == null ? Color(0xffD3D2D2) : Color(0xFFE20529),
+                ),
                 borderRadius: BorderRadius.all(Radius.circular(4)),
               ),
               focusedBorder: OutlineInputBorder(
-                borderSide: BorderSide(color: Color(0xff726E6E)),
+                borderSide: BorderSide(
+                    color: productNameError == null ? Color(0xff726E6E) : Color(0xFFE20529)  // Changes based on error condition
+                ),
                 borderRadius: BorderRadius.all(Radius.circular(4)),
               ),
             ),
@@ -760,7 +792,7 @@ class _AddPostPageState extends State<AddPostPage> {
               fontSize: 14,
               fontWeight: FontWeight.w400,
             ),
-            decoration: const InputDecoration(
+            decoration: InputDecoration(
               isDense: true,
               contentPadding: EdgeInsets.all(8),
               floatingLabelBehavior: FloatingLabelBehavior.never,
@@ -785,11 +817,15 @@ class _AddPostPageState extends State<AddPostPage> {
               ),
               counterText: "",
               enabledBorder: OutlineInputBorder(
-                borderSide: BorderSide(color: Color(0xffD3D2D2)),
+                borderSide: BorderSide(
+                  color: productPriceError == null ? Color(0xffD3D2D2) : Color(0xFFE20529),
+                ),
                 borderRadius: BorderRadius.all(Radius.circular(4)),
               ),
               focusedBorder: OutlineInputBorder(
-                borderSide: BorderSide(color: Color(0xff726E6E)),
+                borderSide: BorderSide(
+                    color: productPriceError == null ? Color(0xff726E6E) : Color(0xFFE20529)  // Changes based on error condition
+                ),
                 borderRadius: BorderRadius.all(Radius.circular(4)),
               ),
             ),
@@ -901,7 +937,7 @@ class _AddPostPageState extends State<AddPostPage> {
               fontSize: 14,
               fontWeight: FontWeight.w400,
             ),
-            decoration: const InputDecoration(
+            decoration: InputDecoration(
               isDense: true,
               contentPadding: EdgeInsets.all(8),
               hintText:
@@ -914,11 +950,15 @@ class _AddPostPageState extends State<AddPostPage> {
               ),
               counterText: "",
               enabledBorder: OutlineInputBorder(
-                borderSide: BorderSide(color: Color(0xffD3D2D2)),
+                borderSide: BorderSide(
+                  color: productDescriptionError == null ? Color(0xffD3D2D2) : Color(0xFFE20529),
+                ),
                 borderRadius: BorderRadius.all(Radius.circular(4)),
               ),
               focusedBorder: OutlineInputBorder(
-                borderSide: BorderSide(color: Color(0xff726E6E)),
+                borderSide: BorderSide(
+                  color: productDescriptionError == null ? Color(0xffD3D2D2) : Color(0xFFE20529),
+                ),
                 borderRadius: BorderRadius.all(Radius.circular(4)),
               ),
             ),
@@ -1196,32 +1236,36 @@ class _AddPostPageState extends State<AddPostPage> {
 
   void _setFieldErrors() {
     // Check for product name
-    if (!isProductNameFilled) {
-      productNameError = '물품 이름을 입력해주세요!';
-    } else {
-      productNameError = null;
-    }
 
-    // Check for category
-    if (!isCategorySelected) {
-      productCategoryError = '카테고리 항목을 선택해주세요!';
-    } else {
-      productCategoryError = null;
-    }
+    setState(() {
+      if (!isProductNameFilled) {
+        productNameError = '물품 이름을 입력해주세요!';
+      } else {
+        productNameError = null;
+      }
 
-    // Check for product description
-    if (!isDescriptionProvided) {
-      productDescriptionError = '상세내용을 1자 이상 작성해주세요!';
-    } else {
-      productDescriptionError = null;
-    }
+      // Check for category
+      if (!isCategorySelected) {
+        productCategoryError = '카테고리 항목을 선택해주세요!';
+      } else {
+        productCategoryError = null;
+      }
 
-    // Check for product price
-    if (!isPriceFilled) {
-      productPriceError = '가격을 입력해주세요!';
-    } else {
-      productPriceError = null;
-    }
+      // Check for product description
+      if (!isDescriptionProvided) {
+        productDescriptionError = '상세내용을 1자 이상 작성해주세요!';
+      } else {
+        productDescriptionError = null;
+      }
+
+      // Check for product price
+      if (!isPriceFilled) {
+        productPriceError = '가격을 입력해주세요!';
+      } else {
+        productPriceError = null;
+      }
+    });
+
 
     // Similarly, reset error messages for other fields if their conditions are satisfied
   }
