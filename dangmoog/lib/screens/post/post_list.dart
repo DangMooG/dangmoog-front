@@ -1,6 +1,7 @@
+import 'package:dangmoog/constants/category_list.dart';
 import 'package:dangmoog/screens/addpage/add_post_page.dart';
 import 'package:dangmoog/screens/addpage/choose_locker_page.dart';
-import 'package:dangmoog/screens/post/like_chat_count.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -12,16 +13,56 @@ import 'package:dangmoog/models/product_class.dart';
 
 import 'package:dangmoog/utils/convert_money_format.dart';
 
-class ProductList extends StatefulWidget {
-  final List<ProductModel> productList;
+import 'package:dangmoog/services/api.dart';
 
-  const ProductList({Key? key, required this.productList}) : super(key: key);
+class ProductList extends StatefulWidget {
+  const ProductList({super.key});
 
   @override
   State<ProductList> createState() => _ProductListState();
 }
 
 class _ProductListState extends State<ProductList> {
+
+  late Future<List<ProductModel>> futureProducts;
+  final ApiService apiService = ApiService();
+  final ScrollController _scrollController = ScrollController();
+
+  @override
+  void initState(){
+    super.initState();
+    futureProducts = fetchProducts();
+  }
+
+  void _onScroll() {
+    if (_scrollController.position.pixels == _scrollController.position.minScrollExtent) {
+      // You're at the top of the scrollable, trigger the refresh logic
+      setState(() {
+        futureProducts = fetchProducts();
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    _scrollController.removeListener(_onScroll);
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  Future<List<ProductModel>> fetchProducts() async {
+    Response response = await apiService.loadList();
+    if (response.statusCode == 200) {
+      if (response.data is List) {
+        List<dynamic> data = response.data as List;
+        return data.map((item) => ProductModel.fromJson(item)).toList();
+      } else {
+        throw Exception('Data format from server is unexpected.');
+      }
+    } else {
+      throw Exception('Failed to load products');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -169,22 +210,50 @@ class _ProductListState extends State<ProductList> {
 
   // 게시물 리스트 위젯
   Widget _postListView() {
-    return ListView.separated(
-      itemCount: widget.productList.length,
-      itemBuilder: (context, index) {
-        Widget productCard = ChangeNotifierProvider<ProductModel>.value(
-          value: widget.productList[index],
-          child: _postCard(context),
-        );
-        return productCard;
-      },
-      separatorBuilder: (context, i) {
-        return const Divider(
-          height: 1,
+    return FutureBuilder<List<ProductModel>>(
+      future: futureProducts,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          // While data is still loading:
+          return const Center(child: CircularProgressIndicator());
+        } else if (snapshot.hasError) {
+          // If we run into an error:
+          return Center(child: Text('Failed to load products: ${snapshot.error}'));
+        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+          // Data is loaded but empty:
+          return const Center(child: Text('No products available.'));
+        }
+
+        // Data is loaded and available:
+        List<ProductModel> products = snapshot.data!;
+        return RefreshIndicator(
+          onRefresh: () async{
+            setState(() {
+              futureProducts = fetchProducts();
+            });
+            await futureProducts;
+          },
+          child: ListView.separated(
+            controller: _scrollController,
+            itemCount: products.length,
+            itemBuilder: (context, index) {
+              Widget productCard = ChangeNotifierProvider<ProductModel>.value(
+                value: products[index],
+                child: _postCard(context),
+              );
+              return productCard;
+            },
+            separatorBuilder: (context, i) {
+              return const Divider(
+              height: 1,
+              );
+            },
+          ),
         );
       },
     );
   }
+
 
   // 게시물 리스트에서 게시물 하나에 대한 위젯
   Widget _postCard(BuildContext context) {
@@ -203,15 +272,6 @@ class _ProductListState extends State<ProductList> {
                     ),
                 transitionsBuilder:
                     (context, animation, secondaryAnimation, child) {
-                  // const begin = Offset(1.0, 0.0);
-                  // const end = Offset.zero;
-                  // const curve = Curves.easeInOut;
-
-                  // var tween = Tween(begin: begin, end: end)
-                  //     .chain(CurveTween(curve: curve));
-                  // var offsetAnimation = animation.drive(tween);
-
-                  // This ensures the previous page (list page) also moves, revealing itself when swiping the detail page.
                   var previousPageOffsetAnimation =
                   Tween(begin: const Offset(1, 0), end: const Offset(0, 0))
                       .chain(CurveTween(curve: Curves.decelerate))
@@ -264,12 +324,45 @@ class _ProductListState extends State<ProductList> {
             width: 0.5,
           ),
         ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(8),
-          child: Image.asset(
-            product.images.isNotEmpty ? product.images[0] : '/assets/images/sample.png',
-            fit: BoxFit.cover,
-          ),
+        child: FutureBuilder<Response>(
+          future: apiService.loadPhoto(product.representativePhotoId),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(
+                child: CircularProgressIndicator(),
+              );
+            } else if (snapshot.hasError) {
+              return Image.asset(
+                "assets/images/sample.png",
+                width: 90,
+                errorBuilder: (BuildContext context, Object exception, StackTrace? stackTrace) {
+                  return Image.asset(
+                    "assets/images/sample.png",
+                    width: 90,
+                    fit: BoxFit.cover,
+                  );
+                },
+              );
+            }  else if (snapshot.data==null){
+              return Image.asset(
+                '/assets/images/sample.png',
+                fit: BoxFit.cover,
+              );
+            } else if(snapshot.hasData){
+              // Check if snapshot.data is a Response object and then decode its body
+              Map<String, dynamic> data = snapshot.data!.data; // This should be a Map
+              String imageUrl = data["url"];
+              return Image.network(
+                imageUrl,
+                fit: BoxFit.cover,
+              );
+            }else{
+              return Image.asset(
+                "assets/images/sample.png",
+                fit: BoxFit.cover,
+              );
+            }
+          },
         ),
       ),
     );
@@ -285,7 +378,7 @@ class _ProductListState extends State<ProductList> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _buildProductTexts(product),
-            LikeChatCount(product: product)
+            // LikeChatCount(product: product)
           ],
         ),
       ),
@@ -334,7 +427,7 @@ class _ProductListState extends State<ProductList> {
         Padding(
           padding: const EdgeInsets.symmetric(vertical: 4),
           child: Text(
-            "${product.category} | ${timeAgo(product.uploadTime)}",
+            "${categeryItems[product.categoryId-1]} | ${timeAgo(product.createTime)}",
             style: const TextStyle(
               fontWeight: FontWeight.w400,
               fontSize: 11,
@@ -345,7 +438,7 @@ class _ProductListState extends State<ProductList> {
         Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            _buildDealStatus(product.dealStatus),
+            _buildDealStatus(product.status),
             product.price != 0
                 ? Text(
               convertoneyFormat(product.price),
@@ -369,8 +462,8 @@ class _ProductListState extends State<ProductList> {
     );
   }
 
-  Widget _buildDealStatus(int status) {
-    return status != 0
+  Widget _buildDealStatus(int dealStatus) {
+    return dealStatus != 0
         ? Container(
       padding: const EdgeInsets.symmetric(
         horizontal: 8,
@@ -381,12 +474,12 @@ class _ProductListState extends State<ProductList> {
         borderRadius: const BorderRadius.all(
           Radius.circular(3),
         ),
-        color: status == 1
+        color: dealStatus == 1
             ? const Color(0xffEC5870)
             : const Color(0xff726E6E),
       ),
       child: Text(
-        status == 1 ? '예약중' : '판매완료',
+        dealStatus == 1 ? '예약중' : '판매완료',
         style: const TextStyle(
           color: Colors.white,
           fontSize: 11,

@@ -1,35 +1,16 @@
 import 'package:dangmoog/models/product_class.dart';
 import 'package:dangmoog/screens/mypage/purchase/purchase_postlist.dart';
+import 'package:dangmoog/services/api.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:flutter/services.dart';
 
-Future<List<ProductModel>> _loadProductsFromAsset() async {
-  final String jsonString =
-      await rootBundle.loadString('assets/mypurchase_products.json');
-  final List<dynamic> jsonResponse = json.decode(jsonString);
 
-  return jsonResponse
-      .map((productData) => ProductModel(
-            postId: productData['postId'],
-            title: productData['title'],
-            description: productData['description'],
-            price: productData['price'],
-            images: List<String>.from(productData['images']),
-            category: productData['category'],
-            uploadTime: DateTime.parse(productData['uploadTime']),
-            saleMethod: productData['saleMethod'],
-            userName: productData['userName'],
-            dealStatus: productData['dealStatus'],
-            viewCount: productData['viewCount'],
-            chatCount: productData['chatCount'],
-            likeCount: productData['likeCount'],
-            isFavorited: productData['isFavorited'],
-          ))
-      .toList();
-}
 
 class PurchaseMainPage extends StatefulWidget {
+
+
   const PurchaseMainPage({Key? key}) : super(key: key);
 
   @override
@@ -37,16 +18,54 @@ class PurchaseMainPage extends StatefulWidget {
 }
 
 class _PurchaseMainPageState extends State<PurchaseMainPage> {
-  late Future<List<ProductModel>> futureProducts;
+  final ApiService apiService = ApiService();
+  List<ProductModel>? products;
+  String? errorMessage;
+  bool isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    futureProducts = _loadProductsFromAsset();
+    _loadPurchaseProducts();
+  }
+
+  Future<void> _loadPurchaseProducts() async {
+    try {
+      final filters={"username":"${apiService.getUsername()}"};
+      final response = await apiService.searchPosts(filters);
+      if (response.statusCode == 200) {
+        if (response.data is List) {
+          List<dynamic> data = response.data as List;
+          setState(() {
+            products = data.map((item) => ProductModel.fromJson(item)).toList();
+            isLoading = false;
+          });
+        } else {
+          throw Exception('Data format from server is unexpected.');
+        }
+      } else {
+        throw Exception('Failed to load products');
+      }
+    } catch (e) {
+      setState(() {
+        errorMessage = e.toString();
+        isLoading = false;
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    if (isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    if (errorMessage != null) {
+      return const Center(
+        child: Text('게시물을 불러오는데 실패했습니다.'),
+      );
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: const Text(
@@ -56,25 +75,9 @@ class _PurchaseMainPageState extends State<PurchaseMainPage> {
               fontWeight: FontWeight.w600,
               color: Color(0xFF302E2E)),
         ),
-        actions: const [],
       ),
-      body: FutureBuilder<List<ProductModel>>(
-        future: futureProducts,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.done) {
-            if (snapshot.hasError) {
-              return const Center(
-                child: Text('게시물을 불러오는데 실패했습니다.'),
-              );
-            }
-
-            // 정렬된 데이터를 표시하도록 ProductList 위젯에 sortingOrder를 전달
-            return ProductList(productList: snapshot.data!);
-          } else {
-            return const Center(child: CircularProgressIndicator());
-          }
-        },
-      ),
+      body: ProductList(productList: products!),
     );
   }
 }
+
