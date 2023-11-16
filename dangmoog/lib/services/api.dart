@@ -8,6 +8,7 @@ class ApiService {
   // 토큰이 필요하지 않은 요청은 publicCient를 사용한다
   final Dio _publicClient = DioClient().publicClient;
   final Dio _authClient = DioClient().authClient;
+
   /////////////////////////////
   /// 로그인, 회원가입, 계정 관련 ///
   /////////////////////////////
@@ -74,27 +75,27 @@ class ApiService {
     return await _authClient.delete("account/");
   }
 
-  Future<String?> getUsername() async {
-    try {
-      final response = await autoLogin();
-      if (response.statusCode == 200) {
-        // Assuming the response data is a Map that contains the username
-        final username = response.data['username'];
-        if (username is String) {
-          return username;
-        } else {
-          throw Exception('Username is not a string');
-        }
-      } else {
-        // Handle non-200 status code
-        throw Exception('Failed to auto login');
-      }
-    } catch (e) {
-      // Handle exception
-      rethrow;
-    }
-  }
-
+  // Provider를 통해서 사용자 이름 알 수 있으므로 폐기
+  // Future<String?> getUsername() async {
+  //   try {
+  //     final response = await autoLogin();
+  //     if (response.statusCode == 200) {
+  //       // Assuming the response data is a Map that contains the username
+  //       final username = response.data['username'];
+  //       if (username is String) {
+  //         return username;
+  //       } else {
+  //         throw Exception('Username is not a string');
+  //       }
+  //     } else {
+  //       // Handle non-200 status code
+  //       throw Exception('Failed to auto login');
+  //     }
+  //   } catch (e) {
+  //     // Handle exception
+  //     rethrow;
+  //   }
+  // }
 
   /////////////////////////////
   /// 물품 관련 ///
@@ -106,14 +107,15 @@ class ApiService {
     required String description,
     required int categoryId,
     required int useLocker,
-    List<File>? imageFiles, // Make sure this parameter is available in your method signature.
+    List<File>?
+        imageFiles, // Make sure this parameter is available in your method signature.
   }) async {
     // Prepare the query parameters
     final queryParams = {
       "title": title,
       "price": price.toString(),
       "description": description,
-      "category_id": (categoryId+1).toString(),
+      "category_id": (categoryId + 1).toString(),
       "use_locker": useLocker.toString(),
     };
 
@@ -129,8 +131,10 @@ class ApiService {
     // If imageFiles are provided, prepare them for FormData
     if (imageFiles != null && imageFiles.isNotEmpty) {
       for (var file in imageFiles) {
-        String fileName = file.path; // Use the 'path' package to get a file name.
-        multipartImageList.add(await MultipartFile.fromFile(file.path, filename: fileName));
+        String fileName =
+            file.path; // Use the 'path' package to get a file name.
+        multipartImageList
+            .add(await MultipartFile.fromFile(file.path, filename: fileName));
       }
     }
 
@@ -146,15 +150,15 @@ class ApiService {
     );
   }
 
-  Future<Response> loadList() async{
+  Future<Response> loadList() async {
     return await _publicClient.get("post/list");
   }
 
-  Future<Response> loadProduct(int id) async{
+  Future<Response> loadProduct(int id) async {
     return await _publicClient.get("post/$id");
   }
 
-  Future<Response> loadLikes() async{
+  Future<Response> loadLikes() async {
     return await _authClient.post("post/get_like_list");
   }
 
@@ -171,21 +175,17 @@ class ApiService {
     }
   }
 
-
-
-
-
-/////////////////////////////
-/// 채팅 관련 ///
-/////////////////////////////
+  /////////////////////////////
+  /// 채팅 관련 ///
+  /////////////////////////////
 
   Future<int> chatCount(int id) async {
     try {
       Response response = await _publicClient.get("chat/$id");
       if (response.statusCode == 200) {
-        return response.data;  // Return the list of chats
+        return response.data; // Return the list of chats
       } else if (response.statusCode == 404 || response.statusCode == 422) {
-        return 0;  // Return an empty list
+        return 0; // Return an empty list
       } else {
         // Handle other errors
         throw Exception('Failed to load chats');
@@ -196,17 +196,24 @@ class ApiService {
     }
   }
 
-
-
-
-
-
-
-/////////////////////////////
-/// 사진 관련 ///
-/////////////////////////////
-  Future<Response> loadPhoto(int id) async{
-    return await _publicClient.get("photo/$id");
+  /////////////////////////////
+  /// 사진 관련 ///
+  /////////////////////////////
+  Future<Response> loadPhoto(int id) async {
+    try {
+      Response response = await _publicClient.get("photo/$id");
+      if (response.statusCode == 200) {
+        return response; // Return the list of chats
+      } else if (response.statusCode == 404 || response.statusCode == 422) {
+        return response; // Return an empty list
+      } else {
+        // Handle other errors
+        throw Exception('Failed to load photo');
+      }
+    } catch (e) {
+      // If there's an error, return an empty list
+      return Future.error(e);
+    }
   }
 
   Future<Response> searchPhoto(int postId) async {
@@ -219,34 +226,33 @@ class ApiService {
     );
   }
 
-
-
-
-/////////////////////////////
-/// 따봉 관련 ///
-/////////////////////////////
+  ////////////////
+  /// 좋아요 관련 ///
+  ////////////////
   Future<Response> increaseLike(int id) async {
     // Make the HTTP request first
-    Response response = await _authClient.post("post/like_up", queryParameters: {'id':id});
+    Response response =
+        await _authClient.post("post/like_up", queryParameters: {'id': id});
     return response;
   }
 
   Future<Response> decreaseLike(int id) async {
     // Make the HTTP request first
-    Response response = await _authClient.post("post/like_back", queryParameters: {'id':id});
+    Response response =
+        await _authClient.post("post/like_back", queryParameters: {'id': id});
     return response;
   }
 
-/////////////////////////////
-/// 사물함 관련 ///
-/////////////////////////////
+  ////////////////
+  /// 사물함 관련 ///
+  ////////////////
   Future<Response> loadLocker() async {
     // Make the HTTP request first
     Response response = await _publicClient.get("locker/list");
     return response;
   }
 
-  Future<Response> searchLocker(Map<String, dynamic> filters) async{
+  Future<Response> searchLocker(Map<String, dynamic> filters) async {
     try {
       final response = await _publicClient.post(
         'locker/search',
@@ -259,14 +265,12 @@ class ApiService {
     }
   }
 
-  Future<Response> patchLocker(int lockerId, Map<String, dynamic> updates) async {
+  Future<Response> patchLocker(
+      int lockerId, Map<String, dynamic> updates) async {
     Response response = await _authClient.patch(
       'locker/$lockerId',
       data: updates,
     );
     return response;
   }
-
-
-
 }
