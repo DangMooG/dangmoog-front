@@ -224,12 +224,10 @@ class _ProductListState extends State<ProductList> {
     return Column(
       children: [
         Row(
-          //mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Expanded(
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
@@ -272,7 +270,7 @@ class _ProductListState extends State<ProductList> {
           ],
         ),
         Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _buildDealStatus(product.status),
             product.price != 0

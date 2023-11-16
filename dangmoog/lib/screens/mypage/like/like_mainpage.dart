@@ -15,11 +15,14 @@ class LikeMainPage extends StatefulWidget {
 
 class _LikeMainPageState extends State<LikeMainPage> {
   late Future<List<ProductModel>> futureProducts;
+
   final ApiService apiService = ApiService();
+
   SortingOrder sorting = SortingOrder.descending; // 정렬 순서 기본값
   bool sortByDealStatus = false;
   bool sortByDealStatus2 = false;
   bool sortByDealStatus3 = false;
+  bool like = false;
   int index = 0;
 
 
@@ -41,20 +44,25 @@ class _LikeMainPageState extends State<LikeMainPage> {
     } else {
       throw Exception('Failed to load products');
     }
-
-
   }
 
   void _toggleSortingOrder() {
     setState(() {
       sortByDealStatus = false;
       sortByDealStatus2 = false;
+      like = true;
       sorting = SortingOrder.descending;
     });
   }
 
   List<ProductModel> _sortProducts(List<ProductModel> products) {
-    List<ProductModel> filteredProducts = products;
+    List<ProductModel> filteredProducts = List<ProductModel>.from(products);
+
+    if (like) {
+      filteredProducts = filteredProducts
+          .where((product) => product.isFavorited == true)
+          .toList();
+    }
     if (sortByDealStatus) {
       filteredProducts =
           filteredProducts.where((product) => product.status == 2).toList();
