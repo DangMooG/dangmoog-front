@@ -1,5 +1,7 @@
 import 'package:dangmoog/models/product_class.dart';
 import 'package:dangmoog/screens/mypage/like/like_postlist.dart';
+import 'package:dangmoog/services/api.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:flutter/services.dart';
@@ -15,10 +17,13 @@ class LikeMainPage extends StatefulWidget {
 
 class _LikeMainPageState extends State<LikeMainPage> {
   late Future<List<ProductModel>> futureProducts;
+  List<ProductModel> allProducts = [];
+  List<ProductModel> filteredProducts = [];
   SortingOrder sorting = SortingOrder.descending; // 정렬 순서 기본값
   bool sortByDealStatus = false;
   bool sortByDealStatus2 = false;
   bool sortByDealStatus3 = false;
+  bool like = false;
   int index = 0;
   @override
   void initState() {
@@ -49,39 +54,51 @@ class _LikeMainPageState extends State<LikeMainPage> {
               isFavorited: productData['isFavorited'],
             ))
         .toList();
+    // }else {}
+    //   } catch (e) {
+    //     throw Exception('Error: $e');
+    //   }
   }
 
   void _toggleSortingOrder() {
     setState(() {
       sortByDealStatus = false;
       sortByDealStatus2 = false;
+      like = true;
       sorting = SortingOrder.descending;
     });
   }
 
   List<ProductModel> _sortProducts(List<ProductModel> products) {
-    List<ProductModel> filteredProducts = products;
+    List<ProductModel> filteredProducts = List<ProductModel>.from(products);
+
+    if (like) {
+      filteredProducts = filteredProducts
+          .where((product) => product.isFavorited == true)
+          .toList();
+    }
     if (sortByDealStatus) {
-      filteredProducts =
-          filteredProducts.where((product) => product.dealStatus == 2).toList();
+      filteredProducts = filteredProducts
+          .where((product) =>
+              product.isFavorited == true && product.dealStatus == 2)
+          .toList();
     }
     if (sortByDealStatus2) {
-      filteredProducts =
-          filteredProducts.where((product) => product.dealStatus == 0).toList();
+      filteredProducts = filteredProducts
+          .where((product) =>
+              product.isFavorited == true && product.dealStatus == 0)
+          .toList();
     }
     if (sortByDealStatus3) {
-      filteredProducts =
-          filteredProducts.where((product) => product.dealStatus == 1).toList();
+      filteredProducts = filteredProducts
+          .where((product) =>
+              product.isFavorited == true && product.dealStatus == 1)
+          .toList();
     }
 
-    // 필터링된 데이터를 정렬 순서에 따라 정렬한 후 반환
-    if (sorting == SortingOrder.ascending) {
-      return filteredProducts
-        ..sort((a, b) => a.uploadTime.compareTo(b.uploadTime));
-    } else {
-      return filteredProducts
-        ..sort((a, b) => b.uploadTime.compareTo(a.uploadTime));
-    }
+    return filteredProducts = filteredProducts
+        .where((product) => product.isFavorited == true)
+        .toList();
   }
 
   //거래완료

@@ -20,9 +20,12 @@ class _MyaccountPageState extends State<MyaccountPage> {
   bool _isSelectListVisible = false;
   String _selectedItem = '';
 
-  final bool _first = false;
   String buttonext = '';
   bool isClicked = false;
+
+  String text = '';
+  String text2 = '등록하기';
+  String text3 = '등록하기';
 
   @override
   Widget build(BuildContext context) {
@@ -56,14 +59,23 @@ class _MyaccountPageState extends State<MyaccountPage> {
               child: isSubmitVerificationCodeActive
                   ? AuthSubmitButton(
                       onPressed: () {
+                        if (text.isEmpty) {
+                          text = '등록이 완료되었습니다!';
+                          text2 = '등록하기';
+                          text3 = '수정하기';
+                        } else {
+                          text = '수정이 완료되었습니다!';
+                          text2 = '수정하기';
+                          text3 = '수정하기';
+                        }
                         _accountPopup(screenSize, context);
                       },
-                      buttonText: '등록하기',
+                      buttonText: text3,
                       isActive: true,
                     )
                   : AuthSubmitButton(
                       onPressed: () {},
-                      buttonText: '등록하기',
+                      buttonText: text3,
                       isActive: false,
                     ),
             ),
@@ -97,6 +109,9 @@ class _MyaccountPageState extends State<MyaccountPage> {
 
   // 계좌번호 입력 위젯
   Widget _accountNumber(Size screenSize) {
+    String hintText = account != null ? account : '계좌번호 입력(-제외)';
+
+// 힌트 텍스트를 출력하거나 사용할 곳에서 hintText 변수를 활용합니다.
     void onAccountChanged(String value) {
       setState(() {
         account = value;
@@ -112,38 +127,29 @@ class _MyaccountPageState extends State<MyaccountPage> {
           height: screenSize.height * 0.06,
           child: TextField(
             onChanged: onAccountChanged,
-            onTap: () {
-              setState(() {
-                isClicked = true;
-              });
-            },
+            onTap: () {},
             keyboardType: TextInputType.number,
             inputFormatters: [
               FilteringTextInputFormatter.allow(RegExp(r'[0-9]'))
             ],
-            decoration: InputDecoration(
-              focusedBorder: OutlineInputBorder(
+            decoration: const InputDecoration(
+              border: OutlineInputBorder(
                 borderSide: BorderSide(
-                  color: isClicked
-                      ? const Color(0xFF302E2E)
-                      : const Color(0xFFA19E9E), // 클릭 시 테두리 색상
+                  color: Color(0xFFA19E9E), // 클릭 시 테두리 색상
                   width: 1.0,
                 ),
               ),
-              enabledBorder: const OutlineInputBorder(
-                borderSide: BorderSide(
-                  color: Color(0xFFA19E9E), // 클릭 전 테두리 색상
-                  width: 1.0,
-                ),
+              focusedBorder: OutlineInputBorder(
+                borderSide: BorderSide(color: Color(0xFF302E2E) // 원하는 색상으로 변경
+                    ),
               ),
               hintText: '계좌번호 입력(-제외)',
-              hintStyle: const TextStyle(
+              hintStyle: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w400,
                 color: Color(0xFFA19E9E),
               ),
-              contentPadding:
-                  const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+              contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
               isDense: true,
             ),
           ),
@@ -170,16 +176,6 @@ class _MyaccountPageState extends State<MyaccountPage> {
       });
     }
 
-    void _buttonName(String buttontext) {
-      setState(() {
-        if (_first == true) {
-          buttontext = '수정하기';
-        } else {
-          buttontext = '등록하기';
-        }
-      });
-    }
-
     return Padding(
       padding: const EdgeInsets.only(top: 20),
       child: Column(
@@ -197,8 +193,8 @@ class _MyaccountPageState extends State<MyaccountPage> {
                 decoration: BoxDecoration(
                   border: Border.all(
                     color: isClicked
-                        ? const Color(0xFFA19E9E)
-                        : const Color(0xFFD3D2D2),
+                        ? const Color(0xFF302E2E)
+                        : const Color(0xFFA19E9E),
                   ),
                   borderRadius: const BorderRadius.all(Radius.circular(4)),
                 ),
@@ -332,6 +328,7 @@ class _MyaccountPageState extends State<MyaccountPage> {
               children: [
                 ElevatedButton(
                   onPressed: () {
+                    setState(() {});
                     showCustomPopup(context, screenSize);
                     Navigator.of(context).pop();
                   },
@@ -347,8 +344,8 @@ class _MyaccountPageState extends State<MyaccountPage> {
                       screenSize.height * 0.044,
                     ),
                   ),
-                  child: const Text(
-                    '등록하기',
+                  child: Text(
+                    text2,
                     style: TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w400,
@@ -415,12 +412,6 @@ class _MyaccountPageState extends State<MyaccountPage> {
   }
 
   void showCustomPopup(BuildContext context, Size screenSize) {
-    String text = '';
-    if (text.isEmpty) {
-      text = '등록이 완료되었습니다!';
-    } else {
-      text = '수정이 완료되었습니다!';
-    }
     OverlayEntry overlayEntry;
 
     overlayEntry = OverlayEntry(
