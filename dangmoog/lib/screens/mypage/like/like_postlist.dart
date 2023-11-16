@@ -199,12 +199,10 @@ class _ProductListState extends State<ProductList> {
     return Column(
       children: [
         Row(
-          //mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Expanded(
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
@@ -231,14 +229,14 @@ class _ProductListState extends State<ProductList> {
                 ],
               ),
             ),
-            IconButton(
-              onPressed: () {
-                // product.isFavorited 값을 반전시킵니다.
+            InkWell(
+              onTap: () {
+                // 버튼을 눌렀을 때 실행할 동작
                 setState(() {
                   product.isFavorited = !product.isFavorited;
                 });
               },
-              icon: Icon(
+              child: Icon(
                 product.isFavorited ? Icons.favorite : Icons.favorite_border,
                 // isFavorited 값에 따라 하트 아이콘 또는 빈 하트 아이콘을 표시합니다.
                 color: product.isFavorited ? Colors.red : Colors.grey,
@@ -247,7 +245,7 @@ class _ProductListState extends State<ProductList> {
           ],
         ),
         Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _buildDealStatus(product.dealStatus),
             product.price != 0

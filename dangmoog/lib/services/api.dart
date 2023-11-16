@@ -52,11 +52,23 @@ class ApiService {
   }
 
   // 프로필 사진 설정
-  Future<Response> setUserProfile(File image) async {
-    return await _authClient.patch("account/set_user_profile_photo", data: {
-      "req": "string",
-      "file": image,
+  Future<Response> setUserProfile(String imagePath) async {
+    FormData formData = FormData.fromMap({
+      "file": await MultipartFile.fromFile(imagePath,
+          filename: imagePath.split('/').last),
     });
+
+    //_authClient.options.headers.addAll(
+    // {'accept': "application/json", 'Content-Type': "multipart/form-data"});
+    _authClient.options.headers['accept'] = "application/json";
+    _authClient.options.headers['Content-Type'] = "multipart/form-data";
+    return await _authClient.patch("account/set_user_profile_photo",
+        data: formData);
+  }
+
+  // Post list 조회
+  Future<Response> fetchProductData() async {
+    return await _authClient.get('products.json');
   }
 
   // 탈퇴하기

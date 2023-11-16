@@ -9,7 +9,6 @@ import 'package:dio/dio.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
-
 import 'package:dangmoog/screens/auth/nickname.dart';
 import 'package:dangmoog/providers/provider.dart';
 import 'package:dangmoog/widgets/back_appbar.dart';
@@ -48,7 +47,7 @@ class _AuthPageState extends State<AuthPage> {
   bool isSubmitVerificationCodeActive = false;
   // 인증번호 활성화 여부
   bool isExpired = false;
-
+  bool isbuttonClicked = false;
   // 인증번호 오지 않을 경우 안내문
   bool isVerificationCodeMissing = false;
 
@@ -95,7 +94,6 @@ class _AuthPageState extends State<AuthPage> {
 
       try {
         Response response = await ApiService().emailSend(inputEmail);
-        print(response);
         if (response.statusCode == 200) {
           // 이미 존재하는 계정 : true
           // 존재하지 않는 계정 : false
@@ -144,6 +142,7 @@ class _AuthPageState extends State<AuthPage> {
   void onVerificationCodeChanged(String value) {
     setState(() {
       verificationCode = value;
+      errorMessageVerificationCode = '';
     });
     if (value.length == 6) {
       setState(() {
@@ -156,7 +155,7 @@ class _AuthPageState extends State<AuthPage> {
     }
   }
 
-  void _login() async {
+  void _login(BuildContext context) async {
     try {
       Response response =
           await ApiService().verifyCode(inputEmail, verificationCode);
@@ -197,9 +196,13 @@ class _AuthPageState extends State<AuthPage> {
             (route) => false,
           );
         }
+      } else {
+        errorMessageVerificationCode = '유효한 인증번호를 입력하세요.';
       }
     } catch (e) {
       print("Exception: $e");
+      errorMessageVerificationCode = '유효한 인증번호를 입력하세요.';
+      print(errorMessageVerificationCode);
     }
   }
 
@@ -285,7 +288,7 @@ class _AuthPageState extends State<AuthPage> {
                     AuthSubmitButton(
                       onPressed: isSubmitVerificationCodeActive
                           ? () {
-                              _login();
+                              _login(context);
                             }
                           : () {},
                       buttonText: '인증',
@@ -438,53 +441,73 @@ class _AuthPageState extends State<AuthPage> {
   Widget _verificationNumberWidget(Size screenSize) {
     // input field
     Widget verificationNumberInputField(Size screenSize) {
-      return Container(
-        height: screenSize.height * 0.05,
-        decoration: const BoxDecoration(
-          border: Border(
-            bottom: BorderSide(
-              width: 1,
-              color: Color(0xffD3D2D2),
-            ),
-          ),
-        ),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Expanded(
-              child: TextField(
-                maxLength: 6,
-                onChanged: (value) {
-                  onVerificationCodeChanged(value);
-                },
-                keyboardType: TextInputType.number,
-                inputFormatters: [
-                  FilteringTextInputFormatter.allow(RegExp(r'[0-9]'))
-                ],
-                decoration: const InputDecoration(
-                  counterText: "",
-                  border: InputBorder.none,
-                  hintText: '인증번호 6자리 입력',
-                  hintStyle: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w400,
-                    color: Color(0xFFA19E9E),
-                  ),
-                  contentPadding: EdgeInsets.symmetric(horizontal: 8),
-                  isDense: true,
+      return Column(
+        children: [
+          Container(
+            height: screenSize.height * 0.05,
+            decoration: const BoxDecoration(
+              border: Border(
+                bottom: BorderSide(
+                  width: 1,
+                  color: Color(0xffD3D2D2),
                 ),
               ),
             ),
-            Text(
-              getFormattedTime(),
-              style: const TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w400,
-                  color: Color(0xFF726E6E)),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: TextField(
+                    maxLength: 6,
+                    onChanged: (value) {
+                      onVerificationCodeChanged(value);
+                    },
+                    keyboardType: TextInputType.number,
+                    inputFormatters: [
+                      FilteringTextInputFormatter.allow(RegExp(r'[0-9]'))
+                    ],
+                    decoration: const InputDecoration(
+                      counterText: "",
+                      border: InputBorder.none,
+                      hintText: '인증번호 6자리 입력',
+                      hintStyle: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w400,
+                        color: Color(0xFFA19E9E),
+                      ),
+                      contentPadding: EdgeInsets.symmetric(horizontal: 8),
+                      isDense: true,
+                    ),
+                  ),
+                ),
+                Text(
+                  getFormattedTime(),
+                  style: const TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w400,
+                      color: Color(0xFF726E6E)),
+                ),
+              ],
             ),
-          ],
-        ),
+          ),
+          if (errorMessageVerificationCode.isNotEmpty)
+            Container(
+              padding: const EdgeInsets.only(left: 8, top: 8),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    errorMessageVerificationCode,
+                    style: const TextStyle(
+                      color: Colors.red,
+                      fontSize: 13,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+        ],
       );
     }
 

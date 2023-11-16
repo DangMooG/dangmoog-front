@@ -25,7 +25,8 @@ class ProfilePage extends StatefulWidget {
 
 class _ProfilePageState extends State<ProfilePage> {
   File? _image;
-
+  String nickname = '';
+  String email = '';
   String imagePath = 'assets/images/basic_profile.png';
   final ImagePicker picker = ImagePicker();
   Color buttonColor = const Color(0xFFDADADA); // 초기 버튼 색상
@@ -97,6 +98,7 @@ class _ProfilePageState extends State<ProfilePage> {
             imagePath = pickedImage.path;
 
             buttonAcitve = true;
+            profileSubmit();
           });
         }
       } catch (e) {
@@ -143,28 +145,36 @@ class _ProfilePageState extends State<ProfilePage> {
           // 이미지를 Provider에 저장
           Provider.of<UserProvider>(context, listen: false)
               .setUserImage(_image!);
+
+          profileSubmit();
         });
       }
     }
   }
 
   void profileSubmit() async {
+    // If imageFiles are provided, prepare them for FormData
+
     if (_image != null) {
       try {
-        Response response = await ApiService().setUserProfile(_image!);
-        print(response);
+        //  final binaryString = toBinaryString(imagePath);
+
+        Response response = await ApiService().setUserProfile(imagePath);
+
         if (response.statusCode == 200) {
-          Navigator.pushAndRemoveUntil(
-            context,
-            MaterialPageRoute(builder: (context) => const ProfilePage()),
-            (route) => false,
-          );
+          // int userId = response.data['account_id'];
+          Provider.of<UserProvider>(context, listen: false)
+              .setUserImage(_image!);
+          // await storage.write(key: 'userId', value: userId.toString());
+          print(response);
         }
       } catch (e) {
         print(e);
       }
     }
   }
+
+  late Future<String?> profileImageUrl; // 프로필 이미지 URL을 저장할 변수
 
   @override
   Widget build(BuildContext context) {
@@ -376,7 +386,7 @@ class _ProfilePageState extends State<ProfilePage> {
                         child: Container(
                           alignment: Alignment.center,
                           child: const Text(
-                            '건너띄고 시작하기',
+                            '건너뛰고 시작하기',
                             style: TextStyle(
                               color: Color(0xFFE20529),
                               fontSize: 13,
