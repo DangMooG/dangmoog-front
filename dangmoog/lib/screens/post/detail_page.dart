@@ -1,50 +1,23 @@
+import 'package:dangmoog/constants/category_list.dart';
 import 'package:dangmoog/screens/post/like_chat_count.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 
 import 'dart:convert';
-import 'package:flutter/services.dart';
 
 import 'package:dangmoog/models/product_class.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 
 import 'package:dangmoog/utils/convert_money_format.dart';
+import 'package:dangmoog/services/api.dart';
 
-Future<ProductModel?> _loadProductFromAsset(int postId) async {
-  final String jsonString =
-  await rootBundle.loadString('assets/products.json');
-  final List<dynamic> jsonResponse = json.decode(jsonString);
-
-  for (var productDetailData in jsonResponse){
-    if (productDetailData['postId']==postId){
-      return ProductModel(
-        postId: productDetailData['postId'],
-        title: productDetailData['title'],
-        description: productDetailData['description'],
-        price: productDetailData['price'],
-        images: List<String>.from(productDetailData['images']),
-        category: productDetailData['category'],
-        uploadTime: DateTime.parse(productDetailData['uploadTime']),
-        saleMethod: productDetailData['saleMethod'],
-        userName: productDetailData['userName'],
-        dealStatus: productDetailData['dealStatus'],
-        viewCount: productDetailData['viewCount'],
-        chatCount: productDetailData['chatCount'],
-        likeCount: productDetailData['likeCount'],
-        isFavorited: productDetailData['isFavorited'],
-      );
-    }
-  }
-
-  return null;
-
-}
 
 class ProductDetailPage extends StatefulWidget {
-  final int postId;
+  final int? postId;
 
   const ProductDetailPage({
     Key? key,
-    required this.postId,
+    this.postId,
   }) : super(key: key);
 
   @override
@@ -52,15 +25,40 @@ class ProductDetailPage extends StatefulWidget {
 }
 
 class _ProductDetailPageState extends State<ProductDetailPage> {
+
   int _current = 0;
   final CarouselController _controller = CarouselController();
-
+  ApiService apiService = ApiService();
+  List<String> images = [];
   late Future<ProductModel?> futureProductDetail;
+
+  Future<ProductModel> fetchProductDetail(int postId) async {
+
+    Response response = await apiService.loadProduct(postId);// Adjust the URL accordingly
+
+    if (response.statusCode == 200) {
+      return ProductModel.fromJson(response.data);
+    } else {
+      throw Exception('Failed to load product details');
+    }
+  }
 
   @override
   void initState() {
     super.initState();
-    futureProductDetail = _loadProductFromAsset(widget.postId);
+    futureProductDetail = fetchProductDetail(widget.postId!);
+
+    apiService.searchPhoto(widget.postId!).then((response) {
+      if (response.statusCode == 200) {
+
+        List<dynamic> data = response.data;
+        images = data.map((item) => item['url'] as String).toList();
+        print(images);
+        setState(() {});
+      } else {
+        // Handle the error
+      }
+    });
   }
 
   @override
@@ -76,7 +74,6 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
           if (snapshot.data == null) {
             return const Center(child: Text('Product not found!'));
           }
-
           return _buildProductDetail(snapshot.data!);
         } else {
           return const Center(child: CircularProgressIndicator());
@@ -110,56 +107,15 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
       ),
       bottomNavigationBar: _buildChatButton(product),
     );
-
-    // return ChangeNotifierProvider<ProductModel>.value(
-    //   value: widget.product,
-    //   child: Consumer<ProductModel>(
-    //     builder: (context, product, child) {
-    //       return Scaffold(
-    //         appBar: AppBar(
-    //           backgroundColor: Colors.transparent,
-    //           elevation: 0,
-    //           iconTheme: const IconThemeData(color: Colors.white),
-    //         ),
-    //         extendBodyBehindAppBar: true,
-    //         body: Column(
-    //           crossAxisAlignment: CrossAxisAlignment.start,
-    //           children: <Widget>[
-    //             SizedBox(
-    //               child: Stack(
-    //                 children: [
-    //                   sliderWidget(),
-    //                   Positioned(
-    //                     bottom: 0,
-    //                     left: 0,
-    //                     right: 0,
-    //                     child: sliderIndicator(),
-    //                   ),
-    //                 ],
-    //               ),
-    //             ),
-    //             _buildProductLikeChatCount(context, product),
-    //             _buildProductInformation(product),
-    //           ],
-    //         ),
-    //         bottomNavigationBar: Padding(
-    //           padding: const EdgeInsets.only(bottom: 16.0, right: 16.0),
-    //           child: _buildChatButton(product),
-    //         ),
-    //       );
-    //     },
-    //   ),
-    // );
   }
 
   Widget sliderWidget(ProductModel product) {
+    List<String> displayImages = images.isNotEmpty ? images : ['assets/images/sample.png'];
     return CarouselSlider(
       carouselController: _controller,
       options: CarouselOptions(
         height: MediaQuery.of(context).size.height * 0.45,
         viewportFraction: 1.0,
-
-        // Full width item
         autoPlay: false,
         enlargeCenterPage: false,
         enableInfiniteScroll: false,
@@ -170,15 +126,21 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
           });
         },
       ),
-      items: product.images.map((imagePath) {
+      items: displayImages.map((imagePath) {
         return Builder(
           builder: (context) {
             return SizedBox(
               width: MediaQuery.of(context).size.width,
-              child: Image(
+              child: (imagePath.startsWith('http')||imagePath.startsWith('https'))
+                ? Image.network(
+                imagePath,
                 fit: BoxFit.fill,
-                image: AssetImage(imagePath),
+              )
+              : Image.asset(
+                imagePath,
+                fit: BoxFit.fill,
               ),
+
             );
           },
         );
@@ -186,12 +148,14 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
     );
   }
 
+
   Widget sliderIndicator(ProductModel product) {
+
     return Align(
       alignment: Alignment.bottomCenter,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
-        children: product.images.asMap().entries.map((entry) {
+        children: images.asMap().entries.map((entry) {
           return GestureDetector(
             onTap: () => _controller.animateToPage(entry.key),
             child: Container(
@@ -217,6 +181,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
   }
 
   Widget productInfo(ProductModel product) {
+
     return Padding(
       padding: const EdgeInsets.all(17),
       child: Column(
@@ -227,8 +192,8 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _buildProductInformation(product),
-              // _buildProductLikeChatCount(product),
-              LikeChatCount(product: product)
+              _buildProductLikeChatCount(product),
+              // LikeChatCount(product: product, apiService: apiService,)
             ],
           ),
           _buildProductDescription(product),
@@ -239,12 +204,20 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
   }
 
   Widget _buildProductInformation(ProductModel product) {
+
+    String saleMethodText;
+
+    if (product.useLocker == 0){
+      saleMethodText = '직접거래';
+    } else{
+      saleMethodText ='사물함거래';
+    }
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
-        // 거래 방식 표기
         Text(
-          product.saleMethod,
+          saleMethodText,
           style: const TextStyle(
             color: Color(0xffE20529),
             fontSize: 11,
@@ -261,6 +234,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
 
   // 좋아요, 채팅 개수 표기
   Widget _buildProductLikeChatCount(ProductModel product) {
+
     return Row(
       mainAxisAlignment: MainAxisAlignment.end,
       children: [
@@ -294,9 +268,11 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
             const SizedBox(
               width: 6,
             ),
-            Text(
-              product.chatCount.toString(),
-              style: const TextStyle(
+
+            const Text(
+              // apiService.chatCount(product.postId).toString(),
+              "0",
+              style: TextStyle(
                 fontWeight: FontWeight.w400,
                 fontSize: 11,
                 color: Color(0xffA19E9E),
@@ -355,7 +331,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
     return Container(
       margin: const EdgeInsets.only(top: 4),
       child: Text(
-        '${product.category} | ${timeAgo(product.uploadTime)}',
+        '${categeryItems[product.categoryId-1]} | ${timeAgo(product.createTime)}',
         style: const TextStyle(
           fontSize: 11,
           color: Color(0xffA19E9E),
@@ -445,17 +421,37 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Material(
-                  child: GestureDetector(
-                    // borderRadius: BorderRadius.circular(20), // 물린 효과의 모서리를 둥글게
-                    // radius: 60.0,
-                    onTap: () {
-                      product.isFavorited = !product.isFavorited;
+                  child: InkWell(
+                    onTap: () async {
+                      // product.isUpdatingLike = true;  // Indicate that we're starting the update process
+
+                      product.isFavorited = !product.isFavorited;  // Optimistically toggle the favorite state
+                      product.likeCount += product.isFavorited ? 1 : -1;  // Adjust the like count
+                      product.notifyListeners();  // Notify the UI of changes
+
+                      final response = product.isFavorited
+                          ? await apiService.increaseLike(product.postId)
+                          : await apiService.decreaseLike(product.postId);
+
+                      // Check for status code 200 for increase and 204 for decrease
+                      if ((product.isFavorited && response.statusCode != 200) ||
+                          (!product.isFavorited && response.statusCode != 204)) {
+
+                        setState(() {
+                          product.isFavorited = !product.isFavorited;  // Revert the favorite state if the request failed
+                          product.likeCount += product.isFavorited ? 1 : -1;  // Revert the like count
+                        });
+                      } else {
+                        setState(() {
+                          futureProductDetail = fetchProductDetail(widget.postId!);
+                        });
+                      }
+
+                      // product.isUpdatingLike = false;  // Reset the updating flag
                       product.notifyListeners();
                     },
                     child: Icon(
-                      product.isFavorited
-                          ? Icons.favorite
-                          : Icons.favorite_border,
+                      product.isFavorited ? Icons.favorite : Icons.favorite_border,
                       color: const Color(0xffE20529),
                       size: 30,
                     ),

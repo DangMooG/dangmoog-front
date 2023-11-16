@@ -1,9 +1,11 @@
-// import 'package:dangmoog/models/product_list_model.dart';
+import 'package:dangmoog/services/api.dart';
 import 'package:flutter/material.dart';
 
 class LikeChatCount extends StatelessWidget {
   final dynamic product;
-  const LikeChatCount({super.key, required this.product});
+  final ApiService apiService;
+
+  LikeChatCount({Key? key, required this.product, required this.apiService}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -41,7 +43,7 @@ class LikeChatCount extends StatelessWidget {
               width: 4,
             ),
             Text(
-              product.chatCount.toString(),
+              apiService.chatCount.toString(),
               style: const TextStyle(
                 fontWeight: FontWeight.w400,
                 fontSize: 11,

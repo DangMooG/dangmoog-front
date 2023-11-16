@@ -1,27 +1,39 @@
 import 'dart:io';
-
-// import 'package:dangmoog/models/new_post_model.dart';
+import 'package:dangmoog/screens/post/main_page.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-
 import 'package:dangmoog/constants/category_list.dart';
 import 'package:intl/intl.dart';
 
 // 권한 확인
 import 'package:permission_handler/permission_handler.dart';
 
+import 'package:dangmoog/services/api.dart';
+
 class AddPostPage extends StatefulWidget {
   final String title;
-  const AddPostPage({Key? key, required this.title}) : super(key: key);
+  final int? lockerId;
+  final bool fromChooseLocker;
+
+  const AddPostPage({
+    Key? key,
+    required this.title,
+    this.lockerId,
+    this.fromChooseLocker = false
+  }) : super(key: key);
 
   @override
   State<AddPostPage> createState() => _AddPostPageState();
 }
 
 class _AddPostPageState extends State<AddPostPage> {
+
+  int useLocker=1;
   final List<String> _imageList = <String>[];
   final ImagePicker picker = ImagePicker();
   final List<XFile> vac = <XFile>[];
+  final ApiService apiService = ApiService();
 
   bool get isImageUploaded => _imageList.isNotEmpty;
   bool get isProductNameFilled => productNameController.text.isNotEmpty;
@@ -33,6 +45,100 @@ class _AddPostPageState extends State<AddPostPage> {
   String? productCategoryError;
   String? productPriceError;
   String? productDescriptionError;
+
+  void _createNewPost() async {
+    String title = productNameController.text;
+    int price;
+    try {
+      price = int.parse(priceController.text.replaceAll(',', ''));
+    } catch (e) {
+      print("Error parsing price: $e");
+      return;  // exit the function since price couldn't be parsed
+    }
+
+    String description = detailController.text;
+    int categoryId = categeryItems.indexOf(_selectedItem);
+
+
+    if (widget.title.contains('직접')){
+      useLocker = 0;
+    }else{
+      useLocker = 1;
+    }
+
+    print(useLocker);
+
+    // Check if there are any images selected, otherwise set imageFiles to null
+    List<File>? imageFiles;
+    if (_imageList.isNotEmpty) {
+      imageFiles = _imageList.map((path) => File(path)).toList();
+    }
+
+    Response response = await apiService.createPost(categoryId: categoryId, description: description, price: price, title: title, useLocker: useLocker, imageFiles: imageFiles);
+
+    if (response.statusCode == 200) {
+      // Successful Response
+      var responseData = response.data;
+
+      var postId = responseData['post_id'];
+      var createTime = responseData['create_time'];
+      var updateTime = responseData['update_time'];
+
+      // Implement your success logic here. For example, show a success message and navigate to another screen.
+      print("Post created successfully! Post ID: $postId, Created at: $createTime, Updated at: $updateTime");
+
+      // Check if the locker is to be used
+      if (useLocker == 1) {
+        // Update the locker information with the new post_id
+        Map<String, dynamic> lockerUpdates = {
+          "post_id": postId, // assuming 'post_id' is the field you want to update in the locker
+        };
+
+        try {
+          print("post ID는 $postId입니다.");
+          Response lockerResponse = await apiService.patchLocker(widget.lockerId!, lockerUpdates);
+          if (lockerResponse.statusCode == 200) {
+            print('Locker updated successfully with Post ID: $postId');
+          } else {
+            print('Failed to update locker: ${lockerResponse.statusCode}');
+          }
+        } catch (e) {
+          print('Error updating locker with Post ID: $e');
+        }
+
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (context) => MainPage()),
+              (Route<dynamic> route) => false,
+        );
+      }else{
+        Navigator.pop(context);
+      }
+      // Your additional success logic
+    } else if (response.statusCode == 422) {
+      // Validation Error
+      var errorData = response.data;
+      var errorDetail = errorData['detail'];
+      // Here you might want to iterate through 'detail' if it's a list to extract specific error messages
+      for (var error in errorDetail) {
+        var location = error['loc'];
+        var errorMsg = error['msg'];
+        var errorType = error['type'];
+
+        // Handle the validation error. For example, display a relevant error message to the user.
+        print("Error at $location: $errorMsg (Type: $errorType)");
+      }
+
+      // Maybe display a general error toast message or specific field error messages
+    } else {
+      // Other potential errors
+      print('Hello');
+      print("Error creating post. Status Code: ${response.statusCode}, Error Message: ${response.statusMessage}");
+    }
+
+
+  }
+
 
   // 앨범에서 이미지를 가져오는 함수
   Future getImagesFromAlbum(BuildContext context) async {
@@ -63,7 +169,7 @@ class _AddPostPageState extends State<AddPostPage> {
                 actions: [
                   TextButton(
                     onPressed: () => Navigator.of(context).pop(),
-                    child: Text('OK'),
+                    child: const Text('OK'),
                   ),
                 ],
               ),
@@ -123,12 +229,12 @@ class _AddPostPageState extends State<AddPostPage> {
             showDialog(
               context: context,
               builder: (context) => AlertDialog(
-                title: Text('Error'),
-                content: Text('You can only select up to 10 images.'),
+                title: const Text('Error'),
+                content: const Text('You can only select up to 10 images.'),
                 actions: [
                   TextButton(
                     onPressed: () => Navigator.of(context).pop(),
-                    child: Text('OK'),
+                    child: const Text('OK'),
                   ),
                 ],
               ),
@@ -224,7 +330,9 @@ class _AddPostPageState extends State<AddPostPage> {
         leading: IconButton(
           icon: const Icon(Icons.close),
           onPressed: () {
-            if (isImageUploaded ||
+            if (widget.fromChooseLocker) { // Check if it's from choose locker
+              _showLockerDialog(context);
+            } else if (isImageUploaded ||
                 isProductNameFilled ||
                 isCategorySelected ||
                 isPriceFilled ||
@@ -508,56 +616,6 @@ class _AddPostPageState extends State<AddPostPage> {
       ),
     );
   }
-  // Widget _imagePreview(XFile image) {
-  //   return Container(
-  //     margin: const EdgeInsets.only(left: 8),
-  //     child: Stack(
-  //       alignment: Alignment.topRight,
-  //       // clipBehavior: Clip.none,
-  //       children: [
-  //         ClipRRect(
-  //           borderRadius: BorderRadius.circular(8),
-  //           child: Image.file(
-  //             File(image.path),
-  //             width: 80,
-  //             height: 80,
-  //             fit: BoxFit.cover,
-  //           ),
-  //         ),
-  //         Positioned(
-  //           // right: -10,
-  //           // top: -10,
-  //           child: GestureDetector(
-  //             onTap: () {
-  //               setState(() {
-  //                 _imageList.remove(image);
-  //               });
-  //             },
-  //             child: Stack(
-  //               clipBehavior: Clip.none,
-  //               alignment: Alignment.center,
-  //               children: [
-  //                 Container(
-  //                   width: 16,
-  //                   height: 16,
-  //                   decoration: const BoxDecoration(
-  //                     shape: BoxShape.circle,
-  //                     color: Colors.white,
-  //                   ),
-  //                 ),
-  //                 const Icon(
-  //                   Icons.cancel,
-  //                   color: Colors.black,
-  //                   size: 20,
-  //                 ),
-  //               ],
-  //             ),
-  //           ),
-  //         ),
-  //       ],
-  //     ),
-  //   );
-  // }
 
   // 사진 제외 나머지
   Widget _textFieldsAndDropdown() {
@@ -590,9 +648,9 @@ class _AddPostPageState extends State<AddPostPage> {
             ),
             decoration: InputDecoration(
               isDense: true,
-              contentPadding: EdgeInsets.all(8),
+              contentPadding: const EdgeInsets.all(8),
               hintText: '물품 이름',
-              hintStyle: TextStyle(
+              hintStyle: const TextStyle(
                 color: Color(0xFFA19E9E),
                 fontSize: 14,
                 fontWeight: FontWeight.w400,
@@ -600,15 +658,15 @@ class _AddPostPageState extends State<AddPostPage> {
               counterText: "",
               enabledBorder: OutlineInputBorder(
                 borderSide: BorderSide(
-                    color: productNameError == null ? Color(0xffD3D2D2) : Color(0xFFE20529),
+                    color: productNameError == null ? const Color(0xffD3D2D2) : const Color(0xFFE20529),
                 ),
-                borderRadius: BorderRadius.all(Radius.circular(4)),
+                borderRadius: const BorderRadius.all(Radius.circular(4)),
               ),
               focusedBorder: OutlineInputBorder(
                 borderSide: BorderSide(
-                    color: productNameError == null ? Color(0xff726E6E) : Color(0xFFE20529)  // Changes based on error condition
+                    color: productNameError == null ? const Color(0xff726E6E) : const Color(0xFFE20529)  // Changes based on error condition
                 ),
-                borderRadius: BorderRadius.all(Radius.circular(4)),
+                borderRadius: const BorderRadius.all(Radius.circular(4)),
               ),
             ),
             maxLength: 64,
@@ -794,9 +852,9 @@ class _AddPostPageState extends State<AddPostPage> {
             ),
             decoration: InputDecoration(
               isDense: true,
-              contentPadding: EdgeInsets.all(8),
+              contentPadding: const EdgeInsets.all(8),
               floatingLabelBehavior: FloatingLabelBehavior.never,
-              prefixIcon: Center(
+              prefixIcon: const Center(
                 child: Text(
                   '₩ ',
                   textAlign: TextAlign.center,
@@ -808,9 +866,9 @@ class _AddPostPageState extends State<AddPostPage> {
                 ),
               ),
               prefixIconConstraints:
-                  BoxConstraints.tightFor(width: 30, height: 30),
+                  const BoxConstraints.tightFor(width: 30, height: 30),
               hintText: '가격을 입력해주세요.',
-              hintStyle: TextStyle(
+              hintStyle: const TextStyle(
                 color: Color(0xFFA19E9E),
                 fontSize: 14,
                 fontWeight: FontWeight.w400,
@@ -818,15 +876,15 @@ class _AddPostPageState extends State<AddPostPage> {
               counterText: "",
               enabledBorder: OutlineInputBorder(
                 borderSide: BorderSide(
-                  color: productPriceError == null ? Color(0xffD3D2D2) : Color(0xFFE20529),
+                  color: productPriceError == null ? const Color(0xffD3D2D2) : const Color(0xFFE20529),
                 ),
-                borderRadius: BorderRadius.all(Radius.circular(4)),
+                borderRadius: const BorderRadius.all(Radius.circular(4)),
               ),
               focusedBorder: OutlineInputBorder(
                 borderSide: BorderSide(
-                    color: productPriceError == null ? Color(0xff726E6E) : Color(0xFFE20529)  // Changes based on error condition
+                    color: productPriceError == null ? const Color(0xff726E6E) : const Color(0xFFE20529)  // Changes based on error condition
                 ),
-                borderRadius: BorderRadius.all(Radius.circular(4)),
+                borderRadius: const BorderRadius.all(Radius.circular(4)),
               ),
             ),
             maxLength: 20,
@@ -939,10 +997,10 @@ class _AddPostPageState extends State<AddPostPage> {
             ),
             decoration: InputDecoration(
               isDense: true,
-              contentPadding: EdgeInsets.all(8),
+              contentPadding: const EdgeInsets.all(8),
               hintText:
                   '물품에 대한 상세 설명을 작성해주세요. \n판매 금지 물품은 게시가 제한될 수 있습니다. \n\n좋은 거래를 위해 신뢰할 수 있는 내용을 작성해주세요. 욕설이나 비방 등의 내용이 들어갈 경우 다른 이용자에게 상처를 줄 수 있으며 신고 대상이 될 수 있습니다.',
-              hintStyle: TextStyle(
+              hintStyle: const TextStyle(
                 color: Color(0xFFA19E9E),
                 fontSize: 14,
                 fontWeight: FontWeight.w400,
@@ -951,15 +1009,15 @@ class _AddPostPageState extends State<AddPostPage> {
               counterText: "",
               enabledBorder: OutlineInputBorder(
                 borderSide: BorderSide(
-                  color: productDescriptionError == null ? Color(0xffD3D2D2) : Color(0xFFE20529),
+                  color: productDescriptionError == null ? const Color(0xffD3D2D2) : const Color(0xFFE20529),
                 ),
-                borderRadius: BorderRadius.all(Radius.circular(4)),
+                borderRadius: const BorderRadius.all(Radius.circular(4)),
               ),
               focusedBorder: OutlineInputBorder(
                 borderSide: BorderSide(
-                  color: productDescriptionError == null ? Color(0xffD3D2D2) : Color(0xFFE20529),
+                  color: productDescriptionError == null ? const Color(0xffD3D2D2) : const Color(0xFFE20529),
                 ),
-                borderRadius: BorderRadius.all(Radius.circular(4)),
+                borderRadius: const BorderRadius.all(Radius.circular(4)),
               ),
             ),
           ),
@@ -1004,7 +1062,6 @@ class _AddPostPageState extends State<AddPostPage> {
       child: ElevatedButton(
         onPressed: () {
 
-
           _setFieldErrors();
           setState(() {});
 
@@ -1040,7 +1097,10 @@ class _AddPostPageState extends State<AddPostPage> {
                               width: 300,
                               child: TextButton(
                                 onPressed: () {
-                                  Navigator.of(context).pop(); // TODO : 서버로 정보 보내고 홈 화면으로!
+                                  _createNewPost();
+                                  if (useLocker==1){
+
+                                  }
                                 },
                                 style: ButtonStyle(
                                   backgroundColor: MaterialStateProperty.resolveWith<Color>(
@@ -1101,7 +1161,7 @@ class _AddPostPageState extends State<AddPostPage> {
               );
             }
             else{
-              // // TODO : 서버로 정보 보내고 홈 화면으로!
+              _createNewPost();
             }
 
           }
@@ -1282,14 +1342,12 @@ class _AddPostPageState extends State<AddPostPage> {
                 child: Text('작성 중인 판매글을 삭제하시겠어요?',
                   style: TextStyle(
                     fontSize: 16,
-
                   ),
                   textAlign: TextAlign.center,
                 ),
               ),
               Text('삭제하기를 누르시면 저장되지 않습니다.',
                 style: TextStyle(
-
                   fontSize: 14,
                 ),
                 textAlign: TextAlign.center,),
@@ -1305,6 +1363,11 @@ class _AddPostPageState extends State<AddPostPage> {
                   width: 300,
                   child: TextButton(
                     onPressed: () {
+                      // if (useLocker==1){
+                      //   Map<String, dynamic> updates= {"status":1};
+                      //   apiService.patchLocker(widget.lockerId!, updates);
+                      // }
+
                       Navigator.of(context).pop(true);  // Close the dialog and confirm exit without saving
                     },
                     style: ButtonStyle(
@@ -1332,8 +1395,7 @@ class _AddPostPageState extends State<AddPostPage> {
                   width: 300,
                   child: TextButton(
                     onPressed: () {
-                      // Add logic here to save the progress if needed
-                      //TODO:취소하기 만들기
+                      Navigator.of(context).pop();
                     },
                     style: ButtonStyle(
                       backgroundColor: MaterialStateProperty.resolveWith<Color>(
@@ -1368,5 +1430,110 @@ class _AddPostPageState extends State<AddPostPage> {
       }
     });
   }
+
+  void _showLockerDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Column(
+            children: [
+              Padding(
+                padding: EdgeInsets.all(8.0),
+                child: Text('사물함거래 등록 시 유의해주세요!',
+                  style: TextStyle(
+                    fontSize: 16,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+              Text('30분 안에 게시글을 업로드 하지 않으면 사물함 선택이 초기화돼요.\n게시글 작성 이후 15분 안에 사물함 안에 물건을 넣은 사진과 비밀번호를 인증해주셔야 합니다(구매자 확인용).',
+                style: TextStyle(
+                  fontSize: 14,
+                ),
+                textAlign: TextAlign.left,),
+            ],
+          ),
+          // content: ,
+          actions: <Widget>[
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                SizedBox(
+                  width: 300,
+                  child: TextButton(
+                    onPressed: () {
+                      // if (useLocker==1){
+                      //   Map<String, dynamic> updates= {"status":1};
+                      //   apiService.patchLocker(widget.lockerId!, updates);
+                      // }
+
+                      Navigator.of(context).pop(true);  // Close the dialog and confirm exit without saving
+                    },
+                    style: ButtonStyle(
+                      backgroundColor: MaterialStateProperty.resolveWith<Color>(
+                            (Set<MaterialState> states) {
+                          if (states.contains(MaterialState.pressed)) {
+                            return Colors.red[600]!; // Color when pressed
+                          }
+                          return const Color(0xFFE20529); // Regular color
+                        },
+                      ),
+
+                      foregroundColor: MaterialStateProperty.all<Color>(Colors.white),
+                      shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                        RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                      ),
+
+                    ),
+                    child: const Text('사물함거래 등록 시작하기'),
+                  ),
+                ),
+                SizedBox(
+                  width: 300,
+                  child: TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    style: ButtonStyle(
+                      backgroundColor: MaterialStateProperty.resolveWith<Color>(
+                            (Set<MaterialState> states) {
+                          if (states.contains(MaterialState.pressed)) {
+                            return Colors.red[600]!; // Color when pressed
+                          }
+                          return Colors.transparent; // Regular color
+                        },
+                      ),
+
+                      foregroundColor: MaterialStateProperty.all<Color>(const Color(0xFF726E6E)),
+                      shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                        RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(6),
+                          side: const BorderSide(color: Color(0xFF726E6E)),
+                        ),
+                      ),
+                    ),
+                    child: const Text('직접거래로 전환하기'),
+                  ),
+                ),
+              ],
+            ),
+
+          ],
+        );
+      },
+    ).then((shouldExit) {
+      if (shouldExit == true) {
+        Navigator.of(context).pop();  // Exit the AddPostPage
+      }
+    });
+  }
+
+
+
+
 
 }

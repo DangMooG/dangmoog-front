@@ -1,6 +1,9 @@
+import 'dart:convert';
+
 import 'package:dangmoog/models/product_class.dart';
 import 'package:dangmoog/screens/mypage/like/like_mainpage.dart';
 import 'package:dangmoog/screens/post/like_chat_count.dart';
+import 'package:dangmoog/services/api.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -23,7 +26,7 @@ class ProductList extends StatefulWidget {
 
 class _ProductListState extends State<ProductList> {
   final bool _isPressed = false;
-
+  final ApiService apiService = ApiService();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -130,27 +133,49 @@ class _ProductListState extends State<ProductList> {
       padding: EdgeInsets.only(
         right: paddingValue,
       ),
-      child: Container(
-        width: size,
-        height: size,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(
-            strokeAlign: BorderSide.strokeAlignInside,
-            color: const Color(0xffF1F1F1),
-            width: 0.5,
-          ),
-        ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(8),
-          child: Image.asset(
-            product.images[0],
-            fit: BoxFit.cover,
-          ),
-        ),
+      child: FutureBuilder<Object>(
+        future: apiService.loadPhoto(product.representativePhotoId),
+        builder: (context, snapshot) {
+          Widget imageChild;
+
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            imageChild = const  Center(
+              child: CircularProgressIndicator(),
+            );
+          } else if (snapshot.hasError || snapshot.data == null) {
+            imageChild = Image.asset(
+              '/assets/images/sample.png',
+              fit: BoxFit.cover,
+            );
+          } else {
+            // Assuming the response from loadPhoto contains the image URL
+            String imageUrl = json.decode(snapshot.data!.toString())['url'];
+            imageChild = Image.network(
+              imageUrl,
+              fit: BoxFit.cover,
+            );
+          }
+
+          return Container(
+            width: size,
+            height: size,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(
+                color: const Color(0xffF1F1F1),
+                width: 0.5,
+              ),
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: imageChild,
+            ),
+          );
+        },
       ),
     );
   }
+
 
   Widget _buildProductDetails(BuildContext context, ProductModel product) {
     double height = MediaQuery.of(context).size.width * 0.28;
@@ -163,7 +188,7 @@ class _ProductListState extends State<ProductList> {
           children: [
             _buildProductTexts(product),
             // _buildProductLikeChatCount(product),
-            LikeChatCount(product: product)
+            // LikeChatCount(product: product)
           ],
         ),
       ),
@@ -218,7 +243,7 @@ class _ProductListState extends State<ProductList> {
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: 4),
                     child: Text(
-                      "${product.category} | ${timeAgo(product.uploadTime)}",
+                      "${product.categoryId} | ${timeAgo(product.createTime)}",
                       style: const TextStyle(
                         fontWeight: FontWeight.w400,
                         fontSize: 11,
@@ -229,25 +254,25 @@ class _ProductListState extends State<ProductList> {
                 ],
               ),
             ),
-            InkWell(
-              onTap: () {
-                // 버튼을 눌렀을 때 실행할 동작
-                setState(() {
-                  product.isFavorited = !product.isFavorited;
-                });
-              },
-              child: Icon(
-                product.isFavorited ? Icons.favorite : Icons.favorite_border,
-                // isFavorited 값에 따라 하트 아이콘 또는 빈 하트 아이콘을 표시합니다.
-                color: product.isFavorited ? Colors.red : Colors.grey,
-              ),
-            )
+            // IconButton(
+            //   onPressed: () {
+            //     // product.isFavorited 값을 반전시킵니다.
+            //     setState(() {
+            //       product.isFavorited = !product.isFavorited;
+            //     });
+            //   },
+            //   icon: Icon(
+            //     product.isFavorited ? Icons.favorite : Icons.favorite_border,
+            //     // isFavorited 값에 따라 하트 아이콘 또는 빈 하트 아이콘을 표시합니다.
+            //     color: product.isFavorited ? Colors.red : Colors.grey,
+            //   ),
+            // )
           ],
         ),
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildDealStatus(product.dealStatus),
+            _buildDealStatus(product.status),
             product.price != 0
                 ? Text(
                     convertoneyFormat(product.price),

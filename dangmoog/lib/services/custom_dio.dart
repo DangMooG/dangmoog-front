@@ -20,7 +20,8 @@ class DioClient {
           BaseOptions(
             baseUrl: BASE_URL,
           ),
-        ) {
+        )
+  {
     _authClient.interceptors.add(
       InterceptorsWrapper(
         onRequest: (options, handler) async {

@@ -1,9 +1,8 @@
 import 'package:dangmoog/models/product_class.dart';
+import 'package:dangmoog/services/api.dart';
 import 'package:flutter/material.dart';
 import 'package:dangmoog/screens/mypage/sell/my_sell_postlist.dart';
 
-import 'dart:convert';
-import 'package:flutter/services.dart';
 
 enum SortingOrder { ascending, descending }
 
@@ -15,6 +14,7 @@ class MySellMainPage extends StatefulWidget {
 }
 
 class _MySellMainPageState extends State<MySellMainPage> {
+  final ApiService apiService = ApiService();
   late Future<List<ProductModel>> futureProducts;
   SortingOrder sortingOrder = SortingOrder.descending; // 정렬 순서 기본값
   bool sortByDealStatus = false;
@@ -24,32 +24,25 @@ class _MySellMainPageState extends State<MySellMainPage> {
   @override
   void initState() {
     super.initState();
-    futureProducts = _loadProductsFromAsset();
+    futureProducts = _loadMySellProduct();
   }
 
-  Future<List<ProductModel>> _loadProductsFromAsset() async {
-    final String jsonString =
-        await rootBundle.loadString('assets/mysell_products.json');
-    final List<dynamic> jsonResponse = json.decode(jsonString);
+  Future<List<ProductModel>> _loadMySellProduct() async {
 
-    return jsonResponse
-        .map((productData) => ProductModel(
-              postId: productData['postId'],
-              title: productData['title'],
-              description: productData['description'],
-              price: productData['price'],
-              images: List<String>.from(productData['images']),
-              category: productData['category'],
-              uploadTime: DateTime.parse(productData['uploadTime']),
-              saleMethod: productData['saleMethod'],
-              userName: productData['userName'],
-              dealStatus: productData['dealStatus'],
-              viewCount: productData['viewCount'],
-              chatCount: productData['chatCount'],
-              likeCount: productData['likeCount'],
-              isFavorited: productData['isFavorited'],
-            ))
-        .toList();
+    final filters ={
+      'username':'hello'
+    };
+    final response= await apiService.searchPosts(filters);
+    if (response.statusCode == 200) {
+      if (response.data is List) {
+        List<dynamic> data = response.data as List;
+        return data.map((item) => ProductModel.fromJson(item)).toList();
+      } else {
+        throw Exception('Data format from server is unexpected.');
+      }
+    } else {
+      throw Exception('Failed to load products');
+    }
   }
 
   void _toggleSortingOrder() {
@@ -65,24 +58,24 @@ class _MySellMainPageState extends State<MySellMainPage> {
     List<ProductModel> filteredProducts = products;
     if (sortByDealStatus) {
       filteredProducts =
-          filteredProducts.where((product) => product.dealStatus == 2).toList();
+          filteredProducts.where((product) => product.status == 2).toList();
     }
     if (sortByDealStatus2) {
       filteredProducts =
-          filteredProducts.where((product) => product.dealStatus == 0).toList();
+          filteredProducts.where((product) => product.status == 0).toList();
     }
     if (sortByDealStatus3) {
       filteredProducts =
-          filteredProducts.where((product) => product.dealStatus == 1).toList();
+          filteredProducts.where((product) => product.status == 1).toList();
     }
 
     // 필터링된 데이터를 정렬 순서에 따라 정렬한 후 반환
     if (sortingOrder == SortingOrder.ascending) {
       return filteredProducts
-        ..sort((a, b) => a.uploadTime.compareTo(b.uploadTime));
+        ..sort((a, b) => a.createTime.compareTo(b.createTime));
     } else {
       return filteredProducts
-        ..sort((a, b) => b.uploadTime.compareTo(a.uploadTime));
+        ..sort((a, b) => b.createTime.compareTo(a.createTime));
     }
   }
 
@@ -115,7 +108,7 @@ class _MySellMainPageState extends State<MySellMainPage> {
 
   @override
   Widget build(BuildContext context) {
-    final List<String> ButtonList = ['전체', '거래중', '예약중', '거래완료'];
+    final List<String> buttonList = ['전체', '거래중', '예약중', '거래완료'];
     return Scaffold(
       appBar: AppBar(
         title: const Text(
@@ -143,7 +136,7 @@ class _MySellMainPageState extends State<MySellMainPage> {
               child: Row(
                 children: [
                   Text(
-                    ButtonList[index],
+                    buttonList[index],
                     style: const TextStyle(
                         fontSize: 11,
                         fontWeight: FontWeight.w400,
