@@ -31,8 +31,9 @@ class _SplashScreenState extends State<SplashScreen> {
   void initState() {
     super.initState();
 
-    // 비동기로 flutter secure storage 정보를 불러오는 작업
-    // initState에서는 async await를 사용할 수 없기 때문에 사용
+    // 앱의 위젯 트리가 빌드된 후 실행되는 콜백 함수를 등록하는 메서드이다.
+    // 비동기로 flutter secure storage 정보를 불러오는 작업이 필요한다.
+    // 하지만 initState에서는 async await를 사용할 수 없기 때문에 아래 형식으로 사용한다
     WidgetsBinding.instance.addPostFrameCallback((_) {
       autoLoginProcess();
     });
@@ -59,37 +60,53 @@ class _SplashScreenState extends State<SplashScreen> {
     );
   }
 
+  // 자동 로그인 처리
   autoLoginProcess() async {
-    // access_token과 refresh_token이 있는지 확인
+    // access_token과 userId를 secure storage로부터 불러온다
+    // 만약 해당 값이 존재하지 않을 경우 null 값이 저장된다.
     final accessToken = await storage.read(key: 'accessToken');
     final userId = await storage.read(key: 'userId');
 
+    // accessToken userId가 존재할 경우
     if (accessToken != null && userId != null) {
       try {
         Response response = await ApiService().autoLogin();
 
-        // 유효한 토큰
+        // 유효한 토큰일 경우
         if (response.statusCode == 200) {
           final userEmail = response.data["email"] + "@gist.ac.kr";
           final userNickname = response.data['username'];
 
+          // async 내에서 BuildContexts를 사용할 경우
+          // 위젯이 마운트되지 않았으면 context에 아무런 값이 없기 때문에
+          // 아래 조건문을 추가해줘야 한다.
+          if (!mounted) return;
+          // 이메일을 provider로 전역변수에 저장한다
           Provider.of<UserProvider>(context, listen: false).setEmail(userEmail);
 
+          // 별명을 설정하지 않았을 경우
+          // 별명 설정 페이지로 이동한다
           if (userNickname == null) {
             _navigateToNickname(context);
-          } else {
+          }
+          // 별명을 설정했을 경우
+          // 메인 페이지로 이동한다
+          else {
             Provider.of<UserProvider>(context, listen: false)
                 .setNickname(userNickname);
 
             _navigateToHome(context);
           }
         }
-      } catch (e) {
-        print(e);
+      } catch (_) {
+        if (!mounted) return;
         _navigateToWelcome(context);
       }
-    } else {
+    }
+    // accessToken 또는 userID가 존재하지 않을 경우
+    else {
       // 로그인 페이지로 이동
+      if (!mounted) return;
       _navigateToWelcome(context);
     }
   }

@@ -11,7 +11,6 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:dangmoog/utils/convert_money_format.dart';
 import 'package:dangmoog/services/api.dart';
 
-
 class ProductDetailPage extends StatefulWidget {
   final int? postId;
 
@@ -25,7 +24,6 @@ class ProductDetailPage extends StatefulWidget {
 }
 
 class _ProductDetailPageState extends State<ProductDetailPage> {
-
   int _current = 0;
   final CarouselController _controller = CarouselController();
   ApiService apiService = ApiService();
@@ -33,8 +31,8 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
   late Future<ProductModel?> futureProductDetail;
 
   Future<ProductModel> fetchProductDetail(int postId) async {
-
-    Response response = await apiService.loadProduct(postId);// Adjust the URL accordingly
+    Response response =
+        await apiService.loadProduct(postId); // Adjust the URL accordingly
 
     if (response.statusCode == 200) {
       return ProductModel.fromJson(response.data);
@@ -50,7 +48,6 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
 
     apiService.searchPhoto(widget.postId!).then((response) {
       if (response.statusCode == 200) {
-
         List<dynamic> data = response.data;
         images = data.map((item) => item['url'] as String).toList();
         print(images);
@@ -110,7 +107,8 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
   }
 
   Widget sliderWidget(ProductModel product) {
-    List<String> displayImages = images.isNotEmpty ? images : ['assets/images/sample.png'];
+    List<String> displayImages =
+        images.isNotEmpty ? images : ['assets/images/sample.png'];
     return CarouselSlider(
       carouselController: _controller,
       options: CarouselOptions(
@@ -131,16 +129,16 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
           builder: (context) {
             return SizedBox(
               width: MediaQuery.of(context).size.width,
-              child: (imagePath.startsWith('http')||imagePath.startsWith('https'))
-                ? Image.network(
-                imagePath,
-                fit: BoxFit.fill,
-              )
-              : Image.asset(
-                imagePath,
-                fit: BoxFit.fill,
-              ),
-
+              child: (imagePath.startsWith('http') ||
+                      imagePath.startsWith('https'))
+                  ? Image.network(
+                      imagePath,
+                      fit: BoxFit.fill,
+                    )
+                  : Image.asset(
+                      imagePath,
+                      fit: BoxFit.fill,
+                    ),
             );
           },
         );
@@ -148,9 +146,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
     );
   }
 
-
   Widget sliderIndicator(ProductModel product) {
-
     return Align(
       alignment: Alignment.bottomCenter,
       child: Row(
@@ -162,7 +158,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
               width: 9.0,
               height: 9.0,
               margin:
-              const EdgeInsets.symmetric(vertical: 10.0, horizontal: 4.0),
+                  const EdgeInsets.symmetric(vertical: 10.0, horizontal: 4.0),
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 border: Border.all(
@@ -181,7 +177,6 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
   }
 
   Widget productInfo(ProductModel product) {
-
     return Padding(
       padding: const EdgeInsets.all(17),
       child: Column(
@@ -204,13 +199,12 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
   }
 
   Widget _buildProductInformation(ProductModel product) {
-
     String saleMethodText;
 
-    if (product.useLocker == 0){
+    if (product.useLocker == 0) {
       saleMethodText = '직접거래';
-    } else{
-      saleMethodText ='사물함거래';
+    } else {
+      saleMethodText = '사물함거래';
     }
 
     return Column(
@@ -234,7 +228,6 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
 
   // 좋아요, 채팅 개수 표기
   Widget _buildProductLikeChatCount(ProductModel product) {
-
     return Row(
       mainAxisAlignment: MainAxisAlignment.end,
       children: [
@@ -268,7 +261,6 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
             const SizedBox(
               width: 6,
             ),
-
             const Text(
               // apiService.chatCount(product.postId).toString(),
               "0",
@@ -331,7 +323,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
     return Container(
       margin: const EdgeInsets.only(top: 4),
       child: Text(
-        '${categeryItems[product.categoryId-1]} | ${timeAgo(product.createTime)}',
+        '${categeryItems[product.categoryId - 1]} | ${timeAgo(product.createTime)}',
         style: const TextStyle(
           fontSize: 11,
           color: Color(0xffA19E9E),
@@ -347,13 +339,13 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
       margin: const EdgeInsets.only(top: 6),
       child: product.price != 0
           ? Text(
-        convertoneyFormat(product.price),
-        style: const TextStyle(
-          fontWeight: FontWeight.w600,
-          fontSize: 18,
-          color: Color(0xFF302E2E),
-        ),
-      )
+              convertoneyFormat(product.price),
+              style: const TextStyle(
+                fontWeight: FontWeight.w600,
+                fontSize: 18,
+                color: Color(0xFF302E2E),
+              ),
+            )
           : const Text('나눔 🐿️'),
     );
   }
@@ -425,9 +417,11 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                     onTap: () async {
                       // product.isUpdatingLike = true;  // Indicate that we're starting the update process
 
-                      product.isFavorited = !product.isFavorited;  // Optimistically toggle the favorite state
-                      product.likeCount += product.isFavorited ? 1 : -1;  // Adjust the like count
-                      product.notifyListeners();  // Notify the UI of changes
+                      product.isFavorited = !product
+                          .isFavorited; // Optimistically toggle the favorite state
+                      product.likeCount +=
+                          product.isFavorited ? 1 : -1; // Adjust the like count
+                      product.notifyListeners(); // Notify the UI of changes
 
                       final response = product.isFavorited
                           ? await apiService.increaseLike(product.postId)
@@ -435,15 +429,19 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
 
                       // Check for status code 200 for increase and 204 for decrease
                       if ((product.isFavorited && response.statusCode != 200) ||
-                          (!product.isFavorited && response.statusCode != 204)) {
-
+                          (!product.isFavorited &&
+                              response.statusCode != 204)) {
                         setState(() {
-                          product.isFavorited = !product.isFavorited;  // Revert the favorite state if the request failed
-                          product.likeCount += product.isFavorited ? 1 : -1;  // Revert the like count
+                          product.isFavorited = !product
+                              .isFavorited; // Revert the favorite state if the request failed
+                          product.likeCount += product.isFavorited
+                              ? 1
+                              : -1; // Revert the like count
                         });
                       } else {
                         setState(() {
-                          futureProductDetail = fetchProductDetail(widget.postId!);
+                          futureProductDetail =
+                              fetchProductDetail(widget.postId!);
                         });
                       }
 
@@ -451,7 +449,9 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                       product.notifyListeners();
                     },
                     child: Icon(
-                      product.isFavorited ? Icons.favorite : Icons.favorite_border,
+                      product.isFavorited
+                          ? Icons.favorite
+                          : Icons.favorite_border,
                       color: const Color(0xffE20529),
                       size: 30,
                     ),
@@ -474,9 +474,9 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
             },
             style: ButtonStyle(
                 backgroundColor:
-                MaterialStateProperty.all<Color>(const Color(0xFFE20529)),
+                    MaterialStateProperty.all<Color>(const Color(0xFFE20529)),
                 minimumSize:
-                MaterialStateProperty.all<Size>(const Size(269, 46)),
+                    MaterialStateProperty.all<Size>(const Size(269, 46)),
                 shape: MaterialStateProperty.all<RoundedRectangleBorder>(
                     RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12)))),

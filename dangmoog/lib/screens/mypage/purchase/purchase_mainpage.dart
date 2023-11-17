@@ -1,16 +1,14 @@
 import 'package:dangmoog/models/product_class.dart';
+import 'package:dangmoog/providers/provider.dart';
 import 'package:dangmoog/screens/mypage/purchase/purchase_postlist.dart';
 import 'package:dangmoog/services/api.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:flutter/services.dart';
-
-
+import 'package:provider/provider.dart';
 
 class PurchaseMainPage extends StatefulWidget {
-
-
   const PurchaseMainPage({Key? key}) : super(key: key);
 
   @override
@@ -31,7 +29,9 @@ class _PurchaseMainPageState extends State<PurchaseMainPage> {
 
   Future<void> _loadPurchaseProducts() async {
     try {
-      final filters={"username":"${apiService.getUsername()}"};
+      String userNickname = Provider.of<UserProvider>(context).nickname;
+
+      final filters = {"username": userNickname};
       final response = await apiService.searchPosts(filters);
       if (response.statusCode == 200) {
         if (response.data is List) {
@@ -80,4 +80,3 @@ class _PurchaseMainPageState extends State<PurchaseMainPage> {
     );
   }
 }
-

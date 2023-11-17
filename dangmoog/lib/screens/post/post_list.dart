@@ -23,19 +23,23 @@ class ProductList extends StatefulWidget {
 }
 
 class _ProductListState extends State<ProductList> {
-
   late Future<List<ProductModel>> futureProducts;
   final ApiService apiService = ApiService();
   final ScrollController _scrollController = ScrollController();
 
+  // 이미지 캐싱을 위한 변수
+  Map<int, String> imageCache = {};
+
   @override
-  void initState(){
+  void initState() {
     super.initState();
     futureProducts = fetchProducts();
   }
 
+  // 현재 사용된 곳 없음
   void _onScroll() {
-    if (_scrollController.position.pixels == _scrollController.position.minScrollExtent) {
+    if (_scrollController.position.pixels ==
+        _scrollController.position.minScrollExtent) {
       // You're at the top of the scrollable, trigger the refresh logic
       setState(() {
         futureProducts = fetchProducts();
@@ -93,24 +97,30 @@ class _ProductListState extends State<ProductList> {
                     const Text(
                       '거래 방식을 \n선택해주세요!',
                       textAlign: TextAlign.center,
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      style:
+                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 20),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: [
-                        _customButton(context, '직접거래', 'assets/images/direct_icon.png', () {
+                        _customButton(
+                            context, '직접거래', 'assets/images/direct_icon.png',
+                            () {
                           Navigator.of(context).pop(); // close the dialog
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => const AddPostPage(title: '직접거래 등록'),
+                              builder: (context) =>
+                                  const AddPostPage(title: '직접거래 등록'),
                             ),
                           );
                         }),
-                        _customButton(context, '사물함 거래','assets/images/move_to_inbox.png', () {
+                        _customButton(context, '사물함 거래',
+                            'assets/images/move_to_inbox.png', () {
                           Navigator.of(context).pop(); // close the dialog
-                          Navigator.push(context,
+                          Navigator.push(
+                            context,
                             MaterialPageRoute(
                               builder: (context) => const ChooseLockerPage(),
                             ),
@@ -128,23 +138,24 @@ class _ProductListState extends State<ProductList> {
                           Navigator.of(context).pop(); // close the dialog
                         },
                         style: ButtonStyle(
-                          backgroundColor: MaterialStateProperty.resolveWith<Color>(
-                                (Set<MaterialState> states) {
+                          backgroundColor:
+                              MaterialStateProperty.resolveWith<Color>(
+                            (Set<MaterialState> states) {
                               if (states.contains(MaterialState.pressed)) {
                                 return Colors.red[600]!; // Color when pressed
                               }
                               return Colors.transparent; // Regular color
                             },
                           ),
-
-                          foregroundColor: MaterialStateProperty.all<Color>(const Color(0xFF726E6E)),
-                          shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                          foregroundColor: MaterialStateProperty.all<Color>(
+                              const Color(0xFF726E6E)),
+                          shape:
+                              MaterialStateProperty.all<RoundedRectangleBorder>(
                             RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(6),
                               side: const BorderSide(color: Color(0xFF726E6E)),
                             ),
                           ),
-
                         ),
                         child: const Text('취소하기'),
                       ),
@@ -168,31 +179,40 @@ class _ProductListState extends State<ProductList> {
     );
   }
 
-  Widget _customButton(BuildContext context, String label,String imagePath, VoidCallback onPressed) {
+  // 직접 거래 or 사물함 거래 선택 버튼
+  Widget _customButton(BuildContext context, String label, String imagePath,
+      VoidCallback onPressed) {
     return SizedBox(
       width: 100, // same width and height
       height: 100, // same width and height
       child: ElevatedButton(
         onPressed: onPressed,
         style: ElevatedButton.styleFrom(
-          foregroundColor: Colors.white, backgroundColor: const Color(0xFFE20529), // text color
+          foregroundColor: Colors.white,
+          backgroundColor: const Color(0xFFE20529), // text color
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(6),
           ),
         ),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center, // center the children vertically
+          mainAxisAlignment:
+              MainAxisAlignment.center, // center the children vertically
           children: [
-            Image.asset(imagePath, width: 24, height: 24), // replace 'path_to_your_image.png' with your image's path
-            const SizedBox(height: 5), // adjust the space between the image and text
-            Text(label, style: const TextStyle(fontSize: 11),),
+            Image.asset(imagePath,
+                width: 24,
+                height:
+                    24), // replace 'path_to_your_image.png' with your image's path
+            const SizedBox(
+                height: 5), // adjust the space between the image and text
+            Text(
+              label,
+              style: const TextStyle(fontSize: 11),
+            ),
           ],
         ),
       ),
     );
   }
-
-
 
   Widget _buildIOSListView() {
     return NotificationListener<OverscrollIndicatorNotification>(
@@ -218,7 +238,8 @@ class _ProductListState extends State<ProductList> {
           return const Center(child: CircularProgressIndicator());
         } else if (snapshot.hasError) {
           // If we run into an error:
-          return Center(child: Text('Failed to load products: ${snapshot.error}'));
+          return Center(
+              child: Text('Failed to load products: ${snapshot.error}'));
         } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
           // Data is loaded but empty:
           return const Center(child: Text('No products available.'));
@@ -227,7 +248,7 @@ class _ProductListState extends State<ProductList> {
         // Data is loaded and available:
         List<ProductModel> products = snapshot.data!;
         return RefreshIndicator(
-          onRefresh: () async{
+          onRefresh: () async {
             setState(() {
               futureProducts = fetchProducts();
             });
@@ -245,7 +266,7 @@ class _ProductListState extends State<ProductList> {
             },
             separatorBuilder: (context, i) {
               return const Divider(
-              height: 1,
+                height: 1,
               );
             },
           ),
@@ -253,7 +274,6 @@ class _ProductListState extends State<ProductList> {
       },
     );
   }
-
 
   // 게시물 리스트에서 게시물 하나에 대한 위젯
   Widget _postCard(BuildContext context) {
@@ -268,14 +288,14 @@ class _ProductListState extends State<ProductList> {
                 transitionDuration: const Duration(milliseconds: 400),
                 pageBuilder: (context, animation, secondaryAnimation) =>
                     ProductDetailPage(
-                      postId: product.postId,
-                    ),
+                  postId: product.postId,
+                ),
                 transitionsBuilder:
                     (context, animation, secondaryAnimation, child) {
                   var previousPageOffsetAnimation =
-                  Tween(begin: const Offset(1, 0), end: const Offset(0, 0))
-                      .chain(CurveTween(curve: Curves.decelerate))
-                      .animate(animation);
+                      Tween(begin: const Offset(1, 0), end: const Offset(0, 0))
+                          .chain(CurveTween(curve: Curves.decelerate))
+                          .animate(animation);
 
                   return SlideTransition(
                     position: previousPageOffsetAnimation,
@@ -324,46 +344,58 @@ class _ProductListState extends State<ProductList> {
             width: 0.5,
           ),
         ),
-        child: FutureBuilder<Response>(
-          future: apiService.loadPhoto(product.representativePhotoId),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(
-                child: CircularProgressIndicator(),
-              );
-            } else if (snapshot.hasError) {
-              return Image.asset(
-                "assets/images/sample.png",
-                width: 90,
-                errorBuilder: (BuildContext context, Object exception, StackTrace? stackTrace) {
-                  return Image.asset(
+        child: imageCache.containsKey(product.representativePhotoId)
+            ? Image.network(
+                imageCache[product.representativePhotoId]!,
+                fit: BoxFit.cover,
+              )
+            : product.representativePhotoId == 0
+                ? Image.asset(
                     "assets/images/sample.png",
                     width: 90,
                     fit: BoxFit.cover,
-                  );
-                },
-              );
-            }  else if (snapshot.data==null){
-              return Image.asset(
-                '/assets/images/sample.png',
-                fit: BoxFit.cover,
-              );
-            } else if(snapshot.hasData){
-              // Check if snapshot.data is a Response object and then decode its body
-              Map<String, dynamic> data = snapshot.data!.data; // This should be a Map
-              String imageUrl = data["url"];
-              return Image.network(
-                imageUrl,
-                fit: BoxFit.cover,
-              );
-            }else{
-              return Image.asset(
-                "assets/images/sample.png",
-                fit: BoxFit.cover,
-              );
-            }
-          },
-        ),
+                  )
+                : FutureBuilder<Response>(
+                    future: apiService.loadPhoto(product.representativePhotoId),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const Center(
+                          child: CircularProgressIndicator(),
+                        );
+                      } else if (snapshot.hasError) {
+                        return Image.asset(
+                          "assets/images/sample.png",
+                          width: 90,
+                          errorBuilder: (BuildContext context, Object exception,
+                              StackTrace? stackTrace) {
+                            return Image.asset(
+                              "assets/images/sample.png",
+                              width: 90,
+                              fit: BoxFit.cover,
+                            );
+                          },
+                        );
+                      } else if (snapshot.data == null) {
+                        return Image.asset(
+                          '/assets/images/sample.png',
+                          fit: BoxFit.cover,
+                        );
+                      } else if (snapshot.hasData) {
+                        Map<String, dynamic> data = snapshot.data!.data;
+                        String imageUrl = data["url"];
+                        imageCache[product.representativePhotoId] = imageUrl;
+                        return Image.network(
+                          imageUrl,
+                          fit: BoxFit.cover,
+                        );
+                      } else {
+                        return Image.asset(
+                          "assets/images/sample.png",
+                          fit: BoxFit.cover,
+                        );
+                      }
+                    },
+                  ),
       ),
     );
   }
@@ -427,7 +459,7 @@ class _ProductListState extends State<ProductList> {
         Padding(
           padding: const EdgeInsets.symmetric(vertical: 4),
           child: Text(
-            "${categeryItems[product.categoryId-1]} | ${timeAgo(product.createTime)}",
+            "${categeryItems[product.categoryId - 1]} | ${timeAgo(product.createTime)}",
             style: const TextStyle(
               fontWeight: FontWeight.w400,
               fontSize: 11,
@@ -441,21 +473,21 @@ class _ProductListState extends State<ProductList> {
             _buildDealStatus(product.status),
             product.price != 0
                 ? Text(
-              convertoneyFormat(product.price),
-              style: const TextStyle(
-                fontWeight: FontWeight.w600,
-                fontSize: 16,
-                color: Color(0xFF302E2E),
-              ),
-            )
+                    convertoneyFormat(product.price),
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 16,
+                      color: Color(0xFF302E2E),
+                    ),
+                  )
                 : const Text(
-              '나눔 🐿️',
-              style: TextStyle(
-                fontWeight: FontWeight.w600,
-                fontSize: 16,
-                color: Color(0xFF302E2E),
-              ),
-            ),
+                    '나눔 🐿️',
+                    style: TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 16,
+                      color: Color(0xFF302E2E),
+                    ),
+                  ),
           ],
         ),
       ],
@@ -465,28 +497,28 @@ class _ProductListState extends State<ProductList> {
   Widget _buildDealStatus(int dealStatus) {
     return dealStatus != 0
         ? Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 8,
-        vertical: 2.5,
-      ),
-      margin: const EdgeInsets.only(right: 6),
-      decoration: BoxDecoration(
-        borderRadius: const BorderRadius.all(
-          Radius.circular(3),
-        ),
-        color: dealStatus == 1
-            ? const Color(0xffEC5870)
-            : const Color(0xff726E6E),
-      ),
-      child: Text(
-        dealStatus == 1 ? '예약중' : '판매완료',
-        style: const TextStyle(
-          color: Colors.white,
-          fontSize: 11,
-          fontWeight: FontWeight.w400,
-        ),
-      ),
-    )
+            padding: const EdgeInsets.symmetric(
+              horizontal: 8,
+              vertical: 2.5,
+            ),
+            margin: const EdgeInsets.only(right: 6),
+            decoration: BoxDecoration(
+              borderRadius: const BorderRadius.all(
+                Radius.circular(3),
+              ),
+              color: dealStatus == 1
+                  ? const Color(0xffEC5870)
+                  : const Color(0xff726E6E),
+            ),
+            child: Text(
+              dealStatus == 1 ? '예약중' : '판매완료',
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 11,
+                fontWeight: FontWeight.w400,
+              ),
+            ),
+          )
         : const SizedBox.shrink();
   }
 }

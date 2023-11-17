@@ -1,8 +1,9 @@
 import 'package:dangmoog/models/product_class.dart';
+import 'package:dangmoog/providers/provider.dart';
 import 'package:dangmoog/services/api.dart';
 import 'package:flutter/material.dart';
 import 'package:dangmoog/screens/mypage/sell/my_sell_postlist.dart';
-
+import 'package:provider/provider.dart';
 
 enum SortingOrder { ascending, descending }
 
@@ -28,11 +29,10 @@ class _MySellMainPageState extends State<MySellMainPage> {
   }
 
   Future<List<ProductModel>> _loadMySellProduct() async {
+    String userNickname = Provider.of<UserProvider>(context).nickname;
 
-    final filters ={
-      'username':'hello'
-    };
-    final response= await apiService.searchPosts(filters);
+    final filters = {'username': userNickname};
+    final response = await apiService.searchPosts(filters);
     if (response.statusCode == 200) {
       if (response.data is List) {
         List<dynamic> data = response.data as List;

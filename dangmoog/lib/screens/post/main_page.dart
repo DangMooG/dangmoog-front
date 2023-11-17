@@ -5,7 +5,6 @@ import 'package:dangmoog/models/product_class.dart';
 import 'dart:convert';
 import 'package:flutter/services.dart';
 
-
 class MainPage extends StatefulWidget {
   const MainPage({Key? key}) : super(key: key);
 
@@ -14,8 +13,6 @@ class MainPage extends StatefulWidget {
 }
 
 class _MainPageState extends State<MainPage> {
-
-
   @override
   Widget build(BuildContext context) {
     return const Scaffold(
