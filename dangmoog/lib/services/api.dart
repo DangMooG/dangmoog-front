@@ -126,28 +126,41 @@ class ApiService {
     final String url = '/post/create_with_photo?$queryString';
 
     // Initialize a list for MultipartFiles
-    List<MultipartFile> multipartImageList = [];
+    // List<MultipartFile> multipartImageList = [];
 
-    // If imageFiles are provided, prepare them for FormData
+    // // If imageFiles are provided, prepare them for FormData
+    // if (imageFiles != null && imageFiles.isNotEmpty) {
+    //   for (var file in imageFiles) {
+    //     // String fileName =
+    //     file.path; // Use the 'path' package to get a file name.
+    //     // multipartImageList
+    //     //     .add(await MultipartFile.fromFile(file.path, filename: fileName));
+    //     multipartImageList.add(await MultipartFile.fromFile(file.path));
+    //     print("add");
+    //   }
+    // }
+
+    List<MultipartFile>? multipartImageList;
+
     if (imageFiles != null && imageFiles.isNotEmpty) {
-      for (var file in imageFiles) {
-        String fileName =
-            file.path; // Use the 'path' package to get a file name.
-        multipartImageList
-            .add(await MultipartFile.fromFile(file.path, filename: fileName));
-      }
+      multipartImageList = imageFiles
+          .map((image) => MultipartFile.fromFileSync(image.path))
+          .toList();
     }
-
     // Create FormData
     FormData formData = FormData.fromMap({
       "files": multipartImageList, // API expects 'files', so use that as key
     });
 
-    // Use the FormData object with your post request
-    return await _authClient.post(
-      url,
-      data: formData,
-    );
+    try {
+      Response response = await _authClient.post(
+        url,
+        data: formData,
+      );
+      return response;
+    } catch (e) {
+      return Future.error(e);
+    }
   }
 
   Future<Response> loadList() async {
