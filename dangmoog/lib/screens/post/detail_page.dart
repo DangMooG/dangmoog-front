@@ -1,15 +1,106 @@
 import 'package:dangmoog/constants/category_list.dart';
-import 'package:dangmoog/screens/post/like_chat_count.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-
-import 'dart:convert';
-
 import 'package:dangmoog/models/product_class.dart';
 import 'package:carousel_slider/carousel_slider.dart';
-
 import 'package:dangmoog/utils/convert_money_format.dart';
 import 'package:dangmoog/services/api.dart';
+import 'package:provider/provider.dart';
+
+class ProductDetailProvider with ChangeNotifier {
+    final ApiService apiService;
+    ProductModel? product;
+    bool isLoading = true;
+    List<String> images = [];
+
+    ProductDetailProvider(this.apiService, int postId) {
+      _fetchProductDetail(postId);
+    }
+
+    Future<void> _fetchProductDetail(int postId) async {
+      isLoading = true;
+      notifyListeners();
+
+      try {
+        final response = await apiService.loadProduct(postId);
+        if (response.statusCode == 200) {
+          product = ProductModel.fromJson(response.data);
+          await _fetchPhotos(postId);
+
+          await _checkIfFavorited(postId);
+        }else{
+
+        }
+      } catch (e) {
+        // Handle any exceptions here
+      } finally {
+        isLoading = false;
+        notifyListeners();
+      }
+    }
+
+    Future<void> _fetchPhotos(int postId) async {
+      try {
+        final response = await apiService.searchPhoto(postId);
+        if (response.statusCode == 200) {
+          List<dynamic> photoData = response.data;
+          images = photoData.map((item) => item['url'].toString()).toList();
+        } else {
+          // Handle non-200 responses
+        }
+      } catch (e) {
+        // Handle exceptions
+      }
+      notifyListeners();
+      // No need to call notifyListeners here if you're calling this method
+      // from within _fetchProductDetail, which calls notifyListeners in finally.
+    }
+
+    List<int> likedProductIds =[];
+
+    Future<void> _checkIfFavorited(int postId) async{
+      try {
+        final response = await apiService.getLikeList();
+        if (response.statusCode == 200) {
+          List<dynamic> likedPosts = response.data;
+          bool isFavorited = likedPosts.any((item) => item['post_id'] == postId);
+          if (product != null) {
+            product!.isFavorited = isFavorited;
+          }
+        }
+      } catch (e) {
+        // Handle exceptions
+      }
+    }
+
+
+
+    void toggleLike() async {
+      if (product == null) return;
+
+      bool isCurrentlyFavorited = product!.isFavorited;
+      product!.isFavorited = !isCurrentlyFavorited;
+      product!.likeCount += isCurrentlyFavorited ? -1 : 1;
+      notifyListeners();
+
+      try {
+        Response response = isCurrentlyFavorited
+            ? await apiService.decreaseLike(product!.postId)
+            : await apiService.increaseLike(product!.postId);
+
+        // Handle response accordingly
+        // If there's an error, revert the like state and update UI
+        if (response.statusCode != (isCurrentlyFavorited ? 204 : 200)) {
+          product!.isFavorited = isCurrentlyFavorited;
+          product!.likeCount += isCurrentlyFavorited ? 1 : -1;
+          notifyListeners();
+        }
+      print(response);
+    } catch(e){
+        rethrow;
+      }
+    }
+  }
 
 class ProductDetailPage extends StatefulWidget {
   final int? postId;
@@ -20,66 +111,43 @@ class ProductDetailPage extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  State<ProductDetailPage> createState() => _ProductDetailPageState();
+  _ProductDetailPageState createState() => _ProductDetailPageState();
 }
 
 class _ProductDetailPageState extends State<ProductDetailPage> {
-  int _current = 0;
   final CarouselController _controller = CarouselController();
-  ApiService apiService = ApiService();
-  List<String> images = [];
-  late Future<ProductModel?> futureProductDetail;
+  int _current =0;
 
-  Future<ProductModel> fetchProductDetail(int postId) async {
-    Response response =
-        await apiService.loadProduct(postId); // Adjust the URL accordingly
-
-    if (response.statusCode == 200) {
-      return ProductModel.fromJson(response.data);
-    } else {
-      throw Exception('Failed to load product details');
-    }
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    futureProductDetail = fetchProductDetail(widget.postId!);
-
-    apiService.searchPhoto(widget.postId!).then((response) {
-      if (response.statusCode == 200) {
-        List<dynamic> data = response.data;
-        images = data.map((item) => item['url'] as String).toList();
-        print(images);
-        setState(() {});
-      } else {
-        // Handle the error
-      }
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<ProductModel?>(
-      future: futureProductDetail,
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.done) {
-          if (snapshot.hasError) {
-            print('Error: ${snapshot.error}');
-            return const Center(child: Text('Error loading products!'));
+    return ChangeNotifierProvider(
+      // Initialize your ProductDetailProvider here
+      create: (_) => ProductDetailProvider(ApiService(),widget.postId!),
+      child: Consumer<ProductDetailProvider>(
+        builder: (context, provider, child) {
+          if (provider.isLoading) {
+            return const Scaffold(
+              body: Center(
+                child: CircularProgressIndicator(),
+              ),
+            );
+          } else if (provider.product == null) {
+            return const Scaffold(
+              body: Center(
+                child: Text('Product not found!'),
+              ),
+            );
           }
-          if (snapshot.data == null) {
-            return const Center(child: Text('Product not found!'));
-          }
-          return _buildProductDetail(snapshot.data!);
-        } else {
-          return const Center(child: CircularProgressIndicator());
-        }
-      },
+          return _buildProductDetail(context, provider);
+        },
+      ),
     );
   }
 
-  Widget _buildProductDetail(ProductModel product) {
+  Widget _buildProductDetail(BuildContext context, ProductDetailProvider provider) {
+    final product =provider.product!;
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.transparent,
@@ -94,21 +162,22 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
             child: Stack(
               alignment: Alignment.bottomCenter,
               children: [
-                sliderWidget(product),
-                sliderIndicator(product),
+                sliderWidget(context),
+                sliderIndicator(context),
               ],
             ),
           ),
           productInfo(product),
         ],
       ),
-      bottomNavigationBar: _buildChatButton(product),
+      bottomNavigationBar: _buildChatButton(context, product),
     );
   }
 
-  Widget sliderWidget(ProductModel product) {
+  Widget sliderWidget(BuildContext context) {
+    final provider = Provider.of<ProductDetailProvider>(context);
     List<String> displayImages =
-        images.isNotEmpty ? images : ['assets/images/sample.png'];
+    provider.images.isNotEmpty ? provider.images : ['assets/images/sample.png'];
     return CarouselSlider(
       carouselController: _controller,
       options: CarouselOptions(
@@ -130,15 +199,15 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
             return SizedBox(
               width: MediaQuery.of(context).size.width,
               child: (imagePath.startsWith('http') ||
-                      imagePath.startsWith('https'))
+                  imagePath.startsWith('https'))
                   ? Image.network(
-                      imagePath,
-                      fit: BoxFit.fill,
-                    )
+                imagePath,
+                fit: BoxFit.fill,
+              )
                   : Image.asset(
-                      imagePath,
-                      fit: BoxFit.fill,
-                    ),
+                imagePath,
+                fit: BoxFit.fill,
+              ),
             );
           },
         );
@@ -146,19 +215,20 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
     );
   }
 
-  Widget sliderIndicator(ProductModel product) {
+  Widget sliderIndicator(BuildContext context) {
+    final provider = Provider.of<ProductDetailProvider>(context);
     return Align(
       alignment: Alignment.bottomCenter,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
-        children: images.asMap().entries.map((entry) {
+        children: provider.images.asMap().entries.map((entry) {
           return GestureDetector(
             onTap: () => _controller.animateToPage(entry.key),
             child: Container(
               width: 9.0,
               height: 9.0,
               margin:
-                  const EdgeInsets.symmetric(vertical: 10.0, horizontal: 4.0),
+              const EdgeInsets.symmetric(vertical: 10.0, horizontal: 4.0),
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 border: Border.all(
@@ -199,13 +269,9 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
   }
 
   Widget _buildProductInformation(ProductModel product) {
-    String saleMethodText;
 
-    if (product.useLocker == 0) {
-      saleMethodText = '직접거래';
-    } else {
-      saleMethodText = '사물함거래';
-    }
+    String saleMethodText = product.useLocker == 1 ? '사물함거래' : '직접거래';
+
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -339,13 +405,13 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
       margin: const EdgeInsets.only(top: 6),
       child: product.price != 0
           ? Text(
-              convertoneyFormat(product.price),
-              style: const TextStyle(
-                fontWeight: FontWeight.w600,
-                fontSize: 18,
-                color: Color(0xFF302E2E),
-              ),
-            )
+        convertoneyFormat(product.price),
+        style: const TextStyle(
+          fontWeight: FontWeight.w600,
+          fontSize: 18,
+          color: Color(0xFF302E2E),
+        ),
+      )
           : const Text('나눔 🐿️'),
     );
   }
@@ -388,16 +454,14 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
     );
   }
 
-  Widget _buildChatButton(ProductModel product) {
+  Widget _buildChatButton(BuildContext context, ProductModel product) {
     return Container(
       height: 85,
       padding: const EdgeInsets.only(top: 14, bottom: 24),
       decoration: const BoxDecoration(
         border: Border(
           top: BorderSide(
-            color: Color(
-              0xffBEBCBC,
-            ),
+            color: Color(0xffBEBCBC),
             width: 0.5,
           ),
         ),
@@ -414,39 +478,9 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
               children: [
                 Material(
                   child: InkWell(
-                    onTap: () async {
-                      // product.isUpdatingLike = true;  // Indicate that we're starting the update process
-
-                      product.isFavorited = !product
-                          .isFavorited; // Optimistically toggle the favorite state
-                      product.likeCount +=
-                          product.isFavorited ? 1 : -1; // Adjust the like count
-                      product.notifyListeners(); // Notify the UI of changes
-
-                      final response = product.isFavorited
-                          ? await apiService.increaseLike(product.postId)
-                          : await apiService.decreaseLike(product.postId);
-
-                      // Check for status code 200 for increase and 204 for decrease
-                      if ((product.isFavorited && response.statusCode != 200) ||
-                          (!product.isFavorited &&
-                              response.statusCode != 204)) {
-                        setState(() {
-                          product.isFavorited = !product
-                              .isFavorited; // Revert the favorite state if the request failed
-                          product.likeCount += product.isFavorited
-                              ? 1
-                              : -1; // Revert the like count
-                        });
-                      } else {
-                        setState(() {
-                          futureProductDetail =
-                              fetchProductDetail(widget.postId!);
-                        });
-                      }
-
-                      // product.isUpdatingLike = false;  // Reset the updating flag
-                      product.notifyListeners();
+                    onTap: () {
+                      // Call the provider's method to toggle the like state
+                      Provider.of<ProductDetailProvider>(context, listen: false).toggleLike();
                     },
                     child: Icon(
                       product.isFavorited
@@ -470,16 +504,19 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
           ),
           ElevatedButton(
             onPressed: () {
-              // handle chat logic
+              // Handle chat logic here
             },
             style: ButtonStyle(
-                backgroundColor:
-                    MaterialStateProperty.all<Color>(const Color(0xFFE20529)),
-                minimumSize:
-                    MaterialStateProperty.all<Size>(const Size(269, 46)),
-                shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                    RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12)))),
+              backgroundColor:
+              MaterialStateProperty.all<Color>(const Color(0xFFE20529)),
+              minimumSize:
+              MaterialStateProperty.all<Size>(const Size(269, 46)),
+              shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+            ),
             child: const Text(
               '채팅하기',
               style: TextStyle(color: Color(0xFFFFFFFF)),
@@ -489,6 +526,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
       ),
     );
   }
+
 
   String timeAgo(DateTime date) {
     Duration diff = DateTime.now().difference(date);

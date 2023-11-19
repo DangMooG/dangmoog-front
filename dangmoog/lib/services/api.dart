@@ -28,7 +28,7 @@ class ApiService {
   Future<Response> verifyCode(
       String inputEmail, String verificationCode) async {
     _publicClient.options.headers['Content-Type'] =
-        "application/x-www-form-urlencoded";
+    "application/x-www-form-urlencoded";
 
     return await _publicClient.post("account/verification", data: {
       "username": inputEmail.split("@").first.toString(),
@@ -108,7 +108,7 @@ class ApiService {
     required int categoryId,
     required int useLocker,
     List<File>?
-        imageFiles, // Make sure this parameter is available in your method signature.
+    imageFiles, // Make sure this parameter is available in your method signature.
   }) async {
     // Prepare the query parameters
     final queryParams = {
@@ -232,14 +232,20 @@ class ApiService {
   Future<Response> increaseLike(int id) async {
     // Make the HTTP request first
     Response response =
-        await _authClient.post("post/like_up", queryParameters: {'id': id});
+    await _authClient.post("post/like_up", queryParameters: {'id': id});
     return response;
   }
 
   Future<Response> decreaseLike(int id) async {
     // Make the HTTP request first
     Response response =
-        await _authClient.post("post/like_back", queryParameters: {'id': id});
+    await _authClient.post("post/like_back", queryParameters: {'id': id});
+    return response;
+  }
+
+  Future<Response> getLikeList() async{
+    Response response=
+        await _authClient.post("post/get_like_list");
     return response;
   }
 
