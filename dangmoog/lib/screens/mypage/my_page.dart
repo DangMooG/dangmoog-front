@@ -120,7 +120,7 @@ class _MyPageState extends State<MyPage> {
                               } else if (snapshot.hasError) {
                                 return Text('Error: ${snapshot.error}');
                               } else {
-                                return CircularProgressIndicator(); // 데이터 로딩 중 표시
+                                return const CircularProgressIndicator(); // 데이터 로딩 중 표시
                               }
                             },
                           )
@@ -363,13 +363,13 @@ class _MyPageState extends State<MyPage> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          backgroundColor: Color(0xFFFFFFFF),
+          backgroundColor: const Color(0xFFFFFFFF),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(14.0),
           ),
-          title: Column(
+          title: const Column(
             children: [
-              const Text(
+              Text(
                 '로그아웃',
                 textAlign: TextAlign.center,
                 style: TextStyle(
@@ -438,7 +438,8 @@ class _MyPageState extends State<MyPage> {
                     backgroundColor: const Color(0xFFFFFFFF),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(6),
-                      side: BorderSide(color: Color(0xFF726E6E), width: 1),
+                      side:
+                          const BorderSide(color: Color(0xFF726E6E), width: 1),
                     ),
                     padding:
                         const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
