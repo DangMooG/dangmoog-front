@@ -51,6 +51,8 @@ class _AuthPageState extends State<AuthPage> {
   // 인증번호 오지 않을 경우 안내문
   bool isVerificationCodeMissing = false;
 
+  bool isLoading = false;
+
   // 토큰과 user ID 저장
   static const storage = FlutterSecureStorage();
 
@@ -108,6 +110,7 @@ class _AuthPageState extends State<AuthPage> {
               isLogin = isExistingAccount;
             });
 
+            if (!mounted) return;
             showDialog(
               context: context,
               builder: (BuildContext context) {
@@ -156,11 +159,19 @@ class _AuthPageState extends State<AuthPage> {
   }
 
   void _login(BuildContext context) async {
+    setState(() {
+      isLoading = true;
+    });
+
     try {
       Response response =
           await ApiService().verifyCode(inputEmail, verificationCode);
 
       if (response.statusCode == 200) {
+        setState(() {
+          isLoading = false;
+        });
+
         String accessToken = response.data['access_token'];
         int userId = response.data['account_id'];
 
@@ -168,6 +179,7 @@ class _AuthPageState extends State<AuthPage> {
         await storage.write(key: 'userId', value: userId.toString());
 
         // 인증에 성공한 이메일을 전역 상태로 저장
+        if (!mounted) return;
         Provider.of<UserProvider>(context, listen: false).setEmail(inputEmail);
 
         if (isLogin) {
@@ -197,13 +209,17 @@ class _AuthPageState extends State<AuthPage> {
           );
         }
       } else {
-        errorMessageVerificationCode = '유효한 인증번호를 입력하세요.';
+        errorMessageVerificationCode = '인증번호를 잘못 입력하셨습니다. 다시 입력해주세요.';
       }
     } catch (e) {
       print("Exception: $e");
-      errorMessageVerificationCode = '유효한 인증번호를 입력하세요.';
+      errorMessageVerificationCode = '인증번호를 잘못 입력하셨습니다. 다시 입력해주세요.';
       print(errorMessageVerificationCode);
     }
+
+    setState(() {
+      isLoading = false;
+    });
   }
 
   // 인증번호 입력 제한 시간 타이머
@@ -261,44 +277,54 @@ class _AuthPageState extends State<AuthPage> {
       resizeToAvoidBottomInset: false,
       body: GestureDetector(
         onTap: () => FocusScope.of(context).unfocus(),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 18),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Column(
-                mainAxisAlignment: MainAxisAlignment.start,
+        child: Stack(
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 18),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Row(
+                  Column(
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
-                      _signUpMessage(screenSize, isLogin),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          _signUpMessage(screenSize, isLogin),
+                        ],
+                      ),
+                      SizedBox(height: screenSize.height * 0.024),
+                      _inputField(screenSize),
                     ],
                   ),
-                  SizedBox(height: screenSize.height * 0.024),
-                  _inputField(screenSize),
+                  SizedBox(
+                    height: screenSize.height * 0.2,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        AuthSubmitButton(
+                          onPressed: isSubmitVerificationCodeActive
+                              ? () {
+                                  _login(context);
+                                }
+                              : () {},
+                          buttonText: '인증',
+                          isActive:
+                              isSubmitVerificationCodeActive ? true : false,
+                        ),
+                      ],
+                    ),
+                  ),
                 ],
               ),
-              SizedBox(
-                height: screenSize.height * 0.2,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    AuthSubmitButton(
-                      onPressed: isSubmitVerificationCodeActive
-                          ? () {
-                              _login(context);
-                            }
-                          : () {},
-                      buttonText: '인증',
-                      isActive: isSubmitVerificationCodeActive ? true : false,
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
+            ),
+            isLoading
+                ? const Center(
+                    child: CircularProgressIndicator(),
+                  )
+                : const SizedBox.shrink(), // 로딩 상태가 아닐 때는 아무것도 표시하지 않음
+          ],
         ),
       ),
     );
