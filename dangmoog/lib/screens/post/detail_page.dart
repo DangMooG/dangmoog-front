@@ -7,6 +7,9 @@ import 'package:dangmoog/utils/convert_money_format.dart';
 import 'package:dangmoog/services/api.dart';
 import 'package:provider/provider.dart';
 
+import 'edit_post_page.dart';
+import 'main_page.dart';
+
 class ProductDetailProvider with ChangeNotifier {
     final ApiService apiService;
     ProductModel? product;
@@ -147,12 +150,124 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
 
   Widget _buildProductDetail(BuildContext context, ProductDetailProvider provider) {
     final product =provider.product!;
+    //TODO: 유저네임 바꾸기
+    // bool isUserProduct = product.userName =='flatfish';
+
 
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         iconTheme: const IconThemeData(color: Colors.white),
+        actions: <Widget>[
+          IconButton(
+            icon: const Icon(Icons.more_vert, color: Color(0xFF726E6E)),
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  double dividerThickness = 1;
+                  double buttonHeight = 36;
+                  return AlertDialog(
+                    contentPadding: EdgeInsets.zero,
+                    shape: const RoundedRectangleBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(8)),
+                    ),
+                    content: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        TextButton(
+                          onPressed: () {
+                            //TODO:  How should I declare postId? I have to send it to the editpostpage.
+
+                            Navigator.pop(context); // Close the dialog
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => EditPostPage(postId: widget.postId!, product: product,)),
+                            );
+
+                          },
+                          style: TextButton.styleFrom(
+                            minimumSize: Size(270, buttonHeight),
+                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                            padding: const EdgeInsets.only(top: 8), // Ensures no additional padding is affecting the alignment
+                          ),
+                          child: const Text(
+                            '수정하기',
+                            style: TextStyle(
+                              fontFamily: 'Pretendard',
+                              fontSize: 14,
+                              fontWeight: FontWeight.w400,
+                              color: Color(0xFFE20529),
+                              height: 20 / 14, // line height
+                            ),
+                          ),
+                        ),
+                        Divider(thickness: dividerThickness),
+                        TextButton(
+                          onPressed: () async {
+                            int postId = product.postId;
+                            try {
+                              final response = await ApiService().deletePost(postId); // Call the delete API
+                              if (response.statusCode==204) {
+                                Navigator.pop(context);
+                                // Handle successful deletion here, like showing a confirmation message
+                              } else {
+                                // Handle the error case
+                                print('Failed to delete the post: ${response.statusCode}');
+                              }
+                            } catch (e) {
+                              // Handle any exceptions here
+                              print('An error occurred while deleting the post: $e');
+                            }
+                            Navigator.pop(context);
+                          },
+                          style: TextButton.styleFrom(
+                            minimumSize: const Size(270, 28),
+                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                            padding: EdgeInsets.zero, // Ensures no additional padding is affecting the alignment
+                          ),
+                          child: const Text(
+                            '삭제하기',
+                            style: TextStyle(
+                              fontFamily: 'Pretendard',
+                              fontSize: 14,
+                              fontWeight: FontWeight.w400,
+                              color: Color(0xFFE20529),
+                            ),
+                          ),
+                        ),
+                        Divider(thickness: dividerThickness),
+                        TextButton(
+                          onPressed: () {
+                            // Close the dialog
+                            Navigator.pop(context);
+                          },
+                          style: TextButton.styleFrom(
+                            minimumSize: Size(270, buttonHeight),
+                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                            padding: const EdgeInsets.only(bottom: 8), // Ensures no additional padding is affecting the alignment
+                          ),
+                          child: const Text(
+                            '취소',
+                            style: TextStyle(
+                              color: Color(0xFFA19E9E),
+
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              );
+            },
+          )
+
+
+
+        ],
       ),
       extendBodyBehindAppBar: true,
       body: Column(
@@ -269,20 +384,32 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
   }
 
   Widget _buildProductInformation(ProductModel product) {
-
     String saleMethodText = product.useLocker == 1 ? '사물함거래' : '직접거래';
-
+    Widget imageWidget = product.useLocker == 1
+        ? Image.asset(
+      'assets/images/uselocker_logo.png', // Replace with your asset image path
+      width: 16, // Set your desired width for the image
+      height: 16, // Set your desired height for the image
+    )
+        : const SizedBox(); // Empty box for when there is no image
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
-        Text(
-          saleMethodText,
-          style: const TextStyle(
-            color: Color(0xffE20529),
-            fontSize: 11,
-            fontWeight: FontWeight.w400,
-          ),
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            imageWidget,
+            const SizedBox(width: 4), // Space between image and text
+            Text(
+              saleMethodText,
+              style: const TextStyle(
+                color: Color(0xffE20529),
+                fontSize: 11,
+                fontWeight: FontWeight.w400,
+              ),
+            ),
+          ],
         ),
         _buildProductTitle(product),
         _buildSellerName(product),
@@ -291,6 +418,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
       ],
     );
   }
+
 
   // 좋아요, 채팅 개수 표기
   Widget _buildProductLikeChatCount(ProductModel product) {
@@ -513,7 +641,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
               MaterialStateProperty.all<Size>(const Size(269, 46)),
               shape: MaterialStateProperty.all<RoundedRectangleBorder>(
                 RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(8),
                 ),
               ),
             ),
