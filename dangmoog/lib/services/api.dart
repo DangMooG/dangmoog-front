@@ -28,7 +28,7 @@ class ApiService {
   Future<Response> verifyCode(
       String inputEmail, String verificationCode) async {
     _publicClient.options.headers['Content-Type'] =
-        "application/x-www-form-urlencoded";
+    "application/x-www-form-urlencoded";
 
     return await _publicClient.post("account/verification", data: {
       "username": inputEmail.split("@").first.toString(),
@@ -107,8 +107,7 @@ class ApiService {
     required String description,
     required int categoryId,
     required int useLocker,
-    List<File>?
-        imageFiles, // Make sure this parameter is available in your method signature.
+    List<File>? imageFiles, // Make sure this parameter is available in your method signature.
   }) async {
     // Prepare the query parameters
     final queryParams = {
@@ -124,6 +123,61 @@ class ApiService {
 
     // Construct the URL with query parameters
     final String url = '/post/create_with_photo?$queryString';
+
+    // Check if imageFiles are provided and not empty
+    if (imageFiles != null && imageFiles.isNotEmpty) {
+      // Initialize a list for MultipartFiles
+      List<MultipartFile> multipartImageList = [];
+
+      // Prepare the image files for FormData
+      for (var file in imageFiles) {
+        String fileName = file.path; // Use the 'path' package to get a file name.
+        multipartImageList.add(await MultipartFile.fromFile(file.path, filename: fileName));
+      }
+
+      // Create FormData with files
+      FormData formData = FormData.fromMap({
+        "files": multipartImageList, // API expects 'files', so use that as key
+      });
+
+      // Print the formData for debugging purposes
+      print(formData);
+
+      // Send the post request with formData when there are images
+      return await _authClient.post(
+        url,
+        data: formData,
+      );
+    } else {
+      // Send the post request without formData when there are no images
+      return await _authClient.post(
+        url,
+      );
+    }
+  }
+
+
+  Future<Response> patchPost({
+    required int postId,
+    String? title,
+    int? price,
+    String? description,
+    int? categoryId,
+    int? useLocker,
+    List<File>? imageFiles,
+  }) async {
+    // Construct the URL with the post ID
+    final String url = '/post/$postId';
+
+    // Initialize a map for the updated post data
+    Map<String, dynamic> updatedData = {
+      if (title != null) "title": title,
+      if (price != null) "price": price,
+      if (description != null) "description": description,
+      if (categoryId != null) "category_id": categoryId,
+      if (useLocker != null) "use_locker": useLocker,
+      // Add other fields if needed
+    };
 
     // Initialize a list for MultipartFiles
     // List<MultipartFile> multipartImageList = [];
@@ -143,25 +197,32 @@ class ApiService {
     List<MultipartFile>? multipartImageList;
 
     if (imageFiles != null && imageFiles.isNotEmpty) {
-      multipartImageList = imageFiles
-          .map((image) => MultipartFile.fromFileSync(image.path))
-          .toList();
+      for (var file in imageFiles) {
+        String fileName = file.path; // Use the 'path' package to get a file name.
+        multipartImageList.add(await MultipartFile.fromFile(file.path, filename: fileName));
+      }
     }
-    // Create FormData
-    FormData formData = FormData.fromMap({
-      "files": multipartImageList, // API expects 'files', so use that as key
-    });
 
-    try {
-      Response response = await _authClient.post(
-        url,
-        data: formData,
-      );
-      return response;
-    } catch (e) {
-      return Future.error(e);
+    // Add the files to the FormData only if there are any
+    if (multipartImageList.isNotEmpty) {
+      updatedData["files"] = multipartImageList;
     }
+
+    // Create FormData
+    FormData formData = FormData.fromMap(updatedData);
+    
+    // Use the FormData object with your patch request
+    return await _authClient.patch(
+      url,
+      data: formData,
+    );
+
   }
+
+  Future<Response> deletePost(int id) async{
+    return await _authClient.delete("post/$id");
+  }
+
 
   Future<Response> loadList() async {
     return await _publicClient.get("post/list");
@@ -245,14 +306,20 @@ class ApiService {
   Future<Response> increaseLike(int id) async {
     // Make the HTTP request first
     Response response =
-        await _authClient.post("post/like_up", queryParameters: {'id': id});
+    await _authClient.post("post/like_up", queryParameters: {'id': id});
     return response;
   }
 
   Future<Response> decreaseLike(int id) async {
     // Make the HTTP request first
     Response response =
-        await _authClient.post("post/like_back", queryParameters: {'id': id});
+    await _authClient.post("post/like_back", queryParameters: {'id': id});
+    return response;
+  }
+
+  Future<Response> getLikeList() async{
+    Response response=
+        await _authClient.post("post/get_like_list");
     return response;
   }
 
