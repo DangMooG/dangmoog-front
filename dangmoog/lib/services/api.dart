@@ -180,9 +180,22 @@ class ApiService {
     };
 
     // Initialize a list for MultipartFiles
-    List<MultipartFile> multipartImageList = [];
+    // List<MultipartFile> multipartImageList = [];
 
-    // If imageFiles are provided, prepare them for FormData
+    // // If imageFiles are provided, prepare them for FormData
+    // if (imageFiles != null && imageFiles.isNotEmpty) {
+    //   for (var file in imageFiles) {
+    //     // String fileName =
+    //     file.path; // Use the 'path' package to get a file name.
+    //     // multipartImageList
+    //     //     .add(await MultipartFile.fromFile(file.path, filename: fileName));
+    //     multipartImageList.add(await MultipartFile.fromFile(file.path));
+    //     print("add");
+    //   }
+    // }
+
+    List<MultipartFile>? multipartImageList;
+
     if (imageFiles != null && imageFiles.isNotEmpty) {
       for (var file in imageFiles) {
         String fileName = file.path; // Use the 'path' package to get a file name.
@@ -197,12 +210,13 @@ class ApiService {
 
     // Create FormData
     FormData formData = FormData.fromMap(updatedData);
-
+    
     // Use the FormData object with your patch request
     return await _authClient.patch(
       url,
       data: formData,
     );
+
   }
 
   Future<Response> deletePost(int id) async{
