@@ -16,20 +16,19 @@ class AddPostPage extends StatefulWidget {
   final int? lockerId;
   final bool fromChooseLocker;
 
-  const AddPostPage({
-    Key? key,
-    required this.title,
-    this.lockerId,
-    this.fromChooseLocker = false
-  }) : super(key: key);
+  const AddPostPage(
+      {Key? key,
+      required this.title,
+      this.lockerId,
+      this.fromChooseLocker = false})
+      : super(key: key);
 
   @override
   State<AddPostPage> createState() => _AddPostPageState();
 }
 
 class _AddPostPageState extends State<AddPostPage> {
-
-  int useLocker=1;
+  int useLocker = 1;
   final List<String> _imageList = <String>[];
   final ImagePicker picker = ImagePicker();
   final List<XFile> vac = <XFile>[];
@@ -40,7 +39,11 @@ class _AddPostPageState extends State<AddPostPage> {
   bool get isCategorySelected => _selectedItem.isNotEmpty;
   bool get isPriceFilled => priceController.text.isNotEmpty;
   bool get isDescriptionProvided => detailController.text.isNotEmpty;
-  bool get isButtonEnabled => isProductNameFilled && isCategorySelected && isPriceFilled && isDescriptionProvided;
+  bool get isButtonEnabled =>
+      isProductNameFilled &&
+      isCategorySelected &&
+      isPriceFilled &&
+      isDescriptionProvided;
   String? productNameError;
   String? productCategoryError;
   String? productPriceError;
@@ -53,16 +56,15 @@ class _AddPostPageState extends State<AddPostPage> {
       price = int.parse(priceController.text.replaceAll(',', ''));
     } catch (e) {
       print("Error parsing price: $e");
-      return;  // exit the function since price couldn't be parsed
+      return; // exit the function since price couldn't be parsed
     }
 
     String description = detailController.text;
     int categoryId = categeryItems.indexOf(_selectedItem);
 
-
-    if (widget.title.contains('직접')){
+    if (widget.title.contains('직접')) {
       useLocker = 0;
-    }else{
+    } else {
       useLocker = 1;
     }
 
@@ -74,7 +76,13 @@ class _AddPostPageState extends State<AddPostPage> {
       imageFiles = _imageList.map((path) => File(path)).toList();
     }
 
-    Response response = await apiService.createPost(categoryId: categoryId, description: description, price: price, title: title, useLocker: useLocker, imageFiles: imageFiles);
+    Response response = await apiService.createPost(
+        categoryId: categoryId,
+        description: description,
+        price: price,
+        title: title,
+        useLocker: useLocker,
+        imageFiles: imageFiles);
 
     if (response.statusCode == 200) {
       // Successful Response
@@ -85,18 +93,21 @@ class _AddPostPageState extends State<AddPostPage> {
       var updateTime = responseData['update_time'];
 
       // Implement your success logic here. For example, show a success message and navigate to another screen.
-      print("Post created successfully! Post ID: $postId, Created at: $createTime, Updated at: $updateTime");
+      print(
+          "Post created successfully! Post ID: $postId, Created at: $createTime, Updated at: $updateTime");
 
       // Check if the locker is to be used
       if (useLocker == 1) {
         // Update the locker information with the new post_id
         Map<String, dynamic> lockerUpdates = {
-          "post_id": postId, // assuming 'post_id' is the field you want to update in the locker
+          "post_id":
+              postId, // assuming 'post_id' is the field you want to update in the locker
         };
 
         try {
           print("post ID는 $postId입니다.");
-          Response lockerResponse = await apiService.patchLocker(widget.lockerId!, lockerUpdates);
+          Response lockerResponse =
+              await apiService.patchLocker(widget.lockerId!, lockerUpdates);
           if (lockerResponse.statusCode == 200) {
             print('Locker updated successfully with Post ID: $postId');
           } else {
@@ -109,9 +120,9 @@ class _AddPostPageState extends State<AddPostPage> {
         Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(builder: (context) => MainPage()),
-              (Route<dynamic> route) => false,
+          (Route<dynamic> route) => false,
         );
-      }else{
+      } else {
         Navigator.pop(context);
       }
       // Your additional success logic
@@ -133,12 +144,10 @@ class _AddPostPageState extends State<AddPostPage> {
     } else {
       // Other potential errors
       print('Hello');
-      print("Error creating post. Status Code: ${response.statusCode}, Error Message: ${response.statusMessage}");
+      print(
+          "Error creating post. Status Code: ${response.statusCode}, Error Message: ${response.statusMessage}");
     }
-
-
   }
-
 
   // 앨범에서 이미지를 가져오는 함수
   Future getImagesFromAlbum(BuildContext context) async {
@@ -158,14 +167,16 @@ class _AddPostPageState extends State<AddPostPage> {
           int overflowCount = _imageList.length + imagesPath.length - 10;
           if (overflowCount > 0) {
             // Trim the imagesPath list
-            imagesPath = imagesPath.take(imagesPath.length - overflowCount).toList();
+            imagesPath =
+                imagesPath.take(imagesPath.length - overflowCount).toList();
 
             // Inform the user about the trimmed images
             showDialog(
               context: context,
               builder: (context) => AlertDialog(
                 title: const Text('Image Limit Reached'),
-                content: Text('$overflowCount images were not added due to the 10 image limit.'),
+                content: Text(
+                    '$overflowCount images were not added due to the 10 image limit.'),
                 actions: [
                   TextButton(
                     onPressed: () => Navigator.of(context).pop(),
@@ -190,7 +201,7 @@ class _AddPostPageState extends State<AddPostPage> {
           return AlertDialog(
             title: const Text("앨범 권한 필요"),
             content:
-            const Text("이 기능을 사용하기 위해서는 권한이 필요합니다. 설정으로 이동하여 권한을 허용해주세요."),
+                const Text("이 기능을 사용하기 위해서는 권한이 필요합니다. 설정으로 이동하여 권한을 허용해주세요."),
             actions: <Widget>[
               TextButton(
                 child: const Text("취소"),
@@ -212,14 +223,13 @@ class _AddPostPageState extends State<AddPostPage> {
     }
   }
 
-
   Future getImagesFromCamera(BuildContext context) async {
     PermissionStatus status = await Permission.camera.request();
 
     if (status.isGranted || status.isLimited) {
       try {
         final XFile? pickedImage =
-        await picker.pickImage(source: ImageSource.camera);
+            await picker.pickImage(source: ImageSource.camera);
 
         if (pickedImage != null) {
           String imagePath = pickedImage.path;
@@ -255,7 +265,7 @@ class _AddPostPageState extends State<AddPostPage> {
           return AlertDialog(
             title: const Text("카메라 권한 필요"),
             content:
-            const Text("이 기능을 사용하기 위해서는 권한이 필요합니다. 설정으로 이동하여 권한을 허용해주세요."),
+                const Text("이 기능을 사용하기 위해서는 권한이 필요합니다. 설정으로 이동하여 권한을 허용해주세요."),
             actions: <Widget>[
               TextButton(
                 child: const Text("취소"),
@@ -276,7 +286,6 @@ class _AddPostPageState extends State<AddPostPage> {
       );
     }
   }
-
 
   bool useCabinet = false;
   int userId = 3;
@@ -304,20 +313,19 @@ class _AddPostPageState extends State<AddPostPage> {
       }
     });
     priceController.addListener(() {
-      if (isPriceFilled){
+      if (isPriceFilled) {
         setState(() {
-          productPriceError =null;
+          productPriceError = null;
         });
       }
     });
     detailController.addListener(() {
-      if (isDescriptionProvided){
+      if (isDescriptionProvided) {
         setState(() {
-          productDescriptionError =null;
+          productDescriptionError = null;
         });
       }
     });
-
   }
 
   @override
@@ -330,7 +338,8 @@ class _AddPostPageState extends State<AddPostPage> {
         leading: IconButton(
           icon: const Icon(Icons.close),
           onPressed: () {
-            if (widget.fromChooseLocker) { // Check if it's from choose locker
+            if (widget.fromChooseLocker) {
+              // Check if it's from choose locker
               _showLockerDialog(context);
             } else if (isImageUploaded ||
                 isProductNameFilled ||
@@ -658,29 +667,37 @@ class _AddPostPageState extends State<AddPostPage> {
               counterText: "",
               enabledBorder: OutlineInputBorder(
                 borderSide: BorderSide(
-                    color: productNameError == null ? const Color(0xffD3D2D2) : const Color(0xFFE20529),
+                  color: productNameError == null
+                      ? const Color(0xffD3D2D2)
+                      : const Color(0xFFE20529),
                 ),
                 borderRadius: const BorderRadius.all(Radius.circular(4)),
               ),
               focusedBorder: OutlineInputBorder(
                 borderSide: BorderSide(
-                    color: productNameError == null ? const Color(0xff726E6E) : const Color(0xFFE20529)  // Changes based on error condition
-                ),
+                    color: productNameError == null
+                        ? const Color(0xff726E6E)
+                        : const Color(
+                            0xFFE20529) // Changes based on error condition
+                    ),
                 borderRadius: const BorderRadius.all(Radius.circular(4)),
               ),
             ),
             maxLength: 64,
           ),
-          if (productNameError!=null)
+          if (productNameError != null)
             Padding(
               padding: const EdgeInsets.only(top: 8.0),
               child: Row(
                 children: [
-                  const Icon(Icons.error, color: Color(0xFFE20529), size: 12), // Error icon
-                  const SizedBox(width: 4), // Some spacing between icon and text
+                  const Icon(Icons.error,
+                      color: Color(0xFFE20529), size: 12), // Error icon
+                  const SizedBox(
+                      width: 4), // Some spacing between icon and text
                   Text(
                     productNameError!,
-                    style: const TextStyle(color: Color(0xFFE20529), fontSize: 12),
+                    style:
+                        const TextStyle(color: Color(0xFFE20529), fontSize: 12),
                   ),
                 ],
               ),
@@ -704,8 +721,8 @@ class _AddPostPageState extends State<AddPostPage> {
         _selectedItem = item;
         _isSelectListVisible = false;
 
-        if(_selectedItem.isNotEmpty){
-          productCategoryError=null;
+        if (_selectedItem.isNotEmpty) {
+          productCategoryError = null;
         }
       });
     }
@@ -756,19 +773,21 @@ class _AddPostPageState extends State<AddPostPage> {
                           : const Color(0xffA19E9E),
                     )
                   ],
-                )
-            ),
+                )),
           ),
-          if (productCategoryError!=null)
+          if (productCategoryError != null)
             Padding(
               padding: const EdgeInsets.only(top: 8.0),
               child: Row(
                 children: [
-                  const Icon(Icons.error, color: Color(0xFFE20529), size: 12), // Error icon
-                  const SizedBox(width: 4), // Some spacing between icon and text
+                  const Icon(Icons.error,
+                      color: Color(0xFFE20529), size: 12), // Error icon
+                  const SizedBox(
+                      width: 4), // Some spacing between icon and text
                   Text(
                     productCategoryError!,
-                    style: const TextStyle(color: Color(0xFFE20529), fontSize: 12),
+                    style:
+                        const TextStyle(color: Color(0xFFE20529), fontSize: 12),
                   ),
                 ],
               ),
@@ -781,7 +800,8 @@ class _AddPostPageState extends State<AddPostPage> {
                 borderRadius: const BorderRadius.all(Radius.circular(4)),
               ),
               constraints: const BoxConstraints(maxHeight: 3 * 41.0),
-              child: Scrollbar( // <- Wrap ListView inside Scrollbar
+              child: Scrollbar(
+                // <- Wrap ListView inside Scrollbar
                 child: ListView(
                   padding: EdgeInsets.zero,
                   physics: const AlwaysScrollableScrollPhysics(),
@@ -876,44 +896,54 @@ class _AddPostPageState extends State<AddPostPage> {
               counterText: "",
               enabledBorder: OutlineInputBorder(
                 borderSide: BorderSide(
-                  color: productPriceError == null ? const Color(0xffD3D2D2) : const Color(0xFFE20529),
+                  color: productPriceError == null
+                      ? const Color(0xffD3D2D2)
+                      : const Color(0xFFE20529),
                 ),
                 borderRadius: const BorderRadius.all(Radius.circular(4)),
               ),
               focusedBorder: OutlineInputBorder(
                 borderSide: BorderSide(
-                    color: productPriceError == null ? const Color(0xff726E6E) : const Color(0xFFE20529)  // Changes based on error condition
-                ),
+                    color: productPriceError == null
+                        ? const Color(0xff726E6E)
+                        : const Color(
+                            0xFFE20529) // Changes based on error condition
+                    ),
                 borderRadius: const BorderRadius.all(Radius.circular(4)),
               ),
             ),
             maxLength: 20,
           ),
-          if (productPriceError!=null)
+          if (productPriceError != null)
             Padding(
               padding: const EdgeInsets.only(top: 8.0),
               child: Row(
                 children: [
-                  const Icon(Icons.error, color: Color(0xFFE20529), size: 12), // Error icon
-                  const SizedBox(width: 4), // Some spacing between icon and text
+                  const Icon(Icons.error,
+                      color: Color(0xFFE20529), size: 12), // Error icon
+                  const SizedBox(
+                      width: 4), // Some spacing between icon and text
                   Text(
                     productPriceError!,
-                    style: const TextStyle(color: Color(0xFFE20529), fontSize: 12),
+                    style:
+                        const TextStyle(color: Color(0xFFE20529), fontSize: 12),
                   ),
                 ],
               ),
             ),
           Padding(
-            padding: const EdgeInsets.only(top:8.0), // 가격 텍스트랑 ai 추천 가격 사이 칸
+            padding: const EdgeInsets.only(top: 8.0), // 가격 텍스트랑 ai 추천 가격 사이 칸
             child: Container(
-                padding: const EdgeInsets.only(left: 8),
-                height: 48,
-                // padding: const EdgeInsets.symmetric(horizontal:8),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFF1F1F1),
-                  borderRadius: BorderRadius.circular(4),
-                ),
-                child: _showPrice ? _recommendedPriceButtons():_initialAiRecommended(),
+              padding: const EdgeInsets.only(left: 8),
+              height: 48,
+              // padding: const EdgeInsets.symmetric(horizontal:8),
+              decoration: BoxDecoration(
+                color: const Color(0xFFF1F1F1),
+                borderRadius: BorderRadius.circular(4),
+              ),
+              child: _showPrice
+                  ? _recommendedPriceButtons()
+                  : _initialAiRecommended(),
             ),
           ),
           Container(
@@ -924,7 +954,8 @@ class _AddPostPageState extends State<AddPostPage> {
                   width: 20,
                   height: 20,
                   child: Checkbox(
-                    overlayColor: MaterialStateProperty.all(const Color(0xffBEBCBC)),
+                    overlayColor:
+                        MaterialStateProperty.all(const Color(0xffBEBCBC)),
                     value: isFree,
                     splashRadius: 12,
                     shape: RoundedRectangleBorder(
@@ -936,11 +967,12 @@ class _AddPostPageState extends State<AddPostPage> {
                     ),
                     activeColor: const Color(0xffBEBCBC),
                     fillColor: MaterialStateProperty.resolveWith<Color>(
-                          (Set<MaterialState> states) {
+                      (Set<MaterialState> states) {
                         if (states.contains(MaterialState.selected)) {
                           return const Color(0xFFE20529); // Checked (red)
                         }
-                        return const Color(0xffBEBCBC); // Unchecked (transparent)
+                        return const Color(
+                            0xffBEBCBC); // Unchecked (transparent)
                       },
                     ),
                     checkColor: Colors.white,
@@ -955,7 +987,6 @@ class _AddPostPageState extends State<AddPostPage> {
                       });
                     },
                   ),
-
                 ),
                 const Padding(
                   padding: EdgeInsets.only(left: 8.0),
@@ -1009,28 +1040,35 @@ class _AddPostPageState extends State<AddPostPage> {
               counterText: "",
               enabledBorder: OutlineInputBorder(
                 borderSide: BorderSide(
-                  color: productDescriptionError == null ? const Color(0xffD3D2D2) : const Color(0xFFE20529),
+                  color: productDescriptionError == null
+                      ? const Color(0xffD3D2D2)
+                      : const Color(0xFFE20529),
                 ),
                 borderRadius: const BorderRadius.all(Radius.circular(4)),
               ),
               focusedBorder: OutlineInputBorder(
                 borderSide: BorderSide(
-                  color: productDescriptionError == null ? const Color(0xffD3D2D2) : const Color(0xFFE20529),
+                  color: productDescriptionError == null
+                      ? const Color(0xffD3D2D2)
+                      : const Color(0xFFE20529),
                 ),
                 borderRadius: const BorderRadius.all(Radius.circular(4)),
               ),
             ),
           ),
-          if (productDescriptionError!=null)
+          if (productDescriptionError != null)
             Padding(
               padding: const EdgeInsets.only(top: 8.0),
               child: Row(
                 children: [
-                  const Icon(Icons.error, color: Color(0xFFE20529), size: 12), // Error icon
-                  const SizedBox(width: 4), // Some spacing between icon and text
+                  const Icon(Icons.error,
+                      color: Color(0xFFE20529), size: 12), // Error icon
+                  const SizedBox(
+                      width: 4), // Some spacing between icon and text
                   Text(
                     productDescriptionError!,
-                    style: const TextStyle(color: Color(0xFFE20529), fontSize: 12),
+                    style:
+                        const TextStyle(color: Color(0xFFE20529), fontSize: 12),
                   ),
                 ],
               ),
@@ -1061,117 +1099,126 @@ class _AddPostPageState extends State<AddPostPage> {
       padding: const EdgeInsets.only(top: 14, bottom: 35),
       child: ElevatedButton(
         onPressed: () {
-
           _setFieldErrors();
           setState(() {});
 
-          if(isButtonEnabled){
-            if(_imageList.isEmpty){
+          if (isButtonEnabled) {
+            if (_imageList.isEmpty) {
               showDialog(
-                  context: context,
-                  barrierDismissible: false,
-                  builder: (BuildContext context){
-                    return Dialog(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      elevation: 5,
-                      child: Container(
-                        padding: const EdgeInsets.all(20),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const Text(
-                              '사진을 올리지 않았습니다!\n그래도 판매글을 업로드하시겠어요?',
-                              textAlign: TextAlign.center,
-                              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                            ),
-                            const SizedBox(height: 8,),
-                            const Text(
-                              '사진이 없는 게시글은\n사진이 있는 게시물보다 전환율이 낮습니다.\n그래도 사진없이 업로드하시겠어요?',
-                              textAlign: TextAlign.center,
-                              style: TextStyle(fontSize: 14 ),
-                            ),
-                            const SizedBox(height: 16,),
-                            SizedBox(
-                              width: 300,
-                              child: TextButton(
-                                onPressed: () {
-                                  _createNewPost();
-                                  if (useLocker==1){
-
-                                  }
-                                },
-                                style: ButtonStyle(
-                                  backgroundColor: MaterialStateProperty.resolveWith<Color>(
-                                        (Set<MaterialState> states) {
-                                      if (states.contains(MaterialState.pressed)) {
-                                        return Colors.red[600]!; // Color when pressed
-                                      }
-                                      return const Color(0xffE20529); // Regular color
-                                    },
-                                  ),
-
-                                  foregroundColor: MaterialStateProperty.all<Color>(Colors.white),
-                                  shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                                    RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(6),
-                                      side: const BorderSide(color: Color(0xFF726E6E)),
-                                    ),
-                                  ),
-
+                context: context,
+                barrierDismissible: false,
+                builder: (BuildContext context) {
+                  return Dialog(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    elevation: 5,
+                    child: Container(
+                      padding: const EdgeInsets.all(20),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Text(
+                            '사진을 올리지 않았습니다!\n그래도 판매글을 업로드하시겠어요?',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                                fontSize: 18, fontWeight: FontWeight.bold),
+                          ),
+                          const SizedBox(
+                            height: 8,
+                          ),
+                          const Text(
+                            '사진이 없는 게시글은\n사진이 있는 게시물보다 전환율이 낮습니다.\n그래도 사진없이 업로드하시겠어요?',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(fontSize: 14),
+                          ),
+                          const SizedBox(
+                            height: 16,
+                          ),
+                          SizedBox(
+                            width: 300,
+                            child: TextButton(
+                              onPressed: () {
+                                _createNewPost();
+                                if (useLocker == 1) {}
+                              },
+                              style: ButtonStyle(
+                                backgroundColor:
+                                    MaterialStateProperty.resolveWith<Color>(
+                                  (Set<MaterialState> states) {
+                                    if (states
+                                        .contains(MaterialState.pressed)) {
+                                      return Colors
+                                          .red[600]!; // Color when pressed
+                                    }
+                                    return const Color(
+                                        0xffE20529); // Regular color
+                                  },
                                 ),
-                                child: const Text('업로드'),
-                              ),
-                            ),
-                            const SizedBox(height: 8,),
-                            SizedBox(
-                              width: 300,
-                              child: TextButton(
-                                onPressed: () {
-                                  Navigator.of(context).pop(); // close the dialog
-                                },
-                                style: ButtonStyle(
-                                  backgroundColor: MaterialStateProperty.resolveWith<Color>(
-                                        (Set<MaterialState> states) {
-                                      if (states.contains(MaterialState.pressed)) {
-                                        return Colors.red[600]!; // Color when pressed
-                                      }
-                                      return Colors.transparent; // Regular color
-                                    },
+                                foregroundColor:
+                                    MaterialStateProperty.all<Color>(
+                                        Colors.white),
+                                shape: MaterialStateProperty.all<
+                                    RoundedRectangleBorder>(
+                                  RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(6),
+                                    side: const BorderSide(
+                                        color: Color(0xFF726E6E)),
                                   ),
-
-                                  foregroundColor: MaterialStateProperty.all<Color>(const Color(0xFF726E6E)),
-                                  shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                                    RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(6),
-                                      side: const BorderSide(color: Color(0xFF726E6E)),
-                                    ),
-                                  ),
-
                                 ),
-                                child: const Text('취소하기'),
                               ),
+                              child: const Text('업로드'),
                             ),
-                          ],
-                        ),
+                          ),
+                          const SizedBox(
+                            height: 8,
+                          ),
+                          SizedBox(
+                            width: 300,
+                            child: TextButton(
+                              onPressed: () {
+                                Navigator.of(context).pop(); // close the dialog
+                              },
+                              style: ButtonStyle(
+                                backgroundColor:
+                                    MaterialStateProperty.resolveWith<Color>(
+                                  (Set<MaterialState> states) {
+                                    if (states
+                                        .contains(MaterialState.pressed)) {
+                                      return Colors
+                                          .red[600]!; // Color when pressed
+                                    }
+                                    return Colors.transparent; // Regular color
+                                  },
+                                ),
+                                foregroundColor:
+                                    MaterialStateProperty.all<Color>(
+                                        const Color(0xFF726E6E)),
+                                shape: MaterialStateProperty.all<
+                                    RoundedRectangleBorder>(
+                                  RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(6),
+                                    side: const BorderSide(
+                                        color: Color(0xFF726E6E)),
+                                  ),
+                                ),
+                              ),
+                              child: const Text('취소하기'),
+                            ),
+                          ),
+                        ],
                       ),
-                    );
-                  },
+                    ),
+                  );
+                },
               );
-            }
-            else{
+            } else {
               _createNewPost();
             }
-
           }
-
 
           if (priceController.text.isNotEmpty) {
-          } else {
-          }
-
-
+          } else {}
         },
         style: ButtonStyle(
           backgroundColor: MaterialStateProperty.all(const Color(0xFFE20529)),
@@ -1199,7 +1246,7 @@ class _AddPostPageState extends State<AddPostPage> {
     );
   }
 
-  Widget _initialAiRecommended(){
+  Widget _initialAiRecommended() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -1218,7 +1265,7 @@ class _AddPostPageState extends State<AddPostPage> {
           ),
         ),
         Padding(
-          padding: const EdgeInsets.only(right:8.0),
+          padding: const EdgeInsets.only(right: 8.0),
           child: TextButton(
             onPressed: () {
               setState(() {
@@ -1228,7 +1275,8 @@ class _AddPostPageState extends State<AddPostPage> {
             style: TextButton.styleFrom(
               minimumSize: const Size(111, 24),
               backgroundColor: const Color(0xFFEC5870),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(6)),
             ),
             child: const Text(
               'AI 가격 추천(BETA)',
@@ -1241,7 +1289,6 @@ class _AddPostPageState extends State<AddPostPage> {
             ),
           ),
         ),
-
       ],
     );
   }
@@ -1251,48 +1298,55 @@ class _AddPostPageState extends State<AddPostPage> {
       children: [
         ...<String>['₩ 1,011,000', '₩ 1,212,000', '₩ 1,413,000']
             .map((price) => Padding(
-          padding: const EdgeInsets.only(right: 4.0), // This gives each button a right padding of 4.0
-          child: TextButton(
-            onPressed: () {
-              priceController.text = price.replaceFirst('₩ ', '');
-              if (isFree == true) {
-                setState(() {
-                  isFree = !isFree;
-                });
-              }
-            },
-            style: TextButton.styleFrom(
-              backgroundColor: const Color(0xFFEC5870),
-              padding: const EdgeInsets.symmetric(vertical: 8), // Vertical padding of 8 for buttons
-              minimumSize: const Size(82, 24),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
-            ),
-            child: Text(
-              price,
-              style: const TextStyle(
-                fontFamily: 'Pretendard',
-                fontSize: 11,
-                color: Colors.white,
-                fontWeight: FontWeight.w400,
-              ),
-            ),
-          ),
-        ))
+                  padding: const EdgeInsets.only(
+                      right:
+                          4.0), // This gives each button a right padding of 4.0
+                  child: TextButton(
+                    onPressed: () {
+                      priceController.text = price.replaceFirst('₩ ', '');
+                      if (isFree == true) {
+                        setState(() {
+                          isFree = !isFree;
+                        });
+                      }
+                    },
+                    style: TextButton.styleFrom(
+                      backgroundColor: const Color(0xFFEC5870),
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 8), // Vertical padding of 8 for buttons
+                      minimumSize: const Size(82, 24),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(6)),
+                    ),
+                    child: Text(
+                      price,
+                      style: const TextStyle(
+                        fontFamily: 'Pretendard',
+                        fontSize: 11,
+                        color: Colors.white,
+                        fontWeight: FontWeight.w400,
+                      ),
+                    ),
+                  ),
+                ))
             .toList(),
         const Spacer(),
         IconButton(
-          icon: const Image(image: AssetImage('assets/images/Vector.png'), width: 12.5, height: 12.5,),
+          icon: const Image(
+            image: AssetImage('assets/images/Vector.png'),
+            width: 12.5,
+            height: 12.5,
+          ),
           onPressed: () {
             setState(() {
-              _showPrice = false; // Switching back to the _initialAiRecommended widget
+              _showPrice =
+                  false; // Switching back to the _initialAiRecommended widget
             });
           },
         ),
       ],
     );
   }
-
-
 
   void _setFieldErrors() {
     // Check for product name
@@ -1326,7 +1380,6 @@ class _AddPostPageState extends State<AddPostPage> {
       }
     });
 
-
     // Similarly, reset error messages for other fields if their conditions are satisfied
   }
 
@@ -1339,18 +1392,21 @@ class _AddPostPageState extends State<AddPostPage> {
             children: [
               Padding(
                 padding: EdgeInsets.all(8.0),
-                child: Text('작성 중인 판매글을 삭제하시겠어요?',
+                child: Text(
+                  '작성 중인 판매글을 삭제하시겠어요?',
                   style: TextStyle(
                     fontSize: 16,
                   ),
                   textAlign: TextAlign.center,
                 ),
               ),
-              Text('삭제하기를 누르시면 저장되지 않습니다.',
+              Text(
+                '삭제하기를 누르시면 저장되지 않습니다.',
                 style: TextStyle(
                   fontSize: 14,
                 ),
-                textAlign: TextAlign.center,),
+                textAlign: TextAlign.center,
+              ),
             ],
           ),
           // content: ,
@@ -1368,25 +1424,25 @@ class _AddPostPageState extends State<AddPostPage> {
                       //   apiService.patchLocker(widget.lockerId!, updates);
                       // }
 
-                      Navigator.of(context).pop(true);  // Close the dialog and confirm exit without saving
+                      Navigator.of(context).pop(
+                          true); // Close the dialog and confirm exit without saving
                     },
                     style: ButtonStyle(
                       backgroundColor: MaterialStateProperty.resolveWith<Color>(
-                            (Set<MaterialState> states) {
+                        (Set<MaterialState> states) {
                           if (states.contains(MaterialState.pressed)) {
                             return Colors.red[600]!; // Color when pressed
                           }
                           return const Color(0xFFE20529); // Regular color
                         },
                       ),
-
-                      foregroundColor: MaterialStateProperty.all<Color>(Colors.white),
+                      foregroundColor:
+                          MaterialStateProperty.all<Color>(Colors.white),
                       shape: MaterialStateProperty.all<RoundedRectangleBorder>(
                         RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(6),
                         ),
                       ),
-
                     ),
                     child: const Text('삭제하기'),
                   ),
@@ -1399,18 +1455,18 @@ class _AddPostPageState extends State<AddPostPage> {
                     },
                     style: ButtonStyle(
                       backgroundColor: MaterialStateProperty.resolveWith<Color>(
-                            (Set<MaterialState> states) {
+                        (Set<MaterialState> states) {
                           if (states.contains(MaterialState.pressed)) {
                             return Colors.red[600]!; // Color when pressed
                           }
                           return Colors.transparent; // Regular color
                         },
                       ),
-
-                      foregroundColor: MaterialStateProperty.all<Color>(const Color(0xFF726E6E)),
+                      foregroundColor: MaterialStateProperty.all<Color>(
+                          const Color(0xFF726E6E)),
                       shape: MaterialStateProperty.all<RoundedRectangleBorder>(
                         RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(6),
+                          borderRadius: BorderRadius.circular(6),
                           side: const BorderSide(color: Color(0xFF726E6E)),
                         ),
                       ),
@@ -1420,13 +1476,12 @@ class _AddPostPageState extends State<AddPostPage> {
                 ),
               ],
             ),
-
           ],
         );
       },
     ).then((shouldExit) {
       if (shouldExit == true) {
-        Navigator.of(context).pop();  // Exit the AddPostPage
+        Navigator.of(context).pop(); // Exit the AddPostPage
       }
     });
   }
@@ -1440,18 +1495,21 @@ class _AddPostPageState extends State<AddPostPage> {
             children: [
               Padding(
                 padding: EdgeInsets.all(8.0),
-                child: Text('사물함거래 등록 시 유의해주세요!',
+                child: Text(
+                  '사물함거래 등록 시 유의해주세요!',
                   style: TextStyle(
                     fontSize: 16,
                   ),
                   textAlign: TextAlign.center,
                 ),
               ),
-              Text('30분 안에 게시글을 업로드 하지 않으면 사물함 선택이 초기화돼요.\n게시글 작성 이후 15분 안에 사물함 안에 물건을 넣은 사진과 비밀번호를 인증해주셔야 합니다(구매자 확인용).',
+              Text(
+                '30분 안에 게시글을 업로드 하지 않으면 사물함 선택이 초기화돼요.\n게시글 작성 이후 15분 안에 사물함 안에 물건을 넣은 사진과 비밀번호를 인증해주셔야 합니다(구매자 확인용).',
                 style: TextStyle(
                   fontSize: 14,
                 ),
-                textAlign: TextAlign.left,),
+                textAlign: TextAlign.left,
+              ),
             ],
           ),
           // content: ,
@@ -1469,25 +1527,25 @@ class _AddPostPageState extends State<AddPostPage> {
                       //   apiService.patchLocker(widget.lockerId!, updates);
                       // }
 
-                      Navigator.of(context).pop(true);  // Close the dialog and confirm exit without saving
+                      Navigator.of(context).pop(
+                          true); // Close the dialog and confirm exit without saving
                     },
                     style: ButtonStyle(
                       backgroundColor: MaterialStateProperty.resolveWith<Color>(
-                            (Set<MaterialState> states) {
+                        (Set<MaterialState> states) {
                           if (states.contains(MaterialState.pressed)) {
                             return Colors.red[600]!; // Color when pressed
                           }
                           return const Color(0xFFE20529); // Regular color
                         },
                       ),
-
-                      foregroundColor: MaterialStateProperty.all<Color>(Colors.white),
+                      foregroundColor:
+                          MaterialStateProperty.all<Color>(Colors.white),
                       shape: MaterialStateProperty.all<RoundedRectangleBorder>(
                         RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(6),
                         ),
                       ),
-
                     ),
                     child: const Text('사물함거래 등록 시작하기'),
                   ),
@@ -1500,15 +1558,15 @@ class _AddPostPageState extends State<AddPostPage> {
                     },
                     style: ButtonStyle(
                       backgroundColor: MaterialStateProperty.resolveWith<Color>(
-                            (Set<MaterialState> states) {
+                        (Set<MaterialState> states) {
                           if (states.contains(MaterialState.pressed)) {
                             return Colors.red[600]!; // Color when pressed
                           }
                           return Colors.transparent; // Regular color
                         },
                       ),
-
-                      foregroundColor: MaterialStateProperty.all<Color>(const Color(0xFF726E6E)),
+                      foregroundColor: MaterialStateProperty.all<Color>(
+                          const Color(0xFF726E6E)),
                       shape: MaterialStateProperty.all<RoundedRectangleBorder>(
                         RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(6),
@@ -1521,19 +1579,13 @@ class _AddPostPageState extends State<AddPostPage> {
                 ),
               ],
             ),
-
           ],
         );
       },
     ).then((shouldExit) {
       if (shouldExit == true) {
-        Navigator.of(context).pop();  // Exit the AddPostPage
+        Navigator.of(context).pop(); // Exit the AddPostPage
       }
     });
   }
-
-
-
-
-
 }
