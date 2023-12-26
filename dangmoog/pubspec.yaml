@@ -46,6 +46,10 @@ dependencies:
   keyboard_height_plugin: ^0.0.4
   path_provider: ^2.1.1
   shared_preferences: ^2.2.1
+  # stomp_dart_client: ^1.0.0
+  # socket_io_client: ^2.0.3+1
+  web_socket_channel: ^2.4.0
+  dropdown_button2: ^2.3.9
 
 dev_dependencies:
   flutter_test:
