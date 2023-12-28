@@ -1,5 +1,3 @@
-
-
 class ChatDetailModel {
   final ChatDetailInfo chatInfo;
   final List<ChatDetailContent> chatContents;
@@ -18,7 +16,7 @@ class ChatDetailModel {
 
 class ChatDetailInfo {
   final String userNickName;
-  final String userPhotoUrl;
+  // final String userPhotoUrl;
   final int chatId;
   final int productId;
   final int userId;
@@ -29,7 +27,7 @@ class ChatDetailInfo {
 
   ChatDetailInfo({
     required this.userNickName,
-    required this.userPhotoUrl,
+    // required this.userPhotoUrl,
     required this.chatId,
     required this.productId,
     required this.userId,
@@ -42,7 +40,7 @@ class ChatDetailInfo {
   factory ChatDetailInfo.fromJson(Map<String, dynamic> json) {
     return ChatDetailInfo(
       userNickName: json['userNickName'],
-      userPhotoUrl: json['userPhotoUrl'],
+      // userPhotoUrl: json['userPhotoUrl'] ?? 0,
       chatId: json['chatId'],
       productId: json['productId'],
       userId: json['userId'],
