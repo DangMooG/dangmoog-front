@@ -12,6 +12,9 @@ class ChatProvider with ChangeNotifier {
   }
 
   void addChatContent(ChatDetailContent newMessage) {
+    // print(newMessage.chatText);
+    // print(newMessage.chatDateTime);
+    // print(newMessage.isMe);
     _chatContents.add(newMessage);
     notifyListeners();
   }

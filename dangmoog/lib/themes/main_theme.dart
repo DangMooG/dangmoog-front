@@ -2,6 +2,25 @@ import 'package:flutter/material.dart';
 
 ThemeData mainThemeData() {
   return ThemeData(
+    splashColor: Colors.transparent,
+    highlightColor: Colors.transparent,
+    textButtonTheme: TextButtonThemeData(
+        style: ButtonStyle(
+            overlayColor: MaterialStateColor.resolveWith(
+                (states) => Colors.transparent))),
+    outlinedButtonTheme: OutlinedButtonThemeData(
+        style: ButtonStyle(
+            overlayColor: MaterialStateColor.resolveWith(
+                (states) => Colors.transparent))),
+    elevatedButtonTheme: ElevatedButtonThemeData(
+        style: ButtonStyle(
+            overlayColor: MaterialStateColor.resolveWith(
+                (states) => Colors.transparent))),
+    buttonTheme: const ButtonThemeData(highlightColor: Colors.transparent),
+    iconButtonTheme: IconButtonThemeData(
+        style: ButtonStyle(
+            overlayColor: MaterialStateColor.resolveWith(
+                (states) => Colors.transparent))),
     useMaterial3: true,
     brightness: Brightness.light,
     primaryColor: const Color(0xFFE20529),

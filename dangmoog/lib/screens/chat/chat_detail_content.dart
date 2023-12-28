@@ -6,9 +6,6 @@ import 'package:dangmoog/utils/convert_time_format.dart';
 import 'package:flutter/material.dart';
 import 'dart:math';
 
-import 'dart:async';
-import 'dart:convert';
-import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 class ChatContents extends StatefulWidget {
@@ -22,29 +19,9 @@ class ChatContents extends StatefulWidget {
 }
 
 class _ChatContentsState extends State<ChatContents> {
-  // 채팅 데이터 로딩
-  Future<void> _loadChatDetailInit(String url) async {
-    final String jsonChatDetail = await rootBundle.loadString(url);
-    final Map<String, dynamic> jsonChatDetailResponse =
-        json.decode(jsonChatDetail);
-
-    var chatDetail = ChatDetailModel.fromJson(jsonChatDetailResponse);
-
-    final chatProvider = Provider.of<ChatProvider>(context, listen: false);
-    chatProvider.setChatContents(chatDetail.chatContents);
-
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (widget.scrollController.hasClients) {
-        widget.scrollController
-            .jumpTo(widget.scrollController.position.maxScrollExtent);
-      }
-    });
-  }
-
   @override
   void initState() {
     super.initState();
-    _loadChatDetailInit('assets/chat_detail.json');
   }
 
   @override
@@ -52,19 +29,14 @@ class _ChatContentsState extends State<ChatContents> {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Consumer<ChatProvider>(
-        builder: (context, value, child) {
-          final chatProvider =
-              Provider.of<ChatProvider>(context, listen: false);
-          final chatContents = chatProvider.chatContents;
-
-          // 초기 데이터 로드
-          if (chatContents == null) {
-            return const CircularProgressIndicator();
-          }
+        builder: (context, chatProvider, child) {
+          List<ChatDetailContent> chatContents = chatProvider.chatContents;
 
           // 데이터가 비어 있으면 아무것도 반환하지 않음
           if (chatContents.isEmpty) {
-            return const SizedBox.shrink();
+            return Container(
+              height: double.infinity,
+            );
           }
 
           return Stack(
@@ -91,8 +63,7 @@ class _ChatContentsState extends State<ChatContents> {
                             false)) {
                       omit = true;
                     } else {
-                      // 이전 채팅과 다른 유저이면서
-                      // 이전 채팅과 다른 날짜이면 -> 날짜 위젯 표시
+                      // 이전 채팅과 다른 유저이면서 이전 채팅과 다른 날짜이면 -> 날짜 위젯 표시
                       if (isDifferentDate(chatContents[index - 1].chatDateTime,
                           singleChat.chatDateTime)) {
                         dateVisible = true;
@@ -152,6 +123,7 @@ class _ChatContentsState extends State<ChatContents> {
   }
 }
 
+// 채팅 간 날짜 다를 경우 구분
 Widget _buildChatDay(DateTime dateTime) {
   return Container(
     padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 2),
@@ -171,6 +143,7 @@ Widget _buildChatDay(DateTime dateTime) {
   );
 }
 
+// 다른 날짜 인지 확인
 bool isDifferentDate(DateTime date1, DateTime date2) {
   return date1.day != date2.day ||
       date1.month != date2.month ||

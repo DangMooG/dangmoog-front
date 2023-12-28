@@ -15,7 +15,7 @@ class MyaccountPage extends StatefulWidget {
 }
 
 class _MyaccountPageState extends State<MyaccountPage> {
-  final FlutterSecureStorage _storage = FlutterSecureStorage();
+  final FlutterSecureStorage _storage = const FlutterSecureStorage();
   late TextEditingController _accountController = TextEditingController();
   late TextEditingController _bankController = TextEditingController();
 
@@ -96,7 +96,7 @@ class _MyaccountPageState extends State<MyaccountPage> {
             Expanded(
               child: SingleChildScrollView(
                 child: Container(
-                  padding: EdgeInsets.symmetric(horizontal: 18),
+                  padding: const EdgeInsets.symmetric(horizontal: 18),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
@@ -194,22 +194,23 @@ class _MyaccountPageState extends State<MyaccountPage> {
               FilteringTextInputFormatter.allow(RegExp(r'[0-9]'))
             ],
             decoration: InputDecoration(
-              border: OutlineInputBorder(
+              border: const OutlineInputBorder(
                 borderSide: BorderSide(
                   color: Color(0xFFA19E9E),
                   width: 1.0,
                 ),
               ),
-              focusedBorder: OutlineInputBorder(
+              focusedBorder: const OutlineInputBorder(
                 borderSide: BorderSide(color: Color(0xFF302E2E)),
               ),
               hintText: hintText,
-              hintStyle: TextStyle(
+              hintStyle: const TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w400,
                 color: Color(0xFFA19E9E),
               ),
-              contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+              contentPadding:
+                  const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
               isDense: true,
             ),
           ),
@@ -412,7 +413,7 @@ class _MyaccountPageState extends State<MyaccountPage> {
                   ),
                   child: Text(
                     text2,
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w400,
                       color: Color(0xFFFFFFFF),
