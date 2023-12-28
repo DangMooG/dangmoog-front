@@ -123,19 +123,21 @@ class _ChatDetailOptionsState extends State<ChatDetailOptions> {
                           TextField(
                             decoration: const InputDecoration(
                               hintText: '계좌번호 입력',
+                              hintStyle: TextStyle(
+                                  color: Color(0xffA19E9E),
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w400),
                               labelText: null,
-                              border: UnderlineInputBorder(
-                                borderSide: BorderSide(
-                                  color: Color(0xffD3D2D2),
-                                ),
+                              enabledBorder: UnderlineInputBorder(
+                                borderSide:
+                                    BorderSide(color: Color(0xffD3D2D2)),
                               ),
                               focusedBorder: UnderlineInputBorder(
                                 borderSide:
                                     BorderSide(color: Color(0xff726E6E)),
                               ),
                               contentPadding: EdgeInsets.symmetric(
-                                vertical: 10.0,
-                              ),
+                                  vertical: 10.0, horizontal: 8.0),
                               floatingLabelBehavior:
                                   FloatingLabelBehavior.never,
                             ),
@@ -154,12 +156,16 @@ class _ChatDetailOptionsState extends State<ChatDetailOptions> {
                             child: DropdownButtonHideUnderline(
                               child: DropdownButton2<String>(
                                 isExpanded: true,
-                                hint: const Text(
-                                  '은행 선택',
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w400,
-                                    color: Color(0xffA19E9E),
+                                hint: const Padding(
+                                  padding:
+                                      EdgeInsets.symmetric(horizontal: 8.0),
+                                  child: Text(
+                                    '은행 선택',
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w400,
+                                      color: Color(0xffA19E9E),
+                                    ),
                                   ),
                                 ),
                                 items: _addDividersAfterItems(accountItems),
@@ -175,12 +181,11 @@ class _ChatDetailOptionsState extends State<ChatDetailOptions> {
                                       color: Color(0xffA19E9E),
                                     ),
                                     openMenuIcon: Transform.rotate(
-                                      angle: pi / 2,
-                                      child: const Icon(
-                                        Icons.chevron_right,
-                                        color: Color(0xff302E2E),
-                                      ),
-                                    )),
+                                        angle: pi / 2,
+                                        child: const Icon(
+                                          Icons.chevron_right,
+                                          color: Color(0xff302E2E),
+                                        ))),
                                 buttonStyleData: const ButtonStyleData(
                                   height: 40,
                                   width: 300,
@@ -191,12 +196,13 @@ class _ChatDetailOptionsState extends State<ChatDetailOptions> {
                                             color: Color(0xffD3D2D2))),
                                     color: Colors.transparent,
                                   ),
-                                  padding: EdgeInsets.all(0),
+                                  padding: EdgeInsets.zero,
                                 ),
                                 dropdownStyleData: DropdownStyleData(
                                   maxHeight: 160,
                                   width: 300,
                                   padding: EdgeInsets.zero,
+                                  scrollPadding: EdgeInsets.zero,
                                   decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(4),
                                     border: Border.all(
@@ -217,8 +223,6 @@ class _ChatDetailOptionsState extends State<ChatDetailOptions> {
                                 ),
                                 menuItemStyleData: MenuItemStyleData(
                                   height: 40,
-                                  // padding: const EdgeInsets.only(
-                                  //     left: 14, right: 14),
                                   padding: const EdgeInsets.symmetric(
                                       horizontal: 8.0),
                                   customHeights: _getCustomItemsHeights(),
@@ -571,7 +575,6 @@ class _ChatDetailOptionsState extends State<ChatDetailOptions> {
               return btnColor;
             },
           ),
-          // foregroundColor: MaterialStateProperty.all<Color>(borderColor),
           shape: MaterialStateProperty.all<RoundedRectangleBorder>(
             RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(6),
