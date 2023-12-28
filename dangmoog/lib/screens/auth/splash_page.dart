@@ -94,11 +94,12 @@ class _SplashScreenState extends State<SplashScreen> {
           else {
             Provider.of<UserProvider>(context, listen: false)
                 .setNickname(userNickname);
-
             _navigateToHome(context);
           }
         }
-      } catch (_) {
+      } catch (e) {
+        // 자동 로그인에 실패했을 경우
+        // 로그인 페이지로 이동
         if (!mounted) return;
         _navigateToWelcome(context);
       }
