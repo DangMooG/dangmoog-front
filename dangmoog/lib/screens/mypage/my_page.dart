@@ -1,3 +1,5 @@
+import 'package:dangmoog/screens/mypage/account_delete.dart';
+import 'package:dangmoog/screens/mypage/bye_page.dart';
 import 'package:dangmoog/screens/mypage/like/like_mainpage.dart';
 import 'package:dangmoog/screens/auth/welcome.dart';
 import 'package:dangmoog/services/api.dart';
@@ -325,27 +327,35 @@ class _MyPageState extends State<MyPage> {
                       LogoutPopup(screenSize, context);
                     }),
                 MypageText(
-                  text: '탈퇴하기',
-                  icon: Icons.delete_outline_outlined,
-                  onPressed: () async {
-                    try {
-                      Response response = await ApiService().deleteAccount();
-                      if (response.statusCode == 204) {
-                        await storage.delete(key: 'accessToken');
-                        await storage.delete(key: 'userId');
-
-                        Navigator.pushAndRemoveUntil(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => const WelcomePage()),
-                          (route) => false,
-                        );
-                      }
-                    } catch (e) {
-                      print(e);
+                    text: '탈퇴하기',
+                    icon: Icons.delete_outline_outlined,
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const accountDeletePage(),
+                        ),
+                      );
                     }
-                  },
-                ),
+                    //   () async {
+                    //   try {
+                    //     Response response = await ApiService().deleteAccount();
+                    //     if (response.statusCode == 204) {
+                    //       await storage.delete(key: 'accessToken');
+                    //       await storage.delete(key: 'userId');
+
+                    //       Navigator.pushAndRemoveUntil(
+                    //         context,
+                    //         MaterialPageRoute(
+                    //             builder: (context) => const WelcomePage()),
+                    //         (route) => false,
+                    //       );
+                    //     }
+                    //   } catch (e) {
+                    //     print(e);
+                    //   }
+                    // },
+                    ),
               ],
             ),
           );

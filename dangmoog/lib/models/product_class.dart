@@ -44,7 +44,7 @@ class ProductModel extends ChangeNotifier {
       description: json['description'] ?? 'Default Description',
       categoryId: json['category_id'] ?? 0,
       status: json['status'] ?? 0,
-      useLocker: json['saleMethod'] ?? 0,
+      useLocker: json['use_locker'],
       accout_id: json['account_id'] ?? 0,
       userName: json['username'] ?? 'Default Username',
       representativePhotoId: json['representative_photo_id'] ?? 0,

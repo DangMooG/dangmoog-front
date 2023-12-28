@@ -1,11 +1,12 @@
 import 'package:dangmoog/models/product_class.dart';
 import 'package:dangmoog/providers/provider.dart';
+import 'package:dangmoog/screens/mypage/my_post_list.dart';
 import 'package:dangmoog/services/api.dart';
 import 'package:flutter/material.dart';
-import 'package:dangmoog/screens/mypage/sell/my_sell_postlist.dart';
+
 import 'package:provider/provider.dart';
 
-enum SortingOrder { ascending, descending }
+//enum SortingOrder { ascending, descending }
 
 class MySellMainPage extends StatefulWidget {
   const MySellMainPage({Key? key}) : super(key: key);
@@ -22,14 +23,16 @@ class _MySellMainPageState extends State<MySellMainPage> {
   bool sortByDealStatus2 = false;
   bool sortByDealStatus3 = false;
   int index = 0;
+
   @override
   void initState() {
     super.initState();
-    futureProducts = _loadMySellProduct();
+    futureProducts = _loadMySellProduct(context);
   }
 
-  Future<List<ProductModel>> _loadMySellProduct() async {
-    String userNickname = Provider.of<UserProvider>(context).nickname;
+  Future<List<ProductModel>> _loadMySellProduct(BuildContext context) async {
+    String userNickname =
+        Provider.of<UserProvider>(context, listen: false).nickname;
 
     final filters = {'username': userNickname};
     final response = await apiService.searchPosts(filters);
@@ -166,7 +169,7 @@ class _MySellMainPageState extends State<MySellMainPage> {
               );
             }
 
-            return ProductList(
+            return MyProductList(
               productList: _sortProducts(snapshot.data!),
               sortingOrder: sortingOrder,
             );

@@ -1,6 +1,7 @@
 import 'package:dangmoog/models/product_class.dart';
 import 'package:dangmoog/providers/provider.dart';
-import 'package:dangmoog/screens/mypage/purchase/purchase_postlist.dart';
+import 'package:dangmoog/screens/mypage/my_post_list.dart';
+
 import 'package:dangmoog/services/api.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
@@ -24,12 +25,13 @@ class _PurchaseMainPageState extends State<PurchaseMainPage> {
   @override
   void initState() {
     super.initState();
-    _loadPurchaseProducts();
+    _loadPurchaseProducts(context);
   }
 
-  Future<void> _loadPurchaseProducts() async {
+  Future<void> _loadPurchaseProducts(BuildContext context) async {
     try {
-      String userNickname = Provider.of<UserProvider>(context).nickname;
+      String userNickname =
+          Provider.of<UserProvider>(context, listen: false).nickname;
 
       final filters = {"username": userNickname};
       final response = await apiService.searchPosts(filters);
@@ -50,6 +52,7 @@ class _PurchaseMainPageState extends State<PurchaseMainPage> {
       setState(() {
         errorMessage = e.toString();
         isLoading = false;
+        print(errorMessage);
       });
     }
   }
@@ -76,7 +79,7 @@ class _PurchaseMainPageState extends State<PurchaseMainPage> {
               color: Color(0xFF302E2E)),
         ),
       ),
-      body: ProductList(productList: products!),
+      body: MyProductList(productList: products!, sortingOrder: null),
     );
   }
 }

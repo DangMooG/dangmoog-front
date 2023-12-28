@@ -1,8 +1,5 @@
-import 'dart:convert';
-
-import 'package:dangmoog/models/product_class.dart';
-import 'package:dangmoog/screens/post/like_chat_count.dart';
-import 'package:dangmoog/services/api.dart';
+import 'package:dangmoog/constants/category_list.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -10,25 +7,78 @@ import 'dart:io';
 
 import 'package:dangmoog/screens/post/detail_page.dart';
 
+import 'package:dangmoog/models/product_class.dart';
+
 import 'package:dangmoog/utils/convert_money_format.dart';
 
-class ProductList extends StatefulWidget {
+import 'package:dangmoog/services/api.dart';
+
+enum SortingOrder { ascending, descending }
+
+class MyProductList extends StatefulWidget {
   final List<ProductModel> productList;
 
-  const ProductList({Key? key, required this.productList}) : super(key: key);
-
+  const MyProductList(
+      {Key? key,
+      required this.productList,
+      required SortingOrder? sortingOrder})
+      : super(key: key);
   @override
-  State<ProductList> createState() => _ProductListState();
+  State<MyProductList> createState() => _MyProductListState();
 }
 
-class _ProductListState extends State<ProductList> {
-  final bool _isPressed = false;
+class _MyProductListState extends State<MyProductList> {
+  late Future<List<ProductModel>> futureProducts;
   final ApiService apiService = ApiService();
+  final ScrollController _scrollController = ScrollController();
+
+  // 이미지 캐싱을 위한 변수
+  Map<int, String> imageCache = {};
+
+  // @override
+  // void initState() {
+  //   super.initState();
+
+  //   futureProducts = fetchProducts();
+  // }
+
+  // //현재 사용된 곳 없음
+  // void _onScroll() {
+  //   if (_scrollController.position.pixels ==
+  //       _scrollController.position.minScrollExtent) {
+  //     // You're at the top of the scrollable, trigger the refresh logic
+  //     setState(() {
+  //       futureProducts = fetchProducts();
+  //     });
+  //   }
+  // }
+
+  @override
+  void dispose() {
+    // _scrollController.removeListener(_onScroll);
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  // Future<List<ProductModel>> fetchProducts() async {
+  //   Response response = await loadData();
+  //   if (response.statusCode == 200) {
+  //     if (response.data is List) {
+  //       List<dynamic> data = response.data as List;
+  //       return data.map((item) => ProductModel.fromJson(item)).toList();
+  //     } else {
+  //       throw Exception('Data format from server is unexpected.');
+  //     }
+  //   } else {
+  //     throw Exception('Failed to load products');
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        body: Platform.isIOS ? _buildIOSListView() : _buildDefaultListView());
+      body: Platform.isIOS ? _buildIOSListView() : _buildDefaultListView(),
+    );
   }
 
   Widget _buildIOSListView() {
@@ -81,15 +131,6 @@ class _ProductListState extends State<ProductList> {
                 ),
                 transitionsBuilder:
                     (context, animation, secondaryAnimation, child) {
-                  // const begin = Offset(1.0, 0.0);
-                  // const end = Offset.zero;
-                  // const curve = Curves.easeInOut;
-
-                  // var tween = Tween(begin: begin, end: end)
-                  //     .chain(CurveTween(curve: curve));
-                  // var offsetAnimation = animation.drive(tween);
-
-                  // This ensures the previous page (list page) also moves, revealing itself when swiping the detail page.
                   var previousPageOffsetAnimation =
                       Tween(begin: const Offset(1, 0), end: const Offset(0, 0))
                           .chain(CurveTween(curve: Curves.decelerate))
@@ -131,49 +172,72 @@ class _ProductListState extends State<ProductList> {
       padding: EdgeInsets.only(
         right: paddingValue,
       ),
-      child: FutureBuilder<Object>(
-        future: apiService.loadPhoto(product.representativePhotoId),
-        builder: (context, snapshot) {
-          Widget imageChild;
-
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            imageChild = const  Center(
-              child: CircularProgressIndicator(),
-            );
-          } else if (snapshot.hasError || snapshot.data == null) {
-            imageChild = Image.asset(
-              '/assets/images/sample.png',
-              fit: BoxFit.cover,
-            );
-          } else {
-            // Assuming the response from loadPhoto contains the image URL
-            String imageUrl = json.decode(snapshot.data!.toString())['url'];
-            imageChild = Image.network(
-              imageUrl,
-              fit: BoxFit.cover,
-            );
-          }
-
-          return Container(
-            width: size,
-            height: size,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(
-                color: const Color(0xffF1F1F1),
-                width: 0.5,
-              ),
-            ),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(8),
-              child: imageChild,
-            ),
-          );
-        },
+      child: Container(
+        width: size,
+        height: size,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(
+            strokeAlign: BorderSide.strokeAlignInside,
+            color: const Color(0xffF1F1F1),
+            width: 0.5,
+          ),
+        ),
+        child: imageCache.containsKey(product.representativePhotoId)
+            ? Image.network(
+                imageCache[product.representativePhotoId]!,
+                fit: BoxFit.cover,
+              )
+            : product.representativePhotoId == 0
+                ? Image.asset(
+                    "assets/images/sample.png",
+                    width: 90,
+                    fit: BoxFit.cover,
+                  )
+                : FutureBuilder<Response>(
+                    future: apiService.loadPhoto(product.representativePhotoId),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const Center(
+                          child: CircularProgressIndicator(),
+                        );
+                      } else if (snapshot.hasError) {
+                        return Image.asset(
+                          "assets/images/sample.png",
+                          width: 90,
+                          errorBuilder: (BuildContext context, Object exception,
+                              StackTrace? stackTrace) {
+                            return Image.asset(
+                              "assets/images/sample.png",
+                              width: 90,
+                              fit: BoxFit.cover,
+                            );
+                          },
+                        );
+                      } else if (snapshot.data == null) {
+                        return Image.asset(
+                          '/assets/images/sample.png',
+                          fit: BoxFit.cover,
+                        );
+                      } else if (snapshot.hasData) {
+                        Map<String, dynamic> data = snapshot.data!.data;
+                        String imageUrl = data["url"];
+                        imageCache[product.representativePhotoId] = imageUrl;
+                        return Image.network(
+                          imageUrl,
+                          fit: BoxFit.cover,
+                        );
+                      } else {
+                        return Image.asset(
+                          "assets/images/sample.png",
+                          fit: BoxFit.cover,
+                        );
+                      }
+                    },
+                  ),
       ),
     );
   }
-
 
   Widget _buildProductDetails(BuildContext context, ProductModel product) {
     double height = MediaQuery.of(context).size.width * 0.28;
@@ -185,7 +249,6 @@ class _ProductListState extends State<ProductList> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _buildProductTexts(product),
-            // _buildProductLikeChatCount(product),
             // LikeChatCount(product: product)
           ],
         ),
@@ -235,7 +298,7 @@ class _ProductListState extends State<ProductList> {
         Padding(
           padding: const EdgeInsets.symmetric(vertical: 4),
           child: Text(
-            "${product.categoryId} | ${timeAgo(product.createTime)}",
+            "${categeryItems[product.categoryId]} | ${timeAgo(product.createTime)}",
             style: const TextStyle(
               fontWeight: FontWeight.w400,
               fontSize: 11,
@@ -270,8 +333,8 @@ class _ProductListState extends State<ProductList> {
     );
   }
 
-  Widget _buildDealStatus(int status) {
-    return status != 0
+  Widget _buildDealStatus(int dealStatus) {
+    return dealStatus != 0
         ? Container(
             padding: const EdgeInsets.symmetric(
               horizontal: 8,
@@ -282,12 +345,12 @@ class _ProductListState extends State<ProductList> {
               borderRadius: const BorderRadius.all(
                 Radius.circular(3),
               ),
-              color: status == 1
+              color: dealStatus == 1
                   ? const Color(0xffEC5870)
                   : const Color(0xff726E6E),
             ),
             child: Text(
-              status == 1 ? '예약중' : '판매완료',
+              dealStatus == 1 ? '예약중' : '판매완료',
               style: const TextStyle(
                 color: Colors.white,
                 fontSize: 11,
