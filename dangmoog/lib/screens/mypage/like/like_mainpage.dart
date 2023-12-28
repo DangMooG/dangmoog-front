@@ -1,10 +1,12 @@
 import 'package:dangmoog/models/product_class.dart';
-import 'package:dangmoog/screens/mypage/like/like_postlist.dart';
+
+import 'package:dangmoog/screens/mypage/my_post_list.dart';
+
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:dangmoog/services/api.dart';
 
-enum SortingOrder { ascending, descending }
+//enum SortingOrder { ascending, descending }
 
 class LikeMainPage extends StatefulWidget {
   const LikeMainPage({Key? key}) : super(key: key);
@@ -25,7 +27,6 @@ class _LikeMainPageState extends State<LikeMainPage> {
   bool like = false;
   int index = 0;
 
-
   @override
   void initState() {
     super.initState();
@@ -33,7 +34,7 @@ class _LikeMainPageState extends State<LikeMainPage> {
   }
 
   Future<List<ProductModel>> _loadLikedProducts() async {
-    Response response =await apiService.loadLikes();
+    Response response = await apiService.loadLikes();
     if (response.statusCode == 200) {
       if (response.data is List) {
         List<dynamic> data = response.data as List;
@@ -175,7 +176,7 @@ class _LikeMainPageState extends State<LikeMainPage> {
             }
 
             // 정렬된 데이터를 표시하도록 ProductList 위젯에 sortingOrder를 전달
-            return ProductList(
+            return MyProductList(
               productList: _sortProducts(snapshot.data!),
               sortingOrder: sorting,
             );

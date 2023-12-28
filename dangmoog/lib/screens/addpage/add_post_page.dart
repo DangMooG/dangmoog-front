@@ -119,8 +119,8 @@ class _AddPostPageState extends State<AddPostPage> {
       }
       Navigator.pushAndRemoveUntil(
         context,
-        MaterialPageRoute(builder: (context) => MainPage()),
-            (Route<dynamic> route) => false,
+        MaterialPageRoute(builder: (context) => const MainPage()),
+        (Route<dynamic> route) => false,
       );
       // Your additional success logic
     } else if (response.statusCode == 422) {
@@ -1102,56 +1102,65 @@ class _AddPostPageState extends State<AddPostPage> {
           if (isButtonEnabled) {
             if (_imageList.isEmpty) {
               showDialog(
-                  context: context,
-                  barrierDismissible: false,
-                  builder: (BuildContext context){
-                    return Dialog(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      elevation: 5,
-                      child: Container(
-                        padding: const EdgeInsets.all(20),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const Text(
-                              '사진을 올리지 않았습니다!\n그래도 판매글을 업로드하시겠어요?',
-                              textAlign: TextAlign.center,
-                              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                            ),
-                            const SizedBox(height: 8,),
-                            const Text(
-                              '사진이 없는 게시글은\n사진이 있는 게시물보다 전환율이 낮습니다.\n그래도 사진없이 업로드하시겠어요?',
-                              textAlign: TextAlign.center,
-                              style: TextStyle(fontSize: 14 ),
-                            ),
-                            const SizedBox(height: 16,),
-                            SizedBox(
-                              width: 300,
-                              child: TextButton(
-                                onPressed: () {
-                                  _createNewPost();
-                                  if (useLocker==1){
-
-                                  }
-                                },
-                                style: ButtonStyle(
-                                  backgroundColor: MaterialStateProperty.resolveWith<Color>(
-                                        (Set<MaterialState> states) {
-                                      if (states.contains(MaterialState.pressed)) {
-                                        return Colors.red[600]!; // Color when pressed
-                                      }
-                                      return const Color(0xffE20529); // Regular color
-                                    },
-                                  ),
-
-                                  foregroundColor: MaterialStateProperty.all<Color>(Colors.white),
-                                  shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                                    RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(6),
-                                      side: const BorderSide(color: Color(0xFF726E6E)),
-                                    ),
+                context: context,
+                barrierDismissible: false,
+                builder: (BuildContext context) {
+                  return Dialog(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    elevation: 5,
+                    child: Container(
+                      padding: const EdgeInsets.all(20),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Text(
+                            '사진을 올리지 않았습니다!\n그래도 판매글을 업로드하시겠어요?',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                                fontSize: 18, fontWeight: FontWeight.bold),
+                          ),
+                          const SizedBox(
+                            height: 8,
+                          ),
+                          const Text(
+                            '사진이 없는 게시글은\n사진이 있는 게시물보다 전환율이 낮습니다.\n그래도 사진없이 업로드하시겠어요?',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(fontSize: 14),
+                          ),
+                          const SizedBox(
+                            height: 16,
+                          ),
+                          SizedBox(
+                            width: 300,
+                            child: TextButton(
+                              onPressed: () {
+                                _createNewPost();
+                                if (useLocker == 1) {}
+                              },
+                              style: ButtonStyle(
+                                backgroundColor:
+                                    MaterialStateProperty.resolveWith<Color>(
+                                  (Set<MaterialState> states) {
+                                    if (states
+                                        .contains(MaterialState.pressed)) {
+                                      return Colors
+                                          .red[600]!; // Color when pressed
+                                    }
+                                    return const Color(
+                                        0xffE20529); // Regular color
+                                  },
+                                ),
+                                foregroundColor:
+                                    MaterialStateProperty.all<Color>(
+                                        Colors.white),
+                                shape: MaterialStateProperty.all<
+                                    RoundedRectangleBorder>(
+                                  RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(6),
+                                    side: const BorderSide(
+                                        color: Color(0xFF726E6E)),
                                   ),
                                 ),
                               ),

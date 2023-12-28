@@ -1,9 +1,11 @@
 import 'package:dangmoog/constants/account_list.dart';
-import 'package:flutter/material.dart';
-import 'package:dangmoog/widgets/submit_button.dart';
-import 'package:flutter/services.dart';
-import 'package:provider/provider.dart';
 import 'package:dangmoog/providers/provider.dart';
+import 'package:dangmoog/screens/app_bar.dart';
+import 'package:dangmoog/widgets/submit_button.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:provider/provider.dart';
 
 class MyaccountPage extends StatefulWidget {
   const MyaccountPage({Key? key}) : super(key: key);
@@ -13,27 +15,78 @@ class MyaccountPage extends StatefulWidget {
 }
 
 class _MyaccountPageState extends State<MyaccountPage> {
+  final FlutterSecureStorage _storage = FlutterSecureStorage();
+  late TextEditingController _accountController = TextEditingController();
+  late TextEditingController _bankController = TextEditingController();
+
+  String _storedAccount = '';
+  String _storedBank = '';
+
   bool isSubmitVerificationCodeActive = false;
   String selectedBank = '';
   String account = '';
-
+  bool data = true;
   bool _isSelectListVisible = false;
   String _selectedItem = '';
 
   String buttonext = '';
   bool isClicked = false;
+  bool Pressed = false;
 
   String text = '';
   String text2 = '등록하기';
   String text3 = '등록하기';
 
   @override
+  void initState() {
+    super.initState();
+    _accountController = TextEditingController();
+    _bankController = TextEditingController();
+    _loadAccount().then((_) {
+      // Check if both account number and bank name are stored
+      if (_storedAccount.isNotEmpty && _storedBank.isNotEmpty) {
+        setState(() {
+          text = '수정이 완료되었습니다';
+          text2 = '수정하기';
+          text3 = '수정하기';
+          Pressed = true;
+        });
+      }
+    });
+  }
+
+  Future<void> _loadAccount() async {
+    String? storedAccount = await _storage.read(key: 'encrypted_account');
+    String? storedBank = await _storage.read(key: 'encrypted_bank');
+    if (storedAccount != null && storedAccount.isNotEmpty) {
+      setState(() {
+        _storedAccount = storedAccount;
+        _storedBank = storedBank!;
+      });
+    }
+  }
+
+  Future<void> _saveAccount(String accountNumber, String bankName) async {
+    await _storage.write(key: 'encrypted_account', value: accountNumber);
+    await _storage.write(key: 'encrypted_bank', value: bankName);
+  }
+
+  @override
+  void dispose() {
+    _accountController.dispose();
+    _bankController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     Size screenSize = MediaQuery.of(context).size;
-    String accountnumber = Provider.of<UserProvider>(context).account;
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('내 계좌정보'),
+        backgroundColor: Colors.white,
+        title: appBarTitle("내 계좌정보"),
+        bottom: appBarBottomLine(),
       ),
       body: GestureDetector(
         onTap: () => FocusScope.of(context).unfocus(),
@@ -43,7 +96,7 @@ class _MyaccountPageState extends State<MyaccountPage> {
             Expanded(
               child: SingleChildScrollView(
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 18),
+                  padding: EdgeInsets.symmetric(horizontal: 18),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
@@ -69,14 +122,23 @@ class _MyaccountPageState extends State<MyaccountPage> {
                           text3 = '수정하기';
                         }
                         _accountPopup(screenSize, context);
+                        String accountNumber = _accountController.text;
+
+                        _saveAccount(accountNumber, _storedBank);
+                        setState(() {
+                          _storedAccount = accountNumber;
+                          _accountController.clear();
+                        });
+
+                        isClicked = false;
                       },
                       buttonText: text3,
-                      isActive: true,
+                      isActive: Pressed,
                     )
                   : AuthSubmitButton(
                       onPressed: () {},
                       buttonText: text3,
-                      isActive: false,
+                      isActive: Pressed,
                     ),
             ),
           ],
@@ -101,17 +163,15 @@ class _MyaccountPageState extends State<MyaccountPage> {
             ),
           ),
           _accountNumber(screenSize),
-          _accountSelect()
+          _accountSelect(_storedBank)
         ],
       ),
     );
   }
 
-  // 계좌번호 입력 위젯
   Widget _accountNumber(Size screenSize) {
-    String hintText = account != null ? account : '계좌번호 입력(-제외)';
+    String hintText = _storedAccount.isEmpty ? '계좌번호 입력(-제외)' : _storedAccount;
 
-// 힌트 텍스트를 출력하거나 사용할 곳에서 hintText 변수를 활용합니다.
     void onAccountChanged(String value) {
       setState(() {
         account = value;
@@ -128,22 +188,22 @@ class _MyaccountPageState extends State<MyaccountPage> {
           child: TextField(
             onChanged: onAccountChanged,
             onTap: () {},
+            controller: _accountController,
             keyboardType: TextInputType.number,
             inputFormatters: [
               FilteringTextInputFormatter.allow(RegExp(r'[0-9]'))
             ],
-            decoration: const InputDecoration(
+            decoration: InputDecoration(
               border: OutlineInputBorder(
                 borderSide: BorderSide(
-                  color: Color(0xFFA19E9E), // 클릭 시 테두리 색상
+                  color: Color(0xFFA19E9E),
                   width: 1.0,
                 ),
               ),
               focusedBorder: OutlineInputBorder(
-                borderSide: BorderSide(color: Color(0xFF302E2E) // 원하는 색상으로 변경
-                    ),
+                borderSide: BorderSide(color: Color(0xFF302E2E)),
               ),
-              hintText: '계좌번호 입력(-제외)',
+              hintText: hintText,
               hintStyle: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w400,
@@ -158,8 +218,8 @@ class _MyaccountPageState extends State<MyaccountPage> {
     );
   }
 
-  // 계좌 선택 위젯
-  Widget _accountSelect() {
+//은행 선택
+  Widget _accountSelect(String bankText) {
     void _toggleListVisibility() {
       FocusScope.of(context).unfocus();
       setState(() {
@@ -171,8 +231,12 @@ class _MyaccountPageState extends State<MyaccountPage> {
     void _selectItem(String item) {
       setState(() {
         _selectedItem = item;
+        _storedBank = item;
         _isSelectListVisible = false;
         isSubmitVerificationCodeActive = true;
+        Pressed = true;
+
+        _saveAccount(_storedAccount, _storedBank);
       });
     }
 
@@ -189,48 +253,51 @@ class _MyaccountPageState extends State<MyaccountPage> {
               });
             },
             child: Container(
-                height: 38,
-                decoration: BoxDecoration(
-                  border: Border.all(
-                    color: isClicked
-                        ? const Color(0xFF302E2E)
-                        : const Color(0xFFA19E9E),
-                  ),
-                  borderRadius: const BorderRadius.all(Radius.circular(4)),
+              height: 38,
+              decoration: BoxDecoration(
+                border: Border.all(
+                  color: isClicked
+                      ? const Color(0xFF302E2E)
+                      : const Color(0xFFA19E9E),
                 ),
-                padding: const EdgeInsets.all(8),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    (_selectedItem == "")
-                        ? const Text(
-                            '은행 선택',
-                            textAlign: TextAlign.left,
-                            style: TextStyle(
-                              color: Color(0xffA19E9E),
-                              fontSize: 14,
-                              fontWeight: FontWeight.w400,
-                            ),
-                          )
-                        : Text(
-                            _selectedItem,
-                            style: const TextStyle(
-                              color: Color(0xff302E2E),
-                              fontSize: 14,
-                              fontWeight: FontWeight.w400,
-                            ),
+                borderRadius: const BorderRadius.all(Radius.circular(4)),
+              ),
+              padding: const EdgeInsets.all(8),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  (bankText.isEmpty)
+                      ? const Text(
+                          '은행 선택',
+                          textAlign: TextAlign.left,
+                          style: TextStyle(
+                            color: Color(0xffA19E9E),
+                            fontSize: 14,
+                            fontWeight: FontWeight.w400,
                           ),
-                    Icon(
-                      _isSelectListVisible
-                          ? Icons.keyboard_arrow_down_sharp
-                          : Icons.keyboard_arrow_right_sharp,
-                      color: _isSelectListVisible
-                          ? const Color(0xff726E6E)
-                          : const Color(0xffA19E9E),
-                    )
-                  ],
-                )),
+                        )
+                      : Text(
+                          bankText,
+                          style: TextStyle(
+                            color: isClicked
+                                ? const Color(0xff302E2E)
+                                : const Color(0xFFA19E9E),
+                            fontSize: 14,
+                            fontWeight: FontWeight.w400,
+                          ),
+                        ),
+                  Icon(
+                    _isSelectListVisible
+                        ? Icons.keyboard_arrow_down_sharp
+                        : Icons.keyboard_arrow_right_sharp,
+                    color: _isSelectListVisible
+                        ? const Color(0xff726E6E)
+                        : const Color(0xffA19E9E),
+                  )
+                ],
+              ),
+            ),
           ),
           if (_isSelectListVisible)
             Container(
@@ -282,7 +349,6 @@ class _MyaccountPageState extends State<MyaccountPage> {
     );
   }
 
-//계좌 등록 안내 팝업
   Future<void> _accountPopup(Size screenSize, BuildContext context) async {
     await showDialog(
       context: context,
@@ -328,9 +394,9 @@ class _MyaccountPageState extends State<MyaccountPage> {
               children: [
                 ElevatedButton(
                   onPressed: () {
-                    setState(() {});
                     showCustomPopup(context, screenSize);
                     Navigator.of(context).pop();
+                    data = false;
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFFE20529),
@@ -355,7 +421,6 @@ class _MyaccountPageState extends State<MyaccountPage> {
                 ),
                 ElevatedButton(
                   onPressed: () {
-                    // 팝업 창을 닫을 때 수행할 작업을 여기에 추가하세요.
                     Navigator.of(context).pop();
                   },
                   style: ElevatedButton.styleFrom(

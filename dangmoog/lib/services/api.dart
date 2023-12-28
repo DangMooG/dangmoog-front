@@ -28,7 +28,7 @@ class ApiService {
   Future<Response> verifyCode(
       String inputEmail, String verificationCode) async {
     _publicClient.options.headers['Content-Type'] =
-    "application/x-www-form-urlencoded";
+        "application/x-www-form-urlencoded";
 
     return await _publicClient.post("account/verification", data: {
       "username": inputEmail.split("@").first.toString(),
@@ -107,7 +107,8 @@ class ApiService {
     required String description,
     required int categoryId,
     required int useLocker,
-    List<File>? imageFiles, // Make sure this parameter is available in your method signature.
+    List<File>?
+        imageFiles, // Make sure this parameter is available in your method signature.
   }) async {
     // Prepare the query parameters
     final queryParams = {
@@ -131,8 +132,10 @@ class ApiService {
 
       // Prepare the image files for FormData
       for (var file in imageFiles) {
-        String fileName = file.path; // Use the 'path' package to get a file name.
-        multipartImageList.add(await MultipartFile.fromFile(file.path, filename: fileName));
+        String fileName =
+            file.path; // Use the 'path' package to get a file name.
+        multipartImageList
+            .add(await MultipartFile.fromFile(file.path, filename: fileName));
       }
 
       // Create FormData with files
@@ -155,7 +158,6 @@ class ApiService {
       );
     }
   }
-
 
   Future<Response> patchPost({
     required int postId,
@@ -198,31 +200,31 @@ class ApiService {
 
     if (imageFiles != null && imageFiles.isNotEmpty) {
       for (var file in imageFiles) {
-        String fileName = file.path; // Use the 'path' package to get a file name.
-        multipartImageList.add(await MultipartFile.fromFile(file.path, filename: fileName));
+        String fileName =
+            file.path; // Use the 'path' package to get a file name.
+        multipartImageList!
+            .add(await MultipartFile.fromFile(file.path, filename: fileName));
       }
     }
 
     // Add the files to the FormData only if there are any
-    if (multipartImageList.isNotEmpty) {
+    if (multipartImageList!.isNotEmpty) {
       updatedData["files"] = multipartImageList;
     }
 
     // Create FormData
     FormData formData = FormData.fromMap(updatedData);
-    
+
     // Use the FormData object with your patch request
     return await _authClient.patch(
       url,
       data: formData,
     );
-
   }
 
-  Future<Response> deletePost(int id) async{
+  Future<Response> deletePost(int id) async {
     return await _authClient.delete("post/$id");
   }
-
 
   Future<Response> loadList() async {
     return await _publicClient.get("post/list");
@@ -306,20 +308,19 @@ class ApiService {
   Future<Response> increaseLike(int id) async {
     // Make the HTTP request first
     Response response =
-    await _authClient.post("post/like_up", queryParameters: {'id': id});
+        await _authClient.post("post/like_up", queryParameters: {'id': id});
     return response;
   }
 
   Future<Response> decreaseLike(int id) async {
     // Make the HTTP request first
     Response response =
-    await _authClient.post("post/like_back", queryParameters: {'id': id});
+        await _authClient.post("post/like_back", queryParameters: {'id': id});
     return response;
   }
 
-  Future<Response> getLikeList() async{
-    Response response=
-        await _authClient.post("post/get_like_list");
+  Future<Response> getLikeList() async {
+    Response response = await _authClient.post("post/get_like_list");
     return response;
   }
 
