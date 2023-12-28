@@ -1,11 +1,14 @@
+import 'package:dangmoog/providers/chat_provider.dart';
+import 'package:dangmoog/providers/chat_setting_provider.dart';
 import 'package:flutter/material.dart';
-
 import 'package:provider/provider.dart';
-import 'package:dangmoog/providers/provider.dart';
 
 import 'package:dangmoog/themes/main_theme.dart';
-
 import 'package:dangmoog/screens/auth/splash_page.dart';
+
+// Provider
+import 'package:dangmoog/providers/provider.dart';
+import 'package:dangmoog/providers/websocket_provider.dart';
 
 void main() {
   runApp(const MyApp());
@@ -16,8 +19,19 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (context) => UserProvider(),
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(
+          create: (context) => UserProvider(),
+        ),
+        Provider<SocketClass>(
+          // create: (_) => SocketClass()..onConnect(),
+          create: (_) => SocketClass()..onConnect(),
+          dispose: (_, socketClass) => socketClass.dispose(),
+        ),
+        ChangeNotifierProvider(create: (context) => ChatProvider()),
+        ChangeNotifierProvider(create: (context) => ChatSettingProvider()),
+      ],
       child: MaterialApp(
         title: 'Dotorit',
         debugShowCheckedModeBanner: false,
