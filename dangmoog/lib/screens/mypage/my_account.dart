@@ -109,7 +109,7 @@ class _MyaccountPageState extends State<MyaccountPage> {
 
   // 계좌번호 입력 위젯
   Widget _accountNumber(Size screenSize) {
-    String hintText = account != null ? account : '계좌번호 입력(-제외)';
+    String hintText = account ?? '계좌번호 입력(-제외)';
 
 // 힌트 텍스트를 출력하거나 사용할 곳에서 hintText 변수를 활용합니다.
     void onAccountChanged(String value) {
@@ -346,7 +346,7 @@ class _MyaccountPageState extends State<MyaccountPage> {
                   ),
                   child: Text(
                     text2,
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w400,
                       color: Color(0xFFFFFFFF),
