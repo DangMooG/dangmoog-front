@@ -26,7 +26,7 @@ class MyApp extends StatelessWidget {
         ),
         Provider<SocketClass>(
           // create: (_) => SocketClass()..onConnect(),
-          create: (_) => SocketClass()..onConnect(),
+          create: (_) => SocketClass(),
           dispose: (_, socketClass) => socketClass.dispose(),
         ),
         ChangeNotifierProvider(create: (context) => ChatProvider()),

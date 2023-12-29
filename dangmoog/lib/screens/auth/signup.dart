@@ -182,6 +182,9 @@ class _AuthPageState extends State<AuthPage> {
         if (!mounted) return;
         Provider.of<UserProvider>(context, listen: false).setEmail(inputEmail);
 
+        // 내가 올린 게시글들의 ID 목록 전역 상태로 저장
+        Provider.of<UserProvider>(context, listen: false).getMyPostListId();
+
         if (isLogin) {
           bool hasNickname =
               int.parse(response.data["is_username"].toString()) == 1

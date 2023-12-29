@@ -35,7 +35,7 @@ class _SplashScreenState extends State<SplashScreen> {
     // 비동기로 flutter secure storage 정보를 불러오는 작업이 필요한다.
     // 하지만 initState에서는 async await를 사용할 수 없기 때문에 아래 형식으로 사용한다
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      autoLoginProcess();
+      _autoLoginProcess();
     });
   }
 
@@ -61,7 +61,7 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   // 자동 로그인 처리
-  autoLoginProcess() async {
+  _autoLoginProcess() async {
     // access_token과 userId를 secure storage로부터 불러온다
     // 만약 해당 값이 존재하지 않을 경우 null 값이 저장된다.
     final accessToken = await storage.read(key: 'accessToken');
@@ -83,6 +83,8 @@ class _SplashScreenState extends State<SplashScreen> {
           if (!mounted) return;
           // 이메일을 provider로 전역변수에 저장한다
           Provider.of<UserProvider>(context, listen: false).setEmail(userEmail);
+
+          Provider.of<UserProvider>(context, listen: false).getMyPostListId();
 
           // 별명을 설정하지 않았을 경우
           // 별명 설정 페이지로 이동한다
