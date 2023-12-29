@@ -84,7 +84,6 @@ class _SplashScreenState extends State<SplashScreen> {
           // 이메일을 provider로 전역변수에 저장한다
           Provider.of<UserProvider>(context, listen: false).setEmail(userEmail);
 
-          // _getMyPostListId();
           Provider.of<UserProvider>(context, listen: false).getMyPostListId();
 
           // 별명을 설정하지 않았을 경우
@@ -114,24 +113,6 @@ class _SplashScreenState extends State<SplashScreen> {
       _navigateToWelcome(context);
     }
   }
-
-  // _getMyPostListId() async {
-  //   try {
-  //     Response response = await ApiService().getMyPostListId();
-
-  //     if (response.statusCode == 200) {
-  //       List<dynamic> dynamicList =
-  //           response.data["result"].map((item) => item.toString()).toList();
-  //       List<String> stringList =
-  //           dynamicList.map((item) => item.toString()).toList();
-  //       if (!mounted) return;
-  //       Provider.of<UserProvider>(context, listen: false)
-  //           .setMyPostListId(stringList);
-  //     }
-  //   } catch (e) {
-  //     print(e);
-  //   }
-  // }
 
   @override
   Widget build(BuildContext context) {
