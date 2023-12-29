@@ -70,6 +70,11 @@ class ApiService {
     return await _authClient.get('products.json');
   }
 
+  // 내가 올린 게시글 목록 조회
+  Future<Response> getMyPostListId() async {
+    return await _authClient.post('post/my_post');
+  }
+
   // 탈퇴하기
   Future<Response> deleteAccount() async {
     return await _authClient.delete("account/");
