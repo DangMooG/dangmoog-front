@@ -241,8 +241,23 @@ class _ChatDetailOptionsState extends State<ChatDetailOptions> {
                               '바로 발송하기',
                               const Color(0xFFE20529),
                               Colors.transparent,
-                              Colors.white,
-                              () {}),
+                              Colors.white, () async {
+                            if (selectedBank != null &&
+                                accountNumber.length >= 10) {
+                              // 국내 은행의 계좌번호는 10~14자리
+                              if (saveBankAccount) {
+                                await storage.write(
+                                    key: 'encrypted_bank',
+                                    value: accountNumber);
+                                await storage.write(
+                                    key: 'encrypted_account',
+                                    value: selectedBank);
+                              }
+                            }
+                            ////////////////////////////////////////
+                            ////////// 채팅 전송 기능 추가 필요 //////////
+                            ////////////////////////////////////////
+                          }),
                           accountButtonWidget(
                             '취소하기',
                             Colors.transparent,
@@ -306,8 +321,8 @@ class _ChatDetailOptionsState extends State<ChatDetailOptions> {
 
   // 계좌 정보 전송
   void sendBankAccount(BuildContext context) async {
-    final bankAccountName = await storage.read(key: 'bankAccountName');
-    final bankAccountNumber = await storage.read(key: 'bankAccountNumber');
+    final bankAccountName = await storage.read(key: 'encrypted_bank');
+    final bankAccountNumber = await storage.read(key: 'encrypted_account');
 
     // 이미 등록된 계좌가 존재하는 경우
     if (bankAccountName != null && bankAccountNumber != null) {
@@ -338,20 +353,25 @@ class _ChatDetailOptionsState extends State<ChatDetailOptions> {
                 color: Color(0xff302E2E),
               ),
             ),
+            titlePadding: const EdgeInsets.only(top: 24.0, bottom: 12.0),
+            contentPadding: const EdgeInsets.only(bottom: 12.0),
             actions: <Widget>[
               Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 mainAxisSize:
                     MainAxisSize.min, // Use minimum space required by children
                 children: [
-                  Text(
-                    '$bankAccountNumber $bankAccountName',
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(
-                      decoration: TextDecoration.underline,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w400,
-                      color: Color(0xff302E2E),
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 12.0),
+                    child: Text(
+                      '$bankAccountNumber $bankAccountName',
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        decoration: TextDecoration.underline,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w400,
+                        color: Color(0xff302E2E),
+                      ),
                     ),
                   ),
                   Column(
@@ -389,6 +409,7 @@ class _ChatDetailOptionsState extends State<ChatDetailOptions> {
                         child: TextButton(
                           onPressed: () {
                             Navigator.pop(context);
+                            setBankAccount(context);
                           },
                           style: ButtonStyle(
                             backgroundColor:
