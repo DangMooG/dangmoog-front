@@ -1,4 +1,5 @@
 import 'package:web_socket_channel/web_socket_channel.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 typedef MessageReceivedCallback = void Function(String message);
 
@@ -6,13 +7,14 @@ class SocketClass {
   late WebSocketChannel channel;
   MessageReceivedCallback? onMessageReceived;
 
-  SocketClass() {
-    onConnect();
-  }
+  SocketClass();
 
-  void onConnect() {
-    const wsUrl =
-        'ws://port-0-dangmoog-api-server-p8xrq2mlfc80j33.sel3.cloudtype.app/meta/chat/ws/1';
+  void onConnect() async {
+    const storage = FlutterSecureStorage();
+    const socketBaseUrl =
+        "port-0-dangmoog-chat-p8xrq2mlfc80j33.sel3.cloudtype.app";
+    final accessToken = await storage.read(key: 'accessToken');
+    final wsUrl = 'ws://$socketBaseUrl/ws?token=$accessToken';
 
     channel = WebSocketChannel.connect(Uri.parse(wsUrl));
 
