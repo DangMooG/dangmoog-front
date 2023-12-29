@@ -247,6 +247,8 @@ class _ProductListState extends State<ProductList> {
 
         // Data is loaded and available:
         List<ProductModel> products = snapshot.data!;
+        // Reverse the order of products so the latest one appears at the top.
+        products = products.reversed.toList();
         return RefreshIndicator(
           onRefresh: () async {
             setState(() {
