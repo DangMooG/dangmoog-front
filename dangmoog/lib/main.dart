@@ -10,7 +10,14 @@ import 'package:dangmoog/screens/auth/splash_page.dart';
 import 'package:dangmoog/providers/provider.dart';
 import 'package:dangmoog/providers/websocket_provider.dart';
 
-void main() {
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   runApp(const MyApp());
 }
 

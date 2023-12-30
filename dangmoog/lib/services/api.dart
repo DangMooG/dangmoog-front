@@ -33,6 +33,7 @@ class ApiService {
     return await _publicClient.post("account/verification", data: {
       "username": inputEmail.split("@").first.toString(),
       "password": verificationCode.toString(),
+      "fcm": "jasidofjgaoiwjijwaofju20lakdjfkl"
     });
   }
 
@@ -277,6 +278,14 @@ class ApiService {
     }
   }
 
+  Future<Response> getChatRoomId(int postId) async {
+    Map<String, dynamic> requestBody = {
+      "post_id": postId,
+    };
+    return await _authClient.post("chat/create_post_chat_room",
+        data: requestBody);
+  }
+
   /////////////////////////////
   /// 사진 관련 ///
   /////////////////////////////
@@ -305,6 +314,10 @@ class ApiService {
       "photo/search",
       data: requestBody,
     );
+  }
+
+  Future<Response> getOnePhoto(int photoId) async {
+    return await _publicClient.get('photo/$photoId');
   }
 
   ////////////////

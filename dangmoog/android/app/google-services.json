@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "68243508411",
+    "project_id": "dangmoog-chat-19ac3",
+    "storage_bucket": "dangmoog-chat-19ac3.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:68243508411:android:f6361938c486b125686d9e",
+        "android_client_info": {
+          "package_name": "com.example.dangmoog"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAgqlDelXGVvHcMHzDBQifwTh4vwJ31G98"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
