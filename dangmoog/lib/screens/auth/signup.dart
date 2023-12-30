@@ -109,7 +109,6 @@ class _AuthPageState extends State<AuthPage> {
             setState(() {
               isLogin = isExistingAccount;
             });
-
             if (!mounted) return;
             showDialog(
               context: context,
@@ -171,7 +170,6 @@ class _AuthPageState extends State<AuthPage> {
         setState(() {
           isLoading = false;
         });
-
         String accessToken = response.data['access_token'];
         int userId = response.data['account_id'];
 
@@ -219,7 +217,6 @@ class _AuthPageState extends State<AuthPage> {
       errorMessageVerificationCode = '인증번호를 잘못 입력하셨습니다. 다시 입력해주세요.';
       print(errorMessageVerificationCode);
     }
-
     setState(() {
       isLoading = false;
     });

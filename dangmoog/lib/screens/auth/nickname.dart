@@ -1,6 +1,5 @@
 import 'package:dangmoog/screens/auth/profile.dart';
 
-
 import 'package:dangmoog/services/api.dart';
 import 'package:dio/dio.dart';
 
@@ -48,7 +47,7 @@ class _NicknamePageState extends State<NicknamePage> {
     }
 
     if (value.length < 2) {
-      setErrorMessage('2글자 이상 입력해주세요', true);
+      setErrorMessage('최소 2글자 이상 입력해주세요', true);
     } else if (wrongRegex.hasMatch(value)) {
       setErrorMessage('숫자, 한글, 또는 영문 조합으로 입력해주세요.', true);
     } else if (checkNicknameFormat(value)) {
@@ -66,13 +65,13 @@ class _NicknamePageState extends State<NicknamePage> {
     try {
       Response response = await ApiService().checkDuplicateNickname(nickname);
       if (response.statusCode == 200) {
-        setErrorMessage('사용 가능한 별명입니다.', false);
+        setErrorMessage('멋진 이름이에요! 별명을 사용하실 수 있습니다!', true);
 
         setState(() {
           _isChecked = true;
         });
       } else if (response.statusCode == 409) {
-        setErrorMessage('이미 존재하는 별명입니다.', true);
+        setErrorMessage('중복된 별명입니다. 다른 별명을 입력해주세요.', true);
         setState(() {
           _isChecked = false;
         });
