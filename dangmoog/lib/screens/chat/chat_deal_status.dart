@@ -1,16 +1,30 @@
 import 'package:flutter/material.dart';
 
 class ChatDealStatus extends StatefulWidget {
-  const ChatDealStatus({super.key});
+  final int currentStatus;
+  const ChatDealStatus({
+    super.key,
+    required this.currentStatus,
+  });
 
   @override
   State<ChatDealStatus> createState() => _ChatDealStatusState();
 }
 
 class _ChatDealStatusState extends State<ChatDealStatus> {
-  String dealStatus = "판매중";
+  late int currentStatuts;
+
+  List<String> dealStatusList = ["거래중", "예약중", "거래완료"];
 
   Color buttonColor = const Color(0xffE20529);
+
+  @override
+  void initState() {
+    setState(() {
+      currentStatuts = widget.currentStatus;
+    });
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -104,7 +118,7 @@ class _ChatDealStatusState extends State<ChatDealStatus> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
-              dealStatus,
+              dealStatusList[currentStatuts],
               style: TextStyle(
                 color: buttonColor,
               ),

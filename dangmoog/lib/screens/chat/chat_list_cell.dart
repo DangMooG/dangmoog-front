@@ -29,20 +29,21 @@ class _ChatCellState extends State<ChatCell> {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => MultiProvider(
-                providers: [
-                  ChangeNotifierProvider(create: (context) => ChatProvider()),
-                  ChangeNotifierProvider(
-                      create: (context) => ChatSettingProvider()),
-                ],
-                child: ChatDetail(
-                  roomId: widget.productId.toString(),
-                )),
-          ),
-        );
+        // Navigator.push(
+        //   context,
+        //   MaterialPageRoute(
+        //     builder: (context) => MultiProvider(
+        //         providers: [
+        //           ChangeNotifierProvider(create: (context) => ChatProvider()),
+        //           ChangeNotifierProvider(
+        //               create: (context) => ChatSettingProvider()),
+        //         ],
+        //         child: ChatDetail(
+        //           product: ,
+        //           roomId: widget.productId.toString(),
+        //         )),
+        //   ),
+        // );
       },
       child: Container(
         padding: const EdgeInsets.symmetric(

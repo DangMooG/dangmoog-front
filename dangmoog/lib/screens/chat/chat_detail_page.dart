@@ -1,8 +1,8 @@
+import 'package:dangmoog/models/product_class.dart';
 import 'package:dangmoog/providers/chat_provider.dart';
 import 'package:dangmoog/providers/chat_setting_provider.dart';
 import 'package:dangmoog/providers/websocket_provider.dart';
 
-import 'package:dangmoog/screens/chat/chat_deal_status.dart';
 import 'package:dangmoog/screens/chat/chat_detail_content.dart';
 import 'package:dangmoog/screens/chat/chat_detail_options.dart';
 import 'package:dangmoog/screens/chat/chat_detail_product.dart';
@@ -12,16 +12,13 @@ import 'package:dangmoog/models/chat_detail_model.dart';
 
 import 'dart:async';
 import 'dart:math';
-// import 'package:intl/intl.dart';
 import 'dart:convert';
 import 'package:flutter/services.dart';
+// import 'package:flutter_provider/flutter_provider.dart';
 
 // plugin
 import 'package:keyboard_height_plugin/keyboard_height_plugin.dart';
-// import 'package:image_picker/image_picker.dart';
-// import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
-// import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 // chat data 불러오기
 Future<ChatDetailModel> _loadChatDetailFromAsset(String url) async {
@@ -33,9 +30,11 @@ Future<ChatDetailModel> _loadChatDetailFromAsset(String url) async {
 }
 
 class ChatDetail extends StatefulWidget {
+  final ProductModel product;
   final String roomId;
   const ChatDetail({
     super.key,
+    required this.product,
     required this.roomId,
   });
 
@@ -47,7 +46,9 @@ class _ChatDetailState extends State<ChatDetail> {
   // 클릭 방지
   bool _blockInteraction = false;
 
-  late Future<ChatDetailModel> _chatDetail;
+  late ProductModel product;
+
+  // late Future<ChatDetailModel> _chatDetail;
 
   final TextEditingController _textController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
@@ -70,58 +71,6 @@ class _ChatDetailState extends State<ChatDetail> {
   bool resizeScreenKeyboard = true;
   Timer? timer;
   // // // // // // // // // // // // // //
-
-  // // 카메라로 사진 추가
-  // Future getImageFromCamera(BuildContext context) async {
-  //   PermissionStatus status = await Permission.camera.request();
-
-  //   final ImagePicker picker = ImagePicker();
-  //   final List<String> imageList = <String>[];
-
-  //   if (status.isGranted || status.isLimited) {
-  //     try {
-  //       final XFile? pickedImage =
-  //           await picker.pickImage(source: ImageSource.camera);
-
-  //       if (pickedImage != null) {
-  //         String imagePath = pickedImage.path;
-
-  //         setState(() {
-  //           imageList.add(imagePath);
-  //         });
-  //       }
-  //     } catch (e) {
-  //       print("Error picking images: $e");
-  //     }
-  //   } else if (status.isPermanentlyDenied) {
-  //     // 나중에 ios는 cupertino로 바꿔줄 필요 있음
-  //     await showDialog(
-  //       context: context,
-  //       builder: (BuildContext context) {
-  //         return AlertDialog(
-  //           title: const Text("사진 권한 필요"),
-  //           content:
-  //               const Text("이 기능을 사용하기 위해서는 권한이 필요합니다. 설정으로 이동하여 권한을 허용해주세요."),
-  //           actions: <Widget>[
-  //             TextButton(
-  //               child: const Text("취소"),
-  //               onPressed: () {
-  //                 Navigator.of(context).pop();
-  //               },
-  //             ),
-  //             TextButton(
-  //               child: const Text("설정으로 이동"),
-  //               onPressed: () {
-  //                 openAppSettings();
-  //                 Navigator.of(context).pop();
-  //               },
-  //             ),
-  //           ],
-  //         );
-  //       },
-  //     );
-  //   }
-  // }
 
   // keyboard focus 제거
   void unFocusKeyBoard() {
@@ -166,9 +115,11 @@ class _ChatDetailState extends State<ChatDetail> {
   void initState() {
     super.initState();
 
-    setState(() {
-      _chatDetail = _loadChatDetailFromAsset('assets/chat_detail.json');
-    });
+    product = widget.product;
+
+    // setState(() {
+    //   _chatDetail = _loadChatDetailFromAsset('assets/chat_detail.json');
+    // });
 
     // 키보드의 높이가 바뀌면 update
     // 키보드가 unfocus돼서 내려가는 건 update 안함
@@ -219,7 +170,7 @@ class _ChatDetailState extends State<ChatDetail> {
     socketChannel.onMessageReceived = _handleMessageReceived;
     return Scaffold(
       resizeToAvoidBottomInset: resizeScreenKeyboard,
-      appBar: _buildChatUserName(_chatDetail),
+      appBar: _buildChatUserName(widget.product.userName),
       body: Center(
         child: AbsorbPointer(
           absorbing: _blockInteraction,
@@ -228,7 +179,7 @@ class _ChatDetailState extends State<ChatDetail> {
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
               // _buildChatProductInfo(_chatDetail),
-              ChatDetailProduct(futureChatDetail: _chatDetail),
+              ChatDetailProduct(product: product),
               Expanded(
                 child: GestureDetector(
                   onTap: unFocusKeyBoard,
@@ -469,490 +420,20 @@ class _ChatDetailState extends State<ChatDetail> {
     );
   }
 
-  // // 채팅 옵션 contents: 사진, 계좌 정보, 사물함 정보
-  // Widget _buildAdditionalWidget(BuildContext context) {
-  //   Widget optionCircleWidget(IconData icon, String iconText, Function onTap) {
-  //     return Container(
-  //       margin: const EdgeInsets.symmetric(horizontal: 22, vertical: 10),
-  //       child: Column(
-  //         children: [
-  //           GestureDetector(
-  //             onTap: () {
-  //               onTap();
-  //             },
-  //             child: Container(
-  //               width: 72,
-  //               height: 72,
-  //               margin: const EdgeInsets.only(bottom: 10, left: 10, right: 10),
-  //               decoration: const BoxDecoration(
-  //                 color: Color(0xffE83754),
-  //                 borderRadius: BorderRadius.all(
-  //                   Radius.circular(36),
-  //                 ),
-  //               ),
-  //               child: Icon(
-  //                 icon,
-  //                 size: 33,
-  //                 color: Colors.white,
-  //               ),
-  //             ),
-  //           ),
-  //           Text(
-  //             iconText,
-  //             style: const TextStyle(
-  //               color: Color(0xff302E2E),
-  //               fontSize: 13,
-  //               fontWeight: FontWeight.w400,
-  //             ),
-  //           )
-  //         ],
-  //       ),
-  //     );
-  //   }
-
-  //   Widget accountButtonWidget(String text, Color btnColor, Color borderColor,
-  //       Color textColor, VoidCallback onTap) {
-  //     return SizedBox(
-  //       width: 300,
-  //       child: TextButton(
-  //         onPressed: () {
-  //           Navigator.pop(context);
-  //           onTap();
-  //         },
-  //         style: ButtonStyle(
-  //           backgroundColor: MaterialStateProperty.resolveWith<Color>(
-  //             (Set<MaterialState> states) {
-  //               return btnColor;
-  //             },
-  //           ),
-  //           // foregroundColor: MaterialStateProperty.all<Color>(borderColor),
-  //           shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-  //             RoundedRectangleBorder(
-  //                 borderRadius: BorderRadius.circular(6),
-  //                 side: BorderSide(color: borderColor)),
-  //           ),
-  //         ),
-  //         child: Text(
-  //           text,
-  //           style: TextStyle(color: textColor),
-  //         ),
-  //       ),
-  //     );
-  //   }
-
-  //   void setBankAccount() async {
-  //     String accountNumber = '';
-  //     String selectedBank = 'NH농협은행';
-  //     List<String> bankList = ['NH농협은행', '기업은행', 'KB국민은행']; // 은행 리스트
-
-  //     showDialog(
-  //       context: context,
-  //       builder: (context) => AlertDialog(
-  //           backgroundColor: Colors.white,
-  //           title: const Text(
-  //             '새로운 계좌 정보를 입력해주세요!',
-  //             textAlign: TextAlign.center,
-  //             style: TextStyle(
-  //               fontSize: 16,
-  //               fontWeight: FontWeight.w600,
-  //               color: Color(0xff302E2E),
-  //             ),
-  //           ),
-  //           content: const Text(
-  //             '은행과 계좌번호를 정확히 입력해주세요',
-  //             textAlign: TextAlign.center,
-  //             style: TextStyle(
-  //               fontSize: 14,
-  //               fontWeight: FontWeight.w400,
-  //               color: Color(0xff302E2E),
-  //             ),
-  //           ),
-  //           actions: <Widget>[
-  //             Column(
-  //               mainAxisSize: MainAxisSize.min,
-  //               children: [
-  //                 Column(
-  //                   children: [
-  //                     TextField(
-  //                       decoration: const InputDecoration(
-  //                         hintText: '계좌번호 입력',
-  //                         labelText: null,
-  //                         border: UnderlineInputBorder(
-  //                           borderSide: BorderSide(color: Color(0xffD3D2D2)),
-  //                         ),
-  //                         focusedBorder: UnderlineInputBorder(
-  //                           borderSide: BorderSide(color: Color(0xff726E6E)),
-  //                         ),
-  //                         contentPadding: EdgeInsets.symmetric(
-  //                           vertical: 10.0,
-  //                         ),
-  //                         floatingLabelBehavior: FloatingLabelBehavior.never,
-  //                       ),
-  //                       style: const TextStyle(
-  //                         color: Color(0xff302E2E),
-  //                         fontSize: 14.0,
-  //                         fontWeight: FontWeight.w400,
-  //                       ),
-  //                       keyboardType: TextInputType.number,
-  //                       onChanged: (value) {
-  //                         accountNumber = value;
-  //                       },
-  //                     ),
-  //                     const SizedBox(height: 20),
-  //                     DropdownButtonFormField<String>(
-  //                       decoration: const InputDecoration(
-  //                         hintText: '은행 선택',
-  //                         labelText: null,
-  //                         border: UnderlineInputBorder(
-  //                           borderSide: BorderSide(color: Color(0xffD3D2D2)),
-  //                         ),
-  //                         focusedBorder: UnderlineInputBorder(
-  //                           borderSide: BorderSide(color: Color(0xff726E6E)),
-  //                         ),
-  //                         contentPadding: EdgeInsets.symmetric(vertical: 10.0),
-  //                         // filled: true, // Needed for fillColor to take effect
-  //                         // fillColor: Colors.grey[200], // Background color
-  //                         floatingLabelBehavior: FloatingLabelBehavior.never,
-  //                       ),
-  //                       icon: const Icon(
-  //                         Icons.chevron_right,
-  //                         color: Color(0xffA19E9E),
-  //                       ),
-  //                       style: const TextStyle(
-  //                         color: Color(0xff302E2E),
-  //                         fontSize: 14.0,
-  //                         fontWeight: FontWeight.w400,
-  //                       ),
-  //                       items: bankList
-  //                           .map<DropdownMenuItem<String>>((String value) {
-  //                         return DropdownMenuItem<String>(
-  //                           value: value,
-  //                           child: Text(value),
-  //                         );
-  //                       }).toList(),
-  //                       onChanged: (String? newValue) {
-  //                         // Update selected bank
-  //                       },
-  //                     ),
-  //                   ],
-  //                 ),
-  //                 const SizedBox(
-  //                   height: 16,
-  //                 ),
-  //                 Column(
-  //                   children: [
-  //                     accountButtonWidget('바로 발송하기', const Color(0xFFE20529),
-  //                         Colors.transparent, Colors.white, () {}),
-  //                     accountButtonWidget(
-  //                       '취소하기',
-  //                       Colors.transparent,
-  //                       const Color(0xFF726E6E),
-  //                       const Color(0xff726E6E),
-  //                       () {},
-  //                     ),
-  //                   ],
-  //                 ),
-  //                 Row(
-  //                   mainAxisAlignment: MainAxisAlignment.center,
-  //                   children: [
-  //                     const Text(
-  //                       '현재 작성한 정보를 기본 계좌정보로 저장합니다.',
-  //                       style: TextStyle(
-  //                         color: Color(0xff726E6E),
-  //                         fontSize: 11,
-  //                         fontWeight: FontWeight.w400,
-  //                       ),
-  //                     ),
-  //                     Checkbox(
-  //                       overlayColor:
-  //                           MaterialStateProperty.all(const Color(0xffBEBCBC)),
-  //                       value: saveBankAccount,
-  //                       splashRadius: 12,
-  //                       shape: RoundedRectangleBorder(
-  //                         borderRadius: BorderRadius.circular(3),
-  //                         side: const BorderSide(
-  //                           color: Color(0xffBEBCBC),
-  //                           width: 1,
-  //                         ),
-  //                       ),
-  //                       activeColor: const Color(0xffBEBCBC),
-  //                       fillColor: MaterialStateProperty.resolveWith<Color>(
-  //                         (Set<MaterialState> states) {
-  //                           if (states.contains(MaterialState.selected)) {
-  //                             return const Color(0xFFE20529);
-  //                           }
-  //                           return Colors.white;
-  //                         },
-  //                       ),
-  //                       checkColor: Colors.white,
-  //                       onChanged: (value) {
-  //                         setState(() {
-  //                           saveBankAccount = !saveBankAccount;
-  //                         });
-  //                       },
-  //                     ),
-  //                   ],
-  //                 )
-  //               ],
-  //             ),
-  //           ]),
-  //     );
-  //   }
-
-  //   // 계좌 정보 전송
-  //   void sendBankAccount() async {
-  //     final bankAccountName = await storage.read(key: 'bankAccountName');
-  //     final bankAccountNumber = await storage.read(key: 'bankAccountNumber');
-
-  //     // 이미 등록된 계좌가 존재하는 경우
-  //     if (bankAccountName != null && bankAccountNumber != null) {
-  //       if (!mounted) return;
-  //       showDialog(
-  //         context: context,
-  //         builder: (context) => AlertDialog(
-  //             shape: RoundedRectangleBorder(
-  //               borderRadius: BorderRadius.circular(14),
-  //             ),
-  //             title: const Text(
-  //               '이미 계좌 정보가 존재합니다.',
-  //               textAlign: TextAlign.center,
-  //               style: TextStyle(
-  //                 fontSize: 16,
-  //                 fontWeight: FontWeight.w600,
-  //                 color: Color(0xff302E2E),
-  //               ),
-  //             ),
-  //             content: const Text(
-  //               '해당 정보를 구매자에게 발송하시겠습니까?',
-  //               textAlign: TextAlign.center,
-  //               style: TextStyle(
-  //                 fontSize: 14,
-  //                 fontWeight: FontWeight.w400,
-  //                 color: Color(0xff302E2E),
-  //               ),
-  //             ),
-  //             actions: <Widget>[
-  //               Column(
-  //                 crossAxisAlignment: CrossAxisAlignment.center,
-  //                 mainAxisSize: MainAxisSize
-  //                     .min, // Use minimum space required by children
-  //                 children: [
-  //                   Text(
-  //                     '$bankAccountNumber $bankAccountName',
-  //                     textAlign: TextAlign.center,
-  //                     style: const TextStyle(
-  //                       decoration: TextDecoration.underline,
-  //                       fontSize: 16,
-  //                       fontWeight: FontWeight.w400,
-  //                       color: Color(0xff302E2E),
-  //                     ),
-  //                   ),
-  //                   Column(
-  //                     children: [
-  //                       SizedBox(
-  //                         width: 300,
-  //                         child: TextButton(
-  //                           onPressed: () {
-  //                             Navigator.pop(context);
-  //                           },
-  //                           style: ButtonStyle(
-  //                             backgroundColor:
-  //                                 MaterialStateProperty.resolveWith<Color>(
-  //                               (Set<MaterialState> states) {
-  //                                 if (states.contains(MaterialState.pressed)) {
-  //                                   return Colors
-  //                                       .red[600]!; // Color when pressed
-  //                                 }
-  //                                 return const Color(
-  //                                     0xFFE20529); // Regular color
-  //                               },
-  //                             ),
-  //                             foregroundColor: MaterialStateProperty.all<Color>(
-  //                                 Colors.white),
-  //                             shape: MaterialStateProperty.all<
-  //                                 RoundedRectangleBorder>(
-  //                               RoundedRectangleBorder(
-  //                                 borderRadius: BorderRadius.circular(6),
-  //                               ),
-  //                             ),
-  //                           ),
-  //                           child: const Text('발송하기'),
-  //                         ),
-  //                       ),
-  //                       SizedBox(
-  //                         width: 300,
-  //                         child: TextButton(
-  //                           onPressed: () {
-  //                             Navigator.pop(context);
-  //                           },
-  //                           style: ButtonStyle(
-  //                             backgroundColor:
-  //                                 MaterialStateProperty.resolveWith<Color>(
-  //                               (Set<MaterialState> states) {
-  //                                 if (states.contains(MaterialState.pressed)) {
-  //                                   return Colors
-  //                                       .red[600]!; // Color when pressed
-  //                                 }
-  //                                 return Colors.transparent; // Regular color
-  //                               },
-  //                             ),
-  //                             foregroundColor: MaterialStateProperty.all<Color>(
-  //                                 const Color(0xFFE20529)),
-  //                             shape: MaterialStateProperty.all<
-  //                                 RoundedRectangleBorder>(
-  //                               RoundedRectangleBorder(
-  //                                   borderRadius: BorderRadius.circular(6),
-  //                                   side: const BorderSide(
-  //                                       color: Color(0xFFE20529))),
-  //                             ),
-  //                           ),
-  //                           child: const Text('새로작성'),
-  //                         ),
-  //                       ),
-  //                       SizedBox(
-  //                         width: 300,
-  //                         child: TextButton(
-  //                           onPressed: () {
-  //                             Navigator.pop(context);
-  //                           },
-  //                           style: ButtonStyle(
-  //                             backgroundColor:
-  //                                 MaterialStateProperty.resolveWith<Color>(
-  //                               (Set<MaterialState> states) {
-  //                                 // if (states.contains(MaterialState.pressed)) {
-  //                                 //   return Colors.red[600]!; // Color when pressed
-  //                                 // }
-  //                                 return Colors.transparent; // Regular color
-  //                               },
-  //                             ),
-  //                             foregroundColor: MaterialStateProperty.all<Color>(
-  //                                 const Color(0xFF726E6E)),
-  //                             shape: MaterialStateProperty.all<
-  //                                 RoundedRectangleBorder>(
-  //                               RoundedRectangleBorder(
-  //                                   borderRadius: BorderRadius.circular(6),
-  //                                   side: const BorderSide(
-  //                                       color: Color(0xFF726E6E))),
-  //                             ),
-  //                           ),
-  //                           child: const Text('취소하기'),
-  //                         ),
-  //                       ),
-  //                     ],
-  //                   ),
-  //                 ],
-  //               ),
-  //             ]),
-  //       );
-  //     }
-  //     // 등록된 계좌가 없는 경우
-  //     else {
-  //       if (!mounted) return;
-  //       showDialog(
-  //         context: context,
-  //         builder: (context) => AlertDialog(
-  //           shape: RoundedRectangleBorder(
-  //             borderRadius: BorderRadius.circular(14),
-  //           ),
-  //           title: const Text('작성된 계좌 정보가 없습니다!',
-  //               textAlign: TextAlign.center,
-  //               style: TextStyle(
-  //                   fontSize: 16,
-  //                   fontWeight: FontWeight.w600,
-  //                   color: Color(0xff302E2E))),
-  //           content: const Text(
-  //             '계좌 정보를 입력하시겠어요?',
-  //             textAlign: TextAlign.center,
-  //             style: TextStyle(
-  //               fontSize: 14,
-  //               fontWeight: FontWeight.w400,
-  //               color: Color(0xff302E2E),
-  //             ),
-  //           ),
-  //           actions: <Widget>[
-  //             Column(
-  //               crossAxisAlignment: CrossAxisAlignment.center,
-  //               mainAxisSize: MainAxisSize.min,
-  //               children: [
-  //                 Column(
-  //                   children: [
-  //                     accountButtonWidget('작성하기', const Color(0xFFE20529),
-  //                         Colors.transparent, Colors.white, setBankAccount),
-  //                     accountButtonWidget(
-  //                       '취소하기',
-  //                       Colors.transparent,
-  //                       const Color(0xFF726E6E),
-  //                       const Color(0xff726E6E),
-  //                       () {},
-  //                     ),
-  //                   ],
-  //                 ),
-  //               ],
-  //             ),
-  //           ],
-  //         ),
-  //       );
-  //     }
-  //   }
-
-  //   return SizedBox(
-  //     height: _isOptionOn ? _keyboardHeight : 0,
-  //     child: Center(
-  //       child: Column(
-  //         crossAxisAlignment: CrossAxisAlignment.center,
-  //         mainAxisAlignment: MainAxisAlignment.center,
-  //         children: [
-  //           Row(
-  //             mainAxisAlignment: MainAxisAlignment.center,
-  //             children: [
-  //               optionCircleWidget(Icons.camera_alt_outlined, '카메라', () {
-  //                 getImageFromCamera(context);
-  //               }),
-  //               optionCircleWidget(Icons.image_outlined, '앨범', () {}),
-  //             ],
-  //           ),
-  //           Row(
-  //             mainAxisAlignment: MainAxisAlignment.center,
-  //             children: [
-  //               optionCircleWidget(Icons.credit_card_outlined, '거래정보 발송', () {
-  //                 sendBankAccount();
-  //               }),
-  //               optionCircleWidget(Icons.vpn_key_outlined, '사물함 정보 발송', () {}),
-  //             ],
-  //           ),
-  //           // option box가 정중앙에 있으면 살짝 아래에 있는 느낌이 들어서 추가한 위젯
-  //           const SizedBox(
-  //             height: 15,
-  //           )
-  //         ],
-  //       ),
-  //     ),
-  //   );
-  // }
-
   // 채팅 상대방 닉네임
-  AppBar _buildChatUserName(Future<ChatDetailModel> futureChatDetail) {
+  AppBar _buildChatUserName(String userName) {
     return AppBar(
-      title: FutureBuilder<ChatDetailModel>(
-        future: futureChatDetail,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.done) {
-            if (snapshot.hasError) {
-              return const Center(
-                child: Text('Error loading chat list!'),
-              );
-            }
-            return Text(
-              snapshot.data!.chatInfo.userNickName,
-              style: const TextStyle(
-                color: Color(0xFF302E2E),
-                fontSize: 22,
-                fontWeight: FontWeight.w600,
-              ),
-            );
-          }
-          return const Center(child: CircularProgressIndicator());
-        },
+      title: Text(
+        userName,
+        style: const TextStyle(
+          color: Color(0xFF302E2E),
+          fontSize: 22,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+      leading: const Icon(
+        Icons.keyboard_backspace,
+        size: 28,
       ),
       backgroundColor: Colors.white,
       shape: const Border(
