@@ -154,6 +154,10 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
+        leading: const Icon(
+          Icons.keyboard_backspace,
+          size: 28,
+        ),
         iconTheme: const IconThemeData(color: Colors.white),
         actions: <Widget>[
           IconButton(
@@ -647,9 +651,11 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => ChatDetail(
-                            roomId: roomId,
-                          )),
+                    builder: (context) => ChatDetail(
+                      product: product,
+                      roomId: roomId,
+                    ),
+                  ),
                 );
               } else {
                 // 삭제된 게시글이라든지, 예약중이거나 거래완료된 게시글이라든지
