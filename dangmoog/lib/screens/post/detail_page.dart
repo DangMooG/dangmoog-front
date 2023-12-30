@@ -1,4 +1,5 @@
 import 'package:dangmoog/constants/category_list.dart';
+import 'package:dangmoog/screens/chat/chat_detail_page.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:dangmoog/models/product_class.dart';
@@ -11,99 +12,95 @@ import 'edit_post_page.dart';
 import 'main_page.dart';
 
 class ProductDetailProvider with ChangeNotifier {
-    final ApiService apiService;
-    ProductModel? product;
-    bool isLoading = true;
-    List<String> images = [];
+  final ApiService apiService;
+  ProductModel? product;
+  bool isLoading = true;
+  List<String> images = [];
 
-    ProductDetailProvider(this.apiService, int postId) {
-      _fetchProductDetail(postId);
-    }
+  ProductDetailProvider(this.apiService, int postId) {
+    _fetchProductDetail(postId);
+  }
 
-    Future<void> _fetchProductDetail(int postId) async {
-      isLoading = true;
+  Future<void> _fetchProductDetail(int postId) async {
+    isLoading = true;
+    notifyListeners();
+
+    try {
+      final response = await apiService.loadProduct(postId);
+      if (response.statusCode == 200) {
+        product = ProductModel.fromJson(response.data);
+        await _fetchPhotos(postId);
+
+        await _checkIfFavorited(postId);
+      } else {}
+    } catch (e) {
+      // Handle any exceptions here
+    } finally {
+      isLoading = false;
       notifyListeners();
-
-      try {
-        final response = await apiService.loadProduct(postId);
-        if (response.statusCode == 200) {
-          product = ProductModel.fromJson(response.data);
-          await _fetchPhotos(postId);
-
-          await _checkIfFavorited(postId);
-        }else{
-
-        }
-      } catch (e) {
-        // Handle any exceptions here
-      } finally {
-        isLoading = false;
-        notifyListeners();
-      }
-    }
-
-    Future<void> _fetchPhotos(int postId) async {
-      try {
-        final response = await apiService.searchPhoto(postId);
-        if (response.statusCode == 200) {
-          List<dynamic> photoData = response.data;
-          images = photoData.map((item) => item['url'].toString()).toList();
-        } else {
-          // Handle non-200 responses
-        }
-      } catch (e) {
-        // Handle exceptions
-      }
-      notifyListeners();
-      // No need to call notifyListeners here if you're calling this method
-      // from within _fetchProductDetail, which calls notifyListeners in finally.
-    }
-
-    List<int> likedProductIds =[];
-
-    Future<void> _checkIfFavorited(int postId) async{
-      try {
-        final response = await apiService.getLikeList();
-        if (response.statusCode == 200) {
-          List<dynamic> likedPosts = response.data;
-          bool isFavorited = likedPosts.any((item) => item['post_id'] == postId);
-          if (product != null) {
-            product!.isFavorited = isFavorited;
-          }
-        }
-      } catch (e) {
-        // Handle exceptions
-      }
-    }
-
-
-
-    void toggleLike() async {
-      if (product == null) return;
-
-      bool isCurrentlyFavorited = product!.isFavorited;
-      product!.isFavorited = !isCurrentlyFavorited;
-      product!.likeCount += isCurrentlyFavorited ? -1 : 1;
-      notifyListeners();
-
-      try {
-        Response response = isCurrentlyFavorited
-            ? await apiService.decreaseLike(product!.postId)
-            : await apiService.increaseLike(product!.postId);
-
-        // Handle response accordingly
-        // If there's an error, revert the like state and update UI
-        if (response.statusCode != (isCurrentlyFavorited ? 204 : 200)) {
-          product!.isFavorited = isCurrentlyFavorited;
-          product!.likeCount += isCurrentlyFavorited ? 1 : -1;
-          notifyListeners();
-        }
-      print(response);
-    } catch(e){
-        rethrow;
-      }
     }
   }
+
+  Future<void> _fetchPhotos(int postId) async {
+    try {
+      final response = await apiService.searchPhoto(postId);
+      if (response.statusCode == 200) {
+        List<dynamic> photoData = response.data;
+        images = photoData.map((item) => item['url'].toString()).toList();
+      } else {
+        // Handle non-200 responses
+      }
+    } catch (e) {
+      // Handle exceptions
+    }
+    notifyListeners();
+    // No need to call notifyListeners here if you're calling this method
+    // from within _fetchProductDetail, which calls notifyListeners in finally.
+  }
+
+  List<int> likedProductIds = [];
+
+  Future<void> _checkIfFavorited(int postId) async {
+    try {
+      final response = await apiService.getLikeList();
+      if (response.statusCode == 200) {
+        List<dynamic> likedPosts = response.data;
+        bool isFavorited = likedPosts.any((item) => item['post_id'] == postId);
+        if (product != null) {
+          product!.isFavorited = isFavorited;
+        }
+      }
+    } catch (e) {
+      // Handle exceptions
+    }
+  }
+
+  void toggleLike() async {
+    if (product == null) return;
+
+    bool isCurrentlyFavorited = product!.isFavorited;
+    product!.isFavorited = !isCurrentlyFavorited;
+    product!.likeCount += isCurrentlyFavorited ? -1 : 1;
+    notifyListeners();
+
+    try {
+      Response response = isCurrentlyFavorited
+          ? await apiService.decreaseLike(product!.postId)
+          : await apiService.increaseLike(product!.postId);
+
+      // Handle response accordingly
+      // If there's an error, revert the like state and update UI
+      if (response.statusCode != (isCurrentlyFavorited ? 204 : 200)) {
+        product!.isFavorited = isCurrentlyFavorited;
+        product!.likeCount += isCurrentlyFavorited ? 1 : -1;
+        notifyListeners();
+      }
+      print(response);
+    } catch (e) {
+      rethrow;
+    }
+  }
+}
 
 class ProductDetailPage extends StatefulWidget {
   final int? postId;
@@ -119,14 +116,13 @@ class ProductDetailPage extends StatefulWidget {
 
 class _ProductDetailPageState extends State<ProductDetailPage> {
   final CarouselController _controller = CarouselController();
-  int _current =0;
-
+  int _current = 0;
 
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
       // Initialize your ProductDetailProvider here
-      create: (_) => ProductDetailProvider(ApiService(),widget.postId!),
+      create: (_) => ProductDetailProvider(ApiService(), widget.postId!),
       child: Consumer<ProductDetailProvider>(
         builder: (context, provider, child) {
           if (provider.isLoading) {
@@ -148,11 +144,11 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
     );
   }
 
-  Widget _buildProductDetail(BuildContext context, ProductDetailProvider provider) {
-    final product =provider.product!;
+  Widget _buildProductDetail(
+      BuildContext context, ProductDetailProvider provider) {
+    final product = provider.product!;
     //TODO: 유저네임 바꾸기
     // bool isUserProduct = product.userName =='flatfish';
-
 
     return Scaffold(
       appBar: AppBar(
@@ -184,14 +180,19 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                             Navigator.pop(context); // Close the dialog
                             Navigator.push(
                               context,
-                              MaterialPageRoute(builder: (context) => EditPostPage(postId: widget.postId!, product: product,)),
+                              MaterialPageRoute(
+                                  builder: (context) => EditPostPage(
+                                        postId: widget.postId!,
+                                        product: product,
+                                      )),
                             );
-
                           },
                           style: TextButton.styleFrom(
                             minimumSize: Size(270, buttonHeight),
                             tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                            padding: const EdgeInsets.only(top: 8), // Ensures no additional padding is affecting the alignment
+                            padding: const EdgeInsets.only(
+                                top:
+                                    8), // Ensures no additional padding is affecting the alignment
                           ),
                           child: const Text(
                             '수정하기',
@@ -209,24 +210,28 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                           onPressed: () async {
                             int postId = product.postId;
                             try {
-                              final response = await ApiService().deletePost(postId); // Call the delete API
-                              if (response.statusCode==204) {
+                              final response = await ApiService()
+                                  .deletePost(postId); // Call the delete API
+                              if (response.statusCode == 204) {
                                 Navigator.pop(context);
                                 // Handle successful deletion here, like showing a confirmation message
                               } else {
                                 // Handle the error case
-                                print('Failed to delete the post: ${response.statusCode}');
+                                print(
+                                    'Failed to delete the post: ${response.statusCode}');
                               }
                             } catch (e) {
                               // Handle any exceptions here
-                              print('An error occurred while deleting the post: $e');
+                              print(
+                                  'An error occurred while deleting the post: $e');
                             }
                             Navigator.pop(context);
                           },
                           style: TextButton.styleFrom(
                             minimumSize: const Size(270, 28),
                             tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                            padding: EdgeInsets.zero, // Ensures no additional padding is affecting the alignment
+                            padding: EdgeInsets
+                                .zero, // Ensures no additional padding is affecting the alignment
                           ),
                           child: const Text(
                             '삭제하기',
@@ -247,13 +252,14 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                           style: TextButton.styleFrom(
                             minimumSize: Size(270, buttonHeight),
                             tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                            padding: const EdgeInsets.only(bottom: 8), // Ensures no additional padding is affecting the alignment
+                            padding: const EdgeInsets.only(
+                                bottom:
+                                    8), // Ensures no additional padding is affecting the alignment
                           ),
                           child: const Text(
                             '취소',
                             style: TextStyle(
                               color: Color(0xFFA19E9E),
-
                             ),
                           ),
                         ),
@@ -264,9 +270,6 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
               );
             },
           )
-
-
-
         ],
       ),
       extendBodyBehindAppBar: true,
@@ -291,8 +294,9 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
 
   Widget sliderWidget(BuildContext context) {
     final provider = Provider.of<ProductDetailProvider>(context);
-    List<String> displayImages =
-    provider.images.isNotEmpty ? provider.images : ['assets/images/sample.png'];
+    List<String> displayImages = provider.images.isNotEmpty
+        ? provider.images
+        : ['assets/images/sample.png'];
     return CarouselSlider(
       carouselController: _controller,
       options: CarouselOptions(
@@ -314,15 +318,15 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
             return SizedBox(
               width: MediaQuery.of(context).size.width,
               child: (imagePath.startsWith('http') ||
-                  imagePath.startsWith('https'))
+                      imagePath.startsWith('https'))
                   ? Image.network(
-                imagePath,
-                fit: BoxFit.fill,
-              )
+                      imagePath,
+                      fit: BoxFit.fill,
+                    )
                   : Image.asset(
-                imagePath,
-                fit: BoxFit.fill,
-              ),
+                      imagePath,
+                      fit: BoxFit.fill,
+                    ),
             );
           },
         );
@@ -343,7 +347,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
               width: 9.0,
               height: 9.0,
               margin:
-              const EdgeInsets.symmetric(vertical: 10.0, horizontal: 4.0),
+                  const EdgeInsets.symmetric(vertical: 10.0, horizontal: 4.0),
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 border: Border.all(
@@ -387,10 +391,10 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
     String saleMethodText = product.useLocker == 1 ? '사물함거래' : '직접거래';
     Widget imageWidget = product.useLocker == 1
         ? Image.asset(
-      'assets/images/uselocker_logo.png', // Replace with your asset image path
-      width: 16, // Set your desired width for the image
-      height: 16, // Set your desired height for the image
-    )
+            'assets/images/uselocker_logo.png', // Replace with your asset image path
+            width: 16, // Set your desired width for the image
+            height: 16, // Set your desired height for the image
+          )
         : const SizedBox(); // Empty box for when there is no image
 
     return Column(
@@ -418,7 +422,6 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
       ],
     );
   }
-
 
   // 좋아요, 채팅 개수 표기
   Widget _buildProductLikeChatCount(ProductModel product) {
@@ -533,13 +536,13 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
       margin: const EdgeInsets.only(top: 6),
       child: product.price != 0
           ? Text(
-        convertoneyFormat(product.price),
-        style: const TextStyle(
-          fontWeight: FontWeight.w600,
-          fontSize: 18,
-          color: Color(0xFF302E2E),
-        ),
-      )
+              convertoneyFormat(product.price),
+              style: const TextStyle(
+                fontWeight: FontWeight.w600,
+                fontSize: 18,
+                color: Color(0xFF302E2E),
+              ),
+            )
           : const Text('나눔 🐿️'),
     );
   }
@@ -608,7 +611,8 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                   child: InkWell(
                     onTap: () {
                       // Call the provider's method to toggle the like state
-                      Provider.of<ProductDetailProvider>(context, listen: false).toggleLike();
+                      Provider.of<ProductDetailProvider>(context, listen: false)
+                          .toggleLike();
                     },
                     child: Icon(
                       product.isFavorited
@@ -631,14 +635,31 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
             ),
           ),
           ElevatedButton(
-            onPressed: () {
+            onPressed: () async {
               // Handle chat logic here
+
+              Response response =
+                  await ApiService().getChatRoomId(product.postId);
+              if (response.statusCode == 200) {
+                String roomId = response.data["room_id"];
+
+                if (!mounted) return;
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => ChatDetail(
+                            roomId: roomId,
+                          )),
+                );
+              } else {
+                // 삭제된 게시글이라든지, 예약중이거나 거래완료된 게시글이라든지
+                // 알 수 없는 게시글이라든지
+              }
             },
             style: ButtonStyle(
               backgroundColor:
-              MaterialStateProperty.all<Color>(const Color(0xFFE20529)),
-              minimumSize:
-              MaterialStateProperty.all<Size>(const Size(269, 46)),
+                  MaterialStateProperty.all<Color>(const Color(0xFFE20529)),
+              minimumSize: MaterialStateProperty.all<Size>(const Size(269, 46)),
               shape: MaterialStateProperty.all<RoundedRectangleBorder>(
                 RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8),
@@ -654,7 +675,6 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
       ),
     );
   }
-
 
   String timeAgo(DateTime date) {
     Duration diff = DateTime.now().difference(date);

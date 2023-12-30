@@ -33,7 +33,11 @@ Future<ChatDetailModel> _loadChatDetailFromAsset(String url) async {
 }
 
 class ChatDetail extends StatefulWidget {
-  const ChatDetail({super.key});
+  final String roomId;
+  const ChatDetail({
+    super.key,
+    required this.roomId,
+  });
 
   @override
   State<ChatDetail> createState() => _ChatDetailState();

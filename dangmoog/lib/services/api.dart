@@ -277,6 +277,14 @@ class ApiService {
     }
   }
 
+  Future<Response> getChatRoomId(int postId) async {
+    Map<String, dynamic> requestBody = {
+      "post_id": postId,
+    };
+    return await _authClient.post("chat/create_post_chat_room",
+        data: requestBody);
+  }
+
   /////////////////////////////
   /// 사진 관련 ///
   /////////////////////////////

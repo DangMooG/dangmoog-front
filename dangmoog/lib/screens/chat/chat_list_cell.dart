@@ -32,11 +32,15 @@ class _ChatCellState extends State<ChatCell> {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => MultiProvider(providers: [
-              ChangeNotifierProvider(create: (context) => ChatProvider()),
-              ChangeNotifierProvider(
-                  create: (context) => ChatSettingProvider()),
-            ], child: const ChatDetail()),
+            builder: (context) => MultiProvider(
+                providers: [
+                  ChangeNotifierProvider(create: (context) => ChatProvider()),
+                  ChangeNotifierProvider(
+                      create: (context) => ChatSettingProvider()),
+                ],
+                child: ChatDetail(
+                  roomId: widget.productId.toString(),
+                )),
           ),
         );
       },
