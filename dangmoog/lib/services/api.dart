@@ -33,6 +33,7 @@ class ApiService {
     return await _publicClient.post("account/verification", data: {
       "username": inputEmail.split("@").first.toString(),
       "password": verificationCode.toString(),
+      "fcm": "jasidofjgaoiwjijwaofju20lakdjfkl"
     });
   }
 
@@ -313,6 +314,10 @@ class ApiService {
       "photo/search",
       data: requestBody,
     );
+  }
+
+  Future<Response> getOnePhoto(int photoId) async {
+    return await _publicClient.get('photo/$photoId');
   }
 
   ////////////////
