@@ -2,6 +2,7 @@ import 'package:dangmoog/models/chat_detail_model.dart';
 import 'package:dangmoog/providers/chat_provider.dart';
 import 'package:dangmoog/providers/provider.dart';
 import 'package:dangmoog/providers/websocket_provider.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 
 import 'package:dangmoog/screens/mypage/my_page.dart';
@@ -47,6 +48,14 @@ class _MyHomeState extends State<MyHome> {
     Provider.of<ChatProvider>(context, listen: false)
         .addChatContent(chatContent);
   }
+
+  // @override
+  // void initState() async {
+  //   String? fcmToken = await FirebaseMessaging.instance.getToken();
+  //   print(fcmToken);
+
+  //   super.initState();
+  // }
 
   @override
   Widget build(BuildContext context) {
