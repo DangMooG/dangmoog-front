@@ -154,9 +154,14 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        leading: const Icon(
-          Icons.keyboard_backspace,
-          size: 28,
+        leading: IconButton(
+          icon: const Icon(
+            Icons.keyboard_backspace,
+            size: 28,
+          ),
+          onPressed: () {
+            Navigator.pop(context);
+          },
         ),
         iconTheme: const IconThemeData(color: Colors.white),
         actions: <Widget>[
