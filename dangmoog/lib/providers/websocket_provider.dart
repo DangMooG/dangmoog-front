@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
@@ -36,8 +37,8 @@ class SocketClass {
     );
   }
 
-  void onSendMessage(String message) {
-    channel.sink.add(message);
+  void onSendMessage(String message, String roomId) {
+    channel.sink.add("$roomId$message");
   }
 
   void dispose() {
