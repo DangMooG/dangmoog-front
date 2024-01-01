@@ -178,22 +178,6 @@ class _AddPostPageState extends State<AddPostPage> {
             // Trim the imagesPath list
             imagesPath =
                 imagesPath.take(imagesPath.length - overflowCount).toList();
-
-            // Inform the user about the trimmed images
-            showDialog(
-              context: context,
-              builder: (context) => AlertDialog(
-                title: const Text('Image Limit Reached'),
-                content: Text(
-                    '$overflowCount images were not added due to the 10 image limit.'),
-                actions: [
-                  TextButton(
-                    onPressed: () => Navigator.of(context).pop(),
-                    child: const Text('OK'),
-                  ),
-                ],
-              ),
-            );
           }
 
           setState(() {
@@ -244,20 +228,7 @@ class _AddPostPageState extends State<AddPostPage> {
           String imagePath = pickedImage.path;
 
           if (_imageList.length >= 10) {
-            // Inform the user that they've reached the limit
-            showDialog(
-              context: context,
-              builder: (context) => AlertDialog(
-                title: const Text('Error'),
-                content: const Text('You can only select up to 10 images.'),
-                actions: [
-                  TextButton(
-                    onPressed: () => Navigator.of(context).pop(),
-                    child: const Text('OK'),
-                  ),
-                ],
-              ),
-            );
+            // do nothing
           } else {
             setState(() {
               _imageList.add(imagePath);
@@ -480,7 +451,7 @@ class _AddPostPageState extends State<AddPostPage> {
         showDialog(
           context: context,
           barrierDismissible: true,
-          builder: (BuildContext context) {
+          builder: (BuildContext dialogContext) {
             Size screenSize = MediaQuery.of(context).size;
             return AlertDialog(
               shape: RoundedRectangleBorder(
