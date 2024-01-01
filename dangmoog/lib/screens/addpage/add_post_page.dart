@@ -327,6 +327,14 @@ class _AddPostPageState extends State<AddPostPage> {
   }
 
   @override
+  void dispose() {
+    productNameController.dispose();
+    priceController.dispose();
+    detailController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     Size screenSize = MediaQuery.of(context).size;
 
