@@ -200,7 +200,7 @@ class _ChatDetailState extends State<ChatDetail> {
     void handleSubmitted() {
       if (_textController.text != '') {
         // 서버로 전송
-        socketChannel.onSendMessage(_textController.text);
+        socketChannel.onSendMessage(_textController.text, widget.roomId);
 
         var newMessage = ChatDetailContent(
           chatDateTime: DateTime.now(), // 현재 시간으로 설정
@@ -431,9 +431,14 @@ class _ChatDetailState extends State<ChatDetail> {
           fontWeight: FontWeight.w600,
         ),
       ),
-      leading: const Icon(
-        Icons.keyboard_backspace,
-        size: 28,
+      leading: IconButton(
+        icon: const Icon(
+          Icons.keyboard_backspace,
+          size: 28,
+        ),
+        onPressed: () {
+          Navigator.pop(context);
+        },
       ),
       backgroundColor: Colors.white,
       shape: const Border(
