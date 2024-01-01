@@ -50,6 +50,13 @@ class _AddPostPageState extends State<AddPostPage> {
   String? productDescriptionError;
 
   void _createNewPost() async {
+    if (isUploading) {
+      return;
+    }
+    setState(() {
+      isUploading = true;
+    });
+
     String title = productNameController.text;
     int price;
     try {
@@ -145,6 +152,10 @@ class _AddPostPageState extends State<AddPostPage> {
       print(
           "Error creating post. Status Code: ${response.statusCode}, Error Message: ${response.statusMessage}");
     }
+
+    setState(() {
+      isUploading = false;
+    });
   }
 
   // 앨범에서 이미지를 가져오는 함수
@@ -299,6 +310,8 @@ class _AddPostPageState extends State<AddPostPage> {
   TextEditingController detailController = TextEditingController();
 
   ScrollController scrollController = ScrollController();
+
+  bool isUploading = false;
 
   @override
   void initState() {
@@ -1145,8 +1158,10 @@ class _AddPostPageState extends State<AddPostPage> {
                             width: 300,
                             child: TextButton(
                               onPressed: () {
-                                _createNewPost();
-                                if (useLocker == 1) {}
+                                if (!isUploading) {
+                                  _createNewPost();
+                                  if (useLocker == 1) {}
+                                }
                               },
                               style: ButtonStyle(
                                 backgroundColor:
@@ -1219,7 +1234,9 @@ class _AddPostPageState extends State<AddPostPage> {
                 },
               );
             } else {
-              _createNewPost();
+              if (!isUploading) {
+                _createNewPost();
+              }
             }
           }
 
