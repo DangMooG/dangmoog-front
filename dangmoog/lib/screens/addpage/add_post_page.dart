@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:dangmoog/screens/home.dart';
 import 'package:dangmoog/screens/post/main_page.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
@@ -119,7 +120,7 @@ class _AddPostPageState extends State<AddPostPage> {
       }
       Navigator.pushAndRemoveUntil(
         context,
-        MaterialPageRoute(builder: (context) => const MainPage()),
+        MaterialPageRoute(builder: (context) => const MyHome()),
         (Route<dynamic> route) => false,
       );
       // Your additional success logic
