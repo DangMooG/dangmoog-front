@@ -188,6 +188,7 @@ class _AddPostPageState extends State<AddPostPage> {
         print("Error picking images: $e");
       }
     } else if (status.isPermanentlyDenied) {
+      if (!mounted) return;
       await showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -239,6 +240,7 @@ class _AddPostPageState extends State<AddPostPage> {
         print("Error picking images: $e");
       }
     } else if (status.isPermanentlyDenied) {
+      if (!mounted) return;
       await showDialog(
         context: context,
         builder: (BuildContext context) {

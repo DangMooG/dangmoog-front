@@ -18,7 +18,6 @@ class ProductModel extends ChangeNotifier {
   bool _isFavorited = false;
   bool isUpdatingLike = false;
 
-
   ProductModel({
     required this.title,
     required this.price,
@@ -34,8 +33,7 @@ class ProductModel extends ChangeNotifier {
     required this.updateTime,
     required this.useLocker,
     required bool isFavorited,
-  }):_isFavorited = isFavorited;
-
+  }) : _isFavorited = isFavorited;
 
   factory ProductModel.fromJson(Map<String, dynamic> json) {
     return ProductModel(
@@ -50,12 +48,13 @@ class ProductModel extends ChangeNotifier {
       representativePhotoId: json['representative_photo_id'] ?? 0,
       postId: json['post_id'] ?? 0,
       likeCount: json['liked'] ?? 0,
-      createTime: DateTime.tryParse(json['create_time'].toString()) ?? DateTime.now(),
-      updateTime: DateTime.tryParse(json['update_time'].toString()) ?? DateTime.now(),
+      createTime:
+          DateTime.tryParse(json['create_time'].toString()) ?? DateTime.now(),
+      updateTime:
+          DateTime.tryParse(json['update_time'].toString()) ?? DateTime.now(),
       isFavorited: json['isFavorited'] ?? false,
     );
   }
-
 
   bool get isFavorited => _isFavorited;
 
@@ -63,8 +62,4 @@ class ProductModel extends ChangeNotifier {
     _isFavorited = value;
     notifyListeners();
   }
-
-
 }
-
-
