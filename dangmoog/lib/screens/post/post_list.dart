@@ -1,19 +1,17 @@
-import 'package:dangmoog/constants/category_list.dart';
-import 'package:dangmoog/screens/addpage/add_post_page.dart';
-import 'package:dangmoog/screens/addpage/choose_locker_page.dart';
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:dio/dio.dart';
 import 'package:provider/provider.dart';
-
 import 'dart:io';
 
+import 'package:dangmoog/screens/addpage/add_post_page.dart';
+import 'package:dangmoog/screens/addpage/choose_locker_page.dart';
 import 'package:dangmoog/screens/post/detail_page.dart';
 
+import 'package:dangmoog/services/api.dart';
 import 'package:dangmoog/models/product_class.dart';
 
+import 'package:dangmoog/constants/category_list.dart';
 import 'package:dangmoog/utils/convert_money_format.dart';
-
-import 'package:dangmoog/services/api.dart';
 
 class ProductList extends StatefulWidget {
   const ProductList({super.key});
@@ -23,49 +21,66 @@ class ProductList extends StatefulWidget {
 }
 
 class _ProductListState extends State<ProductList> {
-  late Future<List<ProductModel>> futureProducts;
   final ApiService apiService = ApiService();
   final ScrollController _scrollController = ScrollController();
+  int checkpoint = 0;
+  List<ProductModel> products = [];
+  bool isLoadingProductList = false;
 
   // 이미지 캐싱을 위한 변수
   Map<int, String> imageCache = {};
 
-  @override
-  void initState() {
-    super.initState();
-    futureProducts = fetchProducts();
+  Future<void> _loadProducts() async {
+    if (isLoadingProductList) return; // 중복 호출 방지
+    setState(() {
+      isLoadingProductList = true;
+    });
+
+    try {
+      Response response =
+          await apiService.loadProductListWithPaging(checkpoint);
+      if (response.statusCode == 200) {
+        final data = response.data;
+
+        final List<dynamic> items = data["items"];
+
+        List<ProductModel> newProducts =
+            items.map((item) => ProductModel.fromJson(item)).toList();
+
+        setState(() {
+          checkpoint = data["next_checkpoint"];
+          products.addAll(newProducts);
+          isLoadingProductList = false;
+        });
+      } else {
+        throw Exception('Failed to load products');
+      }
+    } catch (e) {
+      print(e);
+    }
   }
 
-  // 현재 사용된 곳 없음
-  void _onScroll() {
-    if (_scrollController.position.pixels ==
-        _scrollController.position.minScrollExtent) {
-      // You're at the top of the scrollable, trigger the refresh logic
-      setState(() {
-        futureProducts = fetchProducts();
-      });
+  void _scrollListener() {
+    if (_scrollController.position.pixels >=
+            _scrollController.position.maxScrollExtent * 2 / 3 &&
+        !isLoadingProductList) {
+      if (checkpoint != -1) {
+        _loadProducts();
+      }
     }
+  }
+
+  @override
+  void initState() {
+    _loadProducts();
+    _scrollController.addListener(_scrollListener);
+    super.initState();
   }
 
   @override
   void dispose() {
-    _scrollController.removeListener(_onScroll);
     _scrollController.dispose();
     super.dispose();
-  }
-
-  Future<List<ProductModel>> fetchProducts() async {
-    Response response = await apiService.loadList();
-    if (response.statusCode == 200) {
-      if (response.data is List) {
-        List<dynamic> data = response.data as List;
-        return data.map((item) => ProductModel.fromJson(item)).toList();
-      } else {
-        throw Exception('Data format from server is unexpected.');
-      }
-    } else {
-      throw Exception('Failed to load products');
-    }
   }
 
   @override
@@ -230,50 +245,38 @@ class _ProductListState extends State<ProductList> {
 
   // 게시물 리스트 위젯
   Widget _postListView() {
-    return FutureBuilder<List<ProductModel>>(
-      future: futureProducts,
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          // While data is still loading:
-          return const Center(child: CircularProgressIndicator());
-        } else if (snapshot.hasError) {
-          // If we run into an error:
-          return Center(
-              child: Text('Failed to load products: ${snapshot.error}'));
-        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-          // Data is loaded but empty:
-          return const Center(child: Text('No products available.'));
-        }
-
-        // Data is loaded and available:
-        List<ProductModel> products = snapshot.data!;
-        // Reverse the order of products so the latest one appears at the top.
-        products = products.reversed.toList();
-        return RefreshIndicator(
-          onRefresh: () async {
-            setState(() {
-              futureProducts = fetchProducts();
-            });
-            await futureProducts;
-          },
-          child: ListView.separated(
-            controller: _scrollController,
-            itemCount: products.length,
-            itemBuilder: (context, index) {
-              Widget productCard = ChangeNotifierProvider<ProductModel>.value(
+    return RefreshIndicator(
+      onRefresh: () async {
+        setState(() {
+          checkpoint = 0;
+        });
+        products.clear();
+        await _loadProducts();
+      },
+      child: Scrollbar(
+        controller: _scrollController,
+        child: ListView.separated(
+          controller: _scrollController,
+          itemCount: products.length,
+          itemBuilder: (context, index) {
+            if (index < products.length) {
+              return ChangeNotifierProvider<ProductModel>.value(
                 value: products[index],
                 child: _postCard(context),
               );
-              return productCard;
-            },
-            separatorBuilder: (context, i) {
-              return const Divider(
-                height: 1,
-              );
-            },
-          ),
-        );
-      },
+            } else if (isLoadingProductList) {
+              return const Center(child: CircularProgressIndicator());
+            } else {
+              return Container();
+            }
+          },
+          separatorBuilder: (context, i) {
+            return const Divider(
+              height: 1,
+            );
+          },
+        ),
+      ),
     );
   }
 
@@ -346,63 +349,70 @@ class _ProductListState extends State<ProductList> {
             width: 0.5,
           ),
         ),
-        child: imageCache.containsKey(product.representativePhotoId)
-            ? Image.network(
-                imageCache[product.representativePhotoId]!,
-                fit: BoxFit.cover,
-              )
-            : product.representativePhotoId == 0
-                ? Image.asset(
-                    "assets/images/sample.png",
-                    width: 90,
-                    fit: BoxFit.cover,
-                  )
-                : FutureBuilder<Response>(
-                    future: apiService.loadPhoto(product.representativePhotoId),
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return const Center(
-                          child: CircularProgressIndicator(),
-                        );
-                      } else if (snapshot.hasError) {
-                        return Image.asset(
-                          "assets/images/sample.png",
-                          width: 90,
-                          errorBuilder: (BuildContext context, Object exception,
-                              StackTrace? stackTrace) {
-                            return Image.asset(
-                              "assets/images/sample.png",
-                              width: 90,
-                              fit: BoxFit.cover,
-                            );
-                          },
-                        );
-                      } else if (snapshot.data == null) {
-                        return Image.asset(
-                          '/assets/images/sample.png',
-                          fit: BoxFit.cover,
-                        );
-                      } else if (snapshot.hasData) {
-                        Map<String, dynamic> data = snapshot.data!.data;
-                        String imageUrl = data["url"];
-                        imageCache[product.representativePhotoId] = imageUrl;
-                        return Image.network(
-                          imageUrl,
-                          fit: BoxFit.cover,
-                        );
-                      } else {
-                        return Image.asset(
-                          "assets/images/sample.png",
-                          fit: BoxFit.cover,
-                        );
-                      }
-                    },
-                  ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(8),
+          child: imageCache.containsKey(product.representativePhotoId)
+              ? Image.network(
+                  imageCache[product.representativePhotoId]!,
+                  fit: BoxFit.cover,
+                )
+              : product.representativePhotoId == 0
+                  ? Image.asset(
+                      "assets/images/sample.png",
+                      width: 90,
+                      fit: BoxFit.cover,
+                    )
+                  : FutureBuilder<Response>(
+                      future:
+                          apiService.loadPhoto(product.representativePhotoId),
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return Container(
+                            decoration: const BoxDecoration(
+                              color: Color(0xffF1F1F1),
+                            ),
+                          );
+                        } else if (snapshot.hasError) {
+                          return Image.asset(
+                            "assets/images/sample.png",
+                            width: 90,
+                            errorBuilder: (BuildContext context,
+                                Object exception, StackTrace? stackTrace) {
+                              return Image.asset(
+                                "assets/images/sample.png",
+                                width: 90,
+                                fit: BoxFit.cover,
+                              );
+                            },
+                          );
+                        } else if (snapshot.data == null) {
+                          return Image.asset(
+                            '/assets/images/sample.png',
+                            fit: BoxFit.cover,
+                          );
+                        } else if (snapshot.hasData) {
+                          Map<String, dynamic> data = snapshot.data!.data;
+                          String imageUrl = data["url"];
+                          imageCache[product.representativePhotoId] = imageUrl;
+                          return Image.network(
+                            imageUrl,
+                            fit: BoxFit.cover,
+                          );
+                        } else {
+                          return Image.asset(
+                            "assets/images/sample.png",
+                            fit: BoxFit.cover,
+                          );
+                        }
+                      },
+                    ),
+        ),
       ),
     );
   }
 
-  
+  // 게시물 상세 내역
   Widget _buildProductDetails(BuildContext context, ProductModel product) {
     double height = MediaQuery.of(context).size.width * 0.28;
     return Expanded(
