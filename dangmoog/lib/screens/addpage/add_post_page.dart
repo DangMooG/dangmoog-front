@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:dangmoog/screens/home.dart';
 import 'package:dangmoog/screens/post/main_page.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
@@ -49,6 +50,13 @@ class _AddPostPageState extends State<AddPostPage> {
   String? productDescriptionError;
 
   void _createNewPost() async {
+    if (isUploading) {
+      return;
+    }
+    setState(() {
+      isUploading = true;
+    });
+
     String title = productNameController.text;
     int price;
     try {
@@ -119,7 +127,7 @@ class _AddPostPageState extends State<AddPostPage> {
       }
       Navigator.pushAndRemoveUntil(
         context,
-        MaterialPageRoute(builder: (context) => const MainPage()),
+        MaterialPageRoute(builder: (context) => const MyHome()),
         (Route<dynamic> route) => false,
       );
       // Your additional success logic
@@ -144,6 +152,10 @@ class _AddPostPageState extends State<AddPostPage> {
       print(
           "Error creating post. Status Code: ${response.statusCode}, Error Message: ${response.statusMessage}");
     }
+
+    setState(() {
+      isUploading = false;
+    });
   }
 
   // 앨범에서 이미지를 가져오는 함수
@@ -166,22 +178,6 @@ class _AddPostPageState extends State<AddPostPage> {
             // Trim the imagesPath list
             imagesPath =
                 imagesPath.take(imagesPath.length - overflowCount).toList();
-
-            // Inform the user about the trimmed images
-            showDialog(
-              context: context,
-              builder: (context) => AlertDialog(
-                title: const Text('Image Limit Reached'),
-                content: Text(
-                    '$overflowCount images were not added due to the 10 image limit.'),
-                actions: [
-                  TextButton(
-                    onPressed: () => Navigator.of(context).pop(),
-                    child: const Text('OK'),
-                  ),
-                ],
-              ),
-            );
           }
 
           setState(() {
@@ -192,6 +188,7 @@ class _AddPostPageState extends State<AddPostPage> {
         print("Error picking images: $e");
       }
     } else if (status.isPermanentlyDenied) {
+      if (!mounted) return;
       await showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -232,20 +229,7 @@ class _AddPostPageState extends State<AddPostPage> {
           String imagePath = pickedImage.path;
 
           if (_imageList.length >= 10) {
-            // Inform the user that they've reached the limit
-            showDialog(
-              context: context,
-              builder: (context) => AlertDialog(
-                title: const Text('Error'),
-                content: const Text('You can only select up to 10 images.'),
-                actions: [
-                  TextButton(
-                    onPressed: () => Navigator.of(context).pop(),
-                    child: const Text('OK'),
-                  ),
-                ],
-              ),
-            );
+            // do nothing
           } else {
             setState(() {
               _imageList.add(imagePath);
@@ -256,6 +240,7 @@ class _AddPostPageState extends State<AddPostPage> {
         print("Error picking images: $e");
       }
     } else if (status.isPermanentlyDenied) {
+      if (!mounted) return;
       await showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -299,6 +284,8 @@ class _AddPostPageState extends State<AddPostPage> {
 
   ScrollController scrollController = ScrollController();
 
+  bool isUploading = false;
+
   @override
   void initState() {
     super.initState();
@@ -323,6 +310,14 @@ class _AddPostPageState extends State<AddPostPage> {
         });
       }
     });
+  }
+
+  @override
+  void dispose() {
+    productNameController.dispose();
+    priceController.dispose();
+    detailController.dispose();
+    super.dispose();
   }
 
   @override
@@ -458,7 +453,7 @@ class _AddPostPageState extends State<AddPostPage> {
         showDialog(
           context: context,
           barrierDismissible: true,
-          builder: (BuildContext context) {
+          builder: (BuildContext dialogContext) {
             Size screenSize = MediaQuery.of(context).size;
             return AlertDialog(
               shape: RoundedRectangleBorder(
@@ -1136,8 +1131,10 @@ class _AddPostPageState extends State<AddPostPage> {
                             width: 300,
                             child: TextButton(
                               onPressed: () {
-                                _createNewPost();
-                                if (useLocker == 1) {}
+                                if (!isUploading) {
+                                  _createNewPost();
+                                  if (useLocker == 1) {}
+                                }
                               },
                               style: ButtonStyle(
                                 backgroundColor:
@@ -1210,7 +1207,9 @@ class _AddPostPageState extends State<AddPostPage> {
                 },
               );
             } else {
-              _createNewPost();
+              if (!isUploading) {
+                _createNewPost();
+              }
             }
           }
 

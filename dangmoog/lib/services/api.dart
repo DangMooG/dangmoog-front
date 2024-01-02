@@ -81,32 +81,11 @@ class ApiService {
     return await _authClient.delete("account/");
   }
 
-  // Provider를 통해서 사용자 이름 알 수 있으므로 폐기
-  // Future<String?> getUsername() async {
-  //   try {
-  //     final response = await autoLogin();
-  //     if (response.statusCode == 200) {
-  //       // Assuming the response data is a Map that contains the username
-  //       final username = response.data['username'];
-  //       if (username is String) {
-  //         return username;
-  //       } else {
-  //         throw Exception('Username is not a string');
-  //       }
-  //     } else {
-  //       // Handle non-200 status code
-  //       throw Exception('Failed to auto login');
-  //     }
-  //   } catch (e) {
-  //     // Handle exception
-  //     rethrow;
-  //   }
-  // }
-
   /////////////////////////////
   /// 물품 관련 ///
   /////////////////////////////
 
+  // 게시글 업로드
   Future<Response> createPost({
     required String title,
     required int price,
@@ -165,6 +144,7 @@ class ApiService {
     }
   }
 
+  // 게시글 수정
   Future<Response> patchPost({
     required int postId,
     String? title,

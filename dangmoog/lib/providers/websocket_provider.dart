@@ -36,8 +36,8 @@ class SocketClass {
     );
   }
 
-  void onSendMessage(String message) {
-    channel.sink.add(message);
+  void onSendMessage(String message, String roomId) {
+    channel.sink.add("$roomId$message");
   }
 
   void dispose() {

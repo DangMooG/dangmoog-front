@@ -402,6 +402,7 @@ class _ProductListState extends State<ProductList> {
     );
   }
 
+  
   Widget _buildProductDetails(BuildContext context, ProductModel product) {
     double height = MediaQuery.of(context).size.width * 0.28;
     return Expanded(
@@ -496,6 +497,7 @@ class _ProductListState extends State<ProductList> {
     );
   }
 
+  // 게시글 거래 상태 표기
   Widget _buildDealStatus(int dealStatus) {
     return dealStatus != 0
         ? Container(
@@ -514,10 +516,13 @@ class _ProductListState extends State<ProductList> {
             ),
             child: Text(
               dealStatus == 1 ? '예약중' : '판매완료',
-              style: const TextStyle(
+              style: TextStyle(
                 color: Colors.white,
                 fontSize: 11,
                 fontWeight: FontWeight.w400,
+                backgroundColor: dealStatus == 1
+                    ? const Color(0xffEC5870)
+                    : const Color(0xff726E6E),
               ),
             ),
           )

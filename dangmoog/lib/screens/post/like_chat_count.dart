@@ -5,7 +5,11 @@ class LikeChatCount extends StatelessWidget {
   final dynamic product;
   final ApiService apiService;
 
-  LikeChatCount({Key? key, required this.product, required this.apiService}) : super(key: key);
+  const LikeChatCount({
+    Key? key,
+    required this.product,
+    required this.apiService,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
