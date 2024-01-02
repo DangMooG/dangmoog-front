@@ -220,6 +220,19 @@ class ApiService {
     return await _publicClient.get("post/$id");
   }
 
+  Future<Response> loadProductListWithPaging(int checkpoint) async {
+    if (checkpoint == 0) {
+      return await _publicClient.get("post/app-paging", queryParameters: {
+        "size": 20,
+      });
+    } else {
+      return await _publicClient.get("post/app-paging", queryParameters: {
+        "size": 20,
+        "checkpoint": checkpoint,
+      });
+    }
+  }
+
   Future<Response> loadLikes() async {
     return await _authClient.post("post/get_like_list");
   }
