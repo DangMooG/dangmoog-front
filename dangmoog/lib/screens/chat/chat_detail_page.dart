@@ -1,40 +1,31 @@
+import 'package:dangmoog/models/chat_detail_message_model.dart';
 import 'package:dangmoog/models/product_class.dart';
 import 'package:dangmoog/providers/chat_provider.dart';
-import 'package:dangmoog/providers/chat_setting_provider.dart';
 import 'package:dangmoog/providers/websocket_provider.dart';
 
 import 'package:dangmoog/screens/chat/chat_detail_content.dart';
 import 'package:dangmoog/screens/chat/chat_detail_options.dart';
 import 'package:dangmoog/screens/chat/chat_detail_product.dart';
+import 'package:dangmoog/services/api.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 
 import 'package:dangmoog/models/chat_detail_model.dart';
 
 import 'dart:async';
 import 'dart:math';
-import 'dart:convert';
-import 'package:flutter/services.dart';
-// import 'package:flutter_provider/flutter_provider.dart';
 
 // plugin
 import 'package:keyboard_height_plugin/keyboard_height_plugin.dart';
 import 'package:provider/provider.dart';
 
-// chat data 불러오기
-Future<ChatDetailModel> _loadChatDetailFromAsset(String url) async {
-  final String jsonChatDetail = await rootBundle.loadString(url);
-  final Map<String, dynamic> jsonChatDetailResponse =
-      json.decode(jsonChatDetail);
-
-  return ChatDetailModel.fromJson(jsonChatDetailResponse);
-}
-
 class ChatDetail extends StatefulWidget {
-  final ProductModel product;
+  final int postId;
   final String roomId;
+
   const ChatDetail({
     super.key,
-    required this.product,
+    required this.postId,
     required this.roomId,
   });
 
@@ -43,18 +34,19 @@ class ChatDetail extends StatefulWidget {
 }
 
 class _ChatDetailState extends State<ChatDetail> {
-  // 클릭 방지
-  bool _blockInteraction = false;
+  ProductModel? product;
+  late String roomId;
+  late int postId;
 
-  late ProductModel product;
+  List<ChatDetailMessageModel>? _chatDetail;
 
-  // late Future<ChatDetailModel> _chatDetail;
+  bool saveBankAccount = true;
 
   final TextEditingController _textController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
 
-  // static const storage = FlutterSecureStorage();
-  bool saveBankAccount = true;
+  // 클릭 방지
+  bool _blockInteraction = false;
 
   // // Keyboard, Optionbox Related // //
 
@@ -64,7 +56,6 @@ class _ChatDetailState extends State<ChatDetail> {
   bool _isOptionOn = false;
   // 현재 키보드가 on이면 true
   bool _isKeyboardOn = false;
-
   // keyboard 높이
   double _keyboardHeight = 291;
   final KeyboardHeightPlugin _keyboardHeightPlugin = KeyboardHeightPlugin();
@@ -111,15 +102,45 @@ class _ChatDetailState extends State<ChatDetail> {
 
   late SocketClass socketChannel;
 
+  void getPostContent() async {
+    print(1);
+    Response response = await ApiService().loadProduct(widget.postId);
+    print(response.statusCode);
+    if (response.statusCode == 200) {
+      final post = response.data;
+      if (mounted) {
+        setState(() {
+          product = ProductModel.fromJson(post);
+        });
+      }
+    }
+  }
+
+  void getAllMessages() async {
+    print("room ID: ${widget.roomId}");
+    Response response = await ApiService().getChatAllMessages(widget.roomId);
+    if (response.statusCode == 200) {
+      final List<dynamic> messages = response.data;
+      print(messages);
+      setState(() {
+        _chatDetail = messages
+            .map((msg) => ChatDetailMessageModel.fromJson(msg))
+            .toList();
+      });
+    }
+  }
+
   @override
   void initState() {
     super.initState();
 
-    product = widget.product;
+    getPostContent();
+    getAllMessages();
 
-    // setState(() {
-    //   _chatDetail = _loadChatDetailFromAsset('assets/chat_detail.json');
-    // });
+    setState(() {
+      roomId = widget.roomId;
+      postId = widget.postId;
+    });
 
     // 키보드의 높이가 바뀌면 update
     // 키보드가 unfocus돼서 내려가는 건 update 안함
@@ -168,9 +189,15 @@ class _ChatDetailState extends State<ChatDetail> {
   Widget build(BuildContext context) {
     socketChannel = Provider.of<SocketClass>(context);
     socketChannel.onMessageReceived = _handleMessageReceived;
+
+    // product가 null이 아닌 경우에만 ChatDetailProduct를 표시합니다.
+    Widget productWidget = product != null
+        ? ChatDetailProduct(product: product!)
+        : const CircularProgressIndicator(); // 또는 다른 placeholder 위젯을 사용할 수 있습니다.
+
     return Scaffold(
       resizeToAvoidBottomInset: resizeScreenKeyboard,
-      appBar: _buildChatUserName(widget.product.userName),
+      appBar: _buildChatUserName(product != null ? product!.userName : ""),
       body: Center(
         child: AbsorbPointer(
           absorbing: _blockInteraction,
@@ -178,8 +205,7 @@ class _ChatDetailState extends State<ChatDetail> {
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              // _buildChatProductInfo(_chatDetail),
-              ChatDetailProduct(product: product),
+              productWidget,
               Expanded(
                 child: GestureDetector(
                   onTap: unFocusKeyBoard,
