@@ -1,4 +1,6 @@
 import 'package:dangmoog/constants/category_list.dart';
+import 'package:dangmoog/providers/product_detail_provider.dart';
+import 'package:dangmoog/providers/provider.dart';
 import 'package:dangmoog/screens/chat/chat_detail_page.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
@@ -6,101 +8,10 @@ import 'package:dangmoog/models/product_class.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:dangmoog/utils/convert_money_format.dart';
 import 'package:dangmoog/services/api.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:provider/provider.dart';
 
 import 'edit_post_page.dart';
-import 'main_page.dart';
-
-class ProductDetailProvider with ChangeNotifier {
-  final ApiService apiService;
-  ProductModel? product;
-  bool isLoading = true;
-  List<String> images = [];
-
-  ProductDetailProvider(this.apiService, int postId) {
-    _fetchProductDetail(postId);
-  }
-
-  Future<void> _fetchProductDetail(int postId) async {
-    isLoading = true;
-    notifyListeners();
-
-    try {
-      final response = await apiService.loadProduct(postId);
-      if (response.statusCode == 200) {
-        product = ProductModel.fromJson(response.data);
-        await _fetchPhotos(postId);
-
-        await _checkIfFavorited(postId);
-      } else {}
-    } catch (e) {
-      // Handle any exceptions here
-    } finally {
-      isLoading = false;
-      notifyListeners();
-    }
-  }
-
-  Future<void> _fetchPhotos(int postId) async {
-    try {
-      final response = await apiService.searchPhoto(postId);
-      if (response.statusCode == 200) {
-        List<dynamic> photoData = response.data;
-        images = photoData.map((item) => item['url'].toString()).toList();
-      } else {
-        // Handle non-200 responses
-      }
-    } catch (e) {
-      // Handle exceptions
-    }
-    notifyListeners();
-    // No need to call notifyListeners here if you're calling this method
-    // from within _fetchProductDetail, which calls notifyListeners in finally.
-  }
-
-  List<int> likedProductIds = [];
-
-  Future<void> _checkIfFavorited(int postId) async {
-    try {
-      final response = await apiService.getLikeList();
-      if (response.statusCode == 200) {
-        List<dynamic> likedPosts = response.data;
-        bool isFavorited = likedPosts.any((item) => item['post_id'] == postId);
-        if (product != null) {
-          product!.isFavorited = isFavorited;
-        }
-      }
-    } catch (e) {
-      // Handle exceptions
-    }
-  }
-
-  void toggleLike() async {
-    if (product == null) return;
-
-    bool isCurrentlyFavorited = product!.isFavorited;
-    product!.isFavorited = !isCurrentlyFavorited;
-    product!.likeCount += isCurrentlyFavorited ? -1 : 1;
-    notifyListeners();
-
-    try {
-      Response response = isCurrentlyFavorited
-          ? await apiService.decreaseLike(product!.postId)
-          : await apiService.increaseLike(product!.postId);
-
-      // Handle response accordingly
-      // If there's an error, revert the like state and update UI
-      if (response.statusCode != (isCurrentlyFavorited ? 204 : 200)) {
-        product!.isFavorited = isCurrentlyFavorited;
-        product!.likeCount += isCurrentlyFavorited ? 1 : -1;
-        notifyListeners();
-      }
-      print(response);
-    } catch (e) {
-      rethrow;
-    }
-  }
-}
 
 class ProductDetailPage extends StatefulWidget {
   final int? postId;
@@ -111,7 +22,7 @@ class ProductDetailPage extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  _ProductDetailPageState createState() => _ProductDetailPageState();
+  State<ProductDetailPage> createState() => _ProductDetailPageState();
 }
 
 class _ProductDetailPageState extends State<ProductDetailPage> {
@@ -138,6 +49,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
               ),
             );
           }
+
           return _buildProductDetail(context, provider);
         },
       ),
@@ -222,6 +134,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                               final response = await ApiService()
                                   .deletePost(postId); // Call the delete API
                               if (response.statusCode == 204) {
+                                if (!mounted) return;
                                 Navigator.pop(context);
                                 // Handle successful deletion here, like showing a confirmation message
                               } else {
@@ -234,6 +147,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                               print(
                                   'An error occurred while deleting the post: $e');
                             }
+                            if (!mounted) return;
                             Navigator.pop(context);
                           },
                           style: TextButton.styleFrom(
@@ -297,7 +211,8 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
           productInfo(product),
         ],
       ),
-      bottomNavigationBar: _buildChatButton(context, product),
+      bottomNavigationBar:
+          _buildChatButton(context, product, provider.chatAvailable),
     );
   }
 
@@ -594,7 +509,9 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
     );
   }
 
-  Widget _buildChatButton(BuildContext context, ProductModel product) {
+  Widget _buildChatButton(
+      BuildContext context, ProductModel product, bool chatAvailable) {
+    print(chatAvailable);
     return Container(
       height: 85,
       padding: const EdgeInsets.only(top: 14, bottom: 24),
@@ -644,32 +561,40 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
             ),
           ),
           ElevatedButton(
-            onPressed: () async {
-              // Handle chat logic here
+            // 1. 내 게시글이 아니거나
+            // 2. 거래상태가 거래중인 경우에만 채팅 가능
+            onPressed: chatAvailable
+                ? () async {
+                    try {
+                      Response response =
+                          await ApiService().getChatRoomId(product.postId);
+                      if (response.statusCode == 200) {
+                        String roomId = response.data["room_id"];
 
-              Response response =
-                  await ApiService().getChatRoomId(product.postId);
-              if (response.statusCode == 200) {
-                String roomId = response.data["room_id"];
-
-                if (!mounted) return;
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => ChatDetail(
-                      product: product,
-                      roomId: roomId,
-                    ),
-                  ),
-                );
-              } else {
-                // 삭제된 게시글이라든지, 예약중이거나 거래완료된 게시글이라든지
-                // 알 수 없는 게시글이라든지
-              }
-            },
+                        if (!mounted) return;
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => ChatDetail(
+                              postId: product.postId,
+                              roomId: roomId,
+                            ),
+                          ),
+                        );
+                      } else {
+                        // 삭제된 게시글이라든지, 예약중이거나 거래완료된 게시글이라든지
+                        // 알 수 없는 게시글이라든지
+                      }
+                    } catch (e) {
+                      // 채팅이 불가능함을 사용자에게 알리기
+                      print(e);
+                    }
+                  }
+                : null,
             style: ButtonStyle(
-              backgroundColor:
-                  MaterialStateProperty.all<Color>(const Color(0xFFE20529)),
+              backgroundColor: MaterialStateProperty.all<Color>(chatAvailable
+                  ? const Color(0xFFE20529)
+                  : const Color(0xffBEBCBC)),
               minimumSize: MaterialStateProperty.all<Size>(const Size(269, 46)),
               shape: MaterialStateProperty.all<RoundedRectangleBorder>(
                 RoundedRectangleBorder(
