@@ -245,11 +245,11 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                       imagePath.startsWith('https'))
                   ? Image.network(
                       imagePath,
-                      fit: BoxFit.fill,
+                      fit: BoxFit.cover,
                     )
                   : Image.asset(
                       imagePath,
-                      fit: BoxFit.fill,
+                      fit: BoxFit.cover,
                     ),
             );
           },
