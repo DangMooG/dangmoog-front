@@ -1,8 +1,10 @@
 import 'package:dangmoog/models/chat_detail_model.dart';
+import 'package:dangmoog/models/chat_list_cell_model.dart';
+import 'package:dangmoog/providers/chat_list_provider.dart';
 import 'package:dangmoog/providers/chat_provider.dart';
-import 'package:dangmoog/providers/provider.dart';
 import 'package:dangmoog/providers/websocket_provider.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:dangmoog/services/api.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 
 import 'package:dangmoog/screens/mypage/my_page.dart';
@@ -25,13 +27,14 @@ class _MyHomeState extends State<MyHome> {
   int currentTabIndex = 0;
 
   final List<Widget> _bodyPage = <Widget>[
-    const MainPage(), // Post List Page
-    const TempPage(), // home page (추후 업데이트를 위한 여유 페이지)
-    const ChatListPage(), // Chat List Page
+    const MainPage(key: ValueKey("MainPage")), // Post List Page
+    const TempPage(key: ValueKey("TempPage")), // Temp Page
+    const ChatListPage(key: ValueKey("ChatListPage")), // Chat List Page
     const MyPage(
+      key: ValueKey("MyPage"),
       nickname: '',
       email: '',
-    ) // MyPage
+    )
   ];
 
   late SocketClass socketChannel;
@@ -49,13 +52,76 @@ class _MyHomeState extends State<MyHome> {
         .addChatContent(chatContent);
   }
 
-  // @override
-  // void initState() async {
-  //   String? fcmToken = await FirebaseMessaging.instance.getToken();
-  //   print(fcmToken);
+  void _getAllMyChatList() async {
+    Response response = await ApiService().getMyRoomIds();
+    if (response.statusCode == 200) {
+      final roomIdList = [
+        for (var id in response.data["room_ids"]) id.toString()
+      ];
 
-  //   super.initState();
-  // }
+      Response response2 = await ApiService().getChatUserNames(roomIdList);
+      if (response2.statusCode == 200) {
+        final userNameList = response2.data["usernames"];
+        final userProfileUrlList = response2.data["profiles"];
+
+        Response response3 =
+            await ApiService().getAllMyChatRoomStatus(roomIdList);
+        if (response3.statusCode == 200) {
+          final lastMessageList = response3.data["last_messages"];
+          final updateTimeList = response3.data["update_times"];
+          final unreadCountList = response3.data["counts"];
+
+          Response response4 =
+              await ApiService().getAllMyChatRoomInfo(roomIdList);
+          if (response4.statusCode == 200) {
+            final postIdList = response4.data["post_id"];
+            final imBuyerList = response4.data["iam_buyer"];
+            final photoIdList = response4.data["repr_photo_id"];
+
+            List<ChatListCell> combinedList = [];
+            for (int i = 0; i < roomIdList.length; i++) {
+              if (lastMessageList[i] != null) {
+                combinedList.add(
+                  ChatListCell(
+                    roomId: roomIdList[i],
+                    userName: userNameList[i],
+                    userProfileUrl: userProfileUrlList[i],
+                    photoId: photoIdList[i],
+                    lastMessage: lastMessageList[i],
+                    updateTime: DateTime.parse(updateTimeList[i]),
+                    unreadCount: unreadCountList[i],
+                    imBuyer: imBuyerList[i],
+                    postId: postIdList[i],
+                  ),
+                );
+              }
+            }
+
+            List<ChatListCell> buyChatList = [];
+            List<ChatListCell> sellChatList = [];
+            for (var chat in combinedList) {
+              if (chat.imBuyer) {
+                buyChatList.add(chat);
+              } else {
+                sellChatList.add(chat);
+              }
+            }
+            if (!mounted) return;
+            Provider.of<ChatListProvider>(context, listen: false)
+                .setChatList(sellChatList, buyChatList);
+          }
+        }
+      }
+    }
+  }
+
+  @override
+  void initState() {
+    // String? fcmToken = await FirebaseMessaging.instance.getToken();
+    // print(fcmToken);
+    _getAllMyChatList();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
