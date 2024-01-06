@@ -1,5 +1,3 @@
-import 'dart:convert';
-import 'dart:typed_data';
 import 'package:dangmoog/screens/mypage/nickname_change.dart';
 import 'package:dangmoog/services/api.dart';
 import 'package:dio/dio.dart';
@@ -19,7 +17,7 @@ class ProfileChangePage extends StatefulWidget {
   const ProfileChangePage({Key? key}) : super(key: key);
 
   @override
-  _ProfileChangePageState createState() => _ProfileChangePageState();
+  State<ProfileChangePage> createState() => _ProfileChangePageState();
 }
 
 class _ProfileChangePageState extends State<ProfileChangePage> {
@@ -58,6 +56,7 @@ class _ProfileChangePageState extends State<ProfileChangePage> {
         print("Error picking images: $e");
       }
     } else if (status.isPermanentlyDenied) {
+      if (!mounted) return;
       await showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -110,6 +109,7 @@ class _ProfileChangePageState extends State<ProfileChangePage> {
         print("Error picking images: $e");
       }
     } else if (status.isPermanentlyDenied) {
+      if (!mounted) return;
       await showDialog(
         context: context,
         barrierDismissible: false,
@@ -217,19 +217,19 @@ class _ProfileChangePageState extends State<ProfileChangePage> {
 
         if (response.statusCode == 200) {
           // int userId = response.data['account_id'];
+          if (!mounted) return;
           Provider.of<UserProvider>(context, listen: false)
               .setUserImage(_image!);
           // await storage.write(key: 'userId', value: userId.toString());
-          print(response);
 
           Navigator.pushReplacement(
             context,
             PageRouteBuilder(
               pageBuilder: (context, animation1, animation2) =>
-                  ProfileChangePage(),
-              transitionDuration: Duration(seconds: 0), // No animation
+                  const ProfileChangePage(),
+              transitionDuration: const Duration(seconds: 0), // No animation
               reverseTransitionDuration:
-                  Duration(seconds: 0), // No animation when pop
+                  const Duration(seconds: 0), // No animation when pop
             ),
           );
         }
@@ -260,7 +260,7 @@ class _ProfileChangePageState extends State<ProfileChangePage> {
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
         leading: IconButton(
-          icon: Icon(Icons.arrow_back),
+          icon: const Icon(Icons.arrow_back),
           onPressed: () {
             Navigator.of(context).pop();
           },
@@ -273,7 +273,7 @@ class _ProfileChangePageState extends State<ProfileChangePage> {
           Stack(
             alignment: Alignment.center,
             children: [
-              Container(
+              SizedBox(
                 width: screenSize.width * 0.56,
                 height: screenSize.width * 0.56,
                 child: ClipOval(
@@ -297,7 +297,7 @@ class _ProfileChangePageState extends State<ProfileChangePage> {
                       } else if (snapshot.hasError) {
                         return Text('Error: ${snapshot.error}');
                       } else {
-                        return CircularProgressIndicator(); // 데이터 로딩 중 표시
+                        return const CircularProgressIndicator(); // 데이터 로딩 중 표시
                       }
                     },
                   ),
@@ -427,8 +427,8 @@ class _ProfileChangePageState extends State<ProfileChangePage> {
           ),
           SizedBox(height: screenSize.height * 0.02),
           Text(
-            '$userNickname',
-            style: TextStyle(
+            userNickname,
+            style: const TextStyle(
               color: Color(0xFF302E2E),
               fontSize: 24,
               fontWeight: FontWeight.w600,
@@ -472,7 +472,7 @@ class _ProfileChangePageState extends State<ProfileChangePage> {
             ),
           ),
           Text(
-            '$userEmail',
+            userEmail,
             style: const TextStyle(
               color: Color(0xFF302E2E),
               fontSize: 16,

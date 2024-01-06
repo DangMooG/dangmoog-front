@@ -1,3 +1,4 @@
+import 'package:dangmoog/providers/chat_list_provider.dart';
 import 'package:dangmoog/providers/chat_provider.dart';
 import 'package:dangmoog/providers/chat_setting_provider.dart';
 import 'package:flutter/material.dart';
@@ -32,12 +33,12 @@ class MyApp extends StatelessWidget {
           create: (context) => UserProvider(),
         ),
         Provider<SocketClass>(
-          // create: (_) => SocketClass()..onConnect(),
           create: (_) => SocketClass(),
           dispose: (_, socketClass) => socketClass.dispose(),
         ),
         ChangeNotifierProvider(create: (context) => ChatProvider()),
         ChangeNotifierProvider(create: (context) => ChatSettingProvider()),
+        ChangeNotifierProvider(create: (context) => ChatListProvider()),
       ],
       child: MaterialApp(
         title: 'Dotorit',

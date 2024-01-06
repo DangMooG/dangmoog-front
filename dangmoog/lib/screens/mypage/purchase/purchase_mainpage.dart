@@ -3,10 +3,9 @@ import 'package:dangmoog/providers/provider.dart';
 import 'package:dangmoog/screens/mypage/my_post_list.dart';
 
 import 'package:dangmoog/services/api.dart';
-import 'package:dio/dio.dart';
+
 import 'package:flutter/material.dart';
-import 'dart:convert';
-import 'package:flutter/services.dart';
+
 import 'package:provider/provider.dart';
 
 class PurchaseMainPage extends StatefulWidget {

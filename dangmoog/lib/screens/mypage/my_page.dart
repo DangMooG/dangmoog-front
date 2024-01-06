@@ -343,8 +343,6 @@ class _MyPageState extends State<MyPage> {
         ],
       ),
     );
-
-    return Container();
   }
 
   Future LogoutPopup(
@@ -390,6 +388,7 @@ class _MyPageState extends State<MyPage> {
                       await storage.delete(key: 'accessToken');
                       await storage.delete(key: 'userId');
 
+                      if (!mounted) return;
                       Navigator.pushAndRemoveUntil(
                         context,
                         MaterialPageRoute(

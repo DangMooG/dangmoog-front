@@ -1,3 +1,4 @@
+import 'package:dangmoog/utils/time_ago.dart';
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
 import 'package:provider/provider.dart';
@@ -432,30 +433,6 @@ class _ProductListState extends State<ProductList> {
 
   // 게시글 제목, 카테고리, 시간, 가격 표시
   Widget _buildProductTexts(ProductModel product) {
-    String timeAgo(DateTime date) {
-      Duration diff = DateTime.now().difference(date);
-
-      int years = (diff.inDays / 365).floor();
-      int months = (diff.inDays / 30).floor();
-      int weeks = (diff.inDays / 7).floor();
-
-      if (years > 0) {
-        return '$years년 전';
-      } else if (months > 0) {
-        return '$months개월 전';
-      } else if (weeks > 0) {
-        return '$weeks주일 전';
-      } else if (diff.inDays > 0) {
-        return '${diff.inDays}일 전';
-      } else if (diff.inHours > 0) {
-        return '${diff.inHours}시간 전';
-      } else if (diff.inMinutes > 0) {
-        return '${diff.inMinutes}분 전';
-      } else {
-        return '방금 전';
-      }
-    }
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
