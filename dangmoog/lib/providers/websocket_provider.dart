@@ -23,7 +23,7 @@ class SocketClass {
       (message) {
         // 서버로부터 메시지 수신
         print('Received: $message');
-        onMessageReceived?.call(message);
+        onMessageReceived?.call(message.substring(36));
       },
       onError: (error) {
         // 오류 발생 시 처리
