@@ -16,15 +16,15 @@ import '../../models/product_class.dart';
 class EditPostPage extends StatefulWidget {
   final int postId;
   final ProductModel product;
-  const EditPostPage({Key? key, required this.postId, required this.product}) : super(key: key);
+  const EditPostPage({Key? key, required this.postId, required this.product})
+      : super(key: key);
 
   @override
-  _EditPostPageState createState() => _EditPostPageState();
+  State<EditPostPage> createState() => _EditPostPageState();
 }
 
 class _EditPostPageState extends State<EditPostPage> {
-
-  int useLocker=1;
+  int useLocker = 1;
   final List<String> _imageList = <String>[];
   final ImagePicker picker = ImagePicker();
   final List<XFile> vac = <XFile>[];
@@ -35,7 +35,11 @@ class _EditPostPageState extends State<EditPostPage> {
   bool get isCategorySelected => _selectedItem.isNotEmpty;
   bool get isPriceFilled => priceController.text.isNotEmpty;
   bool get isDescriptionProvided => detailController.text.isNotEmpty;
-  bool get isButtonEnabled => isProductNameFilled && isCategorySelected && isPriceFilled && isDescriptionProvided;
+  bool get isButtonEnabled =>
+      isProductNameFilled &&
+      isCategorySelected &&
+      isPriceFilled &&
+      isDescriptionProvided;
   String? productNameError;
   String? productCategoryError;
   String? productPriceError;
@@ -48,7 +52,7 @@ class _EditPostPageState extends State<EditPostPage> {
 
     productNameController.text = widget.product.title; // Example field
     priceController.text = widget.product.price.toString();
-    _selectedItem = categeryItems[widget.product.categoryId-1];
+    _selectedItem = categeryItems[widget.product.categoryId - 1];
     detailController.text = widget.product.description;
 
     // Initialize other controllers similarly
@@ -61,16 +65,16 @@ class _EditPostPageState extends State<EditPostPage> {
       }
     });
     priceController.addListener(() {
-      if (isPriceFilled){
+      if (isPriceFilled) {
         setState(() {
-          productPriceError =null;
+          productPriceError = null;
         });
       }
     });
     detailController.addListener(() {
-      if (isDescriptionProvided){
+      if (isDescriptionProvided) {
         setState(() {
-          productDescriptionError =null;
+          productDescriptionError = null;
         });
       }
     });
@@ -83,7 +87,8 @@ class _EditPostPageState extends State<EditPostPage> {
         // Assuming the response body is a list of image paths or URLs
         List<dynamic> responseData = response.data;
         print(response.data);
-        List<String> imagePaths = responseData.map((e) => e['url'].toString()).toList();
+        List<String> imagePaths =
+            responseData.map((e) => e['url'].toString()).toList();
         return imagePaths;
       } else {
         // Handle error response
@@ -95,7 +100,6 @@ class _EditPostPageState extends State<EditPostPage> {
       return [];
     }
   }
-
 
   void fetchProductDetails() async {
     try {
@@ -119,7 +123,6 @@ class _EditPostPageState extends State<EditPostPage> {
     }
   }
 
-
   void _editNewPost() async {
     String title = productNameController.text;
     int price;
@@ -127,16 +130,15 @@ class _EditPostPageState extends State<EditPostPage> {
       price = int.parse(priceController.text.replaceAll(',', ''));
     } catch (e) {
       print("Error parsing price: $e");
-      return;  // exit the function since price couldn't be parsed
+      return; // exit the function since price couldn't be parsed
     }
 
     String description = detailController.text;
     int categoryId = categeryItems.indexOf(_selectedItem);
 
-
-    if (title.contains('직접')){
+    if (title.contains('직접')) {
       useLocker = 0;
-    }else{
+    } else {
       useLocker = 1;
     }
 
@@ -148,7 +150,14 @@ class _EditPostPageState extends State<EditPostPage> {
       imageFiles = _imageList.map((path) => File(path)).toList();
     }
 
-    Response response = await apiService.patchPost(categoryId: categoryId, description: description, price: price, title: title, useLocker: useLocker, imageFiles: imageFiles, postId: widget.postId);
+    Response response = await apiService.patchPost(
+        categoryId: categoryId,
+        description: description,
+        price: price,
+        title: title,
+        useLocker: useLocker,
+        imageFiles: imageFiles,
+        postId: widget.postId);
 
     if (response.statusCode == 200) {
       // Successful Response
@@ -159,13 +168,15 @@ class _EditPostPageState extends State<EditPostPage> {
       var updateTime = responseData['update_time'];
 
       // Implement your success logic here. For example, show a success message and navigate to another screen.
-      print("Post created successfully! Post ID: $postId, Created at: $createTime, Updated at: $updateTime");
+      print(
+          "Post created successfully! Post ID: $postId, Created at: $createTime, Updated at: $updateTime");
 
       // Check if the locker is to be used
       if (useLocker == 1) {
         // Update the locker information with the new post_id
         Map<String, dynamic> lockerUpdates = {
-          "post_id": postId, // assuming 'post_id' is the field you want to update in the locker
+          "post_id":
+              postId, // assuming 'post_id' is the field you want to update in the locker
         };
 
         try {
@@ -179,13 +190,14 @@ class _EditPostPageState extends State<EditPostPage> {
         } catch (e) {
           print('Error updating locker with Post ID: $e');
         }
-
+        if (!mounted) return;
         Navigator.pushAndRemoveUntil(
           context,
-          MaterialPageRoute(builder: (context) => MainPage()),
-              (Route<dynamic> route) => false,
+          MaterialPageRoute(builder: (context) => const MainPage()),
+          (Route<dynamic> route) => false,
         );
-      }else{
+      } else {
+        if (!mounted) return;
         Navigator.pop(context);
       }
       // Your additional success logic
@@ -207,12 +219,10 @@ class _EditPostPageState extends State<EditPostPage> {
     } else {
       // Other potential errors
       print('Hello');
-      print("Error creating post. Status Code: ${response.statusCode}, Error Message: ${response.statusMessage}");
+      print(
+          "Error creating post. Status Code: ${response.statusCode}, Error Message: ${response.statusMessage}");
     }
-
-
   }
-
 
   // 앨범에서 이미지를 가져오는 함수
   Future getImagesFromAlbum(BuildContext context) async {
@@ -232,14 +242,16 @@ class _EditPostPageState extends State<EditPostPage> {
           int overflowCount = _imageList.length + imagesPath.length - 10;
           if (overflowCount > 0) {
             // Trim the imagesPath list
-            imagesPath = imagesPath.take(imagesPath.length - overflowCount).toList();
+            imagesPath =
+                imagesPath.take(imagesPath.length - overflowCount).toList();
 
-            // Inform the user about the trimmed images
+            if (!mounted) return;
             showDialog(
               context: context,
               builder: (context) => AlertDialog(
                 title: const Text('Image Limit Reached'),
-                content: Text('$overflowCount images were not added due to the 10 image limit.'),
+                content: Text(
+                    '$overflowCount images were not added due to the 10 image limit.'),
                 actions: [
                   TextButton(
                     onPressed: () => Navigator.of(context).pop(),
@@ -258,13 +270,14 @@ class _EditPostPageState extends State<EditPostPage> {
         print("Error picking images: $e");
       }
     } else if (status.isPermanentlyDenied) {
+      if (!mounted) return;
       await showDialog(
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
             title: const Text("앨범 권한 필요"),
             content:
-            const Text("이 기능을 사용하기 위해서는 권한이 필요합니다. 설정으로 이동하여 권한을 허용해주세요."),
+                const Text("이 기능을 사용하기 위해서는 권한이 필요합니다. 설정으로 이동하여 권한을 허용해주세요."),
             actions: <Widget>[
               TextButton(
                 child: const Text("취소"),
@@ -286,20 +299,20 @@ class _EditPostPageState extends State<EditPostPage> {
     }
   }
 
-
   Future getImagesFromCamera(BuildContext context) async {
     PermissionStatus status = await Permission.camera.request();
 
     if (status.isGranted || status.isLimited) {
       try {
         final XFile? pickedImage =
-        await picker.pickImage(source: ImageSource.camera);
+            await picker.pickImage(source: ImageSource.camera);
 
         if (pickedImage != null) {
           String imagePath = pickedImage.path;
 
           if (_imageList.length >= 10) {
             // Inform the user that they've reached the limit
+            if (!mounted) return;
             showDialog(
               context: context,
               builder: (context) => AlertDialog(
@@ -323,13 +336,14 @@ class _EditPostPageState extends State<EditPostPage> {
         print("Error picking images: $e");
       }
     } else if (status.isPermanentlyDenied) {
+      if (!mounted) return;
       await showDialog(
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
             title: const Text("카메라 권한 필요"),
             content:
-            const Text("이 기능을 사용하기 위해서는 권한이 필요합니다. 설정으로 이동하여 권한을 허용해주세요."),
+                const Text("이 기능을 사용하기 위해서는 권한이 필요합니다. 설정으로 이동하여 권한을 허용해주세요."),
             actions: <Widget>[
               TextButton(
                 child: const Text("취소"),
@@ -350,7 +364,6 @@ class _EditPostPageState extends State<EditPostPage> {
       );
     }
   }
-
 
   bool useCabinet = false;
   int userId = 3;
@@ -429,7 +442,8 @@ class _EditPostPageState extends State<EditPostPage> {
 
   Widget _imagePickerSection(BuildContext context, int postId) {
     return FutureBuilder<List<String>>(
-      future: fetchImages(postId), // This is your async function to fetch images
+      future:
+          fetchImages(postId), // This is your async function to fetch images
       builder: (context, snapshot) {
         // Handling loading state
         if (snapshot.connectionState == ConnectionState.waiting) {
@@ -443,7 +457,8 @@ class _EditPostPageState extends State<EditPostPage> {
 
         // Handling data state
         if (snapshot.hasData && snapshot.data!.isNotEmpty) {
-          List<String> imageList = snapshot.data!; // Using the fetched image list
+          List<String> imageList =
+              snapshot.data!; // Using the fetched image list
 
           return Padding(
             padding: const EdgeInsets.only(bottom: 8),
@@ -458,7 +473,7 @@ class _EditPostPageState extends State<EditPostPage> {
                     child: Row(
                       children: List.generate(
                         imageList.length,
-                            (index) => _imagePreview(imageList[index]),
+                        (index) => _imagePreview(imageList[index]),
                       ),
                     ),
                   ),
@@ -469,11 +484,10 @@ class _EditPostPageState extends State<EditPostPage> {
         }
 
         // Handling empty data state
-        return Text('No images found');
+        return const Text('No images found');
       },
     );
   }
-
 
   // 사진 추가 버튼
   Widget _addImages(BuildContext context) {
@@ -523,7 +537,7 @@ class _EditPostPageState extends State<EditPostPage> {
             return AlertDialog(
               shape: RoundedRectangleBorder(
                 borderRadius:
-                BorderRadius.circular(14), // 여기서 원하는 값으로 둥글게 조절할 수 있습니다.
+                    BorderRadius.circular(14), // 여기서 원하는 값으로 둥글게 조절할 수 있습니다.
               ),
               content: SizedBox(
                 width: screenSize.width * 0.55,
@@ -551,8 +565,8 @@ class _EditPostPageState extends State<EditPostPage> {
                         ),
                         addPhotoButtonPopUp(screenSize,
                             Icons.add_photo_alternate_outlined, '앨범', () {
-                              getImagesFromAlbum(context);
-                            }),
+                          getImagesFromAlbum(context);
+                        }),
                       ],
                     ),
                     GestureDetector(
@@ -641,17 +655,17 @@ class _EditPostPageState extends State<EditPostPage> {
             borderRadius: BorderRadius.circular(8),
             child: imagePath.startsWith('http')
                 ? Image.network(
-              imagePath,
-              width: 80,
-              height: 80,
-              fit: BoxFit.cover,
-            )
+                    imagePath,
+                    width: 80,
+                    height: 80,
+                    fit: BoxFit.cover,
+                  )
                 : Image.file(
-              File(imagePath),
-              width: 80,
-              height: 80,
-              fit: BoxFit.cover,
-            ),
+                    File(imagePath),
+                    width: 80,
+                    height: 80,
+                    fit: BoxFit.cover,
+                  ),
           ),
           Positioned(
             child: GestureDetector(
@@ -685,7 +699,6 @@ class _EditPostPageState extends State<EditPostPage> {
       ),
     );
   }
-
 
   // 사진 제외 나머지
   Widget _textFieldsAndDropdown() {
@@ -728,29 +741,37 @@ class _EditPostPageState extends State<EditPostPage> {
               counterText: "",
               enabledBorder: OutlineInputBorder(
                 borderSide: BorderSide(
-                  color: productNameError == null ? const Color(0xffD3D2D2) : const Color(0xFFE20529),
+                  color: productNameError == null
+                      ? const Color(0xffD3D2D2)
+                      : const Color(0xFFE20529),
                 ),
                 borderRadius: const BorderRadius.all(Radius.circular(4)),
               ),
               focusedBorder: OutlineInputBorder(
                 borderSide: BorderSide(
-                    color: productNameError == null ? const Color(0xff726E6E) : const Color(0xFFE20529)  // Changes based on error condition
-                ),
+                    color: productNameError == null
+                        ? const Color(0xff726E6E)
+                        : const Color(
+                            0xFFE20529) // Changes based on error condition
+                    ),
                 borderRadius: const BorderRadius.all(Radius.circular(4)),
               ),
             ),
             maxLength: 64,
           ),
-          if (productNameError!=null)
+          if (productNameError != null)
             Padding(
               padding: const EdgeInsets.only(top: 8.0),
               child: Row(
                 children: [
-                  const Icon(Icons.error, color: Color(0xFFE20529), size: 12), // Error icon
-                  const SizedBox(width: 4), // Some spacing between icon and text
+                  const Icon(Icons.error,
+                      color: Color(0xFFE20529), size: 12), // Error icon
+                  const SizedBox(
+                      width: 4), // Some spacing between icon and text
                   Text(
                     productNameError!,
-                    style: const TextStyle(color: Color(0xFFE20529), fontSize: 12),
+                    style:
+                        const TextStyle(color: Color(0xFFE20529), fontSize: 12),
                   ),
                 ],
               ),
@@ -774,8 +795,8 @@ class _EditPostPageState extends State<EditPostPage> {
         _selectedItem = item;
         _isSelectListVisible = false;
 
-        if(_selectedItem.isNotEmpty){
-          productCategoryError=null;
+        if (_selectedItem.isNotEmpty) {
+          productCategoryError = null;
         }
       });
     }
@@ -801,22 +822,22 @@ class _EditPostPageState extends State<EditPostPage> {
                   children: [
                     (_selectedItem == '')
                         ? const Text(
-                      '항목 선택',
-                      textAlign: TextAlign.left,
-                      style: TextStyle(
-                        color: Color(0xffA19E9E),
-                        fontSize: 14,
-                        fontWeight: FontWeight.w400,
-                      ),
-                    )
+                            '항목 선택',
+                            textAlign: TextAlign.left,
+                            style: TextStyle(
+                              color: Color(0xffA19E9E),
+                              fontSize: 14,
+                              fontWeight: FontWeight.w400,
+                            ),
+                          )
                         : Text(
-                      _selectedItem,
-                      style: const TextStyle(
-                        color: Color(0xff302E2E),
-                        fontSize: 14,
-                        fontWeight: FontWeight.w400,
-                      ),
-                    ),
+                            _selectedItem,
+                            style: const TextStyle(
+                              color: Color(0xff302E2E),
+                              fontSize: 14,
+                              fontWeight: FontWeight.w400,
+                            ),
+                          ),
                     Icon(
                       _isSelectListVisible
                           ? Icons.keyboard_arrow_down_sharp
@@ -826,19 +847,21 @@ class _EditPostPageState extends State<EditPostPage> {
                           : const Color(0xffA19E9E),
                     )
                   ],
-                )
-            ),
+                )),
           ),
-          if (productCategoryError!=null)
+          if (productCategoryError != null)
             Padding(
               padding: const EdgeInsets.only(top: 8.0),
               child: Row(
                 children: [
-                  const Icon(Icons.error, color: Color(0xFFE20529), size: 12), // Error icon
-                  const SizedBox(width: 4), // Some spacing between icon and text
+                  const Icon(Icons.error,
+                      color: Color(0xFFE20529), size: 12), // Error icon
+                  const SizedBox(
+                      width: 4), // Some spacing between icon and text
                   Text(
                     productCategoryError!,
-                    style: const TextStyle(color: Color(0xFFE20529), fontSize: 12),
+                    style:
+                        const TextStyle(color: Color(0xFFE20529), fontSize: 12),
                   ),
                 ],
               ),
@@ -851,7 +874,8 @@ class _EditPostPageState extends State<EditPostPage> {
                 borderRadius: const BorderRadius.all(Radius.circular(4)),
               ),
               constraints: const BoxConstraints(maxHeight: 3 * 41.0),
-              child: Scrollbar( // <- Wrap ListView inside Scrollbar
+              child: Scrollbar(
+                // <- Wrap ListView inside Scrollbar
                 child: ListView(
                   padding: EdgeInsets.zero,
                   physics: const AlwaysScrollableScrollPhysics(),
@@ -936,7 +960,7 @@ class _EditPostPageState extends State<EditPostPage> {
                 ),
               ),
               prefixIconConstraints:
-              const BoxConstraints.tightFor(width: 30, height: 30),
+                  const BoxConstraints.tightFor(width: 30, height: 30),
               hintText: '가격을 입력해주세요.',
               hintStyle: const TextStyle(
                 color: Color(0xFFA19E9E),
@@ -946,35 +970,43 @@ class _EditPostPageState extends State<EditPostPage> {
               counterText: "",
               enabledBorder: OutlineInputBorder(
                 borderSide: BorderSide(
-                  color: productPriceError == null ? const Color(0xffD3D2D2) : const Color(0xFFE20529),
+                  color: productPriceError == null
+                      ? const Color(0xffD3D2D2)
+                      : const Color(0xFFE20529),
                 ),
                 borderRadius: const BorderRadius.all(Radius.circular(4)),
               ),
               focusedBorder: OutlineInputBorder(
                 borderSide: BorderSide(
-                    color: productPriceError == null ? const Color(0xff726E6E) : const Color(0xFFE20529)  // Changes based on error condition
-                ),
+                    color: productPriceError == null
+                        ? const Color(0xff726E6E)
+                        : const Color(
+                            0xFFE20529) // Changes based on error condition
+                    ),
                 borderRadius: const BorderRadius.all(Radius.circular(4)),
               ),
             ),
             maxLength: 20,
           ),
-          if (productPriceError!=null)
+          if (productPriceError != null)
             Padding(
               padding: const EdgeInsets.only(top: 8.0),
               child: Row(
                 children: [
-                  const Icon(Icons.error, color: Color(0xFFE20529), size: 12), // Error icon
-                  const SizedBox(width: 4), // Some spacing between icon and text
+                  const Icon(Icons.error,
+                      color: Color(0xFFE20529), size: 12), // Error icon
+                  const SizedBox(
+                      width: 4), // Some spacing between icon and text
                   Text(
                     productPriceError!,
-                    style: const TextStyle(color: Color(0xFFE20529), fontSize: 12),
+                    style:
+                        const TextStyle(color: Color(0xFFE20529), fontSize: 12),
                   ),
                 ],
               ),
             ),
           Padding(
-            padding: const EdgeInsets.only(top:8.0), // 가격 텍스트랑 ai 추천 가격 사이 칸
+            padding: const EdgeInsets.only(top: 8.0), // 가격 텍스트랑 ai 추천 가격 사이 칸
             child: Container(
               padding: const EdgeInsets.only(left: 8),
               height: 48,
@@ -983,7 +1015,9 @@ class _EditPostPageState extends State<EditPostPage> {
                 color: const Color(0xFFF1F1F1),
                 borderRadius: BorderRadius.circular(4),
               ),
-              child: _showPrice ? _recommendedPriceButtons():_initialAiRecommended(),
+              child: _showPrice
+                  ? _recommendedPriceButtons()
+                  : _initialAiRecommended(),
             ),
           ),
           Container(
@@ -994,7 +1028,8 @@ class _EditPostPageState extends State<EditPostPage> {
                   width: 20,
                   height: 20,
                   child: Checkbox(
-                    overlayColor: MaterialStateProperty.all(const Color(0xffBEBCBC)),
+                    overlayColor:
+                        MaterialStateProperty.all(const Color(0xffBEBCBC)),
                     value: isFree,
                     splashRadius: 12,
                     shape: RoundedRectangleBorder(
@@ -1006,11 +1041,12 @@ class _EditPostPageState extends State<EditPostPage> {
                     ),
                     activeColor: const Color(0xffBEBCBC),
                     fillColor: MaterialStateProperty.resolveWith<Color>(
-                          (Set<MaterialState> states) {
+                      (Set<MaterialState> states) {
                         if (states.contains(MaterialState.selected)) {
                           return const Color(0xFFE20529); // Checked (red)
                         }
-                        return const Color(0xffBEBCBC); // Unchecked (transparent)
+                        return const Color(
+                            0xffBEBCBC); // Unchecked (transparent)
                       },
                     ),
                     checkColor: Colors.white,
@@ -1025,7 +1061,6 @@ class _EditPostPageState extends State<EditPostPage> {
                       });
                     },
                   ),
-
                 ),
                 const Padding(
                   padding: EdgeInsets.only(left: 8.0),
@@ -1069,7 +1104,7 @@ class _EditPostPageState extends State<EditPostPage> {
               isDense: true,
               contentPadding: const EdgeInsets.all(8),
               hintText:
-              '물품에 대한 상세 설명을 작성해주세요. \n판매 금지 물품은 게시가 제한될 수 있습니다. \n\n좋은 거래를 위해 신뢰할 수 있는 내용을 작성해주세요. 욕설이나 비방 등의 내용이 들어갈 경우 다른 이용자에게 상처를 줄 수 있으며 신고 대상이 될 수 있습니다.',
+                  '물품에 대한 상세 설명을 작성해주세요. \n판매 금지 물품은 게시가 제한될 수 있습니다. \n\n좋은 거래를 위해 신뢰할 수 있는 내용을 작성해주세요. 욕설이나 비방 등의 내용이 들어갈 경우 다른 이용자에게 상처를 줄 수 있으며 신고 대상이 될 수 있습니다.',
               hintStyle: const TextStyle(
                 color: Color(0xFFA19E9E),
                 fontSize: 14,
@@ -1079,28 +1114,35 @@ class _EditPostPageState extends State<EditPostPage> {
               counterText: "",
               enabledBorder: OutlineInputBorder(
                 borderSide: BorderSide(
-                  color: productDescriptionError == null ? const Color(0xffD3D2D2) : const Color(0xFFE20529),
+                  color: productDescriptionError == null
+                      ? const Color(0xffD3D2D2)
+                      : const Color(0xFFE20529),
                 ),
                 borderRadius: const BorderRadius.all(Radius.circular(4)),
               ),
               focusedBorder: OutlineInputBorder(
                 borderSide: BorderSide(
-                  color: productDescriptionError == null ? const Color(0xffD3D2D2) : const Color(0xFFE20529),
+                  color: productDescriptionError == null
+                      ? const Color(0xffD3D2D2)
+                      : const Color(0xFFE20529),
                 ),
                 borderRadius: const BorderRadius.all(Radius.circular(4)),
               ),
             ),
           ),
-          if (productDescriptionError!=null)
+          if (productDescriptionError != null)
             Padding(
               padding: const EdgeInsets.only(top: 8.0),
               child: Row(
                 children: [
-                  const Icon(Icons.error, color: Color(0xFFE20529), size: 12), // Error icon
-                  const SizedBox(width: 4), // Some spacing between icon and text
+                  const Icon(Icons.error,
+                      color: Color(0xFFE20529), size: 12), // Error icon
+                  const SizedBox(
+                      width: 4), // Some spacing between icon and text
                   Text(
                     productDescriptionError!,
-                    style: const TextStyle(color: Color(0xFFE20529), fontSize: 12),
+                    style:
+                        const TextStyle(color: Color(0xFFE20529), fontSize: 12),
                   ),
                 ],
               ),
@@ -1131,16 +1173,15 @@ class _EditPostPageState extends State<EditPostPage> {
       padding: const EdgeInsets.only(top: 14, bottom: 35),
       child: ElevatedButton(
         onPressed: () {
-
           _setFieldErrors();
           setState(() {});
 
-          if(isButtonEnabled){
-            if(_imageList.isEmpty){
+          if (isButtonEnabled) {
+            if (_imageList.isEmpty) {
               showDialog(
                 context: context,
                 barrierDismissible: false,
-                builder: (BuildContext context){
+                builder: (BuildContext context) {
                   return Dialog(
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(20),
@@ -1154,47 +1195,58 @@ class _EditPostPageState extends State<EditPostPage> {
                           const Text(
                             '사진을 올리지 않았습니다!\n그래도 판매글을 업로드하시겠어요?',
                             textAlign: TextAlign.center,
-                            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                            style: TextStyle(
+                                fontSize: 18, fontWeight: FontWeight.bold),
                           ),
-                          const SizedBox(height: 8,),
+                          const SizedBox(
+                            height: 8,
+                          ),
                           const Text(
                             '사진이 없는 게시글은\n사진이 있는 게시물보다 전환율이 낮습니다.\n그래도 사진없이 업로드하시겠어요?',
                             textAlign: TextAlign.center,
-                            style: TextStyle(fontSize: 14 ),
+                            style: TextStyle(fontSize: 14),
                           ),
-                          const SizedBox(height: 16,),
+                          const SizedBox(
+                            height: 16,
+                          ),
                           SizedBox(
                             width: 300,
                             child: TextButton(
                               onPressed: () {
                                 _editNewPost();
-                                if (useLocker==1){
-
-                                }
+                                if (useLocker == 1) {}
                               },
                               style: ButtonStyle(
-                                backgroundColor: MaterialStateProperty.resolveWith<Color>(
-                                      (Set<MaterialState> states) {
-                                    if (states.contains(MaterialState.pressed)) {
-                                      return Colors.red[600]!; // Color when pressed
+                                backgroundColor:
+                                    MaterialStateProperty.resolveWith<Color>(
+                                  (Set<MaterialState> states) {
+                                    if (states
+                                        .contains(MaterialState.pressed)) {
+                                      return Colors
+                                          .red[600]!; // Color when pressed
                                     }
-                                    return const Color(0xffE20529); // Regular color
+                                    return const Color(
+                                        0xffE20529); // Regular color
                                   },
                                 ),
-
-                                foregroundColor: MaterialStateProperty.all<Color>(Colors.white),
-                                shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                                foregroundColor:
+                                    MaterialStateProperty.all<Color>(
+                                        Colors.white),
+                                shape: MaterialStateProperty.all<
+                                    RoundedRectangleBorder>(
                                   RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(6),
-                                    side: const BorderSide(color: Color(0xFF726E6E)),
+                                    side: const BorderSide(
+                                        color: Color(0xFF726E6E)),
                                   ),
                                 ),
-
                               ),
                               child: const Text('업로드'),
                             ),
                           ),
-                          const SizedBox(height: 8,),
+                          const SizedBox(
+                            height: 8,
+                          ),
                           SizedBox(
                             width: 300,
                             child: TextButton(
@@ -1202,23 +1254,28 @@ class _EditPostPageState extends State<EditPostPage> {
                                 Navigator.of(context).pop(); // close the dialog
                               },
                               style: ButtonStyle(
-                                backgroundColor: MaterialStateProperty.resolveWith<Color>(
-                                      (Set<MaterialState> states) {
-                                    if (states.contains(MaterialState.pressed)) {
-                                      return Colors.red[600]!; // Color when pressed
+                                backgroundColor:
+                                    MaterialStateProperty.resolveWith<Color>(
+                                  (Set<MaterialState> states) {
+                                    if (states
+                                        .contains(MaterialState.pressed)) {
+                                      return Colors
+                                          .red[600]!; // Color when pressed
                                     }
                                     return Colors.transparent; // Regular color
                                   },
                                 ),
-
-                                foregroundColor: MaterialStateProperty.all<Color>(const Color(0xFF726E6E)),
-                                shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                                foregroundColor:
+                                    MaterialStateProperty.all<Color>(
+                                        const Color(0xFF726E6E)),
+                                shape: MaterialStateProperty.all<
+                                    RoundedRectangleBorder>(
                                   RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(6),
-                                    side: const BorderSide(color: Color(0xFF726E6E)),
+                                    side: const BorderSide(
+                                        color: Color(0xFF726E6E)),
                                   ),
                                 ),
-
                               ),
                               child: const Text('취소하기'),
                             ),
@@ -1229,17 +1286,13 @@ class _EditPostPageState extends State<EditPostPage> {
                   );
                 },
               );
-            }
-            else{
+            } else {
               _editNewPost();
             }
-
           }
-
 
           if (priceController.text.isNotEmpty) {
-          } else {
-          }
+          } else {}
         },
         style: ButtonStyle(
           backgroundColor: MaterialStateProperty.all(const Color(0xFFE20529)),
@@ -1267,7 +1320,7 @@ class _EditPostPageState extends State<EditPostPage> {
     );
   }
 
-  Widget _initialAiRecommended(){
+  Widget _initialAiRecommended() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -1286,7 +1339,7 @@ class _EditPostPageState extends State<EditPostPage> {
           ),
         ),
         Padding(
-          padding: const EdgeInsets.only(right:8.0),
+          padding: const EdgeInsets.only(right: 8.0),
           child: TextButton(
             onPressed: () {
               setState(() {
@@ -1296,7 +1349,8 @@ class _EditPostPageState extends State<EditPostPage> {
             style: TextButton.styleFrom(
               minimumSize: const Size(111, 24),
               backgroundColor: const Color(0xFFEC5870),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(6)),
             ),
             child: const Text(
               'AI 가격 추천(BETA)',
@@ -1309,7 +1363,6 @@ class _EditPostPageState extends State<EditPostPage> {
             ),
           ),
         ),
-
       ],
     );
   }
@@ -1319,48 +1372,55 @@ class _EditPostPageState extends State<EditPostPage> {
       children: [
         ...<String>['₩ 1,011,000', '₩ 1,212,000', '₩ 1,413,000']
             .map((price) => Padding(
-          padding: const EdgeInsets.only(right: 4.0), // This gives each button a right padding of 4.0
-          child: TextButton(
-            onPressed: () {
-              priceController.text = price.replaceFirst('₩ ', '');
-              if (isFree == true) {
-                setState(() {
-                  isFree = !isFree;
-                });
-              }
-            },
-            style: TextButton.styleFrom(
-              backgroundColor: const Color(0xFFEC5870),
-              padding: const EdgeInsets.symmetric(vertical: 8), // Vertical padding of 8 for buttons
-              minimumSize: const Size(82, 24),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
-            ),
-            child: Text(
-              price,
-              style: const TextStyle(
-                fontFamily: 'Pretendard',
-                fontSize: 11,
-                color: Colors.white,
-                fontWeight: FontWeight.w400,
-              ),
-            ),
-          ),
-        ))
+                  padding: const EdgeInsets.only(
+                      right:
+                          4.0), // This gives each button a right padding of 4.0
+                  child: TextButton(
+                    onPressed: () {
+                      priceController.text = price.replaceFirst('₩ ', '');
+                      if (isFree == true) {
+                        setState(() {
+                          isFree = !isFree;
+                        });
+                      }
+                    },
+                    style: TextButton.styleFrom(
+                      backgroundColor: const Color(0xFFEC5870),
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 8), // Vertical padding of 8 for buttons
+                      minimumSize: const Size(82, 24),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(6)),
+                    ),
+                    child: Text(
+                      price,
+                      style: const TextStyle(
+                        fontFamily: 'Pretendard',
+                        fontSize: 11,
+                        color: Colors.white,
+                        fontWeight: FontWeight.w400,
+                      ),
+                    ),
+                  ),
+                ))
             .toList(),
         const Spacer(),
         IconButton(
-          icon: const Image(image: AssetImage('assets/images/Vector.png'), width: 12.5, height: 12.5,),
+          icon: const Image(
+            image: AssetImage('assets/images/Vector.png'),
+            width: 12.5,
+            height: 12.5,
+          ),
           onPressed: () {
             setState(() {
-              _showPrice = false; // Switching back to the _initialAiRecommended widget
+              _showPrice =
+                  false; // Switching back to the _initialAiRecommended widget
             });
           },
         ),
       ],
     );
   }
-
-
 
   void _setFieldErrors() {
     // Check for product name
@@ -1394,7 +1454,6 @@ class _EditPostPageState extends State<EditPostPage> {
       }
     });
 
-
     // Similarly, reset error messages for other fields if their conditions are satisfied
   }
 
@@ -1407,20 +1466,22 @@ class _EditPostPageState extends State<EditPostPage> {
             children: [
               Padding(
                 padding: EdgeInsets.zero,
-                child: Text('수정된 정보가 사라집니다!',
+                child: Text(
+                  '수정된 정보가 사라집니다!',
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
-
                   ),
                   textAlign: TextAlign.center,
                 ),
               ),
-              Text('뒤로 가기를 누를 경우, 현재 수정 중인\n내용은 사라지고 기존 내용이 보여집니다.\n뒤로 가시겠어요?',
+              Text(
+                '뒤로 가기를 누를 경우, 현재 수정 중인\n내용은 사라지고 기존 내용이 보여집니다.\n뒤로 가시겠어요?',
                 style: TextStyle(
                   fontSize: 14,
                 ),
-                textAlign: TextAlign.center,),
+                textAlign: TextAlign.center,
+              ),
             ],
           ),
           // content: ,
@@ -1438,25 +1499,25 @@ class _EditPostPageState extends State<EditPostPage> {
                       //   apiService.patchLocker(widget.lockerId!, updates);
                       // }
 
-                      Navigator.of(context).pop(true);  // Close the dialog and confirm exit without saving
+                      Navigator.of(context).pop(
+                          true); // Close the dialog and confirm exit without saving
                     },
                     style: ButtonStyle(
                       backgroundColor: MaterialStateProperty.resolveWith<Color>(
-                            (Set<MaterialState> states) {
+                        (Set<MaterialState> states) {
                           if (states.contains(MaterialState.pressed)) {
                             return Colors.red[600]!; // Color when pressed
                           }
                           return const Color(0xFFE20529); // Regular color
                         },
                       ),
-
-                      foregroundColor: MaterialStateProperty.all<Color>(Colors.white),
+                      foregroundColor:
+                          MaterialStateProperty.all<Color>(Colors.white),
                       shape: MaterialStateProperty.all<RoundedRectangleBorder>(
                         RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(6),
                         ),
                       ),
-
                     ),
                     child: const Text('뒤로 가기'),
                   ),
@@ -1469,15 +1530,15 @@ class _EditPostPageState extends State<EditPostPage> {
                     },
                     style: ButtonStyle(
                       backgroundColor: MaterialStateProperty.resolveWith<Color>(
-                            (Set<MaterialState> states) {
+                        (Set<MaterialState> states) {
                           if (states.contains(MaterialState.pressed)) {
                             return Colors.red[600]!; // Color when pressed
                           }
                           return Colors.transparent; // Regular color
                         },
                       ),
-
-                      foregroundColor: MaterialStateProperty.all<Color>(const Color(0xFF726E6E)),
+                      foregroundColor: MaterialStateProperty.all<Color>(
+                          const Color(0xFF726E6E)),
                       shape: MaterialStateProperty.all<RoundedRectangleBorder>(
                         RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(6),
@@ -1490,13 +1551,12 @@ class _EditPostPageState extends State<EditPostPage> {
                 ),
               ],
             ),
-
           ],
         );
       },
     ).then((shouldExit) {
       if (shouldExit == true) {
-        Navigator.of(context).pop();  // Exit the AddPostPage
+        Navigator.of(context).pop(); // Exit the AddPostPage
       }
     });
   }
@@ -1510,18 +1570,21 @@ class _EditPostPageState extends State<EditPostPage> {
             children: [
               Padding(
                 padding: EdgeInsets.all(8.0),
-                child: Text('사물함거래 등록 시 유의해주세요!',
+                child: Text(
+                  '사물함거래 등록 시 유의해주세요!',
                   style: TextStyle(
                     fontSize: 16,
                   ),
                   textAlign: TextAlign.center,
                 ),
               ),
-              Text('30분 안에 게시글을 업로드 하지 않으면 사물함 선택이 초기화돼요.\n게시글 작성 이후 15분 안에 사물함 안에 물건을 넣은 사진과 비밀번호를 인증해주셔야 합니다(구매자 확인용).',
+              Text(
+                '30분 안에 게시글을 업로드 하지 않으면 사물함 선택이 초기화돼요.\n게시글 작성 이후 15분 안에 사물함 안에 물건을 넣은 사진과 비밀번호를 인증해주셔야 합니다(구매자 확인용).',
                 style: TextStyle(
                   fontSize: 14,
                 ),
-                textAlign: TextAlign.left,),
+                textAlign: TextAlign.left,
+              ),
             ],
           ),
           // content: ,
@@ -1539,25 +1602,25 @@ class _EditPostPageState extends State<EditPostPage> {
                       //   apiService.patchLocker(widget.lockerId!, updates);
                       // }
 
-                      Navigator.of(context).pop(true);  // Close the dialog and confirm exit without saving
+                      Navigator.of(context).pop(
+                          true); // Close the dialog and confirm exit without saving
                     },
                     style: ButtonStyle(
                       backgroundColor: MaterialStateProperty.resolveWith<Color>(
-                            (Set<MaterialState> states) {
+                        (Set<MaterialState> states) {
                           if (states.contains(MaterialState.pressed)) {
                             return Colors.red[600]!; // Color when pressed
                           }
                           return const Color(0xFFE20529); // Regular color
                         },
                       ),
-
-                      foregroundColor: MaterialStateProperty.all<Color>(Colors.white),
+                      foregroundColor:
+                          MaterialStateProperty.all<Color>(Colors.white),
                       shape: MaterialStateProperty.all<RoundedRectangleBorder>(
                         RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(6),
                         ),
                       ),
-
                     ),
                     child: const Text('사물함거래 등록 시작하기'),
                   ),
@@ -1570,15 +1633,15 @@ class _EditPostPageState extends State<EditPostPage> {
                     },
                     style: ButtonStyle(
                       backgroundColor: MaterialStateProperty.resolveWith<Color>(
-                            (Set<MaterialState> states) {
+                        (Set<MaterialState> states) {
                           if (states.contains(MaterialState.pressed)) {
                             return Colors.red[600]!; // Color when pressed
                           }
                           return Colors.transparent; // Regular color
                         },
                       ),
-
-                      foregroundColor: MaterialStateProperty.all<Color>(const Color(0xFF726E6E)),
+                      foregroundColor: MaterialStateProperty.all<Color>(
+                          const Color(0xFF726E6E)),
                       shape: MaterialStateProperty.all<RoundedRectangleBorder>(
                         RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(6),
@@ -1591,19 +1654,13 @@ class _EditPostPageState extends State<EditPostPage> {
                 ),
               ],
             ),
-
           ],
         );
       },
     ).then((shouldExit) {
       if (shouldExit == true) {
-        Navigator.of(context).pop();  // Exit the AddPostPage
+        Navigator.of(context).pop(); // Exit the AddPostPage
       }
     });
   }
-
-
-
-
-
 }

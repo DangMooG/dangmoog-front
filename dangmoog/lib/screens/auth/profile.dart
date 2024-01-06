@@ -57,6 +57,7 @@ class _ProfilePageState extends State<ProfilePage> {
         print("Error picking images: $e");
       }
     } else if (status.isPermanentlyDenied) {
+      if (!mounted) return;
       await showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -105,6 +106,7 @@ class _ProfilePageState extends State<ProfilePage> {
         print("Error picking images: $e");
       }
     } else if (status.isPermanentlyDenied) {
+      if (!mounted) return;
       await showDialog(
         context: context,
         barrierDismissible: false,
@@ -163,6 +165,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
         if (response.statusCode == 200) {
           // int userId = response.data['account_id'];
+          if (!mounted) return;
           Provider.of<UserProvider>(context, listen: false)
               .setUserImage(_image!);
           // await storage.write(key: 'userId', value: userId.toString());

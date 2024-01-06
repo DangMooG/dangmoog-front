@@ -5,8 +5,11 @@ class CheckButton extends StatelessWidget {
   final Color color;
   final VoidCallback onPressed;
 
-  CheckButton(
-      {required this.text, required this.color, required this.onPressed});
+  const CheckButton(
+      {super.key,
+      required this.text,
+      required this.color,
+      required this.onPressed});
 
   @override
   Widget build(BuildContext context) {
@@ -30,7 +33,7 @@ class CheckButton extends StatelessWidget {
         alignment: Alignment.center,
         child: Text(
           text,
-          style: TextStyle(
+          style: const TextStyle(
             color: Colors.white,
             fontFamily: 'Pretendard-Medium',
             fontSize: 13,

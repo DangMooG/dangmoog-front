@@ -11,7 +11,7 @@ class MyaccountPage extends StatefulWidget {
   const MyaccountPage({Key? key}) : super(key: key);
 
   @override
-  _MyaccountPageState createState() => _MyaccountPageState();
+  State<MyaccountPage> createState() => _MyaccountPageState();
 }
 
 class _MyaccountPageState extends State<MyaccountPage> {

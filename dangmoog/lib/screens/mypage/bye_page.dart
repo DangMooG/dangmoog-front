@@ -14,7 +14,7 @@ class ByePage extends StatefulWidget {
   const ByePage({Key? key}) : super(key: key);
 
   @override
-  _ByePageState createState() => _ByePageState();
+  State<ByePage> createState() => _ByePageState();
 }
 
 class _ByePageState extends State<ByePage> {
@@ -24,8 +24,8 @@ class _ByePageState extends State<ByePage> {
   String selectedBank = '';
   String account = '';
 
-  bool _isSelectListVisible = false;
-  String _selectedItem = '';
+  final bool _isSelectListVisible = false;
+  final String _selectedItem = '';
 
   String buttonext = '';
   bool isClicked = false;

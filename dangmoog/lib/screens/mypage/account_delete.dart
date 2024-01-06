@@ -73,7 +73,7 @@ class _accountDeletePageState extends State<accountDeletePage> {
                         height: screenSize.height * 0.123,
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(4.0),
-                          color: Color(0xFFF1F1F1), // 회색 배경색
+                          color: const Color(0xFFF1F1F1), // 회색 배경색
                         ),
                         child: const Padding(
                           padding: EdgeInsets.symmetric(
@@ -105,14 +105,14 @@ class _accountDeletePageState extends State<accountDeletePage> {
                         children: [
                           Checkbox(
                             value: isChecked,
-                            activeColor: Color(0xFFEC5870),
+                            activeColor: const Color(0xFFEC5870),
                             onChanged: (bool? value) {
                               setState(() {
                                 isChecked = value!;
                               });
                             },
                           ),
-                          Text(
+                          const Text(
                             '위의 안내사항을 모두 확인하였으며 이에 동의합니다.',
                             style: TextStyle(
                               color: Color(0xFF302E2E),
@@ -140,7 +140,7 @@ class _accountDeletePageState extends State<accountDeletePage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
+            const Text(
               '떠나는 발걸음이 너무 아쉽지만 말씀해주신 의견을 반영하여 더 좋은 서비스를 만들어갈 수 있도록 노력하겠습니다. \n'
               '\n그동안 저희 서비스를 이용해주셔서 감사합니다.',
               style: TextStyle(
@@ -149,7 +149,7 @@ class _accountDeletePageState extends State<accountDeletePage> {
                 fontWeight: FontWeight.w400,
               ),
             ),
-            SizedBox(height: 32),
+            const SizedBox(height: 32),
             Row(
               children: [
                 ElevatedButton(
@@ -163,7 +163,7 @@ class _accountDeletePageState extends State<accountDeletePage> {
                         MaterialStateProperty.all(Colors.transparent),
                     overlayColor: MaterialStateProperty.all(Colors.transparent),
                     side: MaterialStateProperty.all<BorderSide>(
-                        BorderSide(color: Color(0xff726E6E), width: 1)),
+                        const BorderSide(color: Color(0xff726E6E), width: 1)),
                     shape: MaterialStateProperty.all<RoundedRectangleBorder>(
                       RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
@@ -174,9 +174,9 @@ class _accountDeletePageState extends State<accountDeletePage> {
                     width: screenSize.width * 0.28,
                     height: 46,
                     alignment: Alignment.center,
-                    child: Text(
+                    child: const Text(
                       '취소하기',
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: Color(0xff726E6E),
                         fontSize: 13,
                         fontWeight: FontWeight.w400,
@@ -184,7 +184,7 @@ class _accountDeletePageState extends State<accountDeletePage> {
                     ),
                   ),
                 ),
-                SizedBox(width: 16),
+                const SizedBox(width: 16),
                 DeleteButton(
                     screenSize,
                     text = '탈퇴하기',
@@ -196,7 +196,7 @@ class _accountDeletePageState extends State<accountDeletePage> {
                           if (response.statusCode == 204) {
                             await storage.delete(key: 'accessToken');
                             await storage.delete(key: 'userId');
-
+                            if (!mounted) return;
                             Navigator.pushAndRemoveUntil(
                               context,
                               MaterialPageRoute(
@@ -242,7 +242,7 @@ class _accountDeletePageState extends State<accountDeletePage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
+          const Text(
             '계정 탈퇴 이유를 알고 싶어요!',
             style: TextStyle(
               color: Color(0xFF302E2E),
@@ -250,7 +250,7 @@ class _accountDeletePageState extends State<accountDeletePage> {
               fontWeight: FontWeight.w600,
             ),
           ),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           GestureDetector(
             onTap: () {
               setState(() {
