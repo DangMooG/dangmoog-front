@@ -1,7 +1,7 @@
 import 'package:dangmoog/constants/category_list.dart';
 import 'package:dangmoog/providers/product_detail_provider.dart';
 import 'package:dangmoog/providers/provider.dart';
-import 'package:dangmoog/screens/chat/chat_detail_page.dart';
+import 'package:dangmoog/screens/chat/chat_detail/chat_detail_page.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:dangmoog/models/product_class.dart';

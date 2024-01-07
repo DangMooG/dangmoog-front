@@ -1,6 +1,6 @@
 import 'package:dangmoog/models/chat_detail_model.dart';
 import 'package:dangmoog/models/product_class.dart';
-import 'package:dangmoog/screens/chat/chat_deal_status.dart';
+import 'package:dangmoog/screens/chat/chat_detail/chat_detail_deal_status.dart';
 import 'package:dangmoog/services/api.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';

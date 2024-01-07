@@ -5,7 +5,7 @@ import 'package:dangmoog/utils/time_ago.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 
-import 'package:dangmoog/screens/chat/chat_detail_page.dart';
+import 'package:dangmoog/screens/chat/chat_detail/chat_detail_page.dart';
 import 'package:provider/provider.dart';
 
 class ChatCell extends StatefulWidget {

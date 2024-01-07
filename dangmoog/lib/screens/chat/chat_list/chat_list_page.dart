@@ -2,7 +2,7 @@ import 'package:dangmoog/models/chat_list_cell_model.dart';
 import 'package:dangmoog/providers/chat_list_provider.dart';
 import 'package:flutter/material.dart';
 
-import 'package:dangmoog/screens/chat/chat_list_cell.dart';
+import 'package:dangmoog/screens/chat/chat_list/chat_list_cell.dart';
 import 'package:dangmoog/models/chat_class.dart';
 
 import 'dart:convert';

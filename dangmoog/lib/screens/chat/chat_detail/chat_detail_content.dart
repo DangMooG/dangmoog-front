@@ -1,6 +1,6 @@
 import 'package:dangmoog/models/chat_detail_model.dart';
 import 'package:dangmoog/providers/chat_provider.dart';
-import 'package:dangmoog/screens/chat/chat_detail_cell.dart';
+import 'package:dangmoog/screens/chat/chat_detail/chat_detail_cell.dart';
 import 'package:dangmoog/utils/convert_day_format.dart';
 import 'package:dangmoog/utils/convert_time_format.dart';
 import 'package:flutter/material.dart';

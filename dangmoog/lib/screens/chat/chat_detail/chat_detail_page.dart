@@ -3,9 +3,9 @@ import 'package:dangmoog/models/product_class.dart';
 import 'package:dangmoog/providers/chat_provider.dart';
 import 'package:dangmoog/providers/websocket_provider.dart';
 
-import 'package:dangmoog/screens/chat/chat_detail_content.dart';
-import 'package:dangmoog/screens/chat/chat_detail_options.dart';
-import 'package:dangmoog/screens/chat/chat_detail_product.dart';
+import 'package:dangmoog/screens/chat/chat_detail/chat_detail_content.dart';
+import 'package:dangmoog/screens/chat/chat_detail/chat_detail_options.dart';
+import 'package:dangmoog/screens/chat/chat_detail/chat_detail_product.dart';
 import 'package:dangmoog/services/api.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
@@ -127,6 +127,7 @@ class _ChatDetailState extends State<ChatDetail> {
             .map((msg) => ChatDetailMessageModel.fromJson(msg))
             .toList();
       });
+      Provider.of<ChatProvider>(context).setChatContents(_chatDetail);
     }
   }
 

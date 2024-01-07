@@ -8,7 +8,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 
 import 'package:dangmoog/screens/mypage/my_page.dart';
-import 'package:dangmoog/screens/chat/chat_list_page.dart';
+import 'package:dangmoog/screens/chat/chat_list/chat_list_page.dart';
 import 'package:dangmoog/screens/post/main_page.dart';
 import 'package:dangmoog/screens/temp/temp_page.dart';
 
