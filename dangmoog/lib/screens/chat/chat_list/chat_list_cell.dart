@@ -63,23 +63,30 @@ class _ChatCellState extends State<ChatCell> {
       postId = widget.postId;
     });
 
-    if (photoId != 0) {
-      getPhotoUrl();
-    }
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (photoId != 0) {
+        getPhotoUrl();
+      }
+    });
+
     super.initState();
   }
 
   void getPhotoUrl() async {
     Response response = await ApiService().getOnePhoto(photoId);
     if (response.statusCode == 200) {
-      setState(() {
-        photoUrl = response.data["url"];
-      });
+      if (mounted) {
+        setState(() {
+          photoUrl = response.data["url"];
+        });
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    // Provider.of<ChatProvider>(context).setImBuyer(imBuyer);
+
     return InkWell(
       onTap: () {
         Navigator.push(
@@ -92,6 +99,7 @@ class _ChatCellState extends State<ChatCell> {
                       create: (context) => ChatSettingProvider()),
                 ],
                 child: ChatDetail(
+                  imBuyer: imBuyer,
                   postId: postId,
                   roomId: roomId,
                 )),
@@ -148,23 +156,30 @@ class _ChatCellState extends State<ChatCell> {
                   ),
                 ),
               ),
-              unreadCount != 0
-                  ? ClipOval(
-                      child: Container(
-                        decoration: const BoxDecoration(
-                          color: Color(0xffE83754),
-                        ),
-                        child: Text(
-                          '$unreadCount',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 13,
-                            fontWeight: FontWeight.w400,
+              Container(
+                margin: const EdgeInsets.only(right: 8),
+                child: unreadCount != 0
+                    ? ClipOval(
+                        child: Container(
+                          width: 20,
+                          height: 20,
+                          alignment: Alignment.center,
+                          decoration: const BoxDecoration(
+                            color: Color(0xffE83754),
+                          ),
+                          child: Text(
+                            '$unreadCount',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 13,
+                              fontWeight: FontWeight.w400,
+                            ),
                           ),
                         ),
-                      ),
-                    )
-                  : const SizedBox.shrink(),
+                      )
+                    : const SizedBox.shrink(),
+              ),
+
               // const Image(
               //   image: AssetImage('assets/images/temp_product_img.png'),
               //   height: 48,
