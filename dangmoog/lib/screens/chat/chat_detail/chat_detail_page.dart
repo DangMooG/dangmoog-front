@@ -20,11 +20,13 @@ import 'package:keyboard_height_plugin/keyboard_height_plugin.dart';
 import 'package:provider/provider.dart';
 
 class ChatDetail extends StatefulWidget {
+  final bool imBuyer;
   final int postId;
   final String roomId;
 
   const ChatDetail({
     super.key,
+    required this.imBuyer,
     required this.postId,
     required this.roomId,
   });
@@ -35,8 +37,6 @@ class ChatDetail extends StatefulWidget {
 
 class _ChatDetailState extends State<ChatDetail> {
   ProductModel? product;
-  late String roomId;
-  late int postId;
 
   List<ChatDetailMessageModel>? _chatDetail;
 
@@ -103,9 +103,7 @@ class _ChatDetailState extends State<ChatDetail> {
   late SocketClass socketChannel;
 
   void getPostContent() async {
-    print(1);
     Response response = await ApiService().loadProduct(widget.postId);
-    print(response.statusCode);
     if (response.statusCode == 200) {
       final post = response.data;
       if (mounted) {
@@ -117,17 +115,22 @@ class _ChatDetailState extends State<ChatDetail> {
   }
 
   void getAllMessages() async {
-    print("room ID: ${widget.roomId}");
+    // print("room ID: ${widget.roomId}");
     Response response = await ApiService().getChatAllMessages(widget.roomId);
     if (response.statusCode == 200) {
       final List<dynamic> messages = response.data;
-      print(messages);
+
       setState(() {
         _chatDetail = messages
             .map((msg) => ChatDetailMessageModel.fromJson(msg))
             .toList();
       });
-      Provider.of<ChatProvider>(context).setChatContents(_chatDetail);
+
+      Provider.of<ChatProvider>(context, listen: false)
+          .setChatContents(_chatDetail!);
+
+      Provider.of<ChatProvider>(context, listen: false)
+          .setImBuyer(widget.imBuyer);
     }
   }
 
@@ -135,12 +138,9 @@ class _ChatDetailState extends State<ChatDetail> {
   void initState() {
     super.initState();
 
-    getPostContent();
-    getAllMessages();
-
-    setState(() {
-      roomId = widget.roomId;
-      postId = widget.postId;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      getPostContent();
+      getAllMessages();
     });
 
     // 키보드의 높이가 바뀌면 update
@@ -172,29 +172,13 @@ class _ChatDetailState extends State<ChatDetail> {
     super.dispose();
   }
 
-  void _handleMessageReceived(String message) {
-    final chatContent = ChatDetailContent(
-      chatDateTime: DateTime.now(),
-      chatText: message,
-      isMe: false,
-    );
-    print(
-        Provider.of<ChatProvider>(context, listen: false).chatContents.length);
-    Provider.of<ChatProvider>(context, listen: false)
-        .addChatContent(chatContent);
-    print(
-        Provider.of<ChatProvider>(context, listen: false).chatContents.length);
-  }
-
   @override
   Widget build(BuildContext context) {
     socketChannel = Provider.of<SocketClass>(context);
-    socketChannel.onMessageReceived = _handleMessageReceived;
 
-    // product가 null이 아닌 경우에만 ChatDetailProduct를 표시합니다.
     Widget productWidget = product != null
         ? ChatDetailProduct(product: product!)
-        : const CircularProgressIndicator(); // 또는 다른 placeholder 위젯을 사용할 수 있습니다.
+        : const CircularProgressIndicator();
 
     return Scaffold(
       resizeToAvoidBottomInset: resizeScreenKeyboard,
@@ -229,10 +213,17 @@ class _ChatDetailState extends State<ChatDetail> {
         // 서버로 전송
         socketChannel.onSendMessage(_textController.text, widget.roomId);
 
-        var newMessage = ChatDetailContent(
-          chatDateTime: DateTime.now(), // 현재 시간으로 설정
-          chatText: _textController.text,
-          isMe: true,
+        // var newMessage = ChatDetailModel(
+        //   chatDateTime: DateTime.now(), // 현재 시간으로 설정
+        //   chatText: _textController.text,
+        //   isMe: true,
+        // );
+
+        var newMessage = ChatDetailMessageModel(
+          fromBuyer: widget.imBuyer == true ? true : false,
+          message: _textController.text,
+          read: true,
+          createTime: DateTime.now(),
         );
 
         _textController.clear();
