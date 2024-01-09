@@ -2,6 +2,7 @@ import 'package:dangmoog/models/chat_detail_model.dart';
 import 'package:dangmoog/providers/chat_provider.dart';
 import 'package:dangmoog/providers/provider.dart';
 import 'package:dangmoog/providers/websocket_provider.dart';
+import 'package:dangmoog/screens/mypage/like/like_mainpage.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 
@@ -26,7 +27,7 @@ class _MyHomeState extends State<MyHome> {
 
   final List<Widget> _bodyPage = <Widget>[
     const MainPage(), // Post List Page
-    const TempPage(), // home page (추후 업데이트를 위한 여유 페이지)
+    const LikeMainPage(), // home page (추후 업데이트를 위한 여유 페이지)
     const ChatListPage(), // Chat List Page
     const MyPage(
       nickname: '',

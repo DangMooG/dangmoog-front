@@ -11,7 +11,7 @@ class MypageText extends StatelessWidget {
   Widget build(BuildContext context) {
     Size screenSize = MediaQuery.of(context).size;
     return Container(
-      height: screenSize.height * 0.049,
+      height: screenSize.height * 0.052,
       child: Row(
         children: [
           TextButton.icon(

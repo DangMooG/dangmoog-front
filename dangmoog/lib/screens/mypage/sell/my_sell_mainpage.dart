@@ -2,6 +2,7 @@ import 'package:dangmoog/models/product_class.dart';
 import 'package:dangmoog/providers/provider.dart';
 import 'package:dangmoog/screens/mypage/my_post_list.dart';
 import 'package:dangmoog/services/api.dart';
+import 'package:dangmoog/widgets/sorting_toggle.dart';
 import 'package:flutter/material.dart';
 
 import 'package:provider/provider.dart';
@@ -18,7 +19,7 @@ class MySellMainPage extends StatefulWidget {
 class _MySellMainPageState extends State<MySellMainPage> {
   final ApiService apiService = ApiService();
   late Future<List<ProductModel>> futureProducts;
-  SortingOrder sortingOrder = SortingOrder.descending; // 정렬 순서 기본값
+  SortingOrder sorting = SortingOrder.descending; // 정렬 순서 기본값
   bool sortByDealStatus = false;
   bool sortByDealStatus2 = false;
   bool sortByDealStatus3 = false;
@@ -48,15 +49,6 @@ class _MySellMainPageState extends State<MySellMainPage> {
     }
   }
 
-  void _toggleSortingOrder() {
-    setState(() {
-      sortByDealStatus = false;
-      sortByDealStatus2 = false;
-      sortByDealStatus3 = false;
-      sortingOrder = SortingOrder.descending;
-    });
-  }
-
   List<ProductModel> _sortProducts(List<ProductModel> products) {
     List<ProductModel> filteredProducts = products;
     if (sortByDealStatus) {
@@ -73,7 +65,7 @@ class _MySellMainPageState extends State<MySellMainPage> {
     }
 
     // 필터링된 데이터를 정렬 순서에 따라 정렬한 후 반환
-    if (sortingOrder == SortingOrder.ascending) {
+    if (sorting == SortingOrder.ascending) {
       return filteredProducts
         ..sort((a, b) => a.createTime.compareTo(b.createTime));
     } else {
@@ -82,36 +74,8 @@ class _MySellMainPageState extends State<MySellMainPage> {
     }
   }
 
-  //거래완료
-  void _toggleSortByDealStatus() {
-    setState(() {
-      sortByDealStatus = true;
-      sortByDealStatus2 = false;
-      sortByDealStatus3 = false;
-    });
-  }
-
-  //거래중
-  void _toggleSortByDealStatus2() {
-    setState(() {
-      sortByDealStatus = false;
-      sortByDealStatus2 = true;
-      sortByDealStatus3 = false;
-    });
-  }
-
-  //예약중
-  void _toggleSortByDealStatus3() {
-    setState(() {
-      sortByDealStatus = false;
-      sortByDealStatus2 = false;
-      sortByDealStatus3 = true;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
-    final List<String> buttonList = ['전체', '거래중', '예약중', '거래완료'];
     return Scaffold(
       appBar: AppBar(
         title: const Text(
@@ -122,42 +86,50 @@ class _MySellMainPageState extends State<MySellMainPage> {
               color: Color(0xFF302E2E)),
         ),
         actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 16.0),
-            child: ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.all(5),
-                minimumSize: const Size(40, 24),
-                side: const BorderSide(
-                  color: Color(0xFFE20529), // 원하는 border 색상 설정
-                  width: 1.0, // border의 두께 설정
-                ),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(6.0), // 버튼의 모서리를 둥글게 설정
-                ),
-              ),
-              child: Row(
-                children: [
-                  Text(
-                    buttonList[index],
-                    style: const TextStyle(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w400,
-                        color: Color(0xFFE20529)),
-                  ),
-                  const Icon(
-                    Icons.keyboard_arrow_down_sharp,
-                    color: Color(0xFFE20529),
-                    size: 16,
-                  ),
-                ],
-              ),
-              onPressed: () {
-                _accountPopup(context, index);
-              },
-            ),
+          FutureBuilder<List<ProductModel>>(
+            future: futureProducts,
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.done) {
+                if (snapshot.hasError) {
+                  return const Center(
+                    child: Text('게시물을 불러오는데 실패했습니다.'),
+                  );
+                }
+
+                return ProductListSorting(
+                  productList: snapshot.data ?? [], // 받은 데이터를 전달
+                  sortingOrder: sorting,
+                  onSortingChanged: (newSorting) {
+                    setState(() {
+                      // ProductListSorting에서 전달된 sorting 값을 업데이트
+                      sorting = newSorting;
+                    });
+                  },
+                  onSorting1Changed:
+                      (newsortState1, newsortState2, newsortState3) {
+                    setState(() {
+                      sortByDealStatus = newsortState1;
+                      sortByDealStatus2 = newsortState2;
+                      sortByDealStatus3 = newsortState3;
+                    });
+                  },
+                );
+              } else {
+                return const Center(child: CircularProgressIndicator());
+              }
+            },
           ),
         ],
+        bottom: const PreferredSize(
+          preferredSize: Size.fromHeight(0.0),
+          child: Divider(
+            color: Color(0xFFBEBCBC),
+            height: 1,
+            thickness: 1,
+            indent: 0,
+            endIndent: 0,
+          ),
+        ),
       ),
       body: FutureBuilder<List<ProductModel>>(
         future: futureProducts,
@@ -169,9 +141,10 @@ class _MySellMainPageState extends State<MySellMainPage> {
               );
             }
 
+            // 정렬된 데이터를 표시하도록 ProductList 위젯에 sortingOrder를 전달
             return MyProductList(
               productList: _sortProducts(snapshot.data!),
-              sortingOrder: sortingOrder,
+              sortingOrder: sorting,
             );
           } else {
             return const Center(child: CircularProgressIndicator());
@@ -179,91 +152,6 @@ class _MySellMainPageState extends State<MySellMainPage> {
         },
       ),
     );
-  }
-
-  Future<void> _accountPopup(BuildContext context, int currentindex) async {
-    Size screenSize = MediaQuery.of(context).size;
-    int newindex = currentindex;
-    await showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          contentPadding: EdgeInsets.zero,
-          backgroundColor: const Color(0xFFFFFFFF),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(14.0),
-          ),
-          content: SizedBox(
-            width: 270,
-            height: screenSize.height * 0.22,
-            child: Column(
-              children: [
-                CustomTextButtonWithBorder(
-                  text: '전체보기',
-                  onPressed: () {
-                    _toggleSortingOrder();
-                    Navigator.of(context).pop();
-                    newindex = 0;
-                  },
-                  height: screenSize.height * 0.044,
-                ),
-                CustomTextButtonWithBorder(
-                  text: '거래중',
-                  onPressed: () {
-                    _toggleSortByDealStatus2();
-                    Navigator.of(context).pop();
-                    newindex = 1;
-                  },
-                  height: screenSize.height * 0.044,
-                ),
-                CustomTextButtonWithBorder(
-                  text: '예약중',
-                  onPressed: () {
-                    _toggleSortByDealStatus3();
-                    Navigator.of(context).pop();
-                    newindex = 2;
-                  },
-                  height: screenSize.height * 0.044,
-                ),
-                CustomTextButtonWithBorder(
-                  text: '거래완료',
-                  onPressed: () {
-                    _toggleSortByDealStatus();
-                    Navigator.of(context).pop();
-                    newindex = 3;
-                  },
-                  height: screenSize.height * 0.044,
-                ),
-                SizedBox(
-                  height: screenSize.height * 0.044,
-                  child: TextButton(
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                    style: ButtonStyle(
-                      fixedSize: MaterialStateProperty.all<Size>(
-                        const Size(375, 36), // 크기를 원하는대로 설정
-                      ),
-                    ),
-                    child: const Text(
-                      '취소',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w400,
-                        color: Color(0xFFA19E9E),
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-    setState(() {
-      index = newindex; // 인덱스 업데이트를 상태 변경과 함께 수행
-    });
   }
 }
 
