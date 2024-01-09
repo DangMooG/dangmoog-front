@@ -11,13 +11,13 @@ class NicknameChangePage extends StatefulWidget {
   const NicknameChangePage({Key? key}) : super(key: key);
 
   @override
-  _NicknameChangePageState createState() => _NicknameChangePageState();
+  State<NicknameChangePage> createState() => _NicknameChangePageState();
 }
 
 class _NicknameChangePageState extends State<NicknameChangePage> {
   late String imagePath;
 
-  Color buttonColor = Color(0xFFDADADA); // 초기 버튼 색상
+  Color buttonColor = const Color(0xFFDADADA); // 초기 버튼 색상
 
   String nickname = '';
   String errorMessage = '';
@@ -98,7 +98,7 @@ class _NicknameChangePageState extends State<NicknameChangePage> {
       }
     } catch (e) {
       print('이미지 URL 가져오기 오류: $e');
-      throw e;
+      rethrow;
     }
   }
 
@@ -107,16 +107,17 @@ class _NicknameChangePageState extends State<NicknameChangePage> {
       Response response = await ApiService().setUserNickname(nickname);
 
       if (response.statusCode == 200) {
+        if (!mounted) return;
         Provider.of<UserProvider>(context, listen: false).setNickname(nickname);
 
         Navigator.pushReplacement(
           context,
           PageRouteBuilder(
             pageBuilder: (context, animation1, animation2) =>
-                ProfileChangePage(),
-            transitionDuration: Duration(seconds: 0), // No animation
+                const ProfileChangePage(),
+            transitionDuration: const Duration(seconds: 0), // No animation
             reverseTransitionDuration:
-                Duration(seconds: 2), // No animation when pop
+                const Duration(seconds: 2), // No animation when pop
           ),
         );
       }
@@ -143,7 +144,7 @@ class _NicknameChangePageState extends State<NicknameChangePage> {
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
         leading: IconButton(
-          icon: Icon(Icons.arrow_back), // 뒤로 가기 아이콘
+          icon: const Icon(Icons.arrow_back), // 뒤로 가기 아이콘
           onPressed: () {
             Navigator.of(context).pop();
           },
@@ -160,7 +161,7 @@ class _NicknameChangePageState extends State<NicknameChangePage> {
           Stack(
             alignment: Alignment.center,
             children: [
-              Container(
+              SizedBox(
                 width: screenSize.width * 0.56,
                 height: screenSize.width * 0.56,
                 child: ClipOval(
@@ -179,7 +180,7 @@ class _NicknameChangePageState extends State<NicknameChangePage> {
                             } else if (snapshot.hasError) {
                               return Text('Error: ${snapshot.error}');
                             } else {
-                              return CircularProgressIndicator(); // 데이터 로딩 중 표시
+                              return const CircularProgressIndicator(); // 데이터 로딩 중 표시
                             }
                           },
                         )
@@ -199,7 +200,7 @@ class _NicknameChangePageState extends State<NicknameChangePage> {
             child: TextField(
               onChanged: onNicknameChanged,
               textAlign: TextAlign.center,
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 border: OutlineInputBorder(
                   borderSide: BorderSide(
                     color: Color(0xFFA19E9E), // 원하는 border 색상 설정
@@ -219,7 +220,7 @@ class _NicknameChangePageState extends State<NicknameChangePage> {
           ),
           Text(
             errorMessage,
-            style: TextStyle(
+            style: const TextStyle(
               color: Colors.red,
             ),
           ),
@@ -237,7 +238,7 @@ class _NicknameChangePageState extends State<NicknameChangePage> {
     String nickname,
     String changeUserNickname,
     bool isButtonDisabled,
-    bool _isChecked,
+    bool isChecked,
   ) {
     return TextButton(
       onPressed: () {
@@ -248,7 +249,7 @@ class _NicknameChangePageState extends State<NicknameChangePage> {
             context: context,
             builder: (BuildContext context) {
               return AlertDialog(
-                backgroundColor: Color(0xFFFFFFFF),
+                backgroundColor: const Color(0xFFFFFFFF),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(14.0),
                 ),
@@ -263,7 +264,7 @@ class _NicknameChangePageState extends State<NicknameChangePage> {
                         color: Color(0xFF302E2E),
                       ),
                     ),
-                    SizedBox(height: 8),
+                    const SizedBox(height: 8),
                     Text(
                       nickname,
                       textAlign: TextAlign.center,
@@ -327,8 +328,8 @@ class _NicknameChangePageState extends State<NicknameChangePage> {
                           backgroundColor: const Color(0xFFFFFFFF),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(6),
-                            side:
-                                BorderSide(color: Color(0xFF726E6E), width: 1),
+                            side: const BorderSide(
+                                color: Color(0xFF726E6E), width: 1),
                           ),
                           padding: const EdgeInsets.symmetric(
                               horizontal: 12, vertical: 4),
@@ -354,7 +355,7 @@ class _NicknameChangePageState extends State<NicknameChangePage> {
           );
         } else {}
       },
-      child: Text(
+      child: const Text(
         '변경하기',
         style: TextStyle(
           fontSize: 16,

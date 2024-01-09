@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
-const BASE_URL =
+const baseUrl =
     'https://port-0-dangmoog-api-server-p8xrq2mlfc80j33.sel3.cloudtype.app/meta/';
 
 class DioClient {
@@ -13,15 +13,14 @@ class DioClient {
   DioClient()
       : _publicClient = Dio(
           BaseOptions(
-            baseUrl: BASE_URL,
+            baseUrl: baseUrl,
           ),
         ),
         _authClient = Dio(
           BaseOptions(
-            baseUrl: BASE_URL,
+            baseUrl: baseUrl,
           ),
-        )
-  {
+        ) {
     _authClient.interceptors.add(
       InterceptorsWrapper(
         onRequest: (options, handler) async {

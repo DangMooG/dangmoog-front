@@ -16,7 +16,7 @@ class CustomTextFieldButton extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  _CustomTextFieldButtonState createState() => _CustomTextFieldButtonState();
+  State<CustomTextFieldButton> createState() => _CustomTextFieldButtonState();
 }
 
 class _CustomTextFieldButtonState extends State<CustomTextFieldButton> {
@@ -91,7 +91,7 @@ class _CustomTextFieldButtonState extends State<CustomTextFieldButton> {
             children: [
               SizedBox(width: screenSize.width * 0.02),
               Expanded(
-                child: Container(
+                child: SizedBox(
                   height: screenSize.height * 0.06,
                   child: TextField(
                     controller: emailController,
@@ -145,15 +145,13 @@ class _CustomTextFieldButtonState extends State<CustomTextFieldButton> {
                     screenSize.height * 0.034,
                   ),
                 ),
-                child: Container(
-                  child: const Text(
-                    '인증메일 발송',
-                    style: TextStyle(
-                      //color: textColor,
-                      fontFamily: 'Pretendard-Medium',
-                      fontSize: 13,
-                      fontWeight: FontWeight.w500,
-                    ),
+                child: const Text(
+                  '인증메일 발송',
+                  style: TextStyle(
+                    //color: textColor,
+                    fontFamily: 'Pretendard-Medium',
+                    fontSize: 13,
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
               ),

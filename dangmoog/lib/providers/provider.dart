@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:dangmoog/services/api.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 class UserProvider with ChangeNotifier {
   String _inputEmail = '';

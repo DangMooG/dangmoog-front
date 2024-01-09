@@ -14,7 +14,7 @@ class NicknamePage extends StatefulWidget {
   const NicknamePage({Key? key}) : super(key: key);
 
   @override
-  _NicknamePageState createState() => _NicknamePageState();
+  State<NicknamePage> createState() => _NicknamePageState();
 }
 
 class _NicknamePageState extends State<NicknamePage> {
@@ -92,6 +92,7 @@ class _NicknamePageState extends State<NicknamePage> {
       Response response = await ApiService().setUserNickname(nickname);
 
       if (response.statusCode == 200) {
+        if (!mounted) return;
         Provider.of<UserProvider>(context, listen: false).setNickname(nickname);
         isLoading = false;
         Navigator.pushAndRemoveUntil(

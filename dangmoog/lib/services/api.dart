@@ -128,9 +128,6 @@ class ApiService {
         "files": multipartImageList, // API expects 'files', so use that as key
       });
 
-      // Print the formData for debugging purposes
-      print(formData);
-
       // Send the post request with formData when there are images
       return await _authClient.post(
         url,
@@ -220,6 +217,19 @@ class ApiService {
     return await _publicClient.get("post/$id");
   }
 
+  Future<Response> loadProductListWithPaging(int checkpoint) async {
+    if (checkpoint == 0) {
+      return await _publicClient.get("post/app-paging", queryParameters: {
+        "size": 20,
+      });
+    } else {
+      return await _publicClient.get("post/app-paging", queryParameters: {
+        "size": 20,
+        "checkpoint": checkpoint,
+      });
+    }
+  }
+
   Future<Response> loadLikes() async {
     return await _authClient.post("post/get_like_list");
   }
@@ -266,6 +276,38 @@ class ApiService {
         data: requestBody);
   }
 
+  // 한 채팅방에 대한 모든 채팅 정보 얻기
+  Future<Response> getChatAllMessages(String roomId) async {
+    return await _publicClient.get("chat/all/$roomId");
+  }
+
+  // 한 채팅방에 해당하는 게시글 id 얻기
+  Future<Response> getPostIdByRoomId(String roomId) async {
+    return await _publicClient.get("chat/$roomId");
+  }
+
+  // 내가 속한 모든 채팅방의 id 얻기
+  Future<Response> getMyRoomIds() async {
+    return await _authClient.post("chat/my_rooms");
+  }
+
+  // 여러 채팅방에 대해 내가 구매자 or 판매자인지, postId
+  Future<Response> getAllMyChatRoomInfo(List<String> roomIds) async {
+    Map<String, dynamic> requestBody = {"rooms": roomIds};
+    return await _authClient.post("chat/room_info", data: requestBody);
+  }
+
+  // 여러 채팅방의 상대방 닉네임 가져오기
+  Future<Response> getChatUserNames(List<String> roomIds) async {
+    Map<String, dynamic> requestBody = {"rooms": roomIds};
+    return await _authClient.post("chat/my_opponents", data: requestBody);
+  }
+
+  Future<Response> getAllMyChatRoomStatus(List<String> roomIds) async {
+    Map<String, dynamic> requestBody = {"rooms": roomIds};
+    return await _authClient.post("chat/my_room_status", data: requestBody);
+  }
+
   /////////////////////////////
   /// 사진 관련 ///
   /////////////////////////////
@@ -281,7 +323,6 @@ class ApiService {
         throw Exception('Failed to load photo');
       }
     } catch (e) {
-      // If there's an error, return an empty list
       return Future.error(e);
     }
   }

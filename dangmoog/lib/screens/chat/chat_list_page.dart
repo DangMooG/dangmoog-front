@@ -1,3 +1,5 @@
+import 'package:dangmoog/models/chat_list_cell_model.dart';
+import 'package:dangmoog/providers/chat_list_provider.dart';
 import 'package:flutter/material.dart';
 
 import 'package:dangmoog/screens/chat/chat_list_cell.dart';
@@ -5,6 +7,7 @@ import 'package:dangmoog/models/chat_class.dart';
 
 import 'dart:convert';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
 
 Future<List<Chat>> _loadChatListFromAsset(String domain) async {
   final String jsonChatList = await rootBundle.loadString(domain);
@@ -57,6 +60,7 @@ class _ChatListPageState extends State<ChatListPage> {
 
   @override
   Widget build(BuildContext context) {
+    final chatListProvider = Provider.of<ChatListProvider>(context);
     return Padding(
       padding: const EdgeInsets.only(
         left: 16,
@@ -88,8 +92,20 @@ class _ChatListPageState extends State<ChatListPage> {
               child: IndexedStack(
                 index: sellSelected ? 0 : 1,
                 children: [
-                  _buildChatListFutureBuilder(futureSellChat),
-                  _buildChatListFutureBuilder(futureBuyChat)
+                  Consumer<ChatListProvider>(
+                    builder: (context, chatListProvider, child) {
+                      return ChatListView(
+                        chatList: chatListProvider.sellChatList,
+                      );
+                    },
+                  ),
+                  Consumer<ChatListProvider>(
+                    builder: (context, chatListProvider, child) {
+                      return ChatListView(
+                        chatList: chatListProvider.buyChatList,
+                      );
+                    },
+                  ),
                 ],
               ),
             )
@@ -195,47 +211,34 @@ class ChatSelectionButton extends StatelessWidget {
   }
 }
 
-Widget _buildChatListFutureBuilder(Future<List<Chat>> future) {
-  return FutureBuilder<List<Chat>>(
-    future: future,
-    builder: (context, snapshot) {
-      if (snapshot.connectionState == ConnectionState.done) {
-        if (snapshot.hasError) {
-          return const Center(child: Text('Error loading chat list!'));
-        }
-        return ChatListView(
-          chat: snapshot.data!,
-        );
-      }
-      return const Center(child: CircularProgressIndicator());
-    },
-  );
-}
-
 class ChatListView extends StatelessWidget {
-  final List<Chat> chat;
+  final List<ChatListCell> chatList;
 
-  const ChatListView({super.key, required this.chat});
+  const ChatListView({super.key, required this.chatList});
 
   @override
   Widget build(BuildContext context) {
     return ListView.separated(
-        itemCount: chat.length,
-        itemBuilder: (context, index) {
-          final chatItem = chat[index];
-          return ChatCell(
-            userNickName: chatItem.userNickName,
-            lastMsg: chatItem.lastMsg,
-            productId: chatItem.productId,
-            userId: chatItem.userId,
-            chatId: chatItem.chatId,
-            lastDate: chatItem.lastDate,
-          );
-        },
-        separatorBuilder: (context, _) {
-          return const Divider(
-            color: Color(0xFFD3D2D2),
-          );
-        });
+      itemCount: chatList.length,
+      itemBuilder: (context, index) {
+        final chatItem = chatList[index];
+        return ChatCell(
+          roomId: chatItem.roomId,
+          userName: chatItem.userName,
+          userProfileUrl: chatItem.userProfileUrl,
+          photoId: chatItem.photoId,
+          lastMessage: chatItem.lastMessage,
+          updateTime: chatItem.updateTime,
+          unreadCount: chatItem.unreadCount,
+          imBuyer: chatItem.imBuyer,
+          postId: chatItem.postId,
+        );
+      },
+      separatorBuilder: (context, _) {
+        return const Divider(
+          color: Color(0xFFD3D2D2),
+        );
+      },
+    );
   }
 }

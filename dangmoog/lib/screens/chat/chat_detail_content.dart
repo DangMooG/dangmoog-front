@@ -20,11 +20,6 @@ class ChatContents extends StatefulWidget {
 
 class _ChatContentsState extends State<ChatContents> {
   @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
