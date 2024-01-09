@@ -35,44 +35,12 @@ class _MyProductListState extends State<MyProductList> {
   // 이미지 캐싱을 위한 변수
   Map<int, String> imageCache = {};
 
-  // @override
-  // void initState() {
-  //   super.initState();
-
-  //   futureProducts = fetchProducts();
-  // }
-
-  // //현재 사용된 곳 없음
-  // void _onScroll() {
-  //   if (_scrollController.position.pixels ==
-  //       _scrollController.position.minScrollExtent) {
-  //     // You're at the top of the scrollable, trigger the refresh logic
-  //     setState(() {
-  //       futureProducts = fetchProducts();
-  //     });
-  //   }
-  // }
-
   @override
   void dispose() {
     // _scrollController.removeListener(_onScroll);
     _scrollController.dispose();
     super.dispose();
   }
-
-  // Future<List<ProductModel>> fetchProducts() async {
-  //   Response response = await loadData();
-  //   if (response.statusCode == 200) {
-  //     if (response.data is List) {
-  //       List<dynamic> data = response.data as List;
-  //       return data.map((item) => ProductModel.fromJson(item)).toList();
-  //     } else {
-  //       throw Exception('Data format from server is unexpected.');
-  //     }
-  //   } else {
-  //     throw Exception('Failed to load products');
-  //   }
-  // }
 
   @override
   Widget build(BuildContext context) {
@@ -97,21 +65,29 @@ class _MyProductListState extends State<MyProductList> {
 
   // 게시물 리스트 위젯
   Widget _postListView() {
-    return ListView.separated(
-      itemCount: widget.productList.length,
-      itemBuilder: (context, index) {
-        Widget productCard = ChangeNotifierProvider<ProductModel>.value(
-          value: widget.productList[index],
-          child: _postCard(context),
-        );
-        return productCard;
-      },
-      separatorBuilder: (context, i) {
-        return const Divider(
-          height: 1,
-        );
-      },
-    );
+    return RefreshIndicator(
+        onRefresh: () async {
+          setState(() {
+            //   futureProducts = widget.productList as Future<List<ProductModel>>;
+            futureProducts = Future.value(widget.productList);
+          });
+          await futureProducts;
+        },
+        child: ListView.separated(
+          itemCount: widget.productList.length,
+          itemBuilder: (context, index) {
+            Widget productCard = ChangeNotifierProvider<ProductModel>.value(
+              value: widget.productList[index],
+              child: _postCard(context),
+            );
+            return productCard;
+          },
+          separatorBuilder: (context, i) {
+            return const Divider(
+              height: 1,
+            );
+          },
+        ));
   }
 
   // 게시물 리스트에서 게시물 하나에 대한 위젯

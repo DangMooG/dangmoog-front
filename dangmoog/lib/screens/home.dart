@@ -3,8 +3,13 @@ import 'package:dangmoog/models/chat_list_cell_model.dart';
 import 'package:dangmoog/providers/chat_list_provider.dart';
 import 'package:dangmoog/providers/chat_provider.dart';
 import 'package:dangmoog/providers/websocket_provider.dart';
+
+import 'package:dangmoog/screens/mypage/like/like_mainpage.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+
 import 'package:dangmoog/services/api.dart';
 import 'package:dio/dio.dart';
+
 import 'package:flutter/material.dart';
 
 import 'package:dangmoog/screens/mypage/my_page.dart';
@@ -27,9 +32,9 @@ class _MyHomeState extends State<MyHome> {
   int currentTabIndex = 0;
 
   final List<Widget> _bodyPage = <Widget>[
-    const MainPage(key: ValueKey("MainPage")), // Post List Page
-    const TempPage(key: ValueKey("TempPage")), // Temp Page
-    const ChatListPage(key: ValueKey("ChatListPage")), // Chat List Page
+    const MainPage(key: ValueKey("MainPage")),
+    const LikeMainPage(key: ValueKey("LikePage")),
+    const ChatListPage(key: ValueKey("ChatListPage")),
     const MyPage(
       key: ValueKey("MyPage"),
       nickname: '',

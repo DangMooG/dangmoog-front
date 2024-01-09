@@ -53,6 +53,8 @@ class _AuthPageState extends State<AuthPage> {
 
   bool isLoading = false;
 
+  bool isSending = false;
+
   // 토큰과 user ID 저장
   static const storage = FlutterSecureStorage();
 
@@ -92,6 +94,7 @@ class _AuthPageState extends State<AuthPage> {
       startTimer();
       setState(() {
         isEmailSend = true;
+        isSending = true;
       });
 
       try {
@@ -101,10 +104,11 @@ class _AuthPageState extends State<AuthPage> {
           // 존재하지 않는 계정 : false
           int status = int.parse(response.data[0]['status'].toString());
           bool isExistingAccount = status == 1 ? true : false;
+
           // 유저가 선택한 플로우와 이메일의 계정 존재 여부가 일치하지 않을 경우
           // // 로그인 and 존재하지 않는 계정
           // // 회원가입 and 이미 존재하는 계정
-
+          isSending = false;
           if (isLogin != isExistingAccount) {
             setState(() {
               isLogin = isExistingAccount;
@@ -319,7 +323,7 @@ class _AuthPageState extends State<AuthPage> {
                 ],
               ),
             ),
-            isLoading
+            isLoading || isSending
                 ? const Center(
                     child: CircularProgressIndicator(),
                   )
