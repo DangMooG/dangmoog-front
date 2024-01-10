@@ -1,3 +1,4 @@
+import 'package:dangmoog/screens/addpage/locker_val.dart';
 import 'package:dangmoog/utils/time_ago.dart';
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
@@ -13,6 +14,10 @@ import 'package:dangmoog/models/product_class.dart';
 
 import 'package:dangmoog/constants/category_list.dart';
 import 'package:dangmoog/utils/convert_money_format.dart';
+
+import 'package:dangmoog/providers/provider.dart';
+
+import 'locker_timer.dart';
 
 class ProductList extends StatefulWidget {
   const ProductList({super.key});
@@ -31,11 +36,43 @@ class _ProductListState extends State<ProductList> {
   // 이미지 캐싱을 위한 변수
   Map<int, String> imageCache = {};
 
+  List<ProductModel> lockerProducts = [];
+
+
+  Future<void> _loadLockerProducts() async{
+    if (isLoadingProductList) return; // 중복 호출 방지
+    setState(() {
+      isLoadingProductList = true;
+    });
+
+    try {
+      Response lockerResponse = await apiService.loadLockerPost();
+      if (lockerResponse.statusCode == 200) {
+        final List<dynamic> lockerData = lockerResponse.data;
+        List<ProductModel> newLockerProducts = lockerData.map((item) {
+          return ProductModel.fromJson(item);
+        }).toList();
+
+        setState(() {
+          lockerProducts.addAll(newLockerProducts); // Prepend locker products
+          isLoadingProductList = false;
+        });
+      } else {
+        throw Exception('Failed to load locker products');
+      }
+    } catch (e) {
+      print(e);
+    }
+
+  }
+
   Future<void> _loadProducts() async {
     if (isLoadingProductList) return; // 중복 호출 방지
     setState(() {
       isLoadingProductList = true;
     });
+
+    
 
     try {
       Response response =
@@ -74,6 +111,7 @@ class _ProductListState extends State<ProductList> {
   @override
   void initState() {
     _loadProducts();
+    _loadLockerProducts();
     _scrollController.addListener(_scrollListener);
     super.initState();
   }
@@ -253,14 +291,23 @@ class _ProductListState extends State<ProductList> {
         });
         products.clear();
         await _loadProducts();
+        await _loadLockerProducts();
       },
       child: Scrollbar(
         controller: _scrollController,
         child: ListView.separated(
           controller: _scrollController,
-          itemCount: products.length,
+          itemCount: lockerProducts.length + products.length,
           itemBuilder: (context, index) {
-            if (index < products.length) {
+            if (index < lockerProducts.length) {
+              // Build locker product card
+              return ChangeNotifierProvider<ProductModel>.value(
+                value: lockerProducts[index],
+                child: _lockerProductCard(context, lockerProducts[index]),
+              );
+            }
+            int regularIndex = index - lockerProducts.length;
+            if (regularIndex < products.length) {
               return ChangeNotifierProvider<ProductModel>.value(
                 value: products[index],
                 child: _postCard(context),
@@ -270,6 +317,7 @@ class _ProductListState extends State<ProductList> {
             } else {
               return Container();
             }
+
           },
           separatorBuilder: (context, i) {
             return const Divider(
@@ -280,6 +328,123 @@ class _ProductListState extends State<ProductList> {
       ),
     );
   }
+
+  Widget _lockerProductCard(BuildContext context, ProductModel product) {
+    double paddingValue = MediaQuery.of(context).size.width * 0.042;
+
+    return InkWell(
+      onTap: () {
+        // Logic when the card is tapped
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => LockerValPage(product),
+          ),
+        );
+      },
+      child: Padding(
+        padding: EdgeInsets.all(paddingValue),
+        child: Stack(
+          children: [
+            Container(
+              decoration: BoxDecoration(
+                border: Border.all(
+                  color: const Color(0xFFE20529), // Color for validation border
+                  width: 3.0, // Thickness of the validation border
+                ),
+                borderRadius: BorderRadius.circular(8), // Border radius
+              ),
+              child: Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Container(
+                      width: double.infinity,
+                      color: const Color(0xFFFCE6EA),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Expanded(
+                            child: Padding(
+                              padding: EdgeInsets.all(8.0),
+                              child: Text(
+                                '앗! 아직 인증하지 않은 게시물이 있어요.\n인증을 진행하고 게시물을 업로드하시겠어요?',
+                                style: TextStyle(
+                                  color: Color(0xFF302E2E),
+                                  fontWeight: FontWeight.w400,
+                                  fontSize: 11,
+                                ),
+                                textAlign: TextAlign.left,
+                              ),
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: TextButton(
+                              onPressed:() {
+                                // Navigate to LockerValPage
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => LockerValPage(product),
+                                  ),
+                                );
+                              },
+                              style: TextButton.styleFrom(
+                                backgroundColor: const Color(0xFFE20529), // Button background color
+                                primary: Colors.white,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(6), // Border radius of the button
+                                ),
+                                textStyle: const TextStyle(
+                                  fontFamily: 'Pretendard',
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w400,
+                                ),
+                              ),
+                              child: const Row(
+                                children: [
+                                  Padding(
+                                    padding: EdgeInsets.only(right:4.0),
+                                    child: Text('인증하기'),
+                                  ),
+                                  Icon(Icons.arrow_forward),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  Opacity(
+                    opacity: 0.5, // Reduced opacity as per the original code
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: <Widget>[
+                          _buildProductImage(context, product),
+                          _buildProductDetails(context, product),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Positioned(
+              bottom: paddingValue,
+              right: paddingValue,
+              child: ProductTimer(updateTime: product.updateTime),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+
 
   // 게시물 리스트에서 게시물 하나에 대한 위젯
   Widget _postCard(BuildContext context) {
@@ -294,14 +459,14 @@ class _ProductListState extends State<ProductList> {
                 transitionDuration: const Duration(milliseconds: 400),
                 pageBuilder: (context, animation, secondaryAnimation) =>
                     ProductDetailPage(
-                  postId: product.postId,
-                ),
+                      postId: product.postId,
+                    ),
                 transitionsBuilder:
                     (context, animation, secondaryAnimation, child) {
                   var previousPageOffsetAnimation =
-                      Tween(begin: const Offset(1, 0), end: const Offset(0, 0))
-                          .chain(CurveTween(curve: Curves.decelerate))
-                          .animate(animation);
+                  Tween(begin: const Offset(1, 0), end: const Offset(0, 0))
+                      .chain(CurveTween(curve: Curves.decelerate))
+                      .animate(animation);
 
                   return SlideTransition(
                     position: previousPageOffsetAnimation,
@@ -329,6 +494,7 @@ class _ProductListState extends State<ProductList> {
       },
     );
   }
+
 
   // 게시물 내역 이미지
   Widget _buildProductImage(BuildContext context, ProductModel product) {
@@ -449,7 +615,7 @@ class _ProductListState extends State<ProductList> {
         Padding(
           padding: const EdgeInsets.symmetric(vertical: 4),
           child: Text(
-            "${categeryItems[product.categoryId - 1]} | ${timeAgo(product.createTime)}",
+            "${categeryItems[product.categoryId-1]} | ${timeAgo(product.createTime)}",
             style: const TextStyle(
               fontWeight: FontWeight.w400,
               fontSize: 11,
@@ -516,3 +682,5 @@ class _ProductListState extends State<ProductList> {
         : const SizedBox.shrink();
   }
 }
+
+

@@ -58,163 +58,163 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
 
   Widget _buildProductDetail(
       BuildContext context, ProductDetailProvider provider) {
-    final product = provider.product!;
-    //TODO: 유저네임 바꾸기
-    // bool isUserProduct = product.userName =='flatfish';
+      final product = provider.product!;
+      //TODO: 유저네임 바꾸기
+      final userProvider = Provider.of<UserProvider>(context, listen: false);
+      final userNickname = userProvider.nickname;
+      bool isUserProduct = product.userName ==userNickname;
 
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(
-            Icons.keyboard_backspace,
-            size: 28,
-          ),
-          onPressed: () {
-            Navigator.pop(context);
-          },
-        ),
-        iconTheme: const IconThemeData(color: Colors.white),
-        actions: <Widget>[
-          IconButton(
-            icon: const Icon(Icons.more_vert, color: Color(0xFF726E6E)),
-            onPressed: () {
-              showDialog(
-                context: context,
-                builder: (BuildContext context) {
-                  double dividerThickness = 1;
-                  double buttonHeight = 36;
-                  return AlertDialog(
-                    contentPadding: EdgeInsets.zero,
-                    shape: const RoundedRectangleBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(8)),
-                    ),
-                    content: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: <Widget>[
-                        TextButton(
-                          onPressed: () {
-                            //TODO:  How should I declare postId? I have to send it to the editpostpage.
-
-                            Navigator.pop(context); // Close the dialog
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => EditPostPage(
-                                        postId: widget.postId!,
-                                        product: product,
-                                      )),
-                            );
-                          },
-                          style: TextButton.styleFrom(
-                            minimumSize: Size(270, buttonHeight),
-                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                            padding: const EdgeInsets.only(
-                                top:
-                                    8), // Ensures no additional padding is affecting the alignment
-                          ),
-                          child: const Text(
-                            '수정하기',
-                            style: TextStyle(
-                              fontFamily: 'Pretendard',
-                              fontSize: 14,
-                              fontWeight: FontWeight.w400,
-                              color: Color(0xFFE20529),
-                              height: 20 / 14, // line height
-                            ),
-                          ),
-                        ),
-                        Divider(thickness: dividerThickness),
-                        TextButton(
-                          onPressed: () async {
-                            int postId = product.postId;
-                            try {
-                              final response = await ApiService()
-                                  .deletePost(postId); // Call the delete API
-                              if (response.statusCode == 204) {
-                                if (!mounted) return;
-                                Navigator.pop(context);
-                                // Handle successful deletion here, like showing a confirmation message
-                              } else {
-                                // Handle the error case
-                                print(
-                                    'Failed to delete the post: ${response.statusCode}');
-                              }
-                            } catch (e) {
-                              // Handle any exceptions here
-                              print(
-                                  'An error occurred while deleting the post: $e');
-                            }
-                            if (!mounted) return;
-                            Navigator.pop(context);
-                          },
-                          style: TextButton.styleFrom(
-                            minimumSize: const Size(270, 28),
-                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                            padding: EdgeInsets
-                                .zero, // Ensures no additional padding is affecting the alignment
-                          ),
-                          child: const Text(
-                            '삭제하기',
-                            style: TextStyle(
-                              fontFamily: 'Pretendard',
-                              fontSize: 14,
-                              fontWeight: FontWeight.w400,
-                              color: Color(0xFFE20529),
-                            ),
-                          ),
-                        ),
-                        Divider(thickness: dividerThickness),
-                        TextButton(
-                          onPressed: () {
-                            // Close the dialog
-                            Navigator.pop(context);
-                          },
-                          style: TextButton.styleFrom(
-                            minimumSize: Size(270, buttonHeight),
-                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                            padding: const EdgeInsets.only(
-                                bottom:
-                                    8), // Ensures no additional padding is affecting the alignment
-                          ),
-                          child: const Text(
-                            '취소',
-                            style: TextStyle(
-                              color: Color(0xFFA19E9E),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  );
-                },
-              );
-            },
-          )
-        ],
-      ),
-      extendBodyBehindAppBar: true,
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          SizedBox(
-            child: Stack(
-              alignment: Alignment.bottomCenter,
-              children: [
-                sliderWidget(context),
-                sliderIndicator(context),
-              ],
+      return Scaffold(
+        appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          leading: IconButton(
+            icon: const Icon(
+              Icons.keyboard_backspace,
+              size: 28,
             ),
+            onPressed: () {
+              Navigator.pop(context);
+            },
           ),
-          productInfo(product),
-        ],
-      ),
-      bottomNavigationBar:
-          _buildChatButton(context, product, provider.chatAvailable),
-    );
-  }
+          iconTheme: const IconThemeData(color: Colors.white),
+          actions: <Widget>[
+            IconButton(
+              icon: const Icon(Icons.more_vert, color: Color(0xFF726E6E)),
+              onPressed: !isUserProduct?null: (){
+                showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    double dividerThickness = 1;
+                    double buttonHeight = 36;
+                    return AlertDialog(
+                      contentPadding: EdgeInsets.zero,
+                      shape: const RoundedRectangleBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(8)),
+                      ),
+                      content: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
+                          TextButton(
+                            onPressed: () {
+                              Navigator.pop(context); // Close the dialog
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => EditPostPage(
+                                          postId: widget.postId!,
+                                          product: product,
+                                        )),
+                              );
+                            },
+                            style: TextButton.styleFrom(
+                              minimumSize: Size(270, buttonHeight),
+                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                              padding: const EdgeInsets.only(
+                                  top:
+                                      8), // Ensures no additional padding is affecting the alignment
+                            ),
+                            child: const Text(
+                              '수정하기',
+                              style: TextStyle(
+                                fontFamily: 'Pretendard',
+                                fontSize: 14,
+                                fontWeight: FontWeight.w400,
+                                color: Color(0xFFE20529),
+                                height: 20 / 14, // line height
+                              ),
+                            ),
+                          ),
+                          Divider(thickness: dividerThickness),
+                          TextButton(
+                            onPressed: () async {
+                              int postId = product.postId;
+                              try {
+                                final response = await ApiService()
+                                    .deletePost(postId); // Call the delete API
+                                if (response.statusCode == 204) {
+                                  if (!mounted) return;
+                                  Navigator.pop(context);
+                                  // Handle successful deletion here, like showing a confirmation message
+                                } else {
+                                  // Handle the error case
+                                  print(
+                                      'Failed to delete the post: ${response.statusCode}');
+                                }
+                              } catch (e) {
+                                // Handle any exceptions here
+                                print(
+                                    'An error occurred while deleting the post: $e');
+                              }
+                              if (!mounted) return;
+                              Navigator.pop(context);
+                            },
+                            style: TextButton.styleFrom(
+                              minimumSize: const Size(270, 28),
+                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                              padding: EdgeInsets
+                                  .zero, // Ensures no additional padding is affecting the alignment
+                            ),
+                            child: const Text(
+                              '삭제하기',
+                              style: TextStyle(
+                                fontFamily: 'Pretendard',
+                                fontSize: 14,
+                                fontWeight: FontWeight.w400,
+                                color: Color(0xFFE20529),
+                              ),
+                            ),
+                          ),
+                          Divider(thickness: dividerThickness),
+                          TextButton(
+                            onPressed: () {
+                              // Close the dialog
+                              Navigator.pop(context);
+                            },
+                            style: TextButton.styleFrom(
+                              minimumSize: Size(270, buttonHeight),
+                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                              padding: const EdgeInsets.only(
+                                  bottom:
+                                      8), // Ensures no additional padding is affecting the alignment
+                            ),
+                            child: const Text(
+                              '취소',
+                              style: TextStyle(
+                                color: Color(0xFFA19E9E),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                );
+              },
+            )
+          ],
+        ),
+        extendBodyBehindAppBar: true,
+        body: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            SizedBox(
+              child: Stack(
+                alignment: Alignment.bottomCenter,
+                children: [
+                  sliderWidget(context),
+                  sliderIndicator(context),
+                ],
+              ),
+            ),
+            productInfo(product),
+          ],
+        ),
+        bottomNavigationBar:
+            _buildChatButton(context, product, provider.chatAvailable),
+      );
+    }
 
   Widget sliderWidget(BuildContext context) {
     final provider = Provider.of<ProductDetailProvider>(context);
@@ -312,7 +312,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
   }
 
   Widget _buildProductInformation(ProductModel product) {
-    String saleMethodText = product.useLocker == 1 ? '사물함거래' : '직접거래';
+    String saleMethodText = (product.useLocker == 1 || product.useLocker==2) ? '사물함거래' : '직접거래';
     Widget imageWidget = product.useLocker == 1
         ? Image.asset(
             'assets/images/uselocker_logo.png', // Replace with your asset image path
