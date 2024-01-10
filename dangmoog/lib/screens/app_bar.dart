@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 
 import 'package:dangmoog/widgets/bottom_popup.dart';
 
-AppBar mainAppBar(int currentTabIndex, BuildContext context) {
+AppBar? mainAppBar(int currentTabIndex, BuildContext context) {
   switch (currentTabIndex) {
     case 0:
       return _postListAppbar(context);
     case 1:
-      return _postListAppbar(context);
+      return null;
     case 2:
       return _chatListAppbar();
     case 3:

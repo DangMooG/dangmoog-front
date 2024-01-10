@@ -14,8 +14,8 @@ class MypageText extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Size screenSize = MediaQuery.of(context).size;
-    return SizedBox(
-      height: screenSize.height * 0.049,
+    return Container(
+      height: screenSize.height * 0.052,
       child: Row(
         children: [
           TextButton.icon(

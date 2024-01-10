@@ -27,6 +27,8 @@ class _NicknamePageState extends State<NicknamePage> {
 
   bool isHelpVisible = false;
 
+  bool isLoading = false;
+
   void setErrorMessage(String message, bool isRed) {
     setState(() {
       errorMessage = message;
@@ -82,13 +84,17 @@ class _NicknamePageState extends State<NicknamePage> {
   }
 
   void nickNameSubmit() async {
+    setState(() {
+      isLoading = true;
+    });
+
     try {
       Response response = await ApiService().setUserNickname(nickname);
 
       if (response.statusCode == 200) {
         if (!mounted) return;
         Provider.of<UserProvider>(context, listen: false).setNickname(nickname);
-
+        isLoading = false;
         Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(builder: (context) => const ProfilePage()),
@@ -108,44 +114,53 @@ class _NicknamePageState extends State<NicknamePage> {
       resizeToAvoidBottomInset: false,
       body: GestureDetector(
         onTap: () => FocusScope.of(context).unfocus(),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 18),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Column(
-                mainAxisAlignment: MainAxisAlignment.start,
+        child: Stack(
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 18),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Row(
+                  Column(
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
-                      _nicknameMessage(screenSize),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          _nicknameMessage(screenSize),
+                        ],
+                      ),
+                      SizedBox(height: screenSize.height * 0.024),
+                      _inputField(screenSize)
                     ],
                   ),
-                  SizedBox(height: screenSize.height * 0.024),
-                  _inputField(screenSize)
+                  SizedBox(
+                    height: screenSize.height * 0.2,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        AuthSubmitButton(
+                          onPressed: _isChecked
+                              ? () {
+                                  nickNameSubmit();
+                                }
+                              : () {},
+                          buttonText: '인증',
+                          isActive: _isChecked ? true : false,
+                        ),
+                      ],
+                    ),
+                  ),
                 ],
               ),
-              SizedBox(
-                height: screenSize.height * 0.2,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    AuthSubmitButton(
-                      onPressed: _isChecked
-                          ? () {
-                              nickNameSubmit();
-                            }
-                          : () {},
-                      buttonText: '인증',
-                      isActive: _isChecked ? true : false,
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
+            ),
+            isLoading
+                ? const Center(
+                    child: CircularProgressIndicator(),
+                  )
+                : const SizedBox.shrink(),
+          ],
         ),
       ),
     );

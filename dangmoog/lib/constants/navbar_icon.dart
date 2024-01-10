@@ -7,9 +7,9 @@ List<BottomNavigationBarItem> navbarItems = [
     label: '홈',
   ),
   const BottomNavigationBarItem(
-    icon: Icon(Icons.assignment_outlined),
-    activeIcon: Icon(Icons.assignment),
-    label: '게시판',
+    icon: Icon(Icons.favorite_border),
+    activeIcon: Icon(Icons.favorite),
+    label: '관심 목록',
   ),
   const BottomNavigationBarItem(
     icon: Icon(Icons.forum_outlined),

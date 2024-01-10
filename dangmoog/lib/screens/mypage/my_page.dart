@@ -204,17 +204,6 @@ class _MyPageState extends State<MyPage> {
             ),
           ),
           MypageText(
-              text: '관심목록',
-              icon: Icons.favorite_border,
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const LikeMainPage(),
-                  ),
-                );
-              }),
-          MypageText(
               text: '판매내역',
               icon: Icons.monetization_on_outlined,
               onPressed: () {
