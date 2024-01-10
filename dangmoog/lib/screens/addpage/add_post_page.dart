@@ -327,7 +327,9 @@ class _AddPostPageState extends State<AddPostPage> {
           icon: const Icon(Icons.close),
           onPressed: () {
             if (widget.fromChooseLocker) {
+
               // Check if it's from choose locker
+
               _showLockerDialog(context);
             } else if (isImageUploaded ||
                 isProductNameFilled ||
@@ -336,6 +338,7 @@ class _AddPostPageState extends State<AddPostPage> {
                 isDescriptionProvided) {
               _showExitConfirmationDialog(context);
             } else {
+              _updateLockerStatusOnExit();
               Navigator.of(context).pop();
             }
           },
@@ -1129,7 +1132,9 @@ class _AddPostPageState extends State<AddPostPage> {
                               onPressed: () {
                                 if (!isUploading) {
                                   _createNewPost();
-                                  if (useLocker == 1) {}
+                                  if (useLocker == 1) {
+
+                                  }
                                 }
                               },
                               style: ButtonStyle(
@@ -1410,11 +1415,10 @@ class _AddPostPageState extends State<AddPostPage> {
                 SizedBox(
                   width: 300,
                   child: TextButton(
-                    onPressed: () {
-                      // if (useLocker==1){
-                      //   Map<String, dynamic> updates= {"status":1};
-                      //   apiService.patchLocker(widget.lockerId!, updates);
-                      // }
+                    onPressed: () async{
+                      if(widget.fromChooseLocker && widget.lockerId!=null){
+                        _updateLockerStatusOnExit();
+                      }
 
                       Navigator.of(context).pop(
                           true); // Close the dialog and confirm exit without saving
@@ -1473,10 +1477,33 @@ class _AddPostPageState extends State<AddPostPage> {
       },
     ).then((shouldExit) {
       if (shouldExit == true) {
+        if (widget.fromChooseLocker && widget.lockerId != null) {
+          // Only update the locker status if we came from the locker selection
+          _updateLockerStatusOnExit();
+        }
         Navigator.of(context).pop(); // Exit the AddPostPage
       }
     });
   }
+
+  void _updateLockerStatusOnExit() async {
+    if (widget.lockerId != null) {
+      try {
+        Response lockerResponse = await apiService.patchLocker(
+            widget.lockerId!,
+            {"status": 1}
+        );
+        if (lockerResponse.statusCode == 200) {
+          print('Locker status updated successfully.');
+        } else {
+          print('Failed to update locker status: ${lockerResponse.statusCode}');
+        }
+      } catch (e) {
+        print('Error updating locker status: $e');
+      }
+    }
+  }
+
 
   void _showLockerDialog(BuildContext context) {
     showDialog(
