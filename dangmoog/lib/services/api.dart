@@ -308,9 +308,14 @@ class ApiService {
     return await _authClient.post("chat/my_room_status", data: requestBody);
   }
 
-  /////////////////////////////
+  Future<Response> changeDealStatus(int status, int postId) async {
+    Map<String, int> requestBody = {"status": status};
+    return await _authClient.patch("post/$postId", data: requestBody);
+  }
+
+  ///////////////
   /// 사진 관련 ///
-  /////////////////////////////
+  ///////////////
   Future<Response> loadPhoto(int id) async {
     try {
       Response response = await _publicClient.get("photo/$id");
@@ -392,5 +397,9 @@ class ApiService {
       data: updates,
     );
     return response;
+  }
+
+  Future<Response> getLockerInfo(int postId) async {
+    return await _authClient.get('locker/locker_auth/$postId');
   }
 }

@@ -105,7 +105,6 @@ class ProductDetailProvider with ChangeNotifier {
         product!.likeCount += isCurrentlyFavorited ? 1 : -1;
         notifyListeners();
       }
-      print(response);
     } catch (e) {
       rethrow;
     }

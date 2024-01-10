@@ -1,10 +1,16 @@
+import 'package:dangmoog/services/api.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 
 class ChatDealStatus extends StatefulWidget {
   final int currentStatus;
+  final bool imBuyer;
+  final int postId;
   const ChatDealStatus({
     super.key,
     required this.currentStatus,
+    required this.imBuyer,
+    required this.postId,
   });
 
   @override
@@ -26,86 +32,109 @@ class _ChatDealStatusState extends State<ChatDealStatus> {
     super.initState();
   }
 
+  void changePostDealStatus(int nextStatus) async {
+    try {
+      Response response =
+          await ApiService().changeDealStatus(nextStatus, widget.postId);
+    } catch (e) {
+      print(e);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return Dialog(
-              backgroundColor: Colors.white,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(14),
-              ),
-              child: Container(
-                padding: const EdgeInsets.all(0),
-                width: double
-                    .infinity, // Set to double.infinity to take full width within constraints
-                child: Column(
-                  mainAxisSize:
-                      MainAxisSize.min, // Use minimum space that content needs
-                  children: [
-                    const SizedBox(height: 20),
-                    const Text(
-                      "거래상태를 변경합니다",
-                      style: TextStyle(
-                        color: Color(0xff302E2E),
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: 16),
-                    const Text(
-                      '변경하실 경매 구매자에게도\n변경된 판매상태로 보여집니다.',
-                      style: TextStyle(
-                        color: Color(0xff302E2E),
-                        fontSize: 14,
-                        fontWeight: FontWeight.w400,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: 24),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        const Divider(
-                          height: 0,
-                          color: Color(0xffA19E9E),
-                        ),
-                        _buildAlertDialogActionButton('판매중', () {
-                          Navigator.of(context).pop();
-                        }, false),
-                        const Divider(
-                          height: 0,
-                          color: Color(0xffA19E9E),
-                        ),
-                        _buildAlertDialogActionButton('예약중', () {
-                          Navigator.of(context).pop();
-                        }, false),
-                        const Divider(
-                          height: 0,
-                          color: Color(0xffA19E9E),
-                        ),
-                        _buildAlertDialogActionButton('판매완료', () {
-                          Navigator.of(context).pop();
-                        }, false),
-                        const Divider(
-                          height: 0,
-                          color: Color(0xffA19E9E),
-                        ),
-                        _buildAlertDialogActionButton('취소', () {
-                          Navigator.of(context).pop();
-                        }, true),
-                      ],
-                    ),
-                  ],
+        if (!widget.imBuyer) {
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return Dialog(
+                backgroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(14),
                 ),
-              ),
-            );
-          },
-        );
+                child: Container(
+                  padding: const EdgeInsets.all(0),
+                  width: double
+                      .infinity, // Set to double.infinity to take full width within constraints
+                  child: Column(
+                    mainAxisSize: MainAxisSize
+                        .min, // Use minimum space that content needs
+                    children: [
+                      const SizedBox(height: 20),
+                      const Text(
+                        "거래상태를 변경합니다",
+                        style: TextStyle(
+                          color: Color(0xff302E2E),
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 16),
+                      const Text(
+                        '변경하실 경매 구매자에게도\n변경된 판매상태로 보여집니다.',
+                        style: TextStyle(
+                          color: Color(0xff302E2E),
+                          fontSize: 14,
+                          fontWeight: FontWeight.w400,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 24),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          const Divider(
+                            height: 0,
+                            color: Color(0xffA19E9E),
+                          ),
+                          _buildAlertDialogActionButton('거래중', () {
+                            changePostDealStatus(0);
+                            setState(() {
+                              currentStatuts = 0;
+                            });
+                            Navigator.of(context).pop();
+                          }, false),
+                          const Divider(
+                            height: 0,
+                            color: Color(0xffA19E9E),
+                          ),
+                          _buildAlertDialogActionButton('예약중', () {
+                            changePostDealStatus(1);
+                            setState(() {
+                              currentStatuts = 1;
+                            });
+                            Navigator.of(context).pop();
+                          }, false),
+                          const Divider(
+                            height: 0,
+                            color: Color(0xffA19E9E),
+                          ),
+                          _buildAlertDialogActionButton('판매완료', () {
+                            changePostDealStatus(2);
+                            setState(() {
+                              currentStatuts = 2;
+                            });
+                            Navigator.of(context).pop();
+                          }, false),
+                          const Divider(
+                            height: 0,
+                            color: Color(0xffA19E9E),
+                          ),
+                          _buildAlertDialogActionButton('취소', () {
+                            Navigator.of(context).pop();
+                          }, true),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
+          );
+        }
       },
       child: Container(
         padding: const EdgeInsets.only(left: 4, top: 2, bottom: 2),
@@ -116,6 +145,7 @@ class _ChatDealStatusState extends State<ChatDealStatus> {
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Text(
               dealStatusList[currentStatuts],
@@ -123,10 +153,12 @@ class _ChatDealStatusState extends State<ChatDealStatus> {
                 color: buttonColor,
               ),
             ),
-            Icon(
-              Icons.keyboard_arrow_down_sharp,
-              color: buttonColor,
-            ),
+            !widget.imBuyer
+                ? Icon(
+                    Icons.keyboard_arrow_down_sharp,
+                    color: buttonColor,
+                  )
+                : const SizedBox.shrink(),
           ],
         ),
       ),

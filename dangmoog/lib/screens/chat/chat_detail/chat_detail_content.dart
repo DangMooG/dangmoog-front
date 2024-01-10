@@ -21,51 +21,56 @@ class ChatContents extends StatefulWidget {
 
 class _ChatContentsState extends State<ChatContents> {
   void scrollDown() {
-    widget.scrollController.animateTo(
-      widget.scrollController.position.maxScrollExtent,
-      duration: const Duration(milliseconds: 300),
-      curve: Curves.easeIn,
-    );
-  }
-
-  bool showScrollDownButton = false;
-
-  void _scrollListener() {
-    bool isNearBottom = widget.scrollController.position.maxScrollExtent -
-            widget.scrollController.offset <=
-        200;
-
-    if (isNearBottom && showScrollDownButton) {
-      setState(() {
-        showScrollDownButton = false;
-      });
-    } else if (!isNearBottom && !showScrollDownButton) {
-      setState(() {
-        showScrollDownButton = true;
-      });
+    if (widget.scrollController.hasClients) {
+      widget.scrollController.animateTo(
+        widget.scrollController.position.maxScrollExtent,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeIn,
+      );
     }
   }
+
+  bool showScrollDownButton = true;
+
+  // void _scrollListener() {
+  //   bool isNearBottom = widget.scrollController.position.maxScrollExtent -
+  //           widget.scrollController.offset <=
+  //       200;
+
+  //   if (isNearBottom && showScrollDownButton) {
+  //     setState(() {
+  //       showScrollDownButton = false;
+  //     });
+  //   } else if (!isNearBottom && !showScrollDownButton) {
+  //     setState(() {
+  //       showScrollDownButton = true;
+  //     });
+  //   }
+  // }
 
   @override
   void initState() {
     super.initState();
-    widget.scrollController.addListener(_scrollListener);
+    // widget.scrollController.addListener(_scrollListener);
   }
 
   @override
   void dispose() {
-    widget.scrollController.removeListener(_scrollListener);
+    // widget.scrollController.removeListener(_scrollListener);
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      scrollDown();
+    });
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Consumer<ChatProvider>(
-        builder: (context, chatProvider, child) {
+        builder: (context, chatProvider, _) {
           List<ChatDetailMessageModel> chatContents = chatProvider.chatContents;
-
           // 데이터가 비어 있으면 아무것도 반환하지 않음
           if (chatContents.isEmpty) {
             return Container(
@@ -82,7 +87,7 @@ class _ChatContentsState extends State<ChatContents> {
                     ? chatContents.length
                     : 1, // 비어 있을 경우 하나의 빈 아이템을 가진 리스트를 만듭니다.
                 itemBuilder: (context, index) {
-                  final singleChat = chatContents[index];
+                  ChatDetailMessageModel singleChat = chatContents[index];
 
                   var profileOmit = false;
                   var dateVisible = false;
@@ -91,8 +96,7 @@ class _ChatContentsState extends State<ChatContents> {
                   if (index != 0) {
                     // 이전 채팅과 같은 유저이면서 같은 날짜이면
                     // -> 프로필 중복 표시 제거
-                    if ((chatContents[index - 1].fromBuyer ==
-                            singleChat.fromBuyer) &&
+                    if ((chatContents[index - 1].isMine == singleChat.isMine) &&
                         (isSameDate(chatContents[index - 1].createTime,
                             singleChat.createTime))) {
                       profileOmit = true;
@@ -107,8 +111,6 @@ class _ChatContentsState extends State<ChatContents> {
                     dateVisible = true;
                   }
 
-                  // print(singleChat.fromBuyer);
-                  // print(chatProvider.imbuyer);
                   return Column(
                     children: [
                       dateVisible
@@ -116,7 +118,7 @@ class _ChatContentsState extends State<ChatContents> {
                           : const SizedBox.shrink(),
                       SingleChatMessage(
                         text: singleChat.message,
-                        me: singleChat.fromBuyer == chatProvider.imbuyer,
+                        me: singleChat.isMine,
                         profileOmit: profileOmit,
                         time: convertTimeFormat(singleChat.createTime),
                       )

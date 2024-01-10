@@ -23,13 +23,14 @@ class ChatListProvider with ChangeNotifier {
       _buyChatList[index].lastMessage = lastMessage;
       _buyChatList[index].updateTime = updateTime;
       _buyChatList[index].unreadCount = _buyChatList[index].unreadCount + 1;
-      _buyChatList = _sortChatListByUpdateTime(_buyChatList);
+      _buyChatList = List.from(_sortChatListByUpdateTime(_buyChatList));
     } else if (!isBuyChatList) {
       _sellChatList[index].lastMessage = lastMessage;
       _sellChatList[index].updateTime = updateTime;
       _sellChatList[index].unreadCount = _sellChatList[index].unreadCount + 1;
-      _sellChatList = _sortChatListByUpdateTime(_sellChatList);
+      _sellChatList = List.from(_sortChatListByUpdateTime(_sellChatList));
     }
+    notifyListeners();
   }
 
   // 채팅 목록이 업데이트되면 update time을 기준으로 정렬

@@ -1,7 +1,7 @@
 import 'package:dangmoog/models/chat_detail_message_model.dart';
 import 'package:dangmoog/models/product_class.dart';
 import 'package:dangmoog/providers/chat_provider.dart';
-import 'package:dangmoog/providers/websocket_provider.dart';
+import 'package:dangmoog/providers/socket_provider.dart';
 
 import 'package:dangmoog/screens/chat/chat_detail/chat_detail_content.dart';
 import 'package:dangmoog/screens/chat/chat_detail/chat_detail_options.dart';
@@ -100,7 +100,7 @@ class _ChatDetailState extends State<ChatDetail> {
     }
   }
 
-  late SocketClass socketChannel;
+  late SocketProvider socketChannel;
 
   void getPostContent() async {
     Response response = await ApiService().loadProduct(widget.postId);
@@ -115,14 +115,13 @@ class _ChatDetailState extends State<ChatDetail> {
   }
 
   void getAllMessages() async {
-    // print("room ID: ${widget.roomId}");
     Response response = await ApiService().getChatAllMessages(widget.roomId);
     if (response.statusCode == 200) {
       final List<dynamic> messages = response.data;
 
       setState(() {
         _chatDetail = messages
-            .map((msg) => ChatDetailMessageModel.fromJson(msg))
+            .map((msg) => ChatDetailMessageModel.fromJson(msg, widget.imBuyer))
             .toList();
       });
 
@@ -174,10 +173,13 @@ class _ChatDetailState extends State<ChatDetail> {
 
   @override
   Widget build(BuildContext context) {
-    socketChannel = Provider.of<SocketClass>(context);
+    socketChannel = Provider.of<SocketProvider>(context, listen: false);
 
     Widget productWidget = product != null
-        ? ChatDetailProduct(product: product!)
+        ? ChatDetailProduct(
+            product: product!,
+            imBuyer: widget.imBuyer,
+          )
         : const CircularProgressIndicator();
 
     return Scaffold(
@@ -213,14 +215,8 @@ class _ChatDetailState extends State<ChatDetail> {
         // 서버로 전송
         socketChannel.onSendMessage(_textController.text, widget.roomId);
 
-        // var newMessage = ChatDetailModel(
-        //   chatDateTime: DateTime.now(), // 현재 시간으로 설정
-        //   chatText: _textController.text,
-        //   isMe: true,
-        // );
-
         var newMessage = ChatDetailMessageModel(
-          fromBuyer: widget.imBuyer == true ? true : false,
+          isMine: true,
           message: _textController.text,
           read: true,
           createTime: DateTime.now(),
@@ -248,6 +244,10 @@ class _ChatDetailState extends State<ChatDetail> {
         ChatDetailOptions(
           isOptionOn: _isOptionOn,
           keyboardHeight: _keyboardHeight,
+          roomId: widget.roomId,
+          imBuyer: widget.imBuyer,
+          postId: widget.postId,
+          useLocker: product?.useLocker,
         )
       ],
     );
@@ -455,6 +455,7 @@ class _ChatDetailState extends State<ChatDetail> {
           size: 28,
         ),
         onPressed: () {
+          Provider.of<ChatProvider>(context, listen: false).resetChatProvider();
           Navigator.pop(context);
         },
       ),

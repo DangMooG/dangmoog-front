@@ -85,24 +85,20 @@ class _ChatCellState extends State<ChatCell> {
 
   @override
   Widget build(BuildContext context) {
-    // Provider.of<ChatProvider>(context).setImBuyer(imBuyer);
-
     return InkWell(
       onTap: () {
+        Provider.of<ChatProvider>(context, listen: false).setRoomId(roomId);
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => MultiProvider(
-                providers: [
-                  ChangeNotifierProvider(create: (context) => ChatProvider()),
-                  ChangeNotifierProvider(
-                      create: (context) => ChatSettingProvider()),
-                ],
-                child: ChatDetail(
-                  imBuyer: imBuyer,
-                  postId: postId,
-                  roomId: roomId,
-                )),
+            builder: (context) => ChangeNotifierProvider(
+              create: (context) => ChatSettingProvider(),
+              child: ChatDetail(
+                imBuyer: imBuyer,
+                postId: postId,
+                roomId: roomId,
+              ),
+            ),
           ),
         );
       },
