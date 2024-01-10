@@ -1,22 +1,37 @@
+import 'package:dangmoog/models/chat_detail_message_model.dart';
+import 'package:dangmoog/providers/chat_provider.dart';
+import 'package:dangmoog/providers/socket_provider.dart';
+import 'package:dangmoog/services/api.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:permission_handler/permission_handler.dart';
+// import 'package:image_picker/image_picker.dart';
+// import 'package:permission_handler/permission_handler.dart';
 import 'dart:math';
 
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import 'package:dangmoog/constants/account_list.dart';
+import 'package:dangmoog/widgets/bottom_popup.dart';
 
 // plugins
 import 'package:dropdown_button2/dropdown_button2.dart';
+import 'package:provider/provider.dart';
 
 class ChatDetailOptions extends StatefulWidget {
   final bool isOptionOn;
   final double keyboardHeight;
+  final String roomId;
+  final bool imBuyer;
+  final int postId;
+  final int? useLocker; // 0은 사용 안함, 1은 사용함
 
   const ChatDetailOptions({
     required this.isOptionOn,
     required this.keyboardHeight,
+    required this.roomId,
+    required this.imBuyer,
+    required this.postId,
+    required this.useLocker,
     super.key,
   });
 
@@ -31,6 +46,8 @@ class _ChatDetailOptionsState extends State<ChatDetailOptions> {
 
   String accountNumber = '';
   String? selectedBank;
+
+  late SocketProvider socketChannel;
 
   // 은행별로 divider 넣어주기 위함 //
   List<DropdownMenuItem<String>> _addDividersAfterItems(List<String> items) {
@@ -77,7 +94,6 @@ class _ChatDetailOptionsState extends State<ChatDetailOptions> {
     }
     return itemsHeights;
   }
-  //
 
   void setBankAccount(BuildContext context) async {
     showDialog(
@@ -242,8 +258,7 @@ class _ChatDetailOptionsState extends State<ChatDetailOptions> {
                               const Color(0xFFE20529),
                               Colors.transparent,
                               Colors.white, () async {
-                            if (selectedBank != null &&
-                                accountNumber.length >= 10) {
+                            if (selectedBank != null) {
                               // 국내 은행의 계좌번호는 10~14자리
                               if (saveBankAccount) {
                                 await storage.write(
@@ -254,9 +269,20 @@ class _ChatDetailOptionsState extends State<ChatDetailOptions> {
                                     value: selectedBank);
                               }
                             }
-                            ////////////////////////////////////////
-                            ////////// 채팅 전송 기능 추가 필요 //////////
-                            ////////////////////////////////////////
+                            Provider.of<SocketProvider>(context, listen: false)
+                                .onSendMessage(
+                              "$selectedBank $accountNumber",
+                              widget.roomId,
+                            );
+
+                            var newMessage = ChatDetailMessageModel(
+                              isMine: true,
+                              message: "$selectedBank $accountNumber",
+                              read: true,
+                              createTime: DateTime.now(),
+                            );
+                            Provider.of<ChatProvider>(context, listen: false)
+                                .addChatContent(newMessage);
                           }),
                           accountButtonWidget(
                             '취소하기',
@@ -380,6 +406,20 @@ class _ChatDetailOptionsState extends State<ChatDetailOptions> {
                         width: 300,
                         child: TextButton(
                           onPressed: () {
+                            Provider.of<SocketProvider>(context, listen: false)
+                                .onSendMessage(
+                              "$bankAccountNumber $bankAccountName",
+                              widget.roomId,
+                            );
+
+                            var newMessage = ChatDetailMessageModel(
+                              isMine: true,
+                              message: "$bankAccountNumber $bankAccountName",
+                              read: true,
+                              createTime: DateTime.now(),
+                            );
+                            Provider.of<ChatProvider>(context, listen: false)
+                                .addChatContent(newMessage);
                             Navigator.pop(context);
                           },
                           style: ButtonStyle(
@@ -524,62 +564,181 @@ class _ChatDetailOptionsState extends State<ChatDetailOptions> {
     }
   }
 
-  Future getImageFromCamera(BuildContext context) async {
-    PermissionStatus status = await Permission.camera.request();
+  void sendLockerInfo(BuildContext context) async {
+    Response response = await ApiService().getLockerInfo(widget.postId);
 
-    final ImagePicker picker = ImagePicker();
-    final List<String> imageList = <String>[];
-
-    if (status.isGranted || status.isLimited) {
-      try {
-        final XFile? pickedImage =
-            await picker.pickImage(source: ImageSource.camera);
-
-        if (pickedImage != null) {
-          String imagePath = pickedImage.path;
-
-          setState(() {
-            imageList.add(imagePath);
-          });
-        }
-      } catch (e) {
-        print("Error picking images: $e");
-      }
-    } else if (status.isPermanentlyDenied) {
+    if (response.statusCode == 200) {
       if (!mounted) return;
-      // 나중에 ios는 cupertino로 바꿔줄 필요 있음
-      await showDialog(
+
+      final lockerName = response.data["name"];
+      final password = response.data["password"];
+
+      final lockerMessage = "사물함 위치 : $lockerName, 비밀번호 : $password";
+
+      showDialog(
+        barrierDismissible: false,
         context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(14),
-            ),
-            backgroundColor: Colors.white,
-            surfaceTintColor: Colors.white,
-            title: const Text("사진 권한 필요"),
-            content:
-                const Text("이 기능을 사용하기 위해서는 권한이 필요합니다. 설정으로 이동하여 권한을 허용해주세요."),
-            actions: <Widget>[
-              TextButton(
-                child: const Text("취소"),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-              ),
-              TextButton(
-                child: const Text("설정으로 이동"),
-                onPressed: () {
-                  openAppSettings();
-                  Navigator.of(context).pop();
-                },
-              ),
-            ],
+        builder: (context) {
+          return StatefulBuilder(
+            builder: (context, setState) {
+              return AlertDialog(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                backgroundColor: Colors.white,
+                surfaceTintColor: Colors.transparent,
+                title: const Text(
+                  '사물함 정보는 다음과 같습니다!',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xff302E2E),
+                  ),
+                ),
+                content: const Text(
+                  '저장된 사물함 위치와 비밀번호, 업로드된 사진을 구매자에게 바로 보내시겠어요? 사물함의 정보 발송은 되돌리기 어려운 만큼 구매자와 상의 후 신중히 발송하시기 바랍니다.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w400,
+                    color: Color(0xff302E2E),
+                  ),
+                  overflow: TextOverflow.clip,
+                ),
+                actions: <Widget>[
+                  Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        lockerMessage,
+                        style: const TextStyle(
+                          color: Color(0xff302E2E),
+                          fontSize: 16,
+                          fontWeight: FontWeight.w400,
+                        ),
+                      ),
+                      const SizedBox(
+                        height: 16,
+                      ),
+                      const Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.error_outline,
+                            color: Color(0xff726E6E),
+                          ),
+                          Text(
+                            "해당 정보는 수정할 수 없는 내용입니다!",
+                            style: TextStyle(
+                              color: Color(0xff726E6E),
+                              fontSize: 16,
+                              fontWeight: FontWeight.w400,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(
+                        height: 16,
+                      ),
+                      Column(
+                        children: [
+                          accountButtonWidget(
+                              '바로 발송하기',
+                              const Color(0xFFE20529),
+                              Colors.transparent,
+                              Colors.white, () {
+                            Provider.of<SocketProvider>(context, listen: false)
+                                .onSendMessage(
+                              lockerMessage,
+                              widget.roomId,
+                            );
+
+                            var newMessage = ChatDetailMessageModel(
+                              isMine: true,
+                              message: lockerMessage,
+                              read: true,
+                              createTime: DateTime.now(),
+                            );
+                            Provider.of<ChatProvider>(context, listen: false)
+                                .addChatContent(newMessage);
+                          }),
+                          accountButtonWidget(
+                            '취소하기',
+                            Colors.transparent,
+                            const Color(0xFF726E6E),
+                            const Color(0xff726E6E),
+                            () {},
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ],
+              );
+            },
           );
         },
       );
     }
   }
+
+  // Future getImageFromCamera(BuildContext context) async {
+  //   PermissionStatus status = await Permission.camera.request();
+
+  //   final ImagePicker picker = ImagePicker();
+  //   final List<String> imageList = <String>[];
+
+  //   if (status.isGranted || status.isLimited) {
+  //     try {
+  //       final XFile? pickedImage =
+  //           await picker.pickImage(source: ImageSource.camera);
+
+  //       if (pickedImage != null) {
+  //         String imagePath = pickedImage.path;
+
+  //         setState(() {
+  //           imageList.add(imagePath);
+  //         });
+  //       }
+  //     } catch (e) {
+  //       print("Error picking images: $e");
+  //     }
+  //   } else if (status.isPermanentlyDenied) {
+  //     if (!mounted) return;
+  //     // 나중에 ios는 cupertino로 바꿔줄 필요 있음
+  //     await showDialog(
+  //       context: context,
+  //       builder: (BuildContext context) {
+  //         return AlertDialog(
+  //           shape: RoundedRectangleBorder(
+  //             borderRadius: BorderRadius.circular(14),
+  //           ),
+  //           backgroundColor: Colors.white,
+  //           surfaceTintColor: Colors.white,
+  //           title: const Text("사진 권한 필요"),
+  //           content:
+  //               const Text("이 기능을 사용하기 위해서는 권한이 필요합니다. 설정으로 이동하여 권한을 허용해주세요."),
+  //           actions: <Widget>[
+  //             TextButton(
+  //               child: const Text("취소"),
+  //               onPressed: () {
+  //                 Navigator.of(context).pop();
+  //               },
+  //             ),
+  //             TextButton(
+  //               child: const Text("설정으로 이동"),
+  //               onPressed: () {
+  //                 openAppSettings();
+  //                 Navigator.of(context).pop();
+  //               },
+  //             ),
+  //           ],
+  //         );
+  //       },
+  //     );
+  //   }
+  // }
 
   Widget accountButtonWidget(String text, Color btnColor, Color borderColor,
       Color textColor, VoidCallback onTap) {
@@ -587,8 +746,8 @@ class _ChatDetailOptionsState extends State<ChatDetailOptions> {
       width: 300,
       child: TextButton(
         onPressed: () {
-          Navigator.pop(context);
           onTap();
+          Navigator.pop(context);
         },
         style: ButtonStyle(
           backgroundColor: MaterialStateProperty.resolveWith<Color>(
@@ -623,9 +782,12 @@ class _ChatDetailOptionsState extends State<ChatDetailOptions> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               optionCircleWidget(Icons.camera_alt_outlined, '카메라', () {
-                getImageFromCamera(context);
+                showPopup(context, "서비스 예정입니다");
+                // getImageFromCamera(context);
               }),
-              optionCircleWidget(Icons.image_outlined, '앨범', () {}),
+              optionCircleWidget(Icons.image_outlined, '앨범', () {
+                showPopup(context, "서비스 예정입니다");
+              }),
             ],
           ),
           Row(
@@ -634,7 +796,11 @@ class _ChatDetailOptionsState extends State<ChatDetailOptions> {
               optionCircleWidget(Icons.credit_card_outlined, '거래정보 발송', () {
                 sendBankAccount(context);
               }),
-              optionCircleWidget(Icons.vpn_key_outlined, '사물함 정보 발송', () {}),
+              optionCircleWidget(Icons.vpn_key_outlined, '사물함 정보 발송', () {
+                if (widget.useLocker == 1 && !widget.imBuyer) {
+                  sendLockerInfo(context);
+                }
+              }),
             ],
           ),
           // option box가 정중앙에 있으면 살짝 아래에 있는 느낌이 들어서 추가한 위젯

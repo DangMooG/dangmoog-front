@@ -3,20 +3,20 @@ import 'package:flutter/material.dart';
 class SingleChatMessage extends StatelessWidget {
   final String text;
   final bool me;
-  final bool omit;
+  final bool profileOmit;
   final String time;
 
   const SingleChatMessage(
       {super.key,
       required this.text,
       required this.me,
-      required this.omit,
+      required this.profileOmit,
       required this.time});
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: EdgeInsets.only(top: omit ? 4 : 8),
+      margin: EdgeInsets.only(top: profileOmit ? 4 : 8),
       child: IntrinsicHeight(
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -34,7 +34,7 @@ class SingleChatMessage extends StatelessWidget {
                   _chatTextBox(text, me),
                 ]
               : <Widget>[
-                  _userProfileCircle(omit),
+                  _userProfileCircle(profileOmit),
                   _chatTextBox(text, me),
                   Column(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -50,12 +50,12 @@ class SingleChatMessage extends StatelessWidget {
   }
 
 // user profile
-  Widget _userProfileCircle(bool omit) {
+  Widget _userProfileCircle(bool profileOmit) {
     return Container(
       width: 35,
       height: 35,
       margin: const EdgeInsets.only(right: 8.0),
-      child: omit
+      child: profileOmit
           ? const SizedBox(
               width: 35,
             )

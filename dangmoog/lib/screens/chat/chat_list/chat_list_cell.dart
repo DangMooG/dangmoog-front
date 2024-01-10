@@ -5,7 +5,7 @@ import 'package:dangmoog/utils/time_ago.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 
-import 'package:dangmoog/screens/chat/chat_detail_page.dart';
+import 'package:dangmoog/screens/chat/chat_detail/chat_detail_page.dart';
 import 'package:provider/provider.dart';
 
 class ChatCell extends StatefulWidget {
@@ -63,18 +63,23 @@ class _ChatCellState extends State<ChatCell> {
       postId = widget.postId;
     });
 
-    if (photoId != 0) {
-      getPhotoUrl();
-    }
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (photoId != 0) {
+        getPhotoUrl();
+      }
+    });
+
     super.initState();
   }
 
   void getPhotoUrl() async {
     Response response = await ApiService().getOnePhoto(photoId);
     if (response.statusCode == 200) {
-      setState(() {
-        photoUrl = response.data["url"];
-      });
+      if (mounted) {
+        setState(() {
+          photoUrl = response.data["url"];
+        });
+      }
     }
   }
 
@@ -82,19 +87,18 @@ class _ChatCellState extends State<ChatCell> {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () {
+        Provider.of<ChatProvider>(context, listen: false).setRoomId(roomId);
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => MultiProvider(
-                providers: [
-                  ChangeNotifierProvider(create: (context) => ChatProvider()),
-                  ChangeNotifierProvider(
-                      create: (context) => ChatSettingProvider()),
-                ],
-                child: ChatDetail(
-                  postId: postId,
-                  roomId: roomId,
-                )),
+            builder: (context) => ChangeNotifierProvider(
+              create: (context) => ChatSettingProvider(),
+              child: ChatDetail(
+                imBuyer: imBuyer,
+                postId: postId,
+                roomId: roomId,
+              ),
+            ),
           ),
         );
       },
@@ -148,23 +152,30 @@ class _ChatCellState extends State<ChatCell> {
                   ),
                 ),
               ),
-              unreadCount != 0
-                  ? ClipOval(
-                      child: Container(
-                        decoration: const BoxDecoration(
-                          color: Color(0xffE83754),
-                        ),
-                        child: Text(
-                          '$unreadCount',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 13,
-                            fontWeight: FontWeight.w400,
+              Container(
+                margin: const EdgeInsets.only(right: 8),
+                child: unreadCount != 0
+                    ? ClipOval(
+                        child: Container(
+                          width: 20,
+                          height: 20,
+                          alignment: Alignment.center,
+                          decoration: const BoxDecoration(
+                            color: Color(0xffE83754),
+                          ),
+                          child: Text(
+                            '$unreadCount',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 13,
+                              fontWeight: FontWeight.w400,
+                            ),
                           ),
                         ),
-                      ),
-                    )
-                  : const SizedBox.shrink(),
+                      )
+                    : const SizedBox.shrink(),
+              ),
+
               // const Image(
               //   image: AssetImage('assets/images/temp_product_img.png'),
               //   height: 48,

@@ -74,8 +74,6 @@ class _AddPostPageState extends State<AddPostPage> {
       useLocker = 1;
     }
 
-    print(useLocker);
-
     // Check if there are any images selected, otherwise set imageFiles to null
     List<File>? imageFiles;
     if (_imageList.isNotEmpty) {
@@ -112,7 +110,6 @@ class _AddPostPageState extends State<AddPostPage> {
         };
 
         try {
-          print("post ID는 $postId입니다.");
           Response lockerResponse =
               await apiService.patchLocker(widget.lockerId!, lockerUpdates);
           if (lockerResponse.statusCode == 200) {
@@ -148,7 +145,6 @@ class _AddPostPageState extends State<AddPostPage> {
       // Maybe display a general error toast message or specific field error messages
     } else {
       // Other potential errors
-      print('Hello');
       print(
           "Error creating post. Status Code: ${response.statusCode}, Error Message: ${response.statusMessage}");
     }

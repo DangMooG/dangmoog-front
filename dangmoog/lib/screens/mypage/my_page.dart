@@ -3,6 +3,7 @@ import 'package:dangmoog/screens/mypage/bye_page.dart';
 import 'package:dangmoog/screens/mypage/like/like_mainpage.dart';
 import 'package:dangmoog/screens/auth/welcome.dart';
 import 'package:dangmoog/services/api.dart';
+import 'package:dangmoog/widgets/bottom_popup.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -257,11 +258,15 @@ class _MyPageState extends State<MyPage> {
           MypageText(
               text: '알람 및 소리',
               icon: Icons.notifications_outlined,
-              onPressed: () {}),
+              onPressed: () {
+                showPopup(context, "서비스 예정입니다");
+              }),
           MypageText(
               text: '차단 관리',
               icon: Icons.voice_over_off_outlined,
-              onPressed: () {}),
+              onPressed: () {
+                showPopup(context, "서비스 예정입니다");
+              }),
           SizedBox(height: screenSize.height * 0.009),
           Container(
             width: screenSize.width,
@@ -286,13 +291,21 @@ class _MyPageState extends State<MyPage> {
           MypageText(
               text: '자주 묻는 질문',
               icon: Icons.support_agent_outlined,
-              onPressed: () {}),
+              onPressed: () {
+                showPopup(context, "서비스 예정입니다");
+              }),
           mypageButton(
               text: '도토릿 소개',
               imageUrl: 'assets/images/dotorit_intro_icon.png',
-              onPressed: () {}),
+              onPressed: () {
+                showPopup(context, "서비스 예정입니다");
+              }),
           MypageText(
-              text: '버전 정보', icon: Icons.device_hub_outlined, onPressed: () {}),
+              text: '버전 정보',
+              icon: Icons.device_hub_outlined,
+              onPressed: () {
+                showPopup(context, "서비스 예정입니다");
+              }),
           MypageText(
               text: '로그아웃',
               icon: Icons.logout_outlined,

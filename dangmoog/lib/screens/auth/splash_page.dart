@@ -35,7 +35,9 @@ class _SplashScreenState extends State<SplashScreen> {
     // 비동기로 flutter secure storage 정보를 불러오는 작업이 필요한다.
     // 하지만 initState에서는 async await를 사용할 수 없기 때문에 아래 형식으로 사용한다
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _autoLoginProcess();
+      if (mounted) {
+        _autoLoginProcess();
+      }
     });
   }
 
@@ -80,10 +82,11 @@ class _SplashScreenState extends State<SplashScreen> {
           // async 내에서 BuildContexts를 사용할 경우
           // 위젯이 마운트되지 않았으면 context에 아무런 값이 없기 때문에
           // 아래 조건문을 추가해줘야 한다.
+
           if (!mounted) return;
+
           // 이메일을 provider로 전역변수에 저장한다
           Provider.of<UserProvider>(context, listen: false).setEmail(userEmail);
-
           Provider.of<UserProvider>(context, listen: false).getMyPostListId();
 
           // 별명을 설정하지 않았을 경우
@@ -100,7 +103,6 @@ class _SplashScreenState extends State<SplashScreen> {
           }
         }
       } catch (e) {
-        print(e);
         // 자동 로그인에 실패했을 경우
         // 로그인 페이지로 이동
         if (!mounted) return;
