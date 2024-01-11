@@ -36,8 +36,6 @@ class _ProductListState extends State<ProductList> {
   List<ProductModel> products = [];
   bool isLoadingProductList = false;
 
-
-
   // 이미지 캐싱을 위한 변수
   Map<int, String> imageCache = {};
 
@@ -120,7 +118,6 @@ class _ProductListState extends State<ProductList> {
     await _loadProducts();
     await _loadLockerProducts();
   }
-
 
   @override
   void dispose() {
@@ -303,6 +300,7 @@ class _ProductListState extends State<ProductList> {
       child: Scrollbar(
         controller: _scrollController,
         child: ListView.separated(
+          cacheExtent: 5000,
           controller: _scrollController,
           itemCount: lockerProducts.length + products.length,
           itemBuilder: (context, index) {
