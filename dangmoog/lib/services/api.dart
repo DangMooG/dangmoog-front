@@ -218,14 +218,9 @@ class ApiService {
   }
 
   Future<Response> loadLockerPost() async {
-
-      // Replace with your actual endpoint
-      String endpoint = "post/not_yet_auth";
-
-      // Making a GET request to the locker_auth endpoint
-      Response response = await _authClient.post(endpoint);
-
-      return response;
+    String apiUrl = "post/not_yet_auth";
+    Response response = await _authClient.post(apiUrl);
+    return response;
   }
 
   Future<Response> loadProductListWithPaging(int checkpoint) async {
@@ -258,7 +253,8 @@ class ApiService {
     }
   }
 
-  Future<Response> valLockerPost(int postId, int lockerId, String password, File imageFile) async {
+  Future<Response> valLockerPost(
+      int postId, int lockerId, String password, File imageFile) async {
     // Define the URL endpoint
     print(imageFile.path.split('/').last);
     print(lockerId);
@@ -267,7 +263,8 @@ class ApiService {
 
     // Create a FormData object with the single image
     FormData formData = FormData.fromMap({
-      'file': await MultipartFile.fromFile(imageFile.path, filename: imageFile.path.split('/').last),
+      'file': await MultipartFile.fromFile(imageFile.path,
+          filename: imageFile.path.split('/').last),
     });
 
     // Prepare the query parameters
@@ -297,12 +294,11 @@ class ApiService {
       print("Failed to upload data: $e");
 
       // Rethrow the error or provide a default response
-      throw e; // Rethrow to be handled by the caller.
+      rethrow; // Rethrow to be handled by the caller.
       // OR
       // return Response(statusCode: 500, statusMessage: 'Internal Server Error'); // Provide a default response
     }
   }
-
 
   /////////////////////////////
   /// 채팅 관련 ///

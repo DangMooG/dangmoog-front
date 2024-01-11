@@ -29,7 +29,10 @@ class ProductList extends StatefulWidget {
 class _ProductListState extends State<ProductList> {
   final ApiService apiService = ApiService();
   final ScrollController _scrollController = ScrollController();
+
+  // pagination을 위한 변수
   int checkpoint = 0;
+
   List<ProductModel> products = [];
   bool isLoadingProductList = false;
 
@@ -38,8 +41,7 @@ class _ProductListState extends State<ProductList> {
 
   List<ProductModel> lockerProducts = [];
 
-
-  Future<void> _loadLockerProducts() async{
+  Future<void> _loadLockerProducts() async {
     if (isLoadingProductList) return; // 중복 호출 방지
     setState(() {
       isLoadingProductList = true;
@@ -63,7 +65,6 @@ class _ProductListState extends State<ProductList> {
     } catch (e) {
       print(e);
     }
-
   }
 
   Future<void> _loadProducts() async {
@@ -71,8 +72,6 @@ class _ProductListState extends State<ProductList> {
     setState(() {
       isLoadingProductList = true;
     });
-
-    
 
     try {
       Response response =
@@ -317,7 +316,6 @@ class _ProductListState extends State<ProductList> {
             } else {
               return Container();
             }
-
           },
           separatorBuilder: (context, i) {
             return const Divider(
@@ -381,20 +379,22 @@ class _ProductListState extends State<ProductList> {
                           Padding(
                             padding: const EdgeInsets.all(8.0),
                             child: TextButton(
-                              onPressed:() {
+                              onPressed: () {
                                 // Navigate to LockerValPage
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (context) => LockerValPage(product),
+                                    builder: (context) =>
+                                        LockerValPage(product),
                                   ),
                                 );
                               },
                               style: TextButton.styleFrom(
-                                backgroundColor: const Color(0xFFE20529), // Button background color
-                                primary: Colors.white,
+                                foregroundColor: Colors.white,
+                                backgroundColor: const Color(0xFFE20529),
                                 shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(6), // Border radius of the button
+                                  borderRadius: BorderRadius.circular(
+                                      6), // Border radius of the button
                                 ),
                                 textStyle: const TextStyle(
                                   fontFamily: 'Pretendard',
@@ -405,7 +405,7 @@ class _ProductListState extends State<ProductList> {
                               child: const Row(
                                 children: [
                                   Padding(
-                                    padding: EdgeInsets.only(right:4.0),
+                                    padding: EdgeInsets.only(right: 4.0),
                                     child: Text('인증하기'),
                                   ),
                                   Icon(Icons.arrow_forward),
@@ -444,8 +444,6 @@ class _ProductListState extends State<ProductList> {
     );
   }
 
-
-
   // 게시물 리스트에서 게시물 하나에 대한 위젯
   Widget _postCard(BuildContext context) {
     return Consumer<ProductModel>(
@@ -459,14 +457,14 @@ class _ProductListState extends State<ProductList> {
                 transitionDuration: const Duration(milliseconds: 400),
                 pageBuilder: (context, animation, secondaryAnimation) =>
                     ProductDetailPage(
-                      postId: product.postId,
-                    ),
+                  postId: product.postId,
+                ),
                 transitionsBuilder:
                     (context, animation, secondaryAnimation, child) {
                   var previousPageOffsetAnimation =
-                  Tween(begin: const Offset(1, 0), end: const Offset(0, 0))
-                      .chain(CurveTween(curve: Curves.decelerate))
-                      .animate(animation);
+                      Tween(begin: const Offset(1, 0), end: const Offset(0, 0))
+                          .chain(CurveTween(curve: Curves.decelerate))
+                          .animate(animation);
 
                   return SlideTransition(
                     position: previousPageOffsetAnimation,
@@ -494,7 +492,6 @@ class _ProductListState extends State<ProductList> {
       },
     );
   }
-
 
   // 게시물 내역 이미지
   Widget _buildProductImage(BuildContext context, ProductModel product) {
@@ -615,7 +612,7 @@ class _ProductListState extends State<ProductList> {
         Padding(
           padding: const EdgeInsets.symmetric(vertical: 4),
           child: Text(
-            "${categeryItems[product.categoryId-1]} | ${timeAgo(product.createTime)}",
+            "${categeryItems[product.categoryId - 1]} | ${timeAgo(product.createTime)}",
             style: const TextStyle(
               fontWeight: FontWeight.w400,
               fontSize: 11,
@@ -682,5 +679,3 @@ class _ProductListState extends State<ProductList> {
         : const SizedBox.shrink();
   }
 }
-
-
