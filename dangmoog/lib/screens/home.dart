@@ -13,7 +13,6 @@ import 'package:dangmoog/services/api.dart';
 import 'package:dangmoog/screens/mypage/my_page.dart';
 import 'package:dangmoog/screens/chat/chat_list/chat_list_page.dart';
 import 'package:dangmoog/screens/post/main_page.dart';
-import 'package:dangmoog/screens/temp/temp_page.dart';
 
 import 'package:dangmoog/screens/app_bar.dart';
 import 'package:dangmoog/screens/nav_bar.dart';
