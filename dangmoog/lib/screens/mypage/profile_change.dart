@@ -35,8 +35,6 @@ class _ProfileChangePageState extends State<ProfileChangePage> {
 
   static const storage = FlutterSecureStorage();
 
-  // String imageString = fileToBase64String(imagePath);
-
   Future<void> getImagesFromCamera() async {
     PermissionStatus status = await Permission.camera.request();
 
@@ -303,7 +301,6 @@ class _ProfileChangePageState extends State<ProfileChangePage> {
                   ),
                 ),
               ),
-
               Positioned(
                 top: screenSize.height * 0.19,
                 left: screenSize.height * 0.19,
@@ -400,29 +397,6 @@ class _ProfileChangePageState extends State<ProfileChangePage> {
                   ),
                 ),
               ),
-              // Positioned(
-              //   top: screenSize.height * 0.19,
-              //   left: screenSize.height * 0.19,
-              //   child: GestureDetector(
-              //     onTap: profileSubmit,
-              //     child: Container(
-              //       width: 50,
-              //       height: 50,
-              //       decoration: BoxDecoration(
-              //         shape: BoxShape.circle,
-              //         color: Colors.white,
-              //         border: Border.all(
-              //           color: Color(0xFFD3D2D2),
-              //           width: 1,
-              //         ),
-              //       ),
-              //       child: Icon(
-              //         Icons.camera_alt_outlined,
-              //         color: Color(0xFFEC5870),
-              //       ),
-              //     ),
-              //   ),
-              // ),
             ],
           ),
           SizedBox(height: screenSize.height * 0.02),
@@ -463,9 +437,8 @@ class _ProfileChangePageState extends State<ProfileChangePage> {
               child: const Text(
                 '닉네임 변경',
                 style: TextStyle(
-                  color: Color(0xFFFFFFFF),
-                  fontFamily: 'Pretendard-Medium',
-                  fontSize: 13,
+                  color: Colors.white,
+                  fontSize: 11,
                   fontWeight: FontWeight.w400,
                 ),
               ),
