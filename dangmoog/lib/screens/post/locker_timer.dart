@@ -28,8 +28,23 @@ class _ProductTimerState extends State<ProductTimer> {
   @override
   void initState() {
     super.initState();
+    _updateTimeLeft(); // Update time left immediately
     _startTimer();
   }
+
+  void _updateTimeLeft() {
+    final currentTime = DateTime.now();
+    final targetTime = widget.product.createTime.add(const Duration(minutes: 15));
+    final difference = targetTime.difference(currentTime);
+
+    if (difference < Duration(seconds: -1)) {
+      _timerState = TimerState.completed;
+    } else {
+      _timerState = TimerState.active;
+      _timeLeft = difference;
+    }
+  }
+
 
   void _startTimer() {
     final targetTime = widget.product.createTime.add(const Duration(minutes: 15));
