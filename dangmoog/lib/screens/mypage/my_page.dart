@@ -80,111 +80,111 @@ class _MyPageState extends State<MyPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SizedBox(height: screenSize.width * 0.042),
-          Row(children: [
-            SizedBox(width: screenSize.width * 0.042),
-            ClipOval(
-              child: fetchProfileImageUrl() != null
-                  ? FutureBuilder<String?>(
-                      future:
-                          fetchProfileImageUrl(), // fetchImage 함수 호출하여 profileUrl을 가져옴
-                      builder: (context, snapshot) {
-                        if (snapshot.connectionState == ConnectionState.done) {
-                          final profileUrl = snapshot.data;
-                          if (profileUrl != null) {
-                            return Image.network(
-                              profileUrl,
-                              width: screenSize.width * 0.14,
-                              height: screenSize.width * 0.14,
-                              fit: BoxFit.cover,
-                            );
-                          } else {
-                            return Image.asset(
-                              'assets/images/basic_profile.png',
-                              width: screenSize.width * 0.14,
-                              height: screenSize.width * 0.14,
-                              fit: BoxFit.cover,
-                            );
-                          }
-                        } else if (snapshot.hasError) {
-                          return Text('Error: ${snapshot.error}');
-                        } else {
-                          return SizedBox(
-                              width: screenSize.width * 0.14,
-                              height: screenSize.width * 0.14); // 데이터 로딩 중 표시
-                        }
-                      },
-                    )
-                  : Image.asset(
-                      'assets/images/basic_profile.png',
-                      fit: BoxFit.cover,
-                    ),
-            ),
-            SizedBox(width: screenSize.width * 0.042),
-            Expanded(
-              // width: screenSize.width * 0.44,
-              //height: screenSize.height * 0.06,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    userNickname,
-                    style: const TextStyle(
-                      color: Color(0xFF552619),
-                      fontFamily: 'Pretendard-SemiBold',
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  Text(
-                    userEmail,
-                    style: const TextStyle(
-                      color: Color(0xFFA07272),
-                      fontFamily: 'Pretendard-Regular',
-                      fontSize: 14,
-                      fontWeight: FontWeight.w400,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const ProfileChangePage(),
-                  ),
-                );
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFFE20529),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(6),
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                ClipOval(
+                  child: fetchProfileImageUrl() != null
+                      ? FutureBuilder<String?>(
+                          future:
+                              fetchProfileImageUrl(), // fetchImage 함수 호출하여 profileUrl을 가져옴
+                          builder: (context, snapshot) {
+                            if (snapshot.connectionState ==
+                                ConnectionState.done) {
+                              final profileUrl = snapshot.data;
+                              if (profileUrl != null) {
+                                return Image.network(
+                                  profileUrl,
+                                  width: screenSize.width * 0.14,
+                                  height: screenSize.width * 0.14,
+                                  fit: BoxFit.cover,
+                                );
+                              } else {
+                                return Image.asset(
+                                  'assets/images/basic_profile.png',
+                                  width: screenSize.width * 0.14,
+                                  height: screenSize.width * 0.14,
+                                  fit: BoxFit.cover,
+                                );
+                              }
+                            } else if (snapshot.hasError) {
+                              return Text('Error: ${snapshot.error}');
+                            } else {
+                              return SizedBox(
+                                  width: screenSize.width * 0.14,
+                                  height:
+                                      screenSize.width * 0.14); // 데이터 로딩 중 표시
+                            }
+                          },
+                        )
+                      : Image.asset(
+                          'assets/images/basic_profile.png',
+                          fit: BoxFit.cover,
+                        ),
                 ),
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                minimumSize: Size(
-                  screenSize.width * 0.2,
-                  screenSize.height * 0.029,
-                ),
-              ),
-              child: Container(
-                alignment: Alignment.center,
-                child: const Text(
-                  '프로필 변경',
-                  style: TextStyle(
-                    color: Color(0xFFFFFFFF),
-                    fontFamily: 'Pretendard-Medium',
-                    fontSize: 13,
-                    fontWeight: FontWeight.w400,
+                const SizedBox(width: 8),
+                Expanded(
+                  // width: screenSize.width * 0.44,
+                  //height: screenSize.height * 0.06,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        userNickname,
+                        style: const TextStyle(
+                          color: Color(0xFF552619),
+                          fontFamily: 'Pretendard-SemiBold',
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      Text(
+                        userEmail,
+                        style: const TextStyle(
+                          color: Color(0xFFA07272),
+                          fontFamily: 'Pretendard-Regular',
+                          fontSize: 14,
+                          fontWeight: FontWeight.w400,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-              ),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const ProfileChangePage(),
+                      ),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFFE20529),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                    minimumSize: const Size(75, 24),
+                  ),
+                  child: Container(
+                    alignment: Alignment.center,
+                    child: const Text(
+                      '프로필 변경',
+                      style: TextStyle(
+                        color: Color(0xFFFFFFFF),
+                        fontSize: 11,
+                        fontWeight: FontWeight.w400,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
-            SizedBox(width: screenSize.width * 0.045),
-          ]),
-          SizedBox(height: screenSize.height * 0.019),
+          ),
           Container(
             width: screenSize.width,
             height: 1,
