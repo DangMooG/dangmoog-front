@@ -36,6 +36,8 @@ class _ProductListState extends State<ProductList> {
   List<ProductModel> products = [];
   bool isLoadingProductList = false;
 
+
+
   // 이미지 캐싱을 위한 변수
   Map<int, String> imageCache = {};
 
@@ -109,11 +111,16 @@ class _ProductListState extends State<ProductList> {
 
   @override
   void initState() {
-    _loadProducts();
-    _loadLockerProducts();
-    _scrollController.addListener(_scrollListener);
     super.initState();
+    _scrollController.addListener(_scrollListener);
+    _initializeData();
   }
+
+  Future<void> _initializeData() async {
+    await _loadProducts();
+    await _loadLockerProducts();
+  }
+
 
   @override
   void dispose() {
@@ -289,6 +296,7 @@ class _ProductListState extends State<ProductList> {
           checkpoint = 0;
         });
         products.clear();
+        lockerProducts.clear();
         await _loadProducts();
         await _loadLockerProducts();
       },
@@ -308,7 +316,7 @@ class _ProductListState extends State<ProductList> {
             int regularIndex = index - lockerProducts.length;
             if (regularIndex < products.length) {
               return ChangeNotifierProvider<ProductModel>.value(
-                value: products[index],
+                value: products[regularIndex],
                 child: _postCard(context),
               );
             } else if (isLoadingProductList) {
@@ -339,6 +347,30 @@ class _ProductListState extends State<ProductList> {
             builder: (context) => LockerValPage(product),
           ),
         );
+        // Navigator.push(
+        //   context,
+        //   PageRouteBuilder(
+        //     transitionDuration: const Duration(milliseconds: 400),
+        //     pageBuilder: (context, animation, secondaryAnimation) =>
+        //         ProductDetailPage(
+        //           postId: product.postId,
+        //         ),
+        //     transitionsBuilder:
+        //         (context, animation, secondaryAnimation, child) {
+        //       var previousPageOffsetAnimation =
+        //       Tween(begin: const Offset(1, 0), end: const Offset(0, 0))
+        //           .chain(CurveTween(curve: Curves.decelerate))
+        //           .animate(animation);
+        //
+        //       return SlideTransition(
+        //         position: previousPageOffsetAnimation,
+        //         child: ProductDetailPage(
+        //           postId: product.postId,
+        //         ),
+        //       );
+        //     },
+        //   ),
+        // );
       },
       child: Padding(
         padding: EdgeInsets.all(paddingValue),
@@ -436,7 +468,7 @@ class _ProductListState extends State<ProductList> {
             Positioned(
               bottom: paddingValue,
               right: paddingValue,
-              child: ProductTimer(updateTime: product.updateTime),
+              child: ProductTimer(createTime: product.createTime),
             ),
           ],
         ),
