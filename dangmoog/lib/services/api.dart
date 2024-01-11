@@ -234,6 +234,19 @@ class ApiService {
     return await _authClient.post("post/get_like_list");
   }
 
+  Future<Response> loadPurchase(Map<String, dynamic> filters) async {
+    try {
+      final response = await _authClient.post(
+        'post/my_items',
+        data: filters,
+      );
+      return response;
+    } catch (e) {
+      // Handle exception, or rethrow to be handled by the calling function
+      rethrow;
+    }
+  }
+
   Future<Response> searchPosts(Map<String, dynamic> filters) async {
     try {
       final response = await _publicClient.post(

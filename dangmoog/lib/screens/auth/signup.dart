@@ -89,6 +89,7 @@ class _AuthPageState extends State<AuthPage> {
   }
 
   void submitEmail(BuildContext context) async {
+    Size screenSize = MediaQuery.of(context).size;
     if (isEmailFormatValid(inputEmail)) {
       showVerificationCodeTextField();
       startTimer();
@@ -110,24 +111,136 @@ class _AuthPageState extends State<AuthPage> {
           // // 회원가입 and 이미 존재하는 계정
           isSending = false;
           if (isLogin != isExistingAccount) {
-            setState(() {
-              isLogin = isExistingAccount;
-            });
+            setState(() {});
             if (!mounted) return;
             showDialog(
               context: context,
               builder: (BuildContext context) {
                 return AlertDialog(
-                  // title: const Text("카메라 권한 필요"),
+                  titlePadding: EdgeInsets.only(top: 24),
+                  contentPadding: EdgeInsets.fromLTRB(0, 8, 0, 16),
+                  title: isExistingAccount
+                      ? const Text(
+                          "어라? 이미 가입된 계정이에요!",
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: Color(0xFF302E2E),
+                          ),
+                        )
+                      : const Text(
+                          "존재하지 않는 이메일입니다",
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: Color(0xFF302E2E),
+                          ),
+                        ),
                   content: isExistingAccount
-                      ? const Text("입력하신 이메일은 이미 존재하는 계정입니다. 로그인을 진행하겠습니다.")
-                      : const Text("입력하신 이메일은 존재하지 않는 계정입니다. 회원가입을 진행하겠습니다."),
+                      ? const Text(
+                          "로그인을 진행할까요?",
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w400,
+                            color: Color(0xFF302E2E),
+                          ),
+                        )
+                      : const Text(
+                          "회원가입을 진행할까요?",
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w400,
+                            color: Color(0xFF302E2E),
+                          ),
+                        ),
                   actions: <Widget>[
-                    TextButton(
-                      child: const Text("확인"),
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                      },
+                    Column(
+                      children: [
+                        isExistingAccount
+                            ? ElevatedButton(
+                                onPressed: () {
+                                  isLogin = isExistingAccount;
+                                  Navigator.of(context).pop();
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: const Color(0xFFE20529),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(6),
+                                  ),
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 12, vertical: 4),
+                                  minimumSize: Size(
+                                    screenSize.width * 0.67,
+                                    screenSize.height * 0.044,
+                                  ),
+                                ),
+                                child: const Text(
+                                  "로그인하기",
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w400,
+                                    color: Color(0xFFFFFFFF),
+                                  ),
+                                ),
+                              )
+                            : ElevatedButton(
+                                onPressed: () {
+                                  isLogin = isExistingAccount;
+                                  Navigator.of(context).pop();
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: const Color(0xFFE20529),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(6),
+                                  ),
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 12, vertical: 4),
+                                  minimumSize: Size(
+                                    screenSize.width * 0.67,
+                                    screenSize.height * 0.044,
+                                  ),
+                                ),
+                                child: const Text(
+                                  "회원가입하기",
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w400,
+                                    color: Color(0xFFFFFFFF),
+                                  ),
+                                ),
+                              ),
+                        ElevatedButton(
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFFFFFFFF),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(6),
+                              side: const BorderSide(
+                                  color: Color(0xFF726E6E), width: 1),
+                            ),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 12, vertical: 4),
+                            minimumSize: Size(
+                              screenSize.width * 0.67,
+                              screenSize.height * 0.044,
+                            ),
+                          ),
+                          child: const Text(
+                            '다시 입력하기',
+                            style: TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w400,
+                              color: Color(0xFF726E6E),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 );
