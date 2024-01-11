@@ -112,10 +112,12 @@ class _MyPageState extends State<MyPage> {
                             } else if (snapshot.hasError) {
                               return Text('Error: ${snapshot.error}');
                             } else {
-                              return SizedBox(
-                                  width: screenSize.width * 0.14,
-                                  height:
-                                      screenSize.width * 0.14); // 데이터 로딩 중 표시
+                              return Container(
+                                width: screenSize.width * 0.14,
+                                height: screenSize.width * 0.14,
+                                decoration: const BoxDecoration(
+                                    color: Color(0xFFF1F1F1)),
+                              ); // 데이터 로딩 중 표시
                             }
                           },
                         )
