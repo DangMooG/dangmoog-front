@@ -289,7 +289,11 @@ class _MyPageState extends State<MyPage> {
             ),
           ),
           MypageText(
-              text: '공지사항', icon: Icons.campaign_outlined, onPressed: () {}),
+              text: '공지사항',
+              icon: Icons.campaign_outlined,
+              onPressed: () {
+                showPopup(context, "서비스 예정입니다");
+              }),
           MypageText(
               text: '자주 묻는 질문',
               icon: Icons.support_agent_outlined,
