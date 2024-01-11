@@ -18,7 +18,7 @@ class _LikeMainPageState extends State<LikeMainPage> {
   late Future<List<ProductModel>> futureProducts;
 
   final ApiService apiService = ApiService();
-  late ProductModel product;
+
   SortingOrder sorting = SortingOrder.descending; // 정렬 순서 기본값
   bool sortByDealStatus = false;
   bool sortByDealStatus2 = false;
@@ -56,7 +56,7 @@ class _LikeMainPageState extends State<LikeMainPage> {
               responseProduct.data as Map<String, dynamic>;
 
           // 가져온 데이터를 ProductModel로 변환하여 productList에 추가
-          product = ProductModel.fromJson(productData);
+          ProductModel product = ProductModel.fromJson(productData);
           productList.add(product);
         }
 
@@ -66,32 +66,6 @@ class _LikeMainPageState extends State<LikeMainPage> {
       }
     } else {
       throw Exception('Failed to load products');
-    }
-  }
-
-  void toggleLike() async {
-    if (product == null) return;
-
-    bool isCurrentlyFavorited = product!.isFavorited;
-    product!.isFavorited = !isCurrentlyFavorited;
-    product!.likeCount += isCurrentlyFavorited ? -1 : 1;
-    // notifyListeners();
-
-    try {
-      Response response = isCurrentlyFavorited
-          ? await apiService.decreaseLike(product!.postId)
-          : await apiService.increaseLike(product!.postId);
-
-      // Handle response accordingly
-      // If there's an error, revert the like state and update UI
-      if (response.statusCode != (isCurrentlyFavorited ? 204 : 200)) {
-        product!.isFavorited = isCurrentlyFavorited;
-        product!.likeCount += isCurrentlyFavorited ? 1 : -1;
-        //  notifyListeners();
-      }
-      print(response);
-    } catch (e) {
-      rethrow;
     }
   }
 
@@ -149,11 +123,10 @@ class _LikeMainPageState extends State<LikeMainPage> {
                 }
 
                 return ProductListSorting(
-                  productList: snapshot.data ?? [], // 받은 데이터를 전달
+                  productList: snapshot.data ?? [],
                   sortingOrder: sorting,
                   onSortingChanged: (newSorting) {
                     setState(() {
-                      // ProductListSorting에서 전달된 sorting 값을 업데이트
                       sorting = newSorting;
                     });
                   },
@@ -167,7 +140,7 @@ class _LikeMainPageState extends State<LikeMainPage> {
                   },
                 );
               } else {
-                return const Center(child: CircularProgressIndicator());
+                return SizedBox.shrink();
               }
             },
           ),

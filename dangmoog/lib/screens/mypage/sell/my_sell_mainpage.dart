@@ -19,6 +19,7 @@ class MySellMainPage extends StatefulWidget {
 class _MySellMainPageState extends State<MySellMainPage> {
   final ApiService apiService = ApiService();
   late Future<List<ProductModel>> futureProducts;
+  List<ProductModel>? products;
   SortingOrder sorting = SortingOrder.descending; // 정렬 순서 기본값
   bool sortByDealStatus = false;
   bool sortByDealStatus2 = false;
@@ -115,7 +116,7 @@ class _MySellMainPageState extends State<MySellMainPage> {
                   },
                 );
               } else {
-                return const Center(child: CircularProgressIndicator());
+                return const Center(child: SizedBox.shrink());
               }
             },
           ),
@@ -138,6 +139,12 @@ class _MySellMainPageState extends State<MySellMainPage> {
             if (snapshot.hasError) {
               return const Center(
                 child: Text('게시물을 불러오는데 실패했습니다.'),
+              );
+            }
+            if (snapshot.data == null || snapshot.data!.isEmpty) {
+              // 판매 목록이 없는 경우 메시지를 표시
+              return const Center(
+                child: Text('판매목록이 없습니다.'),
               );
             }
 

@@ -159,58 +159,63 @@ class _MyProductListState extends State<MyProductList> {
             width: 0.5,
           ),
         ),
-        child: imageCache.containsKey(product.representativePhotoId)
-            ? Image.network(
-                imageCache[product.representativePhotoId]!,
-                fit: BoxFit.cover,
-              )
-            : product.representativePhotoId == 0
-                ? Image.asset(
-                    "assets/images/sample.png",
-                    width: 90,
-                    fit: BoxFit.cover,
-                  )
-                : FutureBuilder<Response>(
-                    future: apiService.loadPhoto(product.representativePhotoId),
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return const Center(
-                          child: CircularProgressIndicator(),
-                        );
-                      } else if (snapshot.hasError) {
-                        return Image.asset(
-                          "assets/images/sample.png",
-                          width: 90,
-                          errorBuilder: (BuildContext context, Object exception,
-                              StackTrace? stackTrace) {
-                            return Image.asset(
-                              "assets/images/sample.png",
-                              width: 90,
-                              fit: BoxFit.cover,
-                            );
-                          },
-                        );
-                      } else if (snapshot.data == null) {
-                        return Image.asset(
-                          '/assets/images/sample.png',
-                          fit: BoxFit.cover,
-                        );
-                      } else if (snapshot.hasData) {
-                        Map<String, dynamic> data = snapshot.data!.data;
-                        String imageUrl = data["url"];
-                        imageCache[product.representativePhotoId] = imageUrl;
-                        return Image.network(
-                          imageUrl,
-                          fit: BoxFit.cover,
-                        );
-                      } else {
-                        return Image.asset(
-                          "assets/images/sample.png",
-                          fit: BoxFit.cover,
-                        );
-                      }
-                    },
-                  ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(8),
+          child: imageCache.containsKey(product.representativePhotoId)
+              ? Image.network(
+                  imageCache[product.representativePhotoId]!,
+                  fit: BoxFit.cover,
+                )
+              : product.representativePhotoId == 0
+                  ? Image.asset(
+                      "assets/images/sample.png",
+                      width: 90,
+                      fit: BoxFit.cover,
+                    )
+                  : FutureBuilder<Response>(
+                      future:
+                          apiService.loadPhoto(product.representativePhotoId),
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return const Center(
+                            child: CircularProgressIndicator(),
+                          );
+                        } else if (snapshot.hasError) {
+                          return Image.asset(
+                            "assets/images/sample.png",
+                            width: 90,
+                            errorBuilder: (BuildContext context,
+                                Object exception, StackTrace? stackTrace) {
+                              return Image.asset(
+                                "assets/images/sample.png",
+                                width: 90,
+                                fit: BoxFit.cover,
+                              );
+                            },
+                          );
+                        } else if (snapshot.data == null) {
+                          return Image.asset(
+                            '/assets/images/sample.png',
+                            fit: BoxFit.cover,
+                          );
+                        } else if (snapshot.hasData) {
+                          Map<String, dynamic> data = snapshot.data!.data;
+                          String imageUrl = data["url"];
+                          imageCache[product.representativePhotoId] = imageUrl;
+                          return Image.network(
+                            imageUrl,
+                            fit: BoxFit.cover,
+                          );
+                        } else {
+                          return Image.asset(
+                            "assets/images/sample.png",
+                            fit: BoxFit.cover,
+                          );
+                        }
+                      },
+                    ),
+        ),
       ),
     );
   }
