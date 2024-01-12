@@ -33,13 +33,6 @@ class _ChatDetailProductState extends State<ChatDetailProduct> {
 
     product = widget.product;
 
-    // WidgetsBinding.instance.addPostFrameCallback((_) {
-    //   setState(() {
-    //     product = widget.product;
-    //   });
-
-    // });
-
     getRepresentativePhotoUrl();
   }
 
@@ -53,7 +46,6 @@ class _ChatDetailProductState extends State<ChatDetailProduct> {
           representativePhotoUrl = response.data['url'];
         });
       }
-      print(response);
     } catch (e) {
       print(e);
     }
@@ -102,8 +94,9 @@ class _ChatDetailProductState extends State<ChatDetailProduct> {
                       style: const TextStyle(
                         color: Color(0xFF302E2E),
                         fontSize: 16,
-                        fontWeight: FontWeight.bold,
+                        fontWeight: FontWeight.w600,
                       ),
+                      overflow: TextOverflow.ellipsis,
                     ),
                     Text(
                       NumberFormat('###,###,###원', 'ko_KR')
@@ -111,7 +104,7 @@ class _ChatDetailProductState extends State<ChatDetailProduct> {
                       style: const TextStyle(
                         color: Color(0xFF302E2E),
                         fontSize: 14,
-                        fontWeight: FontWeight.bold,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
                   ],
