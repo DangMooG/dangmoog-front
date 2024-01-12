@@ -60,7 +60,6 @@ class _ChatListPageState extends State<ChatListPage> {
 
   @override
   Widget build(BuildContext context) {
-    final chatListProvider = Provider.of<ChatListProvider>(context);
     return Padding(
       padding: const EdgeInsets.only(
         left: 16,

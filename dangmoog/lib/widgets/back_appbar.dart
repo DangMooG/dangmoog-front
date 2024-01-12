@@ -12,7 +12,7 @@ class BackAppBar extends StatelessWidget implements PreferredSizeWidget {
     return AppBar(
       leading: GestureDetector(
         child: const Icon(
-          Icons.arrow_back_ios_outlined,
+          Icons.keyboard_backspace,
           color: Color(0xFF726E6E),
           size: 24,
         ),
