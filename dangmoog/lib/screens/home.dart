@@ -1,3 +1,4 @@
+import 'package:dangmoog/screens/post/post_list.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 
@@ -32,7 +33,7 @@ class _MyHomeState extends State<MyHome> {
   late SocketProvider socketChannel;
 
   final List<Widget> _bodyPage = <Widget>[
-    const MainPage(key: ValueKey("MainPage")),
+    const ProductList(key: ValueKey("ProductListPage")),
     const LikeMainPage(key: ValueKey("LikePage")),
     const ChatListPage(key: ValueKey("ChatListPage")),
     const MyPage(
@@ -69,12 +70,6 @@ class _MyHomeState extends State<MyHome> {
               final postIdList = response4.data["post_id"];
               final imBuyerList = response4.data["iam_buyer"];
               final photoIdList = response4.data["repr_photo_id"];
-
-              // print(postIdList);
-
-              // print(photoIdList[13]);
-              // print(unreadCountList[13]);
-              // print(postIdList[13]);
 
               List<ChatListCell> combinedList = [];
               for (int i = 0; i < roomIdList.length; i++) {
@@ -143,10 +138,10 @@ class _MyHomeState extends State<MyHome> {
     if (roomId != chatProvider.roomId) {
       // 이미 존재하는 채팅방이자, 내가 구매자인 채팅방의 채팅일 경우
       if (chatListProvider.buyChatList
-          .any((chatCell) => chatCell.roomId == roomId)) {
+          .any((chatListCell) => chatListCell.roomId == roomId)) {
         // chat list page의 정보 update
         int index = chatListProvider.buyChatList
-            .indexWhere((chatCell) => chatCell.roomId == roomId);
+            .indexWhere((chatListCell) => chatListCell.roomId == roomId);
         chatListProvider.updateChatList(
           index,
           chatMessage,
@@ -156,9 +151,9 @@ class _MyHomeState extends State<MyHome> {
       }
       // 이미 존재하는 채팅방이자, 내가 판매자인 채팅방의 채팅일 경우
       else if (chatListProvider.sellChatList
-          .any((chatCell) => chatCell.roomId == roomId)) {
+          .any((chatListCell) => chatListCell.roomId == roomId)) {
         int index = chatListProvider.sellChatList
-            .indexWhere((chatCell) => chatCell.roomId == roomId);
+            .indexWhere((chatListCell) => chatListCell.roomId == roomId);
         chatListProvider.updateChatList(
           index,
           chatMessage,
@@ -168,7 +163,6 @@ class _MyHomeState extends State<MyHome> {
       }
       // 새로운 채팅방의 채팅 => 구매자가 판매자인 나에게 보낸 채팅
       else {
-        // 채팅 목록 다시 불러오기
         _getAllMyChatList();
       }
     }
@@ -183,6 +177,28 @@ class _MyHomeState extends State<MyHome> {
           createTime: updateTime);
 
       chatProvider.addChatContent(newChat);
+      if (chatListProvider.buyChatList
+          .any((chatListCell) => chatListCell.roomId == roomId)) {
+        int index = chatListProvider.buyChatList
+            .indexWhere((chatCell) => chatCell.roomId == roomId);
+
+        chatListProvider.updateChatList(
+          index,
+          chatMessage,
+          updateTime,
+          true,
+        );
+      } else if (chatListProvider.sellChatList
+          .any((chatListCell) => chatListCell.roomId == roomId)) {
+        int index = chatListProvider.sellChatList
+            .indexWhere((chatCell) => chatCell.roomId == roomId);
+        chatListProvider.updateChatList(
+          index,
+          chatMessage,
+          updateTime,
+          false,
+        );
+      }
     }
   }
 
@@ -190,8 +206,9 @@ class _MyHomeState extends State<MyHome> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: mainAppBar(currentTabIndex, context),
-      body: Center(
-        child: _bodyPage.elementAt(currentTabIndex),
+      body: IndexedStack(
+        index: currentTabIndex,
+        children: _bodyPage,
       ),
       bottomNavigationBar: MainNavigationBar(
         currentTabIndex: currentTabIndex,
