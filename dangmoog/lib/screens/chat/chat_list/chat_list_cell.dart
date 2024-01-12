@@ -175,11 +175,6 @@ class _ChatCellState extends State<ChatCell> {
                       )
                     : const SizedBox.shrink(),
               ),
-
-              // const Image(
-              //   image: AssetImage('assets/images/temp_product_img.png'),
-              //   height: 48,
-              // ),
               Container(
                 decoration: BoxDecoration(
                   border: Border.all(
@@ -188,19 +183,22 @@ class _ChatCellState extends State<ChatCell> {
                   ),
                   borderRadius: BorderRadius.circular(6),
                 ),
-                child: photoId == 0 || photoUrl == null
-                    ? const Image(
-                        image: AssetImage('assets/images/basic_profile.png'),
-                        width: 48,
-                        height: 48,
-                        fit: BoxFit.cover,
-                      )
-                    : Image.network(
-                        photoUrl!,
-                        width: 48,
-                        height: 48,
-                        fit: BoxFit.cover,
-                      ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(6),
+                  child: photoId == 0 || photoUrl == null
+                      ? const Image(
+                          image: AssetImage('assets/images/basic_profile.png'),
+                          width: 48,
+                          height: 48,
+                          fit: BoxFit.cover,
+                        )
+                      : Image.network(
+                          photoUrl!,
+                          width: 48,
+                          height: 48,
+                          fit: BoxFit.cover,
+                        ),
+                ),
               )
             ],
           ),
