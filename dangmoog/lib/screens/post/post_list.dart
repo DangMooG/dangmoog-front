@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
 import 'package:provider/provider.dart';
 import 'dart:io';
+import 'package:cached_network_image/cached_network_image.dart';
 
 import 'package:dangmoog/screens/addpage/add_post_page.dart';
 import 'package:dangmoog/screens/addpage/choose_locker_page.dart';
@@ -14,8 +15,6 @@ import 'package:dangmoog/models/product_class.dart';
 
 import 'package:dangmoog/constants/category_list.dart';
 import 'package:dangmoog/utils/convert_money_format.dart';
-
-import 'package:dangmoog/providers/provider.dart';
 
 import 'locker_timer.dart';
 
@@ -314,7 +313,8 @@ class _ProductListState extends State<ProductList> {
       child: Scrollbar(
         controller: _scrollController,
         child: ListView.separated(
-          cacheExtent: 1000,
+          // cacheExtent: 200,
+          addAutomaticKeepAlives: true,
           controller: _scrollController,
           itemCount: lockerProducts.length + products.length,
           itemBuilder: (context, index) {
@@ -348,7 +348,7 @@ class _ProductListState extends State<ProductList> {
   }
 
   Widget _lockerProductCard(BuildContext context, ProductModel product) {
-    double paddingValue = MediaQuery.of(context).size.width * 0.042;
+    // double paddingValue = MediaQuery.of(context).size.width * 0.042;
 
     return InkWell(
       onTap: () {
@@ -612,7 +612,6 @@ class _ProductListState extends State<ProductList> {
                             fit: BoxFit.cover,
                             errorBuilder: (BuildContext context, Object error,
                                 StackTrace? stackTrace) {
-                              print("이미지 오류");
                               return Image.asset(
                                 '/assets/images/sample.png',
                                 fit: BoxFit.cover,
