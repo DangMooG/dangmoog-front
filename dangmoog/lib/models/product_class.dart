@@ -17,6 +17,7 @@ class ProductModel extends ChangeNotifier {
   int useLocker; //사물함 1 or 직접 0
   bool _isFavorited = false;
   bool isUpdatingLike = false;
+  bool isTimeEnded;
 
   ProductModel({
     required this.title,
@@ -33,6 +34,7 @@ class ProductModel extends ChangeNotifier {
     required this.updateTime,
     required this.useLocker,
     required bool isFavorited,
+    this.isTimeEnded = false,
   }) : _isFavorited = isFavorited;
 
   factory ProductModel.fromJson(Map<String, dynamic> json) {
@@ -53,6 +55,7 @@ class ProductModel extends ChangeNotifier {
       updateTime:
           DateTime.tryParse(json['update_time'].toString()) ?? DateTime.now(),
       isFavorited: json['isFavorited'] ?? false,
+      isTimeEnded: json['isTimeEnded'] ?? false,
     );
   }
 

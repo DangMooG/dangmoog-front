@@ -89,6 +89,7 @@ class _AddPostPageState extends State<AddPostPage> {
       imageFiles: imageFiles,
     );
 
+
     if (response.statusCode == 200) {
       // Successful Response
       var responseData = response.data;
