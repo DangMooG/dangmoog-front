@@ -115,10 +115,11 @@ class _AuthPageState extends State<AuthPage> {
             if (!mounted) return;
             showDialog(
               context: context,
+              barrierDismissible: false,
               builder: (BuildContext context) {
                 return AlertDialog(
-                  titlePadding: EdgeInsets.only(top: 24),
-                  contentPadding: EdgeInsets.fromLTRB(0, 8, 0, 16),
+                  // titlePadding: const EdgeInsets.only(top: 24),
+                  // contentPadding: const EdgeInsets.fromLTRB(0, 8, 0, 16),
                   title: isExistingAccount
                       ? const Text(
                           "어라? 이미 가입된 계정이에요!",
@@ -397,13 +398,13 @@ class _AuthPageState extends State<AuthPage> {
         child: Stack(
           children: [
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 18),
+              padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Row(
                         mainAxisAlignment: MainAxisAlignment.start,
@@ -411,10 +412,15 @@ class _AuthPageState extends State<AuthPage> {
                           _signUpMessage(screenSize, isLogin),
                         ],
                       ),
-                      SizedBox(height: screenSize.height * 0.024),
+                      const SizedBox(height: 20),
                       _inputField(screenSize),
                     ],
                   ),
+                  const Expanded(
+                      child: SizedBox(
+                    width: double.infinity,
+                    child: Text(""),
+                  )),
                   SizedBox(
                     height: screenSize.height * 0.2,
                     child: Column(
@@ -457,13 +463,13 @@ class _AuthPageState extends State<AuthPage> {
               : '안녕하세요!\nGIST 이메일로 간편가입해주세요!',
           style: const TextStyle(
             color: Color(0xFF302E2E),
-            fontSize: 24,
+            fontSize: 20,
             fontWeight: FontWeight.w600,
           ),
         ),
         SizedBox(height: screenSize.height * 0.01),
         const Text(
-          'GIST 이메일은 본인 확인 용도로 사용되며 다른 학우들에게\n공개되지 않습니다. ',
+          'GIST 이메일은 GIST 학생 인증 용도로 사용되며 \n다른 사용자에게 공개되지 않습니다. ',
           style: TextStyle(
             color: Color(0xFF302E2E),
             fontSize: 14,
@@ -491,7 +497,8 @@ class _AuthPageState extends State<AuthPage> {
     return Column(
       children: [
         Container(
-          height: screenSize.height * 0.05,
+          // height: screenSize.height * 0.05,
+          height: 40,
           decoration: const BoxDecoration(
             border: Border(
               bottom: BorderSide(
@@ -518,11 +525,17 @@ class _AuthPageState extends State<AuthPage> {
                     contentPadding: EdgeInsets.symmetric(horizontal: 8),
                     isDense: true,
                   ),
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w400,
+                    color: Color(0xFF302E2E),
+                  ),
                 ),
               ),
               ElevatedButton(
                 onPressed: () {
                   submitEmail(context);
+                  FocusScope.of(context).unfocus();
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: isEmailSend
@@ -552,7 +565,7 @@ class _AuthPageState extends State<AuthPage> {
                     color: isEmailSend
                         ? const Color(0xffE20529)
                         : const Color(0xFFFFFFFF),
-                    fontSize: 13,
+                    fontSize: 12,
                     fontWeight: FontWeight.w400,
                   ),
                 ),
