@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:dangmoog/screens/post/main_page.dart';
+import 'package:dangmoog/screens/post/post_list.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -193,7 +194,7 @@ class _EditPostPageState extends State<EditPostPage> {
         if (!mounted) return;
         Navigator.pushAndRemoveUntil(
           context,
-          MaterialPageRoute(builder: (context) => const MainPage()),
+          MaterialPageRoute(builder: (context) => const ProductList()),
           (Route<dynamic> route) => false,
         );
       } else {
