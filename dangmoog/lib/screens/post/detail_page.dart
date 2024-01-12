@@ -59,7 +59,6 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
   Widget _buildProductDetail(
       BuildContext context, ProductDetailProvider provider) {
       final product = provider.product!;
-      //TODO: 유저네임 바꾸기
       final userProvider = Provider.of<UserProvider>(context, listen: false);
       final userNickname = userProvider.nickname;
       bool isUserProduct = product.userName ==userNickname;
@@ -300,7 +299,15 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _buildProductInformation(product),
-              _buildProductLikeChatCount(product),
+              Column(
+                children: [
+                  _buildProductLikeChatCount(product),
+                  Padding(
+                    padding: const EdgeInsets.only(top:8.0),
+                    child: _buildProductStatusImage(product),
+                  ),
+                ],
+              ),
               // LikeChatCount(product: product, apiService: apiService,)
             ],
           ),
@@ -310,6 +317,38 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
       ),
     );
   }
+
+  Widget _buildProductStatusImage(ProductModel product){
+    int saleStatus = product.status;
+    bool forFree = product.price == 0;
+
+    // Define the desired height and width
+    double imageHeight = 100.0; // Example height
+    double imageWidth = 100.0;  // Example width
+
+    String imagePath;
+    if (saleStatus == 0 && !forFree) {
+      imagePath = 'assets/images/saleStatus_logos/selling_logo.png';
+    } else if (saleStatus == 0 && forFree) {
+      imagePath = 'assets/images/saleStatus_logos/forfree_selling_logo.png';
+    } else if (saleStatus == 1 && !forFree) {
+      imagePath = 'assets/images/saleStatus_logos/reserved_logo.png';
+    } else if (saleStatus == 1 && forFree) {
+      imagePath = 'assets/images/saleStatus_logos/forfree_reserved_logo.png';
+    } else if (saleStatus == 2 && !forFree) {
+      imagePath = 'assets/images/saleStatus_logos/soldout_logo.png';
+    } else {
+      imagePath = 'assets/images/saleStatus_logos/forfree_soldout_logo.png';
+    }
+
+    // Return the image wrapped in a SizedBox
+    return SizedBox(
+      height: imageHeight,
+      width: imageWidth,
+      child: Image.asset(imagePath),
+    );
+  }
+
 
   Widget _buildProductInformation(ProductModel product) {
     String saleMethodText = (product.useLocker == 1 || product.useLocker==2) ? '사물함거래' : '직접거래';
@@ -382,10 +421,9 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
             const SizedBox(
               width: 6,
             ),
-            const Text(
-              // apiService.chatCount(product.postId).toString(),
-              "0",
-              style: TextStyle(
+            Text(
+              product.chatCount.toString(),
+              style: const TextStyle(
                 fontWeight: FontWeight.w400,
                 fontSize: 11,
                 color: Color(0xffA19E9E),
@@ -626,3 +664,5 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
     }
   }
 }
+
+
