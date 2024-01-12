@@ -22,7 +22,11 @@ class _ChatDealStatusState extends State<ChatDealStatus> {
 
   List<String> dealStatusList = ["거래중", "예약중", "거래완료"];
 
-  Color buttonColor = const Color(0xffE20529);
+  List<Color> buttonColorList = [
+    const Color(0xffE20529),
+    const Color(0xffE20529),
+    const Color(0xff726E6E)
+  ];
 
   @override
   void initState() {
@@ -34,8 +38,7 @@ class _ChatDealStatusState extends State<ChatDealStatus> {
 
   void changePostDealStatus(int nextStatus) async {
     try {
-      Response response =
-          await ApiService().changeDealStatus(nextStatus, widget.postId);
+      await ApiService().changeDealStatus(nextStatus, widget.postId);
     } catch (e) {
       print(e);
     }
@@ -137,11 +140,11 @@ class _ChatDealStatusState extends State<ChatDealStatus> {
         }
       },
       child: Container(
-        padding: const EdgeInsets.only(left: 4, top: 2, bottom: 2),
+        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: const BorderRadius.all(Radius.circular(6)),
-          border: Border.all(color: buttonColor, width: 1),
+          border: Border.all(color: buttonColorList[currentStatuts], width: 1),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -150,13 +153,17 @@ class _ChatDealStatusState extends State<ChatDealStatus> {
             Text(
               dealStatusList[currentStatuts],
               style: TextStyle(
-                color: buttonColor,
+                color: buttonColorList[currentStatuts],
               ),
             ),
             !widget.imBuyer
-                ? Icon(
-                    Icons.keyboard_arrow_down_sharp,
-                    color: buttonColor,
+                ? Container(
+                    constraints: const BoxConstraints(),
+                    padding: EdgeInsets.zero,
+                    child: Icon(
+                      Icons.keyboard_arrow_down_sharp,
+                      color: buttonColorList[currentStatuts],
+                    ),
                   )
                 : const SizedBox.shrink(),
           ],
