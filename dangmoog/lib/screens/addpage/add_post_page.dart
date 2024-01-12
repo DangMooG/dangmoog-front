@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:dangmoog/screens/home.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:dangmoog/constants/category_list.dart';
 import 'package:intl/intl.dart';
@@ -88,7 +89,6 @@ class _AddPostPageState extends State<AddPostPage> {
       useLocker: useLocker,
       imageFiles: imageFiles,
     );
-
 
     if (response.statusCode == 200) {
       // Successful Response
@@ -279,9 +279,19 @@ class _AddPostPageState extends State<AddPostPage> {
   TextEditingController priceController = TextEditingController();
   TextEditingController detailController = TextEditingController();
 
-  ScrollController scrollController = ScrollController();
+  late ScrollController _scrollController;
 
   bool isUploading = false;
+
+  void _scrollListener() {
+    print(1);
+    if (_scrollController.position.userScrollDirection ==
+        ScrollDirection.reverse) {
+      if (FocusScope.of(context).hasFocus) {
+        FocusScope.of(context).unfocus();
+      }
+    }
+  }
 
   @override
   void initState() {
@@ -307,6 +317,8 @@ class _AddPostPageState extends State<AddPostPage> {
         });
       }
     });
+    _scrollController = ScrollController();
+    _scrollController.addListener(_scrollListener);
   }
 
   @override
@@ -314,6 +326,9 @@ class _AddPostPageState extends State<AddPostPage> {
     productNameController.dispose();
     priceController.dispose();
     detailController.dispose();
+
+    _scrollController.removeListener(_scrollListener);
+    _scrollController.dispose();
     super.dispose();
   }
 
@@ -328,9 +343,6 @@ class _AddPostPageState extends State<AddPostPage> {
           icon: const Icon(Icons.close),
           onPressed: () {
             if (widget.fromChooseLocker) {
-
-              // Check if it's from choose locker
-
               _showLockerDialog(context);
             } else if (isImageUploaded ||
                 isProductNameFilled ||
@@ -353,6 +365,7 @@ class _AddPostPageState extends State<AddPostPage> {
           children: [
             Expanded(
               child: SingleChildScrollView(
+                controller: _scrollController,
                 child: Padding(
                   padding: const EdgeInsets.all(16),
                   child: Column(
@@ -1133,9 +1146,7 @@ class _AddPostPageState extends State<AddPostPage> {
                               onPressed: () {
                                 if (!isUploading) {
                                   _createNewPost();
-                                  if (useLocker == 1) {
-
-                                  }
+                                  if (useLocker == 1) {}
                                 }
                               },
                               style: ButtonStyle(
@@ -1416,8 +1427,8 @@ class _AddPostPageState extends State<AddPostPage> {
                 SizedBox(
                   width: 300,
                   child: TextButton(
-                    onPressed: () async{
-                      if(widget.fromChooseLocker && widget.lockerId!=null){
+                    onPressed: () async {
+                      if (widget.fromChooseLocker && widget.lockerId != null) {
                         _updateLockerStatusOnExit();
                       }
 
@@ -1490,10 +1501,8 @@ class _AddPostPageState extends State<AddPostPage> {
   void _updateLockerStatusOnExit() async {
     if (widget.lockerId != null) {
       try {
-        Response lockerResponse = await apiService.patchLocker(
-            widget.lockerId!,
-            {"status": 1}
-        );
+        Response lockerResponse =
+            await apiService.patchLocker(widget.lockerId!, {"status": 1});
         if (lockerResponse.statusCode == 200) {
           print('Locker status updated successfully.');
         } else {
@@ -1504,7 +1513,6 @@ class _AddPostPageState extends State<AddPostPage> {
       }
     }
   }
-
 
   void _showLockerDialog(BuildContext context) {
     showDialog(
