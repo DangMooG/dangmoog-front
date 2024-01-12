@@ -284,7 +284,6 @@ class _AddPostPageState extends State<AddPostPage> {
   bool isUploading = false;
 
   void _scrollListener() {
-    print(1);
     if (_scrollController.position.userScrollDirection ==
         ScrollDirection.reverse) {
       if (FocusScope.of(context).hasFocus) {
@@ -366,30 +365,33 @@ class _AddPostPageState extends State<AddPostPage> {
             Expanded(
               child: SingleChildScrollView(
                 controller: _scrollController,
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    children: [
-                      _imagePickerSection(context),
-                      _textFieldsAndDropdown(),
-                    ],
-                  ),
+                child: Column(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        children: [
+                          _imagePickerSection(context),
+                          _textFieldsAndDropdown(),
+                        ],
+                      ),
+                    ),
+                    Column(
+                      children: [
+                        const Divider(
+                          color: Color(
+                            0xffBEBCBC,
+                          ),
+                          thickness: 0.5,
+                          height: 0.5,
+                        ),
+                        _submitButton(context, screenSize)
+                      ],
+                    ),
+                  ],
                 ),
               ),
             ),
-            Column(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Divider(
-                  color: Color(
-                    0xffBEBCBC,
-                  ),
-                  thickness: 0.5,
-                  height: 0.5,
-                ),
-                _submitButton(context, screenSize)
-              ],
-            )
           ],
         ),
       ),
