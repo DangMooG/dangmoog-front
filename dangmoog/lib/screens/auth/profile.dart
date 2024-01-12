@@ -9,8 +9,6 @@ import 'package:dangmoog/screens/home.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-
 import 'package:dangmoog/widgets/submit_button.dart';
 
 // 권환 확인
@@ -35,8 +33,6 @@ class _ProfilePageState extends State<ProfilePage> {
 
   // 이미지 설정 시 유의사항 visibility
   bool isHelpVisible = false;
-
-  static const storage = FlutterSecureStorage();
 
   Future<void> getImagesFromCamera() async {
     PermissionStatus status = await Permission.camera.request();

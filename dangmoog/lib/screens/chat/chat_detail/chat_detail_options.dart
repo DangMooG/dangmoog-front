@@ -573,7 +573,7 @@ class _ChatDetailOptionsState extends State<ChatDetailOptions> {
       final lockerName = response.data["name"];
       final password = response.data["password"];
 
-      final lockerMessage = "사물함 위치 : $lockerName, 비밀번호 : $password";
+      final lockerMessage = "사물함 위치 : $lockerName\n비밀번호 : $password";
 
       showDialog(
         barrierDismissible: false,
@@ -623,18 +623,23 @@ class _ChatDetailOptionsState extends State<ChatDetailOptions> {
                       ),
                       const Row(
                         mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           Icon(
                             Icons.error_outline,
                             color: Color(0xff726E6E),
                           ),
+                          SizedBox(
+                            width: 4,
+                          ),
                           Text(
                             "해당 정보는 수정할 수 없는 내용입니다!",
                             style: TextStyle(
                               color: Color(0xff726E6E),
-                              fontSize: 16,
+                              fontSize: 14,
                               fontWeight: FontWeight.w400,
                             ),
+                            overflow: TextOverflow.clip,
                           ),
                         ],
                       ),
@@ -682,63 +687,6 @@ class _ChatDetailOptionsState extends State<ChatDetailOptions> {
       );
     }
   }
-
-  // Future getImageFromCamera(BuildContext context) async {
-  //   PermissionStatus status = await Permission.camera.request();
-
-  //   final ImagePicker picker = ImagePicker();
-  //   final List<String> imageList = <String>[];
-
-  //   if (status.isGranted || status.isLimited) {
-  //     try {
-  //       final XFile? pickedImage =
-  //           await picker.pickImage(source: ImageSource.camera);
-
-  //       if (pickedImage != null) {
-  //         String imagePath = pickedImage.path;
-
-  //         setState(() {
-  //           imageList.add(imagePath);
-  //         });
-  //       }
-  //     } catch (e) {
-  //       print("Error picking images: $e");
-  //     }
-  //   } else if (status.isPermanentlyDenied) {
-  //     if (!mounted) return;
-  //     // 나중에 ios는 cupertino로 바꿔줄 필요 있음
-  //     await showDialog(
-  //       context: context,
-  //       builder: (BuildContext context) {
-  //         return AlertDialog(
-  //           shape: RoundedRectangleBorder(
-  //             borderRadius: BorderRadius.circular(14),
-  //           ),
-  //           backgroundColor: Colors.white,
-  //           surfaceTintColor: Colors.white,
-  //           title: const Text("사진 권한 필요"),
-  //           content:
-  //               const Text("이 기능을 사용하기 위해서는 권한이 필요합니다. 설정으로 이동하여 권한을 허용해주세요."),
-  //           actions: <Widget>[
-  //             TextButton(
-  //               child: const Text("취소"),
-  //               onPressed: () {
-  //                 Navigator.of(context).pop();
-  //               },
-  //             ),
-  //             TextButton(
-  //               child: const Text("설정으로 이동"),
-  //               onPressed: () {
-  //                 openAppSettings();
-  //                 Navigator.of(context).pop();
-  //               },
-  //             ),
-  //           ],
-  //         );
-  //       },
-  //     );
-  //   }
-  // }
 
   Widget accountButtonWidget(String text, Color btnColor, Color borderColor,
       Color textColor, VoidCallback onTap) {
@@ -797,7 +745,7 @@ class _ChatDetailOptionsState extends State<ChatDetailOptions> {
                 sendBankAccount(context);
               }),
               optionCircleWidget(Icons.vpn_key_outlined, '사물함 정보 발송', () {
-                if (widget.useLocker == 1 && !widget.imBuyer) {
+                if (widget.useLocker == 2 && !widget.imBuyer) {
                   sendLockerInfo(context);
                 }
               }),

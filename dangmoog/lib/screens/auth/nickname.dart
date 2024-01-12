@@ -248,6 +248,7 @@ class _NicknamePageState extends State<NicknamePage> {
                   if (checkNicknameFormat(nickname)) {
                     isNicknameDuplicate();
                   }
+                  FocusScope.of(context).unfocus();
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: _isChecked

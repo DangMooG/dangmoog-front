@@ -2,13 +2,13 @@ import 'package:dangmoog/constants/category_list.dart';
 import 'package:dangmoog/providers/product_detail_provider.dart';
 import 'package:dangmoog/providers/provider.dart';
 import 'package:dangmoog/screens/chat/chat_detail/chat_detail_page.dart';
+import 'package:dangmoog/widgets/bottom_popup.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:dangmoog/models/product_class.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:dangmoog/utils/convert_money_format.dart';
 import 'package:dangmoog/services/api.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:provider/provider.dart';
 
 import 'edit_post_page.dart';
@@ -32,19 +32,40 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      // Initialize your ProductDetailProvider here
       create: (_) => ProductDetailProvider(ApiService(), widget.postId!),
       child: Consumer<ProductDetailProvider>(
         builder: (context, provider, child) {
           if (provider.isLoading) {
-            return const Scaffold(
-              body: Center(
+            return Scaffold(
+              appBar: AppBar(
+                leading: IconButton(
+                  icon: const Icon(
+                    Icons.keyboard_backspace,
+                    size: 24,
+                  ),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                ),
+              ),
+              body: const Center(
                 child: CircularProgressIndicator(),
               ),
             );
           } else if (provider.product == null) {
-            return const Scaffold(
-              body: Center(
+            return Scaffold(
+              appBar: AppBar(
+                leading: IconButton(
+                  icon: const Icon(
+                    Icons.keyboard_backspace,
+                    size: 24,
+                  ),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                ),
+              ),
+              body: const Center(
                 child: Text('Product not found!'),
               ),
             );
@@ -58,162 +79,165 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
 
   Widget _buildProductDetail(
       BuildContext context, ProductDetailProvider provider) {
-      final product = provider.product!;
-      final userProvider = Provider.of<UserProvider>(context, listen: false);
-      final userNickname = userProvider.nickname;
-      bool isUserProduct = product.userName ==userNickname;
+    final product = provider.product!;
 
-      return Scaffold(
-        appBar: AppBar(
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-          leading: IconButton(
-            icon: const Icon(
-              Icons.keyboard_backspace,
-              size: 28,
-            ),
-            onPressed: () {
-              Navigator.pop(context);
-            },
+    final userProvider = Provider.of<UserProvider>(context, listen: false);
+    final userNickname = userProvider.nickname;
+    bool isUserProduct = product.userName == userNickname;
+
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(
+            Icons.keyboard_backspace,
+            size: 24,
           ),
-          iconTheme: const IconThemeData(color: Colors.white),
-          actions: <Widget>[
-            IconButton(
-              icon: const Icon(Icons.more_vert, color: Color(0xFF726E6E)),
-              onPressed: !isUserProduct?null: (){
-                showDialog(
-                  context: context,
-                  builder: (BuildContext context) {
-                    double dividerThickness = 1;
-                    double buttonHeight = 36;
-                    return AlertDialog(
-                      contentPadding: EdgeInsets.zero,
-                      shape: const RoundedRectangleBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(8)),
-                      ),
-                      content: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: <Widget>[
-                          TextButton(
-                            onPressed: () {
-                              Navigator.pop(context); // Close the dialog
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => EditPostPage(
-                                          postId: widget.postId!,
-                                          product: product,
-                                        )),
-                              );
-                            },
-                            style: TextButton.styleFrom(
-                              minimumSize: Size(270, buttonHeight),
-                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                              padding: const EdgeInsets.only(
-                                  top:
-                                      8), // Ensures no additional padding is affecting the alignment
-                            ),
-                            child: const Text(
-                              '수정하기',
-                              style: TextStyle(
-                                fontFamily: 'Pretendard',
-                                fontSize: 14,
-                                fontWeight: FontWeight.w400,
-                                color: Color(0xFFE20529),
-                                height: 20 / 14, // line height
-                              ),
-                            ),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
+        iconTheme: const IconThemeData(color: Colors.white),
+        actions: <Widget>[
+          IconButton(
+            icon: const Icon(Icons.more_vert, color: Color(0xFF726E6E)),
+            onPressed: !isUserProduct
+                ? null
+                : () {
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        double dividerThickness = 1;
+                        double buttonHeight = 36;
+                        return AlertDialog(
+                          contentPadding: EdgeInsets.zero,
+                          shape: const RoundedRectangleBorder(
+                            borderRadius: BorderRadius.all(Radius.circular(8)),
                           ),
-                          Divider(thickness: dividerThickness),
-                          TextButton(
-                            onPressed: () async {
-                              int postId = product.postId;
-                              try {
-                                final response = await ApiService()
-                                    .deletePost(postId); // Call the delete API
-                                if (response.statusCode == 204) {
+                          content: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: <Widget>[
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.pop(context); // Close the dialog
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) => EditPostPage(
+                                              postId: widget.postId!,
+                                              product: product,
+                                            )),
+                                  );
+                                },
+                                style: TextButton.styleFrom(
+                                  minimumSize: Size(270, buttonHeight),
+                                  tapTargetSize:
+                                      MaterialTapTargetSize.shrinkWrap,
+                                  padding: const EdgeInsets.only(
+                                      top:
+                                          8), // Ensures no additional padding is affecting the alignment
+                                ),
+                                child: const Text(
+                                  '수정하기',
+                                  style: TextStyle(
+                                    fontFamily: 'Pretendard',
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w400,
+                                    color: Color(0xFFE20529),
+                                    height: 20 / 14, // line height
+                                  ),
+                                ),
+                              ),
+                              Divider(thickness: dividerThickness),
+                              TextButton(
+                                onPressed: () async {
+                                  int postId = product.postId;
+                                  try {
+                                    final response =
+                                        await ApiService().deletePost(postId);
+                                    if (response.statusCode == 204) {
+                                      if (!mounted) return;
+                                      Navigator.pop(context);
+                                    } else {
+                                      print(
+                                          'Failed to delete the post: ${response.statusCode}');
+                                    }
+                                  } catch (e) {
+                                    // Handle any exceptions here
+                                    print(
+                                        'An error occurred while deleting the post: $e');
+                                  }
                                   if (!mounted) return;
                                   Navigator.pop(context);
-                                  // Handle successful deletion here, like showing a confirmation message
-                                } else {
-                                  // Handle the error case
-                                  print(
-                                      'Failed to delete the post: ${response.statusCode}');
-                                }
-                              } catch (e) {
-                                // Handle any exceptions here
-                                print(
-                                    'An error occurred while deleting the post: $e');
-                              }
-                              if (!mounted) return;
-                              Navigator.pop(context);
-                            },
-                            style: TextButton.styleFrom(
-                              minimumSize: const Size(270, 28),
-                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                              padding: EdgeInsets
-                                  .zero, // Ensures no additional padding is affecting the alignment
-                            ),
-                            child: const Text(
-                              '삭제하기',
-                              style: TextStyle(
-                                fontFamily: 'Pretendard',
-                                fontSize: 14,
-                                fontWeight: FontWeight.w400,
-                                color: Color(0xFFE20529),
+                                },
+                                style: TextButton.styleFrom(
+                                  minimumSize: const Size(270, 28),
+                                  tapTargetSize:
+                                      MaterialTapTargetSize.shrinkWrap,
+                                  padding: EdgeInsets.zero,
+                                ),
+                                child: const Text(
+                                  '삭제하기',
+                                  style: TextStyle(
+                                    fontFamily: 'Pretendard',
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w400,
+                                    color: Color(0xFFE20529),
+                                  ),
+                                ),
                               ),
-                            ),
-                          ),
-                          Divider(thickness: dividerThickness),
-                          TextButton(
-                            onPressed: () {
-                              // Close the dialog
-                              Navigator.pop(context);
-                            },
-                            style: TextButton.styleFrom(
-                              minimumSize: Size(270, buttonHeight),
-                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                              padding: const EdgeInsets.only(
-                                  bottom:
-                                      8), // Ensures no additional padding is affecting the alignment
-                            ),
-                            child: const Text(
-                              '취소',
-                              style: TextStyle(
-                                color: Color(0xFFA19E9E),
+                              Divider(thickness: dividerThickness),
+                              TextButton(
+                                onPressed: () {
+                                  // Close the dialog
+                                  Navigator.pop(context);
+                                },
+                                style: TextButton.styleFrom(
+                                  minimumSize: Size(270, buttonHeight),
+                                  tapTargetSize:
+                                      MaterialTapTargetSize.shrinkWrap,
+                                  padding: const EdgeInsets.only(
+                                      bottom:
+                                          8), // Ensures no additional padding is affecting the alignment
+                                ),
+                                child: const Text(
+                                  '취소',
+                                  style: TextStyle(
+                                    color: Color(0xFFA19E9E),
+                                  ),
+                                ),
                               ),
-                            ),
+                            ],
                           ),
-                        ],
-                      ),
+                        );
+                      },
                     );
                   },
-                );
-              },
-            )
-          ],
-        ),
-        extendBodyBehindAppBar: true,
-        body: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            SizedBox(
-              child: Stack(
-                alignment: Alignment.bottomCenter,
-                children: [
-                  sliderWidget(context),
-                  sliderIndicator(context),
-                ],
-              ),
+          )
+        ],
+      ),
+      extendBodyBehindAppBar: true,
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          SizedBox(
+            child: Stack(
+              alignment: Alignment.bottomCenter,
+              children: [
+                sliderWidget(context),
+                sliderIndicator(context),
+              ],
             ),
-            productInfo(product),
-          ],
-        ),
-        bottomNavigationBar:
-            _buildChatButton(context, product, provider.chatAvailable),
-      );
-    }
+          ),
+          productInfo(product),
+        ],
+      ),
+      bottomNavigationBar:
+          _buildChatButton(context, product, provider.chatAvailable),
+    );
+  }
 
   Widget sliderWidget(BuildContext context) {
     final provider = Provider.of<ProductDetailProvider>(context);
@@ -245,6 +269,14 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                   ? Image.network(
                       imagePath,
                       fit: BoxFit.cover,
+                      errorBuilder: (BuildContext context, Object exception,
+                          StackTrace? stackTrace) {
+                        return Image.asset(
+                          "assets/images/sample.png",
+                          width: 90,
+                          fit: BoxFit.cover,
+                        );
+                      },
                     )
                   : Image.asset(
                       imagePath,
@@ -303,7 +335,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                 children: [
                   _buildProductLikeChatCount(product),
                   Padding(
-                    padding: const EdgeInsets.only(top:8.0),
+                    padding: const EdgeInsets.only(top: 8.0),
                     child: _buildProductStatusImage(product),
                   ),
                 ],
@@ -318,13 +350,13 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
     );
   }
 
-  Widget _buildProductStatusImage(ProductModel product){
+  Widget _buildProductStatusImage(ProductModel product) {
     int saleStatus = product.status;
     bool forFree = product.price == 0;
 
     // Define the desired height and width
     double imageHeight = 100.0; // Example height
-    double imageWidth = 100.0;  // Example width
+    double imageWidth = 100.0; // Example width
 
     String imagePath;
     if (saleStatus == 0 && !forFree) {
@@ -349,9 +381,9 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
     );
   }
 
-
   Widget _buildProductInformation(ProductModel product) {
-    String saleMethodText = (product.useLocker == 1 || product.useLocker==2) ? '사물함거래' : '직접거래';
+    String saleMethodText =
+        (product.useLocker == 1 || product.useLocker == 2) ? '사물함거래' : '직접거래';
     Widget imageWidget = product.useLocker == 1
         ? Image.asset(
             'assets/images/uselocker_logo.png', // Replace with your asset image path
@@ -512,9 +544,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
   // 게시글 본문 내용
   Widget _buildProductDescription(ProductModel product) {
     return Container(
-      margin: const EdgeInsets.only(
-        top: 28,
-      ),
+      margin: const EdgeInsets.only(top: 16),
       child: Text(
         product.description,
         style: const TextStyle(
@@ -532,7 +562,9 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
         top: 8,
       ),
       child: InkWell(
-        onTap: () {},
+        onTap: () {
+          showPopup(context, "서비스 예정입니다");
+        },
         child: const Text(
           '신고하기',
           style: TextStyle(
@@ -549,9 +581,8 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
 
   Widget _buildChatButton(
       BuildContext context, ProductModel product, bool chatAvailable) {
-    print(chatAvailable);
     return Container(
-      height: 85,
+      height: 90,
       padding: const EdgeInsets.only(top: 14, bottom: 24),
       decoration: const BoxDecoration(
         border: Border(
@@ -571,20 +602,17 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Material(
-                  child: InkWell(
-                    onTap: () {
-                      // Call the provider's method to toggle the like state
-                      Provider.of<ProductDetailProvider>(context, listen: false)
-                          .toggleLike();
-                    },
-                    child: Icon(
-                      product.isFavorited
-                          ? Icons.favorite
-                          : Icons.favorite_border,
-                      color: const Color(0xffE20529),
-                      size: 30,
-                    ),
+                InkWell(
+                  onTap: () {
+                    Provider.of<ProductDetailProvider>(context, listen: false)
+                        .toggleLike();
+                  },
+                  child: Icon(
+                    product.isFavorited
+                        ? Icons.favorite
+                        : Icons.favorite_border,
+                    color: const Color(0xffE20529),
+                    size: 30,
                   ),
                 ),
                 Text(
@@ -664,5 +692,3 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
     }
   }
 }
-
-

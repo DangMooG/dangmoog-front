@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
 import 'package:provider/provider.dart';
 import 'dart:io';
+import 'package:cached_network_image/cached_network_image.dart';
 
 import 'package:dangmoog/screens/addpage/add_post_page.dart';
 import 'package:dangmoog/screens/addpage/choose_locker_page.dart';
@@ -14,8 +15,6 @@ import 'package:dangmoog/models/product_class.dart';
 
 import 'package:dangmoog/constants/category_list.dart';
 import 'package:dangmoog/utils/convert_money_format.dart';
-
-import 'package:dangmoog/providers/provider.dart';
 
 import 'locker_timer.dart';
 
@@ -29,23 +28,25 @@ class ProductList extends StatefulWidget {
 class _ProductListState extends State<ProductList> {
   final ApiService apiService = ApiService();
   final ScrollController _scrollController = ScrollController();
+
+  // pagination을 위한 변수
   int checkpoint = 0;
+
   List<ProductModel> products = [];
   bool isLoadingProductList = false;
-
-
 
   // 이미지 캐싱을 위한 변수
   Map<int, String> imageCache = {};
 
   List<ProductModel> lockerProducts = [];
 
-
-  Future<void> _loadLockerProducts() async{
+  Future<void> _loadLockerProducts() async {
     if (isLoadingProductList) return; // 중복 호출 방지
-    setState(() {
-      isLoadingProductList = true;
-    });
+    if (mounted) {
+      setState(() {
+        isLoadingProductList = true;
+      });
+    }
 
     try {
       Response lockerResponse = await apiService.loadLockerPost();
@@ -56,25 +57,27 @@ class _ProductListState extends State<ProductList> {
         }).toList();
         // print(newLockerProducts[0].createTime);
 
-        setState(() {
-          lockerProducts.addAll(newLockerProducts); // Prepend locker products
-          isLoadingProductList = false;
-        });
+        if (mounted) {
+          setState(() {
+            lockerProducts.addAll(newLockerProducts); // Prepend locker products
+            isLoadingProductList = false;
+          });
+        }
       } else {
         // throw Exception('Failed to load locker products');
-
       }
     } catch (e) {
       print(e);
     }
-
   }
 
   Future<void> _loadProducts() async {
     if (isLoadingProductList) return; // 중복 호출 방지
-    setState(() {
-      isLoadingProductList = true;
-    });
+    if (mounted) {
+      setState(() {
+        isLoadingProductList = true;
+      });
+    }
 
     try {
       Response response =
@@ -87,11 +90,13 @@ class _ProductListState extends State<ProductList> {
         List<ProductModel> newProducts =
             items.map((item) => ProductModel.fromJson(item)).toList();
 
-        setState(() {
-          checkpoint = data["next_checkpoint"];
-          products.addAll(newProducts);
-          isLoadingProductList = false;
-        });
+        if (mounted) {
+          setState(() {
+            checkpoint = data["next_checkpoint"];
+            products.addAll(newProducts);
+            isLoadingProductList = false;
+          });
+        }
       } else {
         throw Exception('Failed to load products');
       }
@@ -100,11 +105,18 @@ class _ProductListState extends State<ProductList> {
     }
   }
 
+  double _lastMaxScrollExtent = 0; // null로 시작
+
   void _scrollListener() {
     if (_scrollController.position.pixels >=
-            _scrollController.position.maxScrollExtent * 2 / 3 &&
+            (_lastMaxScrollExtent +
+                (_scrollController.position.maxScrollExtent -
+                        _lastMaxScrollExtent) *
+                    4 /
+                    5) &&
         !isLoadingProductList) {
       if (checkpoint != -1) {
+        _lastMaxScrollExtent = _scrollController.position.maxScrollExtent;
         _loadProducts();
       }
     }
@@ -121,7 +133,6 @@ class _ProductListState extends State<ProductList> {
     await _loadProducts();
     await _loadLockerProducts();
   }
-
 
   @override
   void dispose() {
@@ -149,7 +160,6 @@ class _ProductListState extends State<ProductList> {
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(20),
               ),
-              elevation: 5,
               child: Container(
                 padding: const EdgeInsets.all(20),
                 child: Column(
@@ -158,8 +168,10 @@ class _ProductListState extends State<ProductList> {
                     const Text(
                       '거래 방식을 \n선택해주세요!',
                       textAlign: TextAlign.center,
-                      style:
-                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                     const SizedBox(height: 20),
                     Row(
@@ -168,7 +180,7 @@ class _ProductListState extends State<ProductList> {
                         _customButton(
                             context, '직접거래', 'assets/images/direct_icon.png',
                             () {
-                          Navigator.of(context).pop(); // close the dialog
+                          Navigator.of(context).pop();
                           Navigator.push(
                             context,
                             MaterialPageRoute(
@@ -177,23 +189,23 @@ class _ProductListState extends State<ProductList> {
                             ),
                           );
                         }),
-                        _customButton(context, '사물함 거래',
-                            'assets/images/move_to_inbox.png', () {
-                          Navigator.of(context).pop(); // close the dialog
+                        _customButton(
+                            context, '사물함거래', 'assets/images/move_to_inbox.png',
+                            () {
+                          Navigator.of(context).pop();
                           Navigator.push(
                             context,
                             MaterialPageRoute(
                               builder: (context) => const ChooseLockerPage(),
                             ),
                           );
-
-                          // For now, it just closes the dialog, but you can add navigation or other logic here
                         }),
                       ],
                     ),
                     const SizedBox(height: 20),
                     SizedBox(
                       width: 300,
+                      height: 36,
                       child: TextButton(
                         onPressed: () {
                           Navigator.of(context).pop(); // close the dialog
@@ -244,27 +256,22 @@ class _ProductListState extends State<ProductList> {
   Widget _customButton(BuildContext context, String label, String imagePath,
       VoidCallback onPressed) {
     return SizedBox(
-      width: 100, // same width and height
-      height: 100, // same width and height
+      width: 100,
+      height: 100,
       child: ElevatedButton(
         onPressed: onPressed,
         style: ElevatedButton.styleFrom(
           foregroundColor: Colors.white,
-          backgroundColor: const Color(0xFFE20529), // text color
+          backgroundColor: const Color(0xFFE20529),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(6),
           ),
         ),
         child: Column(
-          mainAxisAlignment:
-              MainAxisAlignment.center, // center the children vertically
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Image.asset(imagePath,
-                width: 24,
-                height:
-                    24), // replace 'path_to_your_image.png' with your image's path
-            const SizedBox(
-                height: 5), // adjust the space between the image and text
+            Image.asset(imagePath, width: 24, height: 24),
+            const SizedBox(height: 5),
             Text(
               label,
               style: const TextStyle(fontSize: 11),
@@ -293,9 +300,11 @@ class _ProductListState extends State<ProductList> {
   Widget _postListView() {
     return RefreshIndicator(
       onRefresh: () async {
-        setState(() {
-          checkpoint = 0;
-        });
+        if (mounted) {
+          setState(() {
+            checkpoint = 0;
+          });
+        }
         products.clear();
         lockerProducts.clear();
         await _loadProducts();
@@ -304,6 +313,8 @@ class _ProductListState extends State<ProductList> {
       child: Scrollbar(
         controller: _scrollController,
         child: ListView.separated(
+          // cacheExtent: 200,
+          addAutomaticKeepAlives: true,
           controller: _scrollController,
           itemCount: lockerProducts.length + products.length,
           itemBuilder: (context, index) {
@@ -325,7 +336,6 @@ class _ProductListState extends State<ProductList> {
             } else {
               return Container();
             }
-
           },
           separatorBuilder: (context, i) {
             return const Divider(
@@ -338,7 +348,7 @@ class _ProductListState extends State<ProductList> {
   }
 
   Widget _lockerProductCard(BuildContext context, ProductModel product) {
-    double paddingValue = MediaQuery.of(context).size.width * 0.042;
+    // double paddingValue = MediaQuery.of(context).size.width * 0.042;
 
     return InkWell(
       onTap: () {
@@ -350,7 +360,11 @@ class _ProductListState extends State<ProductList> {
           ),
         );
       },
-      child: ProductTimer(product: product, buildProductDetails: _buildProductDetails, buildProductImage: _buildProductImage,),
+      child: ProductTimer(
+        product: product,
+        buildProductDetails: _buildProductDetails,
+        buildProductImage: _buildProductImage,
+      ),
     );
     // Padding(
     //     padding: EdgeInsets.all(paddingValue),
@@ -470,8 +484,6 @@ class _ProductListState extends State<ProductList> {
     // );
   }
 
-
-
   // 게시물 리스트에서 게시물 하나에 대한 위젯
   Widget _postCard(BuildContext context) {
     return Consumer<ProductModel>(
@@ -485,14 +497,14 @@ class _ProductListState extends State<ProductList> {
                 transitionDuration: const Duration(milliseconds: 400),
                 pageBuilder: (context, animation, secondaryAnimation) =>
                     ProductDetailPage(
-                      postId: product.postId,
-                    ),
+                  postId: product.postId,
+                ),
                 transitionsBuilder:
                     (context, animation, secondaryAnimation, child) {
                   var previousPageOffsetAnimation =
-                  Tween(begin: const Offset(1, 0), end: const Offset(0, 0))
-                      .chain(CurveTween(curve: Curves.decelerate))
-                      .animate(animation);
+                      Tween(begin: const Offset(1, 0), end: const Offset(0, 0))
+                          .chain(CurveTween(curve: Curves.decelerate))
+                          .animate(animation);
 
                   return SlideTransition(
                     position: previousPageOffsetAnimation,
@@ -521,7 +533,6 @@ class _ProductListState extends State<ProductList> {
     );
   }
 
-
   // 게시물 내역 이미지
   Widget _buildProductImage(BuildContext context, ProductModel product) {
     double size = MediaQuery.of(context).size.width * 0.28;
@@ -548,6 +559,14 @@ class _ProductListState extends State<ProductList> {
               ? Image.network(
                   imageCache[product.representativePhotoId]!,
                   fit: BoxFit.cover,
+                  errorBuilder: (BuildContext context, Object exception,
+                      StackTrace? stackTrace) {
+                    return Image.asset(
+                      "assets/images/sample.png",
+                      width: 90,
+                      fit: BoxFit.cover,
+                    );
+                  },
                 )
               : product.representativePhotoId == 0
                   ? Image.asset(
@@ -591,6 +610,13 @@ class _ProductListState extends State<ProductList> {
                           return Image.network(
                             imageUrl,
                             fit: BoxFit.cover,
+                            errorBuilder: (BuildContext context, Object error,
+                                StackTrace? stackTrace) {
+                              return Image.asset(
+                                '/assets/images/sample.png',
+                                fit: BoxFit.cover,
+                              );
+                            },
                           );
                         } else {
                           return Image.asset(
@@ -641,7 +667,7 @@ class _ProductListState extends State<ProductList> {
         Padding(
           padding: const EdgeInsets.symmetric(vertical: 4),
           child: Text(
-            "${categeryItems[product.categoryId-1]} | ${timeAgo(product.createTime)}",
+            "${categeryItems[product.categoryId - 1]} | ${timeAgo(product.createTime)}",
             style: const TextStyle(
               fontWeight: FontWeight.w400,
               fontSize: 11,
@@ -708,5 +734,3 @@ class _ProductListState extends State<ProductList> {
         : const SizedBox.shrink();
   }
 }
-
-

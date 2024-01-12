@@ -1,6 +1,7 @@
 import 'package:dangmoog/models/chat_detail_message_model.dart';
 import 'package:dangmoog/models/product_class.dart';
 import 'package:dangmoog/providers/chat_provider.dart';
+import 'package:dangmoog/providers/chat_list_provider.dart';
 import 'package:dangmoog/providers/socket_provider.dart';
 
 import 'package:dangmoog/screens/chat/chat_detail/chat_detail_content.dart';
@@ -9,8 +10,6 @@ import 'package:dangmoog/screens/chat/chat_detail/chat_detail_product.dart';
 import 'package:dangmoog/services/api.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-
-import 'package:dangmoog/models/chat_detail_model.dart';
 
 import 'dart:async';
 import 'dart:math';
@@ -215,11 +214,14 @@ class _ChatDetailState extends State<ChatDetail> {
         // 서버로 전송
         socketChannel.onSendMessage(_textController.text, widget.roomId);
 
+        final currentTime = DateTime.now();
+        final chatMessage = _textController.text;
+
         var newMessage = ChatDetailMessageModel(
           isMine: true,
-          message: _textController.text,
+          message: chatMessage,
           read: true,
-          createTime: DateTime.now(),
+          createTime: currentTime,
         );
 
         _textController.clear();
@@ -233,6 +235,33 @@ class _ChatDetailState extends State<ChatDetail> {
             duration: const Duration(milliseconds: 300),
             curve: Curves.easeOut,
           );
+        }
+
+        final chatListProvider =
+            Provider.of<ChatListProvider>(context, listen: false);
+        if (chatListProvider.buyChatList
+            .any((chatListCell) => chatListCell.roomId == widget.roomId)) {
+          int index = chatListProvider.buyChatList
+              .indexWhere((chatCell) => chatCell.roomId == widget.roomId);
+
+          chatListProvider.updateChatList(
+            index,
+            chatMessage,
+            currentTime,
+            true,
+          );
+          chatListProvider.resetUnreadCount(index, true);
+        } else if (chatListProvider.sellChatList
+            .any((chatListCell) => chatListCell.roomId == widget.roomId)) {
+          int index = chatListProvider.sellChatList
+              .indexWhere((chatCell) => chatCell.roomId == widget.roomId);
+          chatListProvider.updateChatList(
+            index,
+            chatMessage,
+            currentTime,
+            false,
+          );
+          chatListProvider.resetUnreadCount(index, false);
         }
       }
     }
@@ -445,14 +474,14 @@ class _ChatDetailState extends State<ChatDetail> {
         userName,
         style: const TextStyle(
           color: Color(0xFF302E2E),
-          fontSize: 22,
+          fontSize: 18,
           fontWeight: FontWeight.w600,
         ),
       ),
       leading: IconButton(
         icon: const Icon(
           Icons.keyboard_backspace,
-          size: 28,
+          size: 24,
         ),
         onPressed: () {
           Provider.of<ChatProvider>(context, listen: false).resetChatProvider();

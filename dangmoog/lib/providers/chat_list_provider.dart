@@ -33,6 +33,15 @@ class ChatListProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  void resetUnreadCount(int index, bool isBuyChatList) {
+    if (isBuyChatList) {
+      _buyChatList[index].unreadCount = 0;
+    } else if (!isBuyChatList) {
+      _sellChatList[index].unreadCount = 0;
+    }
+    notifyListeners();
+  }
+
   // 채팅 목록이 업데이트되면 update time을 기준으로 정렬
   // provider 내부에서만 실행하기
   List<ChatListCell> _sortChatListByUpdateTime(List<ChatListCell> chatList) {
