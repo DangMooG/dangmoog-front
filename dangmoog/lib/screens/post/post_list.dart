@@ -54,13 +54,15 @@ class _ProductListState extends State<ProductList> {
         List<ProductModel> newLockerProducts = lockerData.map((item) {
           return ProductModel.fromJson(item);
         }).toList();
+        // print(newLockerProducts[0].createTime);
 
         setState(() {
           lockerProducts.addAll(newLockerProducts); // Prepend locker products
           isLoadingProductList = false;
         });
       } else {
-        throw Exception('Failed to load locker products');
+        // throw Exception('Failed to load locker products');
+
       }
     } catch (e) {
       print(e);
@@ -347,131 +349,125 @@ class _ProductListState extends State<ProductList> {
             builder: (context) => LockerValPage(product),
           ),
         );
-        // Navigator.push(
-        //   context,
-        //   PageRouteBuilder(
-        //     transitionDuration: const Duration(milliseconds: 400),
-        //     pageBuilder: (context, animation, secondaryAnimation) =>
-        //         ProductDetailPage(
-        //           postId: product.postId,
-        //         ),
-        //     transitionsBuilder:
-        //         (context, animation, secondaryAnimation, child) {
-        //       var previousPageOffsetAnimation =
-        //       Tween(begin: const Offset(1, 0), end: const Offset(0, 0))
-        //           .chain(CurveTween(curve: Curves.decelerate))
-        //           .animate(animation);
-        //
-        //       return SlideTransition(
-        //         position: previousPageOffsetAnimation,
-        //         child: ProductDetailPage(
-        //           postId: product.postId,
-        //         ),
-        //       );
-        //     },
-        //   ),
-        // );
       },
-      child: Padding(
-        padding: EdgeInsets.all(paddingValue),
-        child: Stack(
-          children: [
-            Container(
-              decoration: BoxDecoration(
-                border: Border.all(
-                  color: const Color(0xFFE20529), // Color for validation border
-                  width: 3.0, // Thickness of the validation border
-                ),
-                borderRadius: BorderRadius.circular(8), // Border radius
-              ),
-              child: Column(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Container(
-                      width: double.infinity,
-                      color: const Color(0xFFFCE6EA),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          const Expanded(
-                            child: Padding(
-                              padding: EdgeInsets.all(8.0),
-                              child: Text(
-                                '앗! 아직 인증하지 않은 게시물이 있어요.\n인증을 진행하고 게시물을 업로드하시겠어요?',
-                                style: TextStyle(
-                                  color: Color(0xFF302E2E),
-                                  fontWeight: FontWeight.w400,
-                                  fontSize: 11,
-                                ),
-                                textAlign: TextAlign.left,
-                              ),
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: TextButton(
-                              onPressed:() {
-                                // Navigate to LockerValPage
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => LockerValPage(product),
-                                  ),
-                                );
-                              },
-                              style: TextButton.styleFrom(
-                                backgroundColor: const Color(0xFFE20529), // Button background color
-                                primary: Colors.white,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(6), // Border radius of the button
-                                ),
-                                textStyle: const TextStyle(
-                                  fontFamily: 'Pretendard',
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.w400,
-                                ),
-                              ),
-                              child: const Row(
-                                children: [
-                                  Padding(
-                                    padding: EdgeInsets.only(right:4.0),
-                                    child: Text('인증하기'),
-                                  ),
-                                  Icon(Icons.arrow_forward),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  Opacity(
-                    opacity: 0.5, // Reduced opacity as per the original code
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          _buildProductImage(context, product),
-                          _buildProductDetails(context, product),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Positioned(
-              bottom: paddingValue,
-              right: paddingValue,
-              child: ProductTimer(createTime: product.createTime),
-            ),
-          ],
-        ),
-      ),
+      child: ProductTimer(product: product, buildProductDetails: _buildProductDetails, buildProductImage: _buildProductImage,),
     );
+    // Padding(
+    //     padding: EdgeInsets.all(paddingValue),
+    //     child: Stack(
+    //       children: [
+    //         Container(
+    //           decoration: BoxDecoration(
+    //             border: Border.all(
+    //               color: product.isTimeEnded ? const Color(0xFF726E6E) : const Color(0xFFE20529), //background: #A19E9E; //validation border
+    //               width: 2.0, // Thickness of the validation border
+    //             ),
+    //             borderRadius: BorderRadius.circular(8), // Border radius
+    //           ),
+    //           child: Column(
+    //             children: [
+    //               Padding(
+    //                 padding: const EdgeInsets.all(8.0),
+    //                 child: Container(
+    //                   width: double.infinity,
+    //                   color: product.isTimeEnded
+    //                       ?const Color(0xFFF1F1F1):const Color(0xFFFCE6EA),
+    //                   child: Row(
+    //                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    //                     children: [
+    //                       Expanded(
+    //                         child: Padding(
+    //                           padding: EdgeInsets.all(8.0),
+    //                           child: Text(
+    //                             product.isTimeEnded
+    //                                 ? '시간이 모두 경과되었습니다. 거래를 다시 진행하려면 게시글을 새로 등록해주세요!'
+    //                                 : '앗! 아직 인증하지 않은 게시물이 있어요.\n인증을 진행하고 게시물을 업로드하시겠어요?',
+    //                             style: TextStyle(
+    //                               color: product.isTimeEnded ? const Color(0xFF726E6E) : const Color(0xFF302E2E),
+    //                               fontWeight: FontWeight.w400,
+    //                               fontSize: 11,
+    //                             ),
+    //                             textAlign: TextAlign.left,
+    //                           ),
+    //                         ),
+    //                       ),
+    //                       Padding(
+    //                         padding: const EdgeInsets.all(8.0),
+    //                         child: TextButton(
+    //                           onPressed:product.isTimeEnded ?() {
+    //                             // Navigate to LockerValPage
+    //                             // apiService.deletePost(product.postId);
+    //                           }:(){
+    //                             Navigator.push(
+    //                               context,
+    //                               MaterialPageRoute(
+    //                                 builder: (context) => LockerValPage(product),
+    //                               ),
+    //                             );
+    //                           },
+    //                           style: TextButton.styleFrom(
+    //                             backgroundColor: product.isTimeEnded ? const Color(0xFFA19E9E) : const Color(0xFFE20529), // Button background color // when time's up, the button background should be transparent, but the border of the button's color is background: #A19E9E;
+    //
+    //                             primary: Colors.white,
+    //                             shape: RoundedRectangleBorder(
+    //                               borderRadius: BorderRadius.circular(6), // Border radius of the button
+    //                             ),
+    //                             textStyle: const TextStyle(
+    //                               fontFamily: 'Pretendard',
+    //                               fontSize: 11,
+    //                               fontWeight: FontWeight.w400,
+    //                             ),
+    //                           ),
+    //                           child: product.isTimeEnded ?const Row(
+    //                             children: [
+    //                               Text('삭제'),
+    //                             ],
+    //                           ):
+    //                           const Row(
+    //                             children: [
+    //                               Padding(
+    //                                 padding: EdgeInsets.only(right:4.0),
+    //                                 child: Text('인증하기'), //'삭제'
+    //                               ),
+    //                               Icon(Icons.arrow_forward),
+    //                             ],
+    //                           ),
+    //                         ),
+    //                       ),
+    //                     ],
+    //                   ),
+    //                 ),
+    //               ),
+    //               Opacity(
+    //                 opacity: 0.5, // Reduced opacity as per the original code
+    //                 child: Padding(
+    //                   padding: const EdgeInsets.all(8.0),
+    //                   child: Row(
+    //                     crossAxisAlignment: CrossAxisAlignment.start,
+    //                     children: <Widget>[
+    //                       _buildProductImage(context, product),
+    //                       _buildProductDetails(context, product),
+    //                     ],
+    //                   ),
+    //                 ),
+    //               ),
+    //             ],
+    //           ),
+    //         ),
+    //         Positioned(
+    //           bottom: paddingValue,
+    //           right: paddingValue,
+    //           child: ProductTimer(
+    //             createTime: product.createTime,
+    //             onTimerEnd: () {
+    //               product.isTimeEnded = true;
+    //               product.notifyListeners();
+    //             }),
+    //         ),
+    //       ],
+    //     ),
+    //   ),
+    // );
   }
 
 
