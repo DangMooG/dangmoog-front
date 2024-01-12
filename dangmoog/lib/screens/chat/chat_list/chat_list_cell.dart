@@ -4,6 +4,7 @@ import 'package:dangmoog/services/api.dart';
 import 'package:dangmoog/utils/time_ago.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 import 'package:dangmoog/screens/chat/chat_detail/chat_detail_page.dart';
 import 'package:provider/provider.dart';
@@ -120,11 +121,24 @@ class _ChatCellState extends State<ChatCell> {
                         height: 48,
                         fit: BoxFit.cover,
                       )
-                    : Image.network(
-                        userProfileUrl!,
+                    : CachedNetworkImage(
+                        imageUrl: userProfileUrl!,
                         width: 48,
                         height: 48,
                         fit: BoxFit.cover,
+                        progressIndicatorBuilder:
+                            (context, url, downloadProgress) => const Image(
+                          image: AssetImage('assets/images/basic_profile.png'),
+                          width: 48,
+                          height: 48,
+                          fit: BoxFit.cover,
+                        ),
+                        errorWidget: (context, url, error) => const Image(
+                          image: AssetImage('assets/images/basic_profile.png'),
+                          width: 48,
+                          height: 48,
+                          fit: BoxFit.cover,
+                        ),
                       ),
               ),
               Expanded(
@@ -187,16 +201,29 @@ class _ChatCellState extends State<ChatCell> {
                   borderRadius: BorderRadius.circular(6),
                   child: photoId == 0 || photoUrl == null
                       ? const Image(
-                          image: AssetImage('assets/images/basic_profile.png'),
+                          image: AssetImage('assets/images/sample.png'),
                           width: 48,
                           height: 48,
                           fit: BoxFit.cover,
                         )
-                      : Image.network(
-                          photoUrl!,
+                      : CachedNetworkImage(
+                          imageUrl: photoUrl!,
                           width: 48,
                           height: 48,
                           fit: BoxFit.cover,
+                          progressIndicatorBuilder:
+                              (context, url, downloadProgress) => const Image(
+                            image: AssetImage('assets/images/sample.png'),
+                            width: 48,
+                            height: 48,
+                            fit: BoxFit.cover,
+                          ),
+                          errorWidget: (context, url, error) => const Image(
+                            image: AssetImage('assets/images/sample.png'),
+                            width: 48,
+                            height: 48,
+                            fit: BoxFit.cover,
+                          ),
                         ),
                 ),
               )

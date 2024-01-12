@@ -9,7 +9,6 @@ import 'package:dangmoog/models/product_class.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:dangmoog/utils/convert_money_format.dart';
 import 'package:dangmoog/services/api.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:provider/provider.dart';
 
 import 'edit_post_page.dart';
@@ -40,7 +39,10 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
             return Scaffold(
               appBar: AppBar(
                 leading: IconButton(
-                  icon: const Icon(Icons.close),
+                  icon: const Icon(
+                    Icons.keyboard_backspace,
+                    size: 24,
+                  ),
                   onPressed: () {
                     Navigator.of(context).pop();
                   },
@@ -54,7 +56,10 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
             return Scaffold(
               appBar: AppBar(
                 leading: IconButton(
-                  icon: const Icon(Icons.close),
+                  icon: const Icon(
+                    Icons.keyboard_backspace,
+                    size: 24,
+                  ),
                   onPressed: () {
                     Navigator.of(context).pop();
                   },
@@ -75,7 +80,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
   Widget _buildProductDetail(
       BuildContext context, ProductDetailProvider provider) {
     final product = provider.product!;
-    //TODO: 유저네임 바꾸기
+
     final userProvider = Provider.of<UserProvider>(context, listen: false);
     final userNickname = userProvider.nickname;
     bool isUserProduct = product.userName == userNickname;
@@ -87,7 +92,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
         leading: IconButton(
           icon: const Icon(
             Icons.keyboard_backspace,
-            size: 28,
+            size: 24,
           ),
           onPressed: () {
             Navigator.pop(context);
@@ -264,6 +269,14 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                   ? Image.network(
                       imagePath,
                       fit: BoxFit.cover,
+                      errorBuilder: (BuildContext context, Object exception,
+                          StackTrace? stackTrace) {
+                        return Image.asset(
+                          "assets/images/sample.png",
+                          width: 90,
+                          fit: BoxFit.cover,
+                        );
+                      },
                     )
                   : Image.asset(
                       imagePath,
@@ -319,7 +332,6 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
             children: [
               _buildProductInformation(product),
               _buildProductLikeChatCount(product),
-              // LikeChatCount(product: product, apiService: apiService,)
             ],
           ),
           _buildProductDescription(product),
@@ -493,9 +505,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
   // 게시글 본문 내용
   Widget _buildProductDescription(ProductModel product) {
     return Container(
-      margin: const EdgeInsets.only(
-        top: 28,
-      ),
+      margin: const EdgeInsets.only(top: 16),
       child: Text(
         product.description,
         style: const TextStyle(
