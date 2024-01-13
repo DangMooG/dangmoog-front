@@ -51,6 +51,7 @@ class _ProfilePageState extends State<ProfilePage> {
             imagePath = pickedImage.path;
 
             buttonAcitve = true;
+            profileSubmit();
           });
         }
       } catch (e) {
