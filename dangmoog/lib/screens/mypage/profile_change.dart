@@ -48,6 +48,7 @@ class _ProfileChangePageState extends State<ProfileChangePage> {
             imagePath = pickedImage.path;
 
             buttonAcitve = true;
+            profileSubmit();
           });
         }
       } catch (e) {
