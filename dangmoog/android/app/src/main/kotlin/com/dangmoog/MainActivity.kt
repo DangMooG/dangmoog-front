@@ -1,4 +1,4 @@
-package com.example.dangmoog
+package com.dangmoog
 
 import io.flutter.embedding.android.FlutterActivity
 
