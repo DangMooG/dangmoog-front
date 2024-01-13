@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:dangmoog/screens/home.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:dangmoog/constants/category_list.dart';
 import 'package:intl/intl.dart';
@@ -74,8 +75,6 @@ class _AddPostPageState extends State<AddPostPage> {
       useLocker = 1;
     }
 
-    print(useLocker);
-
     // Check if there are any images selected, otherwise set imageFiles to null
     List<File>? imageFiles;
     if (_imageList.isNotEmpty) {
@@ -112,7 +111,6 @@ class _AddPostPageState extends State<AddPostPage> {
         };
 
         try {
-          print("post ID는 $postId입니다.");
           Response lockerResponse =
               await apiService.patchLocker(widget.lockerId!, lockerUpdates);
           if (lockerResponse.statusCode == 200) {
@@ -148,7 +146,6 @@ class _AddPostPageState extends State<AddPostPage> {
       // Maybe display a general error toast message or specific field error messages
     } else {
       // Other potential errors
-      print('Hello');
       print(
           "Error creating post. Status Code: ${response.statusCode}, Error Message: ${response.statusMessage}");
     }
@@ -282,9 +279,18 @@ class _AddPostPageState extends State<AddPostPage> {
   TextEditingController priceController = TextEditingController();
   TextEditingController detailController = TextEditingController();
 
-  ScrollController scrollController = ScrollController();
+  late ScrollController _scrollController;
 
   bool isUploading = false;
+
+  void _scrollListener() {
+    if (_scrollController.position.userScrollDirection ==
+        ScrollDirection.reverse) {
+      if (FocusScope.of(context).hasFocus) {
+        FocusScope.of(context).unfocus();
+      }
+    }
+  }
 
   @override
   void initState() {
@@ -310,6 +316,8 @@ class _AddPostPageState extends State<AddPostPage> {
         });
       }
     });
+    _scrollController = ScrollController();
+    _scrollController.addListener(_scrollListener);
   }
 
   @override
@@ -317,6 +325,9 @@ class _AddPostPageState extends State<AddPostPage> {
     productNameController.dispose();
     priceController.dispose();
     detailController.dispose();
+
+    _scrollController.removeListener(_scrollListener);
+    _scrollController.dispose();
     super.dispose();
   }
 
@@ -331,7 +342,6 @@ class _AddPostPageState extends State<AddPostPage> {
           icon: const Icon(Icons.close),
           onPressed: () {
             if (widget.fromChooseLocker) {
-              // Check if it's from choose locker
               _showLockerDialog(context);
             } else if (isImageUploaded ||
                 isProductNameFilled ||
@@ -340,6 +350,7 @@ class _AddPostPageState extends State<AddPostPage> {
                 isDescriptionProvided) {
               _showExitConfirmationDialog(context);
             } else {
+              _updateLockerStatusOnExit();
               Navigator.of(context).pop();
             }
           },
@@ -353,30 +364,34 @@ class _AddPostPageState extends State<AddPostPage> {
           children: [
             Expanded(
               child: SingleChildScrollView(
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    children: [
-                      _imagePickerSection(context),
-                      _textFieldsAndDropdown(),
-                    ],
-                  ),
+                controller: _scrollController,
+                child: Column(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        children: [
+                          _imagePickerSection(context),
+                          _textFieldsAndDropdown(),
+                        ],
+                      ),
+                    ),
+                    Column(
+                      children: [
+                        const Divider(
+                          color: Color(
+                            0xffBEBCBC,
+                          ),
+                          thickness: 0.5,
+                          height: 0.5,
+                        ),
+                        _submitButton(context, screenSize)
+                      ],
+                    ),
+                  ],
                 ),
               ),
             ),
-            Column(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Divider(
-                  color: Color(
-                    0xffBEBCBC,
-                  ),
-                  thickness: 0.5,
-                  height: 0.5,
-                ),
-                _submitButton(context, screenSize)
-              ],
-            )
           ],
         ),
       ),
@@ -730,7 +745,14 @@ class _AddPostPageState extends State<AddPostPage> {
             child: Container(
                 height: 38,
                 decoration: BoxDecoration(
-                  border: Border.all(color: const Color(0xffD3D2D2)),
+                  // border: Border.all(
+                  //     color: const Color(0xffD3D2D2)),
+                  border: Border.all(
+                      color: productCategoryError == null
+                          ? const Color(0xff726E6E)
+                          : const Color(
+                          0xFFE20529) // Changes based on error condition
+                  ),
                   borderRadius: const BorderRadius.all(Radius.circular(4)),
                 ),
                 padding: const EdgeInsets.all(8),
@@ -1414,11 +1436,10 @@ class _AddPostPageState extends State<AddPostPage> {
                 SizedBox(
                   width: 300,
                   child: TextButton(
-                    onPressed: () {
-                      // if (useLocker==1){
-                      //   Map<String, dynamic> updates= {"status":1};
-                      //   apiService.patchLocker(widget.lockerId!, updates);
-                      // }
+                    onPressed: () async {
+                      if (widget.fromChooseLocker && widget.lockerId != null) {
+                        _updateLockerStatusOnExit();
+                      }
 
                       Navigator.of(context).pop(
                           true); // Close the dialog and confirm exit without saving
@@ -1477,9 +1498,29 @@ class _AddPostPageState extends State<AddPostPage> {
       },
     ).then((shouldExit) {
       if (shouldExit == true) {
+        if (widget.fromChooseLocker && widget.lockerId != null) {
+          // Only update the locker status if we came from the locker selection
+          _updateLockerStatusOnExit();
+        }
         Navigator.of(context).pop(); // Exit the AddPostPage
       }
     });
+  }
+
+  void _updateLockerStatusOnExit() async {
+    if (widget.lockerId != null) {
+      try {
+        Response lockerResponse =
+            await apiService.patchLocker(widget.lockerId!, {"status": 1});
+        if (lockerResponse.statusCode == 200) {
+          print('Locker status updated successfully.');
+        } else {
+          print('Failed to update locker status: ${lockerResponse.statusCode}');
+        }
+      } catch (e) {
+        print('Error updating locker status: $e');
+      }
+    }
   }
 
   void _showLockerDialog(BuildContext context) {

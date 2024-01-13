@@ -2,7 +2,7 @@ import 'package:dangmoog/models/chat_list_cell_model.dart';
 import 'package:dangmoog/providers/chat_list_provider.dart';
 import 'package:flutter/material.dart';
 
-import 'package:dangmoog/screens/chat/chat_list_cell.dart';
+import 'package:dangmoog/screens/chat/chat_list/chat_list_cell.dart';
 import 'package:dangmoog/models/chat_class.dart';
 
 import 'dart:convert';
@@ -60,7 +60,6 @@ class _ChatListPageState extends State<ChatListPage> {
 
   @override
   Widget build(BuildContext context) {
-    final chatListProvider = Provider.of<ChatListProvider>(context);
     return Padding(
       padding: const EdgeInsets.only(
         left: 16,
@@ -95,14 +94,14 @@ class _ChatListPageState extends State<ChatListPage> {
                   Consumer<ChatListProvider>(
                     builder: (context, chatListProvider, child) {
                       return ChatListView(
-                        chatList: chatListProvider.sellChatList,
+                        chatList: List.from(chatListProvider.sellChatList),
                       );
                     },
                   ),
                   Consumer<ChatListProvider>(
                     builder: (context, chatListProvider, child) {
                       return ChatListView(
-                        chatList: chatListProvider.buyChatList,
+                        chatList: List.from(chatListProvider.buyChatList),
                       );
                     },
                   ),
@@ -211,18 +210,28 @@ class ChatSelectionButton extends StatelessWidget {
   }
 }
 
-class ChatListView extends StatelessWidget {
+class ChatListView extends StatefulWidget {
   final List<ChatListCell> chatList;
 
-  const ChatListView({super.key, required this.chatList});
+  const ChatListView({
+    super.key,
+    required this.chatList,
+  });
 
+  @override
+  State<ChatListView> createState() => _ChatListViewState();
+}
+
+class _ChatListViewState extends State<ChatListView> {
   @override
   Widget build(BuildContext context) {
     return ListView.separated(
-      itemCount: chatList.length,
+      key: UniqueKey(),
+      itemCount: widget.chatList.length,
       itemBuilder: (context, index) {
-        final chatItem = chatList[index];
+        ChatListCell chatItem = widget.chatList[index];
         return ChatCell(
+          key: ValueKey(chatItem.roomId),
           roomId: chatItem.roomId,
           userName: chatItem.userName,
           userProfileUrl: chatItem.userProfileUrl,

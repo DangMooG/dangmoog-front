@@ -1,6 +1,6 @@
 import 'package:dangmoog/models/chat_detail_model.dart';
 import 'package:dangmoog/models/product_class.dart';
-import 'package:dangmoog/screens/chat/chat_deal_status.dart';
+import 'package:dangmoog/screens/chat/chat_detail/chat_detail_deal_status.dart';
 import 'package:dangmoog/services/api.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
@@ -9,9 +9,14 @@ import 'package:intl/intl.dart';
 class ChatDetailProduct extends StatefulWidget {
   // final Future<ChatDetailModel> futureChatDetail;
   final ProductModel product;
+  final bool imBuyer;
 
   // const ChatDetailProduct({super.key, required this.futureChatDetail});
-  const ChatDetailProduct({super.key, required this.product});
+  const ChatDetailProduct({
+    super.key,
+    required this.product,
+    required this.imBuyer,
+  });
 
   @override
   State<ChatDetailProduct> createState() => _ChatDetailProductState();
@@ -27,6 +32,7 @@ class _ChatDetailProductState extends State<ChatDetailProduct> {
     super.initState();
 
     product = widget.product;
+
     getRepresentativePhotoUrl();
   }
 
@@ -40,7 +46,6 @@ class _ChatDetailProductState extends State<ChatDetailProduct> {
           representativePhotoUrl = response.data['url'];
         });
       }
-      print(response);
     } catch (e) {
       print(e);
     }
@@ -66,13 +71,6 @@ class _ChatDetailProductState extends State<ChatDetailProduct> {
               padding: const EdgeInsets.only(right: 8),
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(6),
-                // child: Image(
-                //   image:
-                //       AssetImage(),
-                //   width: 48,
-                //   height: 48,
-                //   fit: BoxFit.cover,
-                // ),
                 child: representativePhotoUrl == ""
                     ? const Image(
                         image: AssetImage("assets/images/basic_profile.png"),
@@ -96,8 +94,9 @@ class _ChatDetailProductState extends State<ChatDetailProduct> {
                       style: const TextStyle(
                         color: Color(0xFF302E2E),
                         fontSize: 16,
-                        fontWeight: FontWeight.bold,
+                        fontWeight: FontWeight.w600,
                       ),
+                      overflow: TextOverflow.ellipsis,
                     ),
                     Text(
                       NumberFormat('###,###,###원', 'ko_KR')
@@ -105,7 +104,7 @@ class _ChatDetailProductState extends State<ChatDetailProduct> {
                       style: const TextStyle(
                         color: Color(0xFF302E2E),
                         fontSize: 14,
-                        fontWeight: FontWeight.bold,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
                   ],
@@ -114,6 +113,8 @@ class _ChatDetailProductState extends State<ChatDetailProduct> {
             ),
             ChatDealStatus(
               currentStatus: product.status,
+              imBuyer: widget.imBuyer,
+              postId: widget.product.postId,
             )
           ],
         ));

@@ -1,0 +1,12 @@
+{
+  "configurations": [
+    {
+      "name": "Flutter (iPhone 15 Pro)",
+      "program": "lib/main.dart",
+      "cwd": "dangmoog",
+      "deviceId": "05FCDB3E-21A5-4BAE-A7AF-E5192DC118D1",
+      "request": "launch",
+      "type": "dart"
+    }
+  ]
+}
