@@ -167,6 +167,9 @@ class _ChatDetailState extends State<ChatDetail> {
     keyboardHeightController.close();
     timer?.cancel();
 
+    print(1);
+    // Provider.of<ChatProvider>(context, listen: false).resetChatProvider();
+
     super.dispose();
   }
 
@@ -181,25 +184,32 @@ class _ChatDetailState extends State<ChatDetail> {
           )
         : const CircularProgressIndicator();
 
-    return Scaffold(
-      resizeToAvoidBottomInset: resizeScreenKeyboard,
-      appBar: _buildChatUserName(product != null ? product!.userName : ""),
-      body: Center(
-        child: AbsorbPointer(
-          absorbing: _blockInteraction,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              productWidget,
-              Expanded(
-                child: GestureDetector(
-                  onTap: unFocusKeyBoard,
-                  child: ChatContents(scrollController: _scrollController),
+    return WillPopScope(
+      onWillPop: () async {
+        Provider.of<ChatProvider>(context, listen: false).resetChatProvider();
+        Navigator.pop(context);
+        return false;
+      },
+      child: Scaffold(
+        resizeToAvoidBottomInset: resizeScreenKeyboard,
+        appBar: _buildChatUserName(product != null ? product!.userName : ""),
+        body: Center(
+          child: AbsorbPointer(
+            absorbing: _blockInteraction,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                productWidget,
+                Expanded(
+                  child: GestureDetector(
+                    onTap: unFocusKeyBoard,
+                    child: ChatContents(scrollController: _scrollController),
+                  ),
                 ),
-              ),
-              _buildBottomField(context),
-            ],
+                _buildBottomField(context),
+              ],
+            ),
           ),
         ),
       ),
