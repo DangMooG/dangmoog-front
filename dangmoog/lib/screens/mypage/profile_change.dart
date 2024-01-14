@@ -264,6 +264,7 @@ class _ProfileChangePageState extends State<ProfileChangePage> {
             Navigator.of(context).pop();
           },
         ),
+        centerTitle: true,
       ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.center,

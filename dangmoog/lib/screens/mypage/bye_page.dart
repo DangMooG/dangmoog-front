@@ -41,6 +41,7 @@ class _ByePageState extends State<ByePage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('탈퇴하기'),
+        centerTitle: true,
       ),
       body: GestureDetector(
         onTap: () => FocusScope.of(context).unfocus(),

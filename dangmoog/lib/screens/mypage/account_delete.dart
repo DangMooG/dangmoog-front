@@ -44,6 +44,7 @@ class _accountDeletePageState extends State<accountDeletePage> {
           backgroundColor: Colors.white,
           title: appBarTitle("탈퇴하기"),
           bottom: appBarBottomLine(),
+          centerTitle: true,
         ),
         body: GestureDetector(
             onTap: () => FocusScope.of(context).unfocus(),

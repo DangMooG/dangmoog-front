@@ -87,6 +87,7 @@ class _MyBankAccountPageState extends State<MyBankAccountPage> {
         backgroundColor: Colors.white,
         title: appBarTitle("내 계좌정보"),
         bottom: appBarBottomLine(),
+        centerTitle: true,
       ),
       body: GestureDetector(
         onTap: () => FocusScope.of(context).unfocus(),
