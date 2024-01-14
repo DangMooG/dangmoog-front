@@ -12,11 +12,13 @@ class ProductModel extends ChangeNotifier {
   final int representativePhotoId;
   final int postId;
   int likeCount;
+  int chatCount;
   final DateTime createTime;
   final DateTime updateTime;
   int useLocker; //사물함 1 or 직접 0
   bool _isFavorited = false;
   bool isUpdatingLike = false;
+  bool isTimeEnded;
 
   ProductModel({
     required this.title,
@@ -29,10 +31,12 @@ class ProductModel extends ChangeNotifier {
     required this.representativePhotoId,
     required this.postId,
     required this.likeCount,
+    required this.chatCount,
     required this.createTime,
     required this.updateTime,
     required this.useLocker,
     required bool isFavorited,
+    this.isTimeEnded = false,
   }) : _isFavorited = isFavorited;
 
   factory ProductModel.fromJson(Map<String, dynamic> json) {
@@ -48,11 +52,13 @@ class ProductModel extends ChangeNotifier {
       representativePhotoId: json['representative_photo_id'] ?? 0,
       postId: json['post_id'] ?? 0,
       likeCount: json['liked'] ?? 0,
+      chatCount: json['room_count']??0,
       createTime:
           DateTime.tryParse(json['create_time'].toString()) ?? DateTime.now(),
       updateTime:
           DateTime.tryParse(json['update_time'].toString()) ?? DateTime.now(),
       isFavorited: json['isFavorited'] ?? false,
+      isTimeEnded: json['isTimeEnded'] ?? false,
     );
   }
 

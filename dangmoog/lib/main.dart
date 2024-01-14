@@ -9,16 +9,16 @@ import 'package:dangmoog/screens/auth/splash_page.dart';
 
 // Provider
 import 'package:dangmoog/providers/provider.dart';
-import 'package:dangmoog/providers/websocket_provider.dart';
+import 'package:dangmoog/providers/socket_provider.dart';
 
-import 'package:firebase_core/firebase_core.dart';
-import 'firebase_options.dart';
+// import 'package:firebase_core/firebase_core.dart';
+// import 'firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  // await Firebase.initializeApp(
+  //   options: DefaultFirebaseOptions.currentPlatform,
+  // );
   runApp(const MyApp());
 }
 
@@ -29,11 +29,9 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(
-          create: (context) => UserProvider(),
-        ),
-        Provider<SocketClass>(
-          create: (_) => SocketClass(),
+        ChangeNotifierProvider(create: (context) => UserProvider()),
+        Provider<SocketProvider>(
+          create: (_) => SocketProvider(),
           dispose: (_, socketClass) => socketClass.dispose(),
         ),
         ChangeNotifierProvider(create: (context) => ChatProvider()),

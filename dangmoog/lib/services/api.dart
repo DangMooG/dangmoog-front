@@ -217,6 +217,12 @@ class ApiService {
     return await _publicClient.get("post/$id");
   }
 
+  Future<Response> loadLockerPost() async {
+    String apiUrl = "post/not_yet_auth";
+    Response response = await _authClient.post(apiUrl);
+    return response;
+  }
+
   Future<Response> loadProductListWithPaging(int checkpoint) async {
     if (checkpoint == 0) {
       return await _publicClient.get("post/app-paging", queryParameters: {
@@ -257,6 +263,53 @@ class ApiService {
     } catch (e) {
       // Handle exception, or rethrow to be handled by the calling function
       rethrow;
+    }
+  }
+
+  Future<Response> valLockerPost(
+      int postId, int lockerId, String password, File imageFile) async {
+    // Define the URL endpoint
+    print(imageFile.path.split('/').last);
+    print(lockerId);
+    print(postId);
+    print(password);
+
+    // Create a FormData object with the single image
+    FormData formData = FormData.fromMap({
+      'file': await MultipartFile.fromFile(imageFile.path,
+          filename: imageFile.path.split('/').last),
+    });
+
+    // Prepare the query parameters
+    final queryParams = {
+      'post_id': postId.toString(),
+      'locker_id': lockerId.toString(),
+      'password': password,
+    };
+
+    // Construct the query string
+    final queryString = Uri(queryParameters: queryParams).query;
+
+    // Construct the URL with query parameters
+    final String url = '/locker/locker_auth?$queryString';
+
+    try {
+      // Perform the POST request
+      Response response = await _authClient.post(
+        url,
+        data: formData,
+      );
+
+      // Return the response
+      return response;
+    } catch (e) {
+      // Handle any errors
+      print("Failed to upload data: $e");
+
+      // Rethrow the error or provide a default response
+      rethrow; // Rethrow to be handled by the caller.
+      // OR
+      // return Response(statusCode: 500, statusMessage: 'Internal Server Error'); // Provide a default response
     }
   }
 
@@ -321,9 +374,14 @@ class ApiService {
     return await _authClient.post("chat/my_room_status", data: requestBody);
   }
 
-  /////////////////////////////
+  Future<Response> changeDealStatus(int status, int postId) async {
+    Map<String, int> requestBody = {"status": status};
+    return await _authClient.patch("post/$postId", data: requestBody);
+  }
+
+  ///////////////
   /// 사진 관련 ///
-  /////////////////////////////
+  ///////////////
   Future<Response> loadPhoto(int id) async {
     try {
       Response response = await _publicClient.get("photo/$id");
@@ -405,5 +463,9 @@ class ApiService {
       data: updates,
     );
     return response;
+  }
+
+  Future<Response> getLockerInfo(int postId) async {
+    return await _authClient.get('locker/locker_auth/$postId');
   }
 }

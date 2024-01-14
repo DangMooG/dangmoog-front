@@ -19,7 +19,7 @@ class _LikeMainPageState extends State<LikeMainPage> {
 
   final ApiService apiService = ApiService();
 
-  SortingOrder sorting = SortingOrder.descending; // 정렬 순서 기본값
+  SortingOrder sorting = SortingOrder.descending;
   bool sortByDealStatus = false;
   bool sortByDealStatus2 = false;
   bool sortByDealStatus3 = false;
@@ -45,7 +45,6 @@ class _LikeMainPageState extends State<LikeMainPage> {
           int productId = item['post_id'] as int;
           productIds.add(productId);
         }
-        print(productIds);
 
         List<ProductModel> productList = [];
 
@@ -140,7 +139,7 @@ class _LikeMainPageState extends State<LikeMainPage> {
                   },
                 );
               } else {
-                return SizedBox.shrink();
+                return const SizedBox.shrink();
               }
             },
           ),

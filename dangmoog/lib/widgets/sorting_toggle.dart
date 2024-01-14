@@ -17,7 +17,7 @@ class ProductListSorting extends StatefulWidget {
       : super(key: key);
 
   @override
-  _ProductListSortingState createState() => _ProductListSortingState();
+  State<ProductListSorting> createState() => _ProductListSortingState();
 }
 
 class _ProductListSortingState extends State<ProductListSorting> {
@@ -122,11 +122,11 @@ class _ProductListSortingState extends State<ProductListSorting> {
           contentPadding: EdgeInsets.zero,
           backgroundColor: const Color(0xFFFFFFFF),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(14.0),
+            borderRadius: BorderRadius.circular(14),
           ),
           content: SizedBox(
             width: 270,
-            height: screenSize.height * 0.22,
+            height: screenSize.height * 0.226,
             child: Column(
               children: [
                 CustomTextButtonWithBorder(
