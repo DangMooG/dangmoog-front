@@ -13,7 +13,6 @@ import 'package:dangmoog/services/api.dart';
 
 import 'package:dangmoog/screens/mypage/my_page.dart';
 import 'package:dangmoog/screens/chat/chat_list/chat_list_page.dart';
-import 'package:dangmoog/screens/post/main_page.dart';
 
 import 'package:dangmoog/screens/app_bar.dart';
 import 'package:dangmoog/screens/nav_bar.dart';
@@ -128,6 +127,12 @@ class _MyHomeState extends State<MyHome> {
       chatListProvider = Provider.of<ChatListProvider>(context, listen: false);
     });
     _getAllMyChatList();
+  }
+
+  @override
+  void dispose() {
+    socketChannel.dispose();
+    super.dispose();
   }
 
   void handleChatReceived(String message) {

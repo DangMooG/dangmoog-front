@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'package:dangmoog/screens/post/main_page.dart';
 import 'package:dangmoog/screens/post/post_list.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
