@@ -29,6 +29,8 @@ class _NicknameChangePageState extends State<NicknameChangePage> {
 
   bool isHelpVisible = false;
 
+  String? profileUrl;
+
   void setErrorMessage(String message, bool isRed) {
     setState(() {
       errorMessage = message;
@@ -130,6 +132,11 @@ class _NicknameChangePageState extends State<NicknameChangePage> {
   void initState() {
     super.initState();
     imagePath = 'assets/images/sample.png';
+    fetchProfileImageUrl().then((url) {
+      setState(() {
+        profileUrl = url;
+      });
+    });
   }
 
   @override
@@ -165,24 +172,10 @@ class _NicknameChangePageState extends State<NicknameChangePage> {
                 width: screenSize.width * 0.56,
                 height: screenSize.width * 0.56,
                 child: ClipOval(
-                  child: fetchProfileImageUrl() != null
-                      ? FutureBuilder<String>(
-                          future:
-                              fetchProfileImageUrl(), // fetchImage 함수 호출하여 profileUrl을 가져옴
-                          builder: (context, snapshot) {
-                            if (snapshot.connectionState ==
-                                ConnectionState.done) {
-                              final profileUrl = snapshot.data;
-                              return Image.network(
-                                profileUrl!, // 가져온 URL을 사용
-                                fit: BoxFit.cover,
-                              );
-                            } else if (snapshot.hasError) {
-                              return Text('Error: ${snapshot.error}');
-                            } else {
-                              return const CircularProgressIndicator(); // 데이터 로딩 중 표시
-                            }
-                          },
+                  child: profileUrl != null
+                      ? Image.network(
+                          profileUrl!,
+                          fit: BoxFit.cover,
                         )
                       : Image.asset(
                           imagePath,

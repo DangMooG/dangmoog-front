@@ -74,7 +74,7 @@ class _SplashScreenState extends State<SplashScreen> {
 
         // 유효한 토큰일 경우
         if (response.statusCode == 200) {
-          final userEmail = response.data["email"] + "@gist.ac.kr";
+          final userEmail = response.data["email"];
           final userNickname = response.data['username'];
 
           // async 내에서 BuildContexts를 사용할 경우

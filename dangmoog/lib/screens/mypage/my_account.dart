@@ -49,7 +49,6 @@ class _MyaccountPageState extends State<MyaccountPage> {
           text = '수정이 완료되었습니다';
           text2 = '수정하기';
           text3 = '수정하기';
-          Pressed = true;
         });
       }
     });
@@ -122,13 +121,6 @@ class _MyaccountPageState extends State<MyaccountPage> {
                           text3 = '수정하기';
                         }
                         _accountPopup(screenSize, context);
-                        String accountNumber = _accountController.text;
-
-                        _saveAccount(accountNumber, _storedBank);
-                        setState(() {
-                          _storedAccount = accountNumber;
-                          _accountController.clear();
-                        });
 
                         isClicked = false;
                       },
@@ -236,8 +228,6 @@ class _MyaccountPageState extends State<MyaccountPage> {
         _isSelectListVisible = false;
         isSubmitVerificationCodeActive = true;
         Pressed = true;
-
-        _saveAccount(_storedAccount, _storedBank);
       });
     }
 
@@ -398,6 +388,13 @@ class _MyaccountPageState extends State<MyaccountPage> {
                     showCustomPopup(context, screenSize);
                     Navigator.of(context).pop();
                     data = false;
+
+                    String accountNumber = _accountController.text;
+                    _saveAccount(accountNumber, _storedBank);
+                    setState(() {
+                      _storedAccount = accountNumber;
+                      _accountController.clear();
+                    });
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFFE20529),
