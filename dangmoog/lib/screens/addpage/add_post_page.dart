@@ -69,7 +69,7 @@ class _AddPostPageState extends State<AddPostPage> {
     String description = detailController.text;
     int categoryId = categeryItems.indexOf(_selectedItem);
 
-    if (widget.title.contains('직접')) {
+    if (!widget.fromChooseLocker) {
       useLocker = 0;
     } else {
       useLocker = 1;
@@ -617,8 +617,6 @@ class _AddPostPageState extends State<AddPostPage> {
             ),
           ),
           Positioned(
-            // right: -10,
-            // top: -10,
             child: GestureDetector(
               onTap: () {
                 setState(() {
