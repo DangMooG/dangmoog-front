@@ -70,7 +70,7 @@ class _accountDeletePageState extends State<accountDeletePage> {
                       SizedBox(height: screenSize.height * 0.039),
                       Container(
                         width: screenSize.width * 0.91,
-                        height: screenSize.height * 0.123,
+                        // height: screenSize.height * 0.123,
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(4.0),
                           color: const Color(0xFFF1F1F1), // 회색 배경색
@@ -196,6 +196,8 @@ class _accountDeletePageState extends State<accountDeletePage> {
                           if (response.statusCode == 204) {
                             await storage.delete(key: 'accessToken');
                             await storage.delete(key: 'userId');
+                            await storage.delete(key: 'encrypted_bank');
+                            await storage.delete(key: 'encrypted_account');
                             if (!mounted) return;
                             Navigator.pushAndRemoveUntil(
                               context,
