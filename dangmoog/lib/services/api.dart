@@ -8,6 +8,7 @@ class ApiService {
   // 토큰이 필요하지 않은 요청은 publicCient를 사용한다
   final Dio _publicClient = DioClient().publicClient;
   final Dio _authClient = DioClient().authClient;
+  final Dio _aiClient = DioClient().aiClient;
 
   /////////////////////////////
   /// 로그인, 회원가입, 계정 관련 ///
@@ -84,6 +85,20 @@ class ApiService {
   /////////////////////////////
   /// 물품 관련 ///
   /////////////////////////////
+
+  Future<Response> getPriceRecommended(String title, File imageFile) async {
+    String fileName = imageFile.path;
+
+    MultipartFile multipartImage =
+        await MultipartFile.fromFile(imageFile.path, filename: fileName);
+
+    FormData formData = FormData.fromMap({
+      "photo": multipartImage,
+    });
+
+    return await _aiClient.post("predict/get_price?title=$title",
+        data: formData);
+  }
 
   // 게시글 업로드
   Future<Response> createPost({

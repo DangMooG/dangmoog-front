@@ -1,5 +1,7 @@
 import 'dart:io';
 import 'package:dangmoog/screens/home.dart';
+import 'package:dangmoog/utils/convert_money_format.dart';
+import 'package:dangmoog/widgets/bottom_popup.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -279,7 +281,30 @@ class _AddPostPageState extends State<AddPostPage> {
   String _selectedItem = '';
 
   bool isFree = false;
+
   bool _showPrice = false;
+  List<dynamic> recommendedPriceList = [0, 0, 0];
+  bool isAiLoading = false;
+
+  void getRecommendedPrice() async {
+    try {
+      File imageFile = File(_imageList[0]);
+
+      Response response = await ApiService()
+          .getPriceRecommended(productNameController.text, imageFile);
+
+      if (response.statusCode == 200) {
+        List<dynamic> data = response.data;
+        setState(() {
+          recommendedPriceList = data;
+          _showPrice = true;
+        });
+      }
+    } catch (e) {
+      print(e);
+      showPopup(context, "가격 추천에 실패했습니다.");
+    }
+  }
 
   TextEditingController productNameController = TextEditingController();
   TextEditingController priceController = TextEditingController();
@@ -1302,9 +1327,17 @@ class _AddPostPageState extends State<AddPostPage> {
           padding: const EdgeInsets.only(right: 8.0),
           child: TextButton(
             onPressed: () {
-              setState(() {
-                _showPrice = true;
-              });
+              if (isAiLoading) return;
+              if (_imageList.isEmpty) {
+                showPopup(context, "물품 사진을 1개 이상 입력해주세요");
+                return;
+              }
+              if (productNameController.text.isEmpty) {
+                showPopup(context, "물품 이름을 입력해주세요");
+                return;
+              }
+              showPopup(context, "가격 추천 중입니다...");
+              getRecommendedPrice();
             },
             style: TextButton.styleFrom(
               minimumSize: const Size(111, 24),
@@ -1330,14 +1363,12 @@ class _AddPostPageState extends State<AddPostPage> {
   Widget _recommendedPriceButtons() {
     return Row(
       children: [
-        ...<String>['₩ 1,011,000', '₩ 1,212,000', '₩ 1,413,000']
+        ...recommendedPriceList
             .map((price) => Padding(
-                  padding: const EdgeInsets.only(
-                      right:
-                          4.0), // This gives each button a right padding of 4.0
+                  padding: const EdgeInsets.only(right: 4.0),
                   child: TextButton(
                     onPressed: () {
-                      priceController.text = price.replaceFirst('₩ ', '');
+                      priceController.text = convertMoneyFormat(price);
                       if (isFree == true) {
                         setState(() {
                           isFree = !isFree;
@@ -1346,14 +1377,13 @@ class _AddPostPageState extends State<AddPostPage> {
                     },
                     style: TextButton.styleFrom(
                       backgroundColor: const Color(0xFFEC5870),
-                      padding: const EdgeInsets.symmetric(
-                          vertical: 8), // Vertical padding of 8 for buttons
+                      padding: const EdgeInsets.symmetric(vertical: 8),
                       minimumSize: const Size(82, 24),
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(6)),
                     ),
                     child: Text(
-                      price,
+                      convertMoneyFormat(price),
                       style: const TextStyle(
                         fontFamily: 'Pretendard',
                         fontSize: 11,
@@ -1373,8 +1403,7 @@ class _AddPostPageState extends State<AddPostPage> {
           ),
           onPressed: () {
             setState(() {
-              _showPrice =
-                  false; // Switching back to the _initialAiRecommended widget
+              _showPrice = false;
             });
           },
         ),

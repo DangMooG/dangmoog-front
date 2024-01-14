@@ -536,7 +536,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
       margin: const EdgeInsets.only(top: 6),
       child: product.price != 0
           ? Text(
-              convertoneyFormat(product.price),
+              convertMoneyFormat(product.price),
               style: const TextStyle(
                 fontWeight: FontWeight.w600,
                 fontSize: 18,
