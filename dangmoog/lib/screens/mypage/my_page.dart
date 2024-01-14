@@ -10,7 +10,7 @@ import 'package:provider/provider.dart';
 import 'package:dangmoog/providers/provider.dart';
 import 'package:dangmoog/widgets/mypage_text.dart';
 import 'package:dangmoog/screens/mypage/profile_change.dart';
-import 'package:dangmoog/screens/mypage/my_account.dart';
+import 'package:dangmoog/screens/mypage/my_bank_account.dart';
 import 'package:dangmoog/screens/mypage/sell/my_sell_mainpage.dart';
 import 'package:dangmoog/screens/mypage/purchase/purchase_mainpage.dart';
 import 'dart:io';
@@ -234,7 +234,7 @@ class _MyPageState extends State<MyPage> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => const MyaccountPage(),
+                    builder: (context) => const MyBankAccountPage(),
                   ),
                 );
               }),
