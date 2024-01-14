@@ -106,10 +106,13 @@ class _LikeMainPageState extends State<LikeMainPage> {
         title: const Text(
           '관심목록',
           style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.w600,
-              color: Color(0xFF302E2E)),
+            fontSize: 18,
+            fontWeight: FontWeight.w600,
+            color: Color(0xFF302E2E),
+          ),
         ),
+        backgroundColor: Colors.white,
+        centerTitle: true,
         actions: [
           FutureBuilder<List<ProductModel>>(
             future: futureProducts,

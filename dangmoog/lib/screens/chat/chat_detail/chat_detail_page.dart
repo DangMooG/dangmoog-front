@@ -488,6 +488,7 @@ class _ChatDetailState extends State<ChatDetail> {
           fontWeight: FontWeight.w600,
         ),
       ),
+      centerTitle: true,
       leading: IconButton(
         icon: const Icon(
           Icons.keyboard_backspace,

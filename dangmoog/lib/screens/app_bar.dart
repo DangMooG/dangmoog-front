@@ -58,6 +58,7 @@ AppBar _chatListAppbar() {
   return AppBar(
     backgroundColor: Colors.white,
     title: appBarTitle("채팅 내역"),
+    centerTitle: true,
     bottom: appBarBottomLine(),
   );
 }
@@ -66,6 +67,7 @@ AppBar _myPageAppbar() {
   return AppBar(
     backgroundColor: Colors.white,
     title: appBarTitle("마이 도토릿"),
+    centerTitle: true,
     bottom: appBarBottomLine(),
   );
 }
