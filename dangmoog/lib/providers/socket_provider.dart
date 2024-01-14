@@ -25,8 +25,8 @@ class SocketProvider {
     const storage = FlutterSecureStorage();
     const socketBaseUrl =
         "port-0-dangmoog-chat-p8xrq2mlfc80j33.sel3.cloudtype.app";
-    final accessToken = await storage.read(key: 'accessToken');
-    final wsUrl = 'ws://$socketBaseUrl/ws?token=$accessToken';
+    String? accessToken = await storage.read(key: 'accessToken');
+    wsUrl = 'ws://$socketBaseUrl/ws?token=$accessToken';
 
     channel = WebSocketChannel.connect(Uri.parse(wsUrl));
 
@@ -38,11 +38,12 @@ class SocketProvider {
         onChatReceived.call(message);
       },
       onError: (error) {
-        print(error);
+        print("소켓 연결 에러 발생. 재연결 시도");
+        onConnect();
       },
       onDone: () {
         print('소켓 연결 끊김. 재연결 시도.');
-        _reconnect();
+        onConnect();
       },
     );
   }
