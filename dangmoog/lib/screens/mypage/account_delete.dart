@@ -1,4 +1,3 @@
-import 'package:dangmoog/constants/account_list.dart';
 import 'package:dangmoog/constants/delete_reason.dart';
 import 'package:dangmoog/screens/app_bar.dart';
 import 'package:dangmoog/screens/mypage/bye_page.dart';
@@ -6,7 +5,6 @@ import 'package:dangmoog/services/api.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 
-import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:dangmoog/providers/provider.dart';
 
@@ -41,12 +39,12 @@ class _accountDeletePageState extends State<accountDeletePage> {
   @override
   Widget build(BuildContext context) {
     Size screenSize = MediaQuery.of(context).size;
-    String accountnumber = Provider.of<UserProvider>(context).account;
     return Scaffold(
         appBar: AppBar(
           backgroundColor: Colors.white,
           title: appBarTitle("탈퇴하기"),
           bottom: appBarBottomLine(),
+          centerTitle: true,
         ),
         body: GestureDetector(
             onTap: () => FocusScope.of(context).unfocus(),
@@ -70,7 +68,7 @@ class _accountDeletePageState extends State<accountDeletePage> {
                       SizedBox(height: screenSize.height * 0.039),
                       Container(
                         width: screenSize.width * 0.91,
-                        height: screenSize.height * 0.123,
+                        // height: screenSize.height * 0.123,
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(4.0),
                           color: const Color(0xFFF1F1F1), // 회색 배경색
@@ -196,6 +194,8 @@ class _accountDeletePageState extends State<accountDeletePage> {
                           if (response.statusCode == 204) {
                             await storage.delete(key: 'accessToken');
                             await storage.delete(key: 'userId');
+                            await storage.delete(key: 'encrypted_bank');
+                            await storage.delete(key: 'encrypted_account');
                             if (!mounted) return;
                             Navigator.pushAndRemoveUntil(
                               context,

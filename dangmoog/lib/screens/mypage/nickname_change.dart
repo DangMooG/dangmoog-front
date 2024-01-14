@@ -156,6 +156,7 @@ class _NicknameChangePageState extends State<NicknameChangePage> {
             Navigator.of(context).pop();
           },
         ),
+        centerTitle: true,
         actions: [
           _changeNicknameButton(screenSize, context, nickname,
               changeUserNickname, isButtonDisabled, _isChecked),

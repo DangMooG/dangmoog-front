@@ -751,8 +751,8 @@ class _AddPostPageState extends State<AddPostPage> {
                       color: productCategoryError == null
                           ? const Color(0xff726E6E)
                           : const Color(
-                          0xFFE20529) // Changes based on error condition
-                  ),
+                              0xFFE20529) // Changes based on error condition
+                      ),
                   borderRadius: const BorderRadius.all(Radius.circular(4)),
                 ),
                 padding: const EdgeInsets.all(8),

@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'package:dangmoog/screens/post/main_page.dart';
 import 'package:dangmoog/screens/post/post_list.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
@@ -142,8 +141,6 @@ class _EditPostPageState extends State<EditPostPage> {
     } else {
       useLocker = 1;
     }
-
-    print(useLocker);
 
     // Check if there are any images selected, otherwise set imageFiles to null
     List<File>? imageFiles;

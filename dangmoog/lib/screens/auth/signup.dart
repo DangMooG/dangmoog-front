@@ -313,6 +313,17 @@ class _AuthPageState extends State<AuthPage> {
               (route) => false,
             );
           } else {
+            try {
+              final response = await ApiService().autoLogin();
+              if (response.statusCode == 200) {
+                final userNickname = response.data['username'];
+                Provider.of<UserProvider>(context, listen: false)
+                    .setNickname(userNickname);
+              }
+            } catch (e) {
+              print(e);
+            }
+
             Navigator.pushAndRemoveUntil(
               context,
               MaterialPageRoute(builder: (context) => const MyHome()),

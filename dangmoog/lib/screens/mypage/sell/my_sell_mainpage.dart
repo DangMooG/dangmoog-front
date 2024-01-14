@@ -86,6 +86,7 @@ class _MySellMainPageState extends State<MySellMainPage> {
               fontWeight: FontWeight.w600,
               color: Color(0xFF302E2E)),
         ),
+        centerTitle: true,
         actions: [
           FutureBuilder<List<ProductModel>>(
             future: futureProducts,

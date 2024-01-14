@@ -7,14 +7,14 @@ import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:provider/provider.dart';
 
-class MyaccountPage extends StatefulWidget {
-  const MyaccountPage({Key? key}) : super(key: key);
+class MyBankAccountPage extends StatefulWidget {
+  const MyBankAccountPage({Key? key}) : super(key: key);
 
   @override
-  State<MyaccountPage> createState() => _MyaccountPageState();
+  State<MyBankAccountPage> createState() => _MyBankAccountPageState();
 }
 
-class _MyaccountPageState extends State<MyaccountPage> {
+class _MyBankAccountPageState extends State<MyBankAccountPage> {
   final FlutterSecureStorage _storage = const FlutterSecureStorage();
   late TextEditingController _accountController = TextEditingController();
   late TextEditingController _bankController = TextEditingController();
@@ -86,6 +86,7 @@ class _MyaccountPageState extends State<MyaccountPage> {
         backgroundColor: Colors.white,
         title: appBarTitle("내 계좌정보"),
         bottom: appBarBottomLine(),
+        centerTitle: true,
       ),
       body: GestureDetector(
         onTap: () => FocusScope.of(context).unfocus(),

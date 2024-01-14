@@ -1,13 +1,13 @@
 import 'dart:io';
 import 'package:dangmoog/models/product_class.dart';
+import 'package:dangmoog/screens/home.dart';
 import 'package:dangmoog/services/api.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
-
 class LockerValPage extends StatefulWidget {
   final ProductModel product;
-  final ApiService apiService= ApiService();
+  final ApiService apiService = ApiService();
 
   LockerValPage(this.product, {Key? key}) : super(key: key);
 
@@ -21,7 +21,8 @@ class _LockerValState extends State<LockerValPage> {
   final TextEditingController _passwordController = TextEditingController();
 
   Future<void> _pickImage() async {
-    final XFile? pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+    final XFile? pickedFile =
+        await _picker.pickImage(source: ImageSource.gallery);
     if (pickedFile != null) {
       setState(() {
         _image = File(pickedFile.path);
@@ -90,12 +91,13 @@ class _LockerValState extends State<LockerValPage> {
     );
   }
 
-  Widget _buildUploadText(){
+  Widget _buildUploadText() {
     return const Align(
       alignment: Alignment.centerLeft,
-      child:
-        Text('사물함 인증사진 업로드', textAlign: TextAlign.left,),
-
+      child: Text(
+        '사물함 인증사진 업로드',
+        textAlign: TextAlign.left,
+      ),
     );
   }
 
@@ -116,12 +118,12 @@ class _LockerValState extends State<LockerValPage> {
             ),
             child: _image != null
                 ? ClipRRect(
-              borderRadius: BorderRadius.circular(4),
-              child: Image.file(
-                _image!,
-                fit: BoxFit.cover,
-              ),
-            )
+                    borderRadius: BorderRadius.circular(4),
+                    child: Image.file(
+                      _image!,
+                      fit: BoxFit.cover,
+                    ),
+                  )
                 : const Icon(Icons.camera_alt, size: 50),
           ),
         ),
@@ -154,45 +156,61 @@ class _LockerValState extends State<LockerValPage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             ElevatedButton(
-              onPressed: isButtonEnabled ? () async{
-                try {
-                  // Get the necessary data
-                  int postId = widget.product.postId; // Assuming postId is a property of ProductModel
-                  // int lockerId = lockerId; // Assuming lockerId is a property of ProductModel
-                  String password = _passwordController.text;
+              onPressed: isButtonEnabled
+                  ? () async {
+                      try {
+                        // Get the necessary data
+                        int postId = widget.product
+                            .postId; // Assuming postId is a property of ProductModel
+                        // int lockerId = lockerId; // Assuming lockerId is a property of ProductModel
+                        String password = _passwordController.text;
 
-                  Map<String, dynamic> filters = {"post_id": postId};
-                  var searchResponse = await widget.apiService.searchLocker(filters);
-                  if (searchResponse.data is List && searchResponse.data.isNotEmpty) {
-                    var locker = searchResponse.data[0]; // Use the first locker in the list
-                    int lockerId = locker['locker_id']; // Extract locker_id
+                        Map<String, dynamic> filters = {"post_id": postId};
+                        var searchResponse =
+                            await widget.apiService.searchLocker(filters);
+                        if (searchResponse.data is List &&
+                            searchResponse.data.isNotEmpty) {
+                          var locker = searchResponse
+                              .data[0]; // Use the first locker in the list
+                          int lockerId =
+                              locker['locker_id']; // Extract locker_id
 
-                    // Call valLockerPost from ApiService
-                    var lockerAuthResponse = await widget.apiService.valLockerPost(postId, lockerId, password, _image!);
-                    if(lockerAuthResponse.statusCode==200){
-                      print("Success: ${lockerAuthResponse.data}");
-                      Navigator.pop(context);
-                    } else{
-                      print("Failed: ${lockerAuthResponse.statusCode}");
+                          // Call valLockerPost from ApiService
+                          var lockerAuthResponse = await widget.apiService
+                              .valLockerPost(
+                                  postId, lockerId, password, _image!);
+                          if (lockerAuthResponse.statusCode == 200) {
+                            print("Success: ${lockerAuthResponse.data}");
+                            if (!mounted) return;
+                            Navigator.pushAndRemoveUntil(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => const MyHome()),
+                              (Route<dynamic> route) => false,
+                            );
+                          } else {
+                            print("Failed: ${lockerAuthResponse.statusCode}");
+                          }
+
+                          // Handle success (e.g., show a success message or navigate to another screen)
+                        } else {
+                          // Handle the case where no lockers are found or the response is not as expected
+                          print("No lockers found for the provided post_id.");
+                        }
+
+                        // Handle success (e.g., show a success message or navigate to another screen)
+                      } catch (e) {
+                        print("Error occurred: $e");
+                        // Handle error (e.g., show an error message)
+                      }
                     }
-
-                    // Handle success (e.g., show a success message or navigate to another screen)
-                  } else {
-                    // Handle the case where no lockers are found or the response is not as expected
-                    print("No lockers found for the provided post_id.");
-                  }
-
-                  // Handle success (e.g., show a success message or navigate to another screen)
-                } catch (e) {
-                  print("Error occurred: $e");
-                  // Handle error (e.g., show an error message)
-                }
-              } : null, // Disable the button if conditions aren't met
+                  : null, // Disable the button if conditions aren't met
               style: ButtonStyle(
                 backgroundColor: MaterialStateProperty.all<Color>(
                   isButtonEnabled ? const Color(0xFFE20529) : Colors.grey,
                 ),
-                minimumSize: MaterialStateProperty.all<Size>(const Size(269, 46)),
+                minimumSize:
+                    MaterialStateProperty.all<Size>(const Size(269, 46)),
                 shape: MaterialStateProperty.all<RoundedRectangleBorder>(
                   RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
