@@ -158,7 +158,7 @@ class _ProductListState extends State<ProductList> {
           builder: (BuildContext context) {
             return Dialog(
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: BorderRadius.circular(14),
               ),
               child: Container(
                 padding: const EdgeInsets.all(20),

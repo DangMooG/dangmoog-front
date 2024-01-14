@@ -60,6 +60,9 @@ class _ProfileChangePageState extends State<ProfileChangePage> {
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(14),
+            ),
             title: const Text("카메라 권한 필요"),
             content:
                 const Text("이 기능을 사용하기 위해서는 권한이 필요합니다. 설정으로 이동하여 권한을 허용해주세요."),
@@ -114,6 +117,9 @@ class _ProfileChangePageState extends State<ProfileChangePage> {
         barrierDismissible: false,
         builder: (BuildContext context) {
           return AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(14),
+            ),
             title: const Text("카메라 권한 필요"),
             content:
                 const Text("이 기능을 사용하기 위해서는 권한이 필요합니다. 설정으로 이동하여 권한을 허용해주세요."),

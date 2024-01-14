@@ -114,7 +114,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                         return AlertDialog(
                           contentPadding: EdgeInsets.zero,
                           shape: const RoundedRectangleBorder(
-                            borderRadius: BorderRadius.all(Radius.circular(8)),
+                            borderRadius: BorderRadius.all(Radius.circular(14)),
                           ),
                           content: Column(
                             mainAxisSize: MainAxisSize.min,

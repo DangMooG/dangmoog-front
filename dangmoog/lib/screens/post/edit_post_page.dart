@@ -247,6 +247,9 @@ class _EditPostPageState extends State<EditPostPage> {
             showDialog(
               context: context,
               builder: (context) => AlertDialog(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(14),
+                ),
                 title: const Text('Image Limit Reached'),
                 content: Text(
                     '$overflowCount images were not added due to the 10 image limit.'),
@@ -273,6 +276,9 @@ class _EditPostPageState extends State<EditPostPage> {
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(14),
+            ),
             title: const Text("앨범 권한 필요"),
             content:
                 const Text("이 기능을 사용하기 위해서는 권한이 필요합니다. 설정으로 이동하여 권한을 허용해주세요."),
@@ -314,6 +320,9 @@ class _EditPostPageState extends State<EditPostPage> {
             showDialog(
               context: context,
               builder: (context) => AlertDialog(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(14),
+                ),
                 title: const Text('Error'),
                 content: const Text('You can only select up to 10 images.'),
                 actions: [
@@ -339,6 +348,9 @@ class _EditPostPageState extends State<EditPostPage> {
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(14),
+            ),
             title: const Text("카메라 권한 필요"),
             content:
                 const Text("이 기능을 사용하기 위해서는 권한이 필요합니다. 설정으로 이동하여 권한을 허용해주세요."),
@@ -1182,7 +1194,7 @@ class _EditPostPageState extends State<EditPostPage> {
                 builder: (BuildContext context) {
                   return Dialog(
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
+                      borderRadius: BorderRadius.circular(14),
                     ),
                     elevation: 5,
                     child: Container(
@@ -1460,6 +1472,9 @@ class _EditPostPageState extends State<EditPostPage> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(14),
+          ),
           title: const Column(
             children: [
               Padding(
@@ -1564,6 +1579,9 @@ class _EditPostPageState extends State<EditPostPage> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(14),
+          ),
           title: const Column(
             children: [
               Padding(

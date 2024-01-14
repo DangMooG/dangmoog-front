@@ -190,6 +190,9 @@ class _AddPostPageState extends State<AddPostPage> {
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(14),
+            ),
             title: const Text("앨범 권한 필요"),
             content:
                 const Text("이 기능을 사용하기 위해서는 권한이 필요합니다. 설정으로 이동하여 권한을 허용해주세요."),
@@ -242,6 +245,9 @@ class _AddPostPageState extends State<AddPostPage> {
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(14),
+            ),
             title: const Text("카메라 권한 필요"),
             content:
                 const Text("이 기능을 사용하기 위해서는 권한이 필요합니다. 설정으로 이동하여 권한을 허용해주세요."),
@@ -479,8 +485,7 @@ class _AddPostPageState extends State<AddPostPage> {
             Size screenSize = MediaQuery.of(context).size;
             return AlertDialog(
               shape: RoundedRectangleBorder(
-                borderRadius:
-                    BorderRadius.circular(14), // 여기서 원하는 값으로 둥글게 조절할 수 있습니다.
+                borderRadius: BorderRadius.circular(14),
               ),
               content: SizedBox(
                 width: screenSize.width * 0.55,
@@ -1131,7 +1136,7 @@ class _AddPostPageState extends State<AddPostPage> {
                 builder: (BuildContext context) {
                   return Dialog(
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
+                      borderRadius: BorderRadius.circular(14),
                     ),
                     elevation: 5,
                     child: Container(
@@ -1413,6 +1418,10 @@ class _AddPostPageState extends State<AddPostPage> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius:
+                BorderRadius.circular(14), // 여기서 원하는 값으로 둥글게 조절할 수 있습니다.
+          ),
           title: const Column(
             children: [
               Padding(
@@ -1535,6 +1544,9 @@ class _AddPostPageState extends State<AddPostPage> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(14),
+          ),
           title: const Column(
             children: [
               Padding(
