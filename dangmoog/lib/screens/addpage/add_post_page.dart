@@ -597,9 +597,15 @@ class _AddPostPageState extends State<AddPostPage> {
   Widget _imagePreview(String imagePath) {
     return Container(
       margin: const EdgeInsets.only(left: 8),
+      decoration: BoxDecoration(
+        border: Border.all(
+          width: 1,
+          color: const Color(0xffA19E9E),
+        ),
+        borderRadius: BorderRadius.circular(8),
+      ),
       child: Stack(
         alignment: Alignment.topRight,
-        // clipBehavior: Clip.none,
         children: [
           ClipRRect(
             borderRadius: BorderRadius.circular(8),
