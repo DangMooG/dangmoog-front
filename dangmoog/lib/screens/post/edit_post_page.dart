@@ -1,13 +1,14 @@
+// ignore_for_file: avoid_print
+
 import 'dart:io';
+import 'package:dangmoog/screens/home.dart';
 import 'package:dangmoog/screens/post/post_list.dart';
+import 'package:dangmoog/widgets/bottom_popup.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:dangmoog/constants/category_list.dart';
 import 'package:intl/intl.dart';
-
-// 권한 확인
-import 'package:permission_handler/permission_handler.dart';
 
 import 'package:dangmoog/services/api.dart';
 
@@ -16,15 +17,18 @@ import '../../models/product_class.dart';
 class EditPostPage extends StatefulWidget {
   final int postId;
   final ProductModel product;
-  const EditPostPage({Key? key, required this.postId, required this.product})
-      : super(key: key);
+  const EditPostPage({
+    Key? key,
+    required this.postId,
+    required this.product,
+  }) : super(key: key);
 
   @override
   State<EditPostPage> createState() => _EditPostPageState();
 }
 
 class _EditPostPageState extends State<EditPostPage> {
-  int useLocker = 1;
+  late int useLocker;
   final List<String> _imageList = <String>[];
   final ImagePicker picker = ImagePicker();
   final List<XFile> vac = <XFile>[];
@@ -113,7 +117,6 @@ class _EditPostPageState extends State<EditPostPage> {
           priceController.text = product.price.toString();
           _selectedItem = categeryItems[product.categoryId - 1];
           detailController.text = product.description;
-          // Initialize other fields if necessary
         });
       } else {
         // Handle non-successful response
@@ -130,253 +133,48 @@ class _EditPostPageState extends State<EditPostPage> {
       price = int.parse(priceController.text.replaceAll(',', ''));
     } catch (e) {
       print("Error parsing price: $e");
-      return; // exit the function since price couldn't be parsed
+      return;
     }
 
     String description = detailController.text;
     int categoryId = categeryItems.indexOf(_selectedItem);
 
-    if (title.contains('직접')) {
-      useLocker = 0;
-    } else {
-      useLocker = 1;
-    }
-
-    // Check if there are any images selected, otherwise set imageFiles to null
-    List<File>? imageFiles;
-    if (_imageList.isNotEmpty) {
-      imageFiles = _imageList.map((path) => File(path)).toList();
-    }
-
-    Response response = await apiService.patchPost(
+    try {
+      Response response = await apiService.patchPost(
+        postId: widget.postId,
         categoryId: categoryId,
         description: description,
         price: price,
         title: title,
-        useLocker: useLocker,
-        imageFiles: imageFiles,
-        postId: widget.postId);
+      );
 
-    if (response.statusCode == 200) {
-      // Successful Response
-      var responseData = response.data;
-
-      var postId = responseData['post_id'];
-      var createTime = responseData['create_time'];
-      var updateTime = responseData['update_time'];
-
-      // Implement your success logic here. For example, show a success message and navigate to another screen.
-      print(
-          "Post created successfully! Post ID: $postId, Created at: $createTime, Updated at: $updateTime");
-
-      // Check if the locker is to be used
-      if (useLocker == 1) {
-        // Update the locker information with the new post_id
-        Map<String, dynamic> lockerUpdates = {
-          "post_id":
-              postId, // assuming 'post_id' is the field you want to update in the locker
-        };
-
-        try {
-          print("post ID는 $postId입니다.");
-          // Response lockerResponse = await apiService.patchLocker(lockerId!, lockerUpdates);
-          // if (lockerResponse.statusCode == 200) {
-          //   print('Locker updated successfully with Post ID: $postId');
-          // } else {
-          //   print('Failed to update locker: ${lockerResponse.statusCode}');
-          // }
-        } catch (e) {
-          print('Error updating locker with Post ID: $e');
-        }
+      if (response.statusCode == 200) {
         if (!mounted) return;
         Navigator.pushAndRemoveUntil(
           context,
-          MaterialPageRoute(builder: (context) => const ProductList()),
+          MaterialPageRoute(builder: (context) => const MyHome()),
           (Route<dynamic> route) => false,
         );
+      } else if (response.statusCode == 422) {
+        var errorData = response.data;
+        var errorDetail = errorData['detail'];
+        for (var error in errorDetail) {
+          var location = error['loc'];
+          var errorMsg = error['msg'];
+          var errorType = error['type'];
+
+          print("Error at $location: $errorMsg (Type: $errorType)");
+        }
+        showPopup(context, "게시글 수정에 실패했습니다.");
       } else {
-        if (!mounted) return;
-        Navigator.pop(context);
+        print(
+            "Error creating post. Status Code: ${response.statusCode}, Error Message: ${response.statusMessage}");
+        showPopup(context, "게시글 수정에 실패했습니다.");
       }
-      // Your additional success logic
-    } else if (response.statusCode == 422) {
-      // Validation Error
-      var errorData = response.data;
-      var errorDetail = errorData['detail'];
-      // Here you might want to iterate through 'detail' if it's a list to extract specific error messages
-      for (var error in errorDetail) {
-        var location = error['loc'];
-        var errorMsg = error['msg'];
-        var errorType = error['type'];
-
-        // Handle the validation error. For example, display a relevant error message to the user.
-        print("Error at $location: $errorMsg (Type: $errorType)");
-      }
-
-      // Maybe display a general error toast message or specific field error messages
-    } else {
-      // Other potential errors
-      print('Hello');
-      print(
-          "Error creating post. Status Code: ${response.statusCode}, Error Message: ${response.statusMessage}");
+    } catch (e) {
+      print(e);
     }
   }
-
-  // 앨범에서 이미지를 가져오는 함수
-  Future getImagesFromAlbum(BuildContext context) async {
-    PermissionStatus status = await Permission.photos.request();
-
-    if (status.isGranted || status.isLimited) {
-      try {
-        final List<XFile> pickedImages = await picker.pickMultiImage();
-
-        if (pickedImages.isNotEmpty) {
-          List<String> imagesPath = pickedImages
-              .where((image) => !_imageList.contains(image.path))
-              .map((image) => image.path)
-              .toList();
-
-          // Check if adding new images will exceed the limit
-          int overflowCount = _imageList.length + imagesPath.length - 10;
-          if (overflowCount > 0) {
-            // Trim the imagesPath list
-            imagesPath =
-                imagesPath.take(imagesPath.length - overflowCount).toList();
-
-            if (!mounted) return;
-            showDialog(
-              context: context,
-              builder: (context) => AlertDialog(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(14),
-                ),
-                title: const Text('Image Limit Reached'),
-                content: Text(
-                    '$overflowCount images were not added due to the 10 image limit.'),
-                actions: [
-                  TextButton(
-                    onPressed: () => Navigator.of(context).pop(),
-                    child: const Text('OK'),
-                  ),
-                ],
-              ),
-            );
-          }
-
-          setState(() {
-            _imageList.addAll(imagesPath);
-          });
-        }
-      } catch (e) {
-        print("Error picking images: $e");
-      }
-    } else if (status.isPermanentlyDenied || status.isDenied) {
-      if (!mounted) return;
-      await showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(14),
-            ),
-            title: const Text("앨범 권한 필요"),
-            content:
-                const Text("이 기능을 사용하기 위해서는 권한이 필요합니다. 설정으로 이동하여 권한을 허용해주세요."),
-            actions: <Widget>[
-              TextButton(
-                child: const Text("취소"),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-              ),
-              TextButton(
-                child: const Text("설정으로 이동"),
-                onPressed: () {
-                  openAppSettings();
-                  Navigator.of(context).pop();
-                },
-              ),
-            ],
-          );
-        },
-      );
-    }
-  }
-
-  Future getImagesFromCamera(BuildContext context) async {
-    PermissionStatus status = await Permission.camera.request();
-
-    if (status.isGranted || status.isLimited) {
-      try {
-        final XFile? pickedImage =
-            await picker.pickImage(source: ImageSource.camera);
-
-        if (pickedImage != null) {
-          String imagePath = pickedImage.path;
-
-          if (_imageList.length >= 10) {
-            // Inform the user that they've reached the limit
-            if (!mounted) return;
-            showDialog(
-              context: context,
-              builder: (context) => AlertDialog(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(14),
-                ),
-                title: const Text('Error'),
-                content: const Text('You can only select up to 10 images.'),
-                actions: [
-                  TextButton(
-                    onPressed: () => Navigator.of(context).pop(),
-                    child: const Text('OK'),
-                  ),
-                ],
-              ),
-            );
-          } else {
-            setState(() {
-              _imageList.add(imagePath);
-            });
-          }
-        }
-      } catch (e) {
-        print("Error picking images: $e");
-      }
-    } else if (status.isPermanentlyDenied || status.isDenied) {
-      if (!mounted) return;
-      await showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(14),
-            ),
-            title: const Text("카메라 권한 필요"),
-            content:
-                const Text("이 기능을 사용하기 위해서는 권한이 필요합니다. 설정으로 이동하여 권한을 허용해주세요."),
-            actions: <Widget>[
-              TextButton(
-                child: const Text("취소"),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-              ),
-              TextButton(
-                child: const Text("설정으로 이동"),
-                onPressed: () {
-                  openAppSettings();
-                  Navigator.of(context).pop();
-                },
-              ),
-            ],
-          );
-        },
-      );
-    }
-  }
-
-  bool useCabinet = false;
-  int userId = 3;
 
   bool _isSelectListVisible = false;
   String _selectedItem = '';
@@ -452,8 +250,7 @@ class _EditPostPageState extends State<EditPostPage> {
 
   Widget _imagePickerSection(BuildContext context, int postId) {
     return FutureBuilder<List<String>>(
-      future:
-          fetchImages(postId), // This is your async function to fetch images
+      future: fetchImages(postId),
       builder: (context, snapshot) {
         // Handling loading state
         if (snapshot.connectionState == ConnectionState.waiting) {
@@ -996,14 +793,10 @@ class _EditPostPageState extends State<EditPostPage> {
       child: ElevatedButton(
         onPressed: () {
           _setFieldErrors();
-          setState(() {});
 
           if (isButtonEnabled) {
             _editNewPost();
           }
-
-          if (priceController.text.isNotEmpty) {
-          } else {}
         },
         style: ButtonStyle(
           backgroundColor: MaterialStateProperty.all(const Color(0xFFE20529)),
@@ -1134,8 +927,6 @@ class _EditPostPageState extends State<EditPostPage> {
   }
 
   void _setFieldErrors() {
-    // Check for product name
-
     setState(() {
       if (!isProductNameFilled) {
         productNameError = '물품 이름을 입력해주세요!';
@@ -1164,8 +955,6 @@ class _EditPostPageState extends State<EditPostPage> {
         productPriceError = null;
       }
     });
-
-    // Similarly, reset error messages for other fields if their conditions are satisfied
   }
 
   void _showExitConfirmationDialog(BuildContext context) {
