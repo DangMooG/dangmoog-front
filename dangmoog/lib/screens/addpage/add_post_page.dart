@@ -357,43 +357,50 @@ class _AddPostPageState extends State<AddPostPage> {
         ),
         centerTitle: true,
       ),
-      body: GestureDetector(
-        onTap: () => FocusScope.of(context).unfocus(),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Expanded(
-              child: SingleChildScrollView(
-                controller: _scrollController,
-                child: Column(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: Column(
-                        children: [
-                          _imagePickerSection(context),
-                          _textFieldsAndDropdown(),
-                        ],
-                      ),
-                    ),
-                    Column(
+      body: Stack(
+        children: [
+          GestureDetector(
+            onTap: () => FocusScope.of(context).unfocus(),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: SingleChildScrollView(
+                    controller: _scrollController,
+                    child: Column(
                       children: [
-                        const Divider(
-                          color: Color(
-                            0xffBEBCBC,
+                        Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: Column(
+                            children: [
+                              _imagePickerSection(context),
+                              _textFieldsAndDropdown(),
+                            ],
                           ),
-                          thickness: 0.5,
-                          height: 0.5,
                         ),
-                        _submitButton(context, screenSize)
+                        Column(
+                          children: [
+                            const Divider(
+                              color: Color(
+                                0xffBEBCBC,
+                              ),
+                              thickness: 0.5,
+                              height: 0.5,
+                            ),
+                            _submitButton(context, screenSize)
+                          ],
+                        ),
                       ],
                     ),
-                  ],
+                  ),
                 ),
-              ),
+              ],
             ),
-          ],
-        ),
+          ),
+          isUploading
+              ? const Center(child: CircularProgressIndicator())
+              : const SizedBox.shrink()
+        ],
       ),
     );
   }
