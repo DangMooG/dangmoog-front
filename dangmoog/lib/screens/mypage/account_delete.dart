@@ -1,4 +1,3 @@
-import 'package:dangmoog/constants/account_list.dart';
 import 'package:dangmoog/constants/delete_reason.dart';
 import 'package:dangmoog/screens/app_bar.dart';
 import 'package:dangmoog/screens/mypage/bye_page.dart';
@@ -6,7 +5,6 @@ import 'package:dangmoog/services/api.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 
-import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:dangmoog/providers/provider.dart';
 
@@ -41,7 +39,6 @@ class _accountDeletePageState extends State<accountDeletePage> {
   @override
   Widget build(BuildContext context) {
     Size screenSize = MediaQuery.of(context).size;
-    String accountnumber = Provider.of<UserProvider>(context).account;
     return Scaffold(
         appBar: AppBar(
           backgroundColor: Colors.white,

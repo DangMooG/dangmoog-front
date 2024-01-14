@@ -366,7 +366,7 @@ class _ChatDetailState extends State<ChatDetail> {
                     timer = Timer.periodic(const Duration(milliseconds: 100),
                         (timer) {
                       double keyboardHeight =
-                          MediaQuery.of(context).viewInsets.bottom ?? 0;
+                          MediaQuery.of(context).viewInsets.bottom;
                       if (keyboardHeight == 0) {
                         timer.cancel();
                         // 다시 키보드가 Screen 영역에 영향을 주도록 변경
