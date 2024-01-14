@@ -167,6 +167,8 @@ class _ChatDetailState extends State<ChatDetail> {
     keyboardHeightController.close();
     timer?.cancel();
 
+    // Provider.of<ChatProvider>(context, listen: false).resetChatProvider();
+
     super.dispose();
   }
 
@@ -181,25 +183,32 @@ class _ChatDetailState extends State<ChatDetail> {
           )
         : const CircularProgressIndicator();
 
-    return Scaffold(
-      resizeToAvoidBottomInset: resizeScreenKeyboard,
-      appBar: _buildChatUserName(product != null ? product!.userName : ""),
-      body: Center(
-        child: AbsorbPointer(
-          absorbing: _blockInteraction,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              productWidget,
-              Expanded(
-                child: GestureDetector(
-                  onTap: unFocusKeyBoard,
-                  child: ChatContents(scrollController: _scrollController),
+    return WillPopScope(
+      onWillPop: () async {
+        Provider.of<ChatProvider>(context, listen: false).resetChatProvider();
+        Navigator.pop(context);
+        return false;
+      },
+      child: Scaffold(
+        resizeToAvoidBottomInset: resizeScreenKeyboard,
+        appBar: _buildChatUserName(product != null ? product!.userName : ""),
+        body: Center(
+          child: AbsorbPointer(
+            absorbing: _blockInteraction,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                productWidget,
+                Expanded(
+                  child: GestureDetector(
+                    onTap: unFocusKeyBoard,
+                    child: ChatContents(scrollController: _scrollController),
+                  ),
                 ),
-              ),
-              _buildBottomField(context),
-            ],
+                _buildBottomField(context),
+              ],
+            ),
           ),
         ),
       ),
@@ -293,7 +302,7 @@ class _ChatDetailState extends State<ChatDetail> {
         color: Colors.white,
       ),
       padding: const EdgeInsets.only(top: 12, bottom: 12),
-      margin: const EdgeInsets.symmetric(horizontal: 6.0),
+      // margin: const EdgeInsets.symmetric(horizontal: 6.0),
       child: Column(
         children: [
           Row(
@@ -356,7 +365,7 @@ class _ChatDetailState extends State<ChatDetail> {
                     timer = Timer.periodic(const Duration(milliseconds: 100),
                         (timer) {
                       double keyboardHeight =
-                          MediaQuery.of(context).viewInsets.bottom ?? 0;
+                          MediaQuery.of(context).viewInsets.bottom;
                       if (keyboardHeight == 0) {
                         timer.cancel();
                         // 다시 키보드가 Screen 영역에 영향을 주도록 변경
@@ -478,6 +487,7 @@ class _ChatDetailState extends State<ChatDetail> {
           fontWeight: FontWeight.w600,
         ),
       ),
+      centerTitle: true,
       leading: IconButton(
         icon: const Icon(
           Icons.keyboard_backspace,

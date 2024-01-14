@@ -38,10 +38,10 @@ class _ByePageState extends State<ByePage> {
   @override
   Widget build(BuildContext context) {
     Size screenSize = MediaQuery.of(context).size;
-    String accountnumber = Provider.of<UserProvider>(context).account;
     return Scaffold(
       appBar: AppBar(
         title: const Text('탈퇴하기'),
+        centerTitle: true,
       ),
       body: GestureDetector(
         onTap: () => FocusScope.of(context).unfocus(),

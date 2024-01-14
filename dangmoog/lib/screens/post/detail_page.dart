@@ -2,6 +2,7 @@ import 'package:dangmoog/constants/category_list.dart';
 import 'package:dangmoog/providers/product_detail_provider.dart';
 import 'package:dangmoog/providers/provider.dart';
 import 'package:dangmoog/screens/chat/chat_detail/chat_detail_page.dart';
+import 'package:dangmoog/screens/home.dart';
 import 'package:dangmoog/widgets/bottom_popup.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
@@ -170,7 +171,12 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                                         'An error occurred while deleting the post: $e');
                                   }
                                   if (!mounted) return;
-                                  Navigator.pop(context);
+                                  Navigator.pushAndRemoveUntil(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) => const MyHome()),
+                                    (Route<dynamic> route) => false,
+                                  );
                                 },
                                 style: TextButton.styleFrom(
                                   minimumSize: const Size(270, 28),

@@ -102,6 +102,7 @@ class _PurchaseMainPageState extends State<PurchaseMainPage> {
               fontWeight: FontWeight.w600,
               color: Color(0xFF302E2E)),
         ),
+        centerTitle: true,
         bottom: const PreferredSize(
           preferredSize: Size.fromHeight(0.0),
           child: Divider(

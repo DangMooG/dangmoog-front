@@ -262,11 +262,10 @@ class _ChatDetailOptionsState extends State<ChatDetailOptions> {
                               // 국내 은행의 계좌번호는 10~14자리
                               if (saveBankAccount) {
                                 await storage.write(
-                                    key: 'encrypted_bank',
-                                    value: accountNumber);
+                                    key: 'encrypted_bank', value: selectedBank);
                                 await storage.write(
                                     key: 'encrypted_account',
-                                    value: selectedBank);
+                                    value: accountNumber);
                               }
                             }
                             Provider.of<SocketProvider>(context, listen: false)
