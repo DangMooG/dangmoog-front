@@ -142,8 +142,6 @@ class _EditPostPageState extends State<EditPostPage> {
       useLocker = 1;
     }
 
-    print(useLocker);
-
     // Check if there are any images selected, otherwise set imageFiles to null
     List<File>? imageFiles;
     if (_imageList.isNotEmpty) {

@@ -167,7 +167,6 @@ class _ChatDetailState extends State<ChatDetail> {
     keyboardHeightController.close();
     timer?.cancel();
 
-    print(1);
     // Provider.of<ChatProvider>(context, listen: false).resetChatProvider();
 
     super.dispose();
@@ -303,7 +302,7 @@ class _ChatDetailState extends State<ChatDetail> {
         color: Colors.white,
       ),
       padding: const EdgeInsets.only(top: 12, bottom: 12),
-      margin: const EdgeInsets.symmetric(horizontal: 6.0),
+      // margin: const EdgeInsets.symmetric(horizontal: 6.0),
       child: Column(
         children: [
           Row(
