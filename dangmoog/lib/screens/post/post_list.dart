@@ -158,7 +158,7 @@ class _ProductListState extends State<ProductList> {
           builder: (BuildContext context) {
             return Dialog(
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: BorderRadius.circular(14),
               ),
               child: Container(
                 padding: const EdgeInsets.all(20),
@@ -681,7 +681,7 @@ class _ProductListState extends State<ProductList> {
             _buildDealStatus(product.status),
             product.price != 0
                 ? Text(
-                    convertoneyFormat(product.price),
+                    convertMoneyFormat(product.price),
                     style: const TextStyle(
                       fontWeight: FontWeight.w600,
                       fontSize: 16,

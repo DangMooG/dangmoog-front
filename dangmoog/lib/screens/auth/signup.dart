@@ -118,8 +118,9 @@ class _AuthPageState extends State<AuthPage> {
               barrierDismissible: false,
               builder: (BuildContext context) {
                 return AlertDialog(
-                  // titlePadding: const EdgeInsets.only(top: 24),
-                  // contentPadding: const EdgeInsets.fromLTRB(0, 8, 0, 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(14),
+                  ),
                   title: isExistingAccount
                       ? const Text(
                           "어라? 이미 가입된 계정이에요!",

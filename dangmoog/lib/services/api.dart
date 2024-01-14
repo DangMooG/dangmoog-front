@@ -8,6 +8,7 @@ class ApiService {
   // 토큰이 필요하지 않은 요청은 publicCient를 사용한다
   final Dio _publicClient = DioClient().publicClient;
   final Dio _authClient = DioClient().authClient;
+  final Dio _aiClient = DioClient().aiClient;
 
   /////////////////////////////
   /// 로그인, 회원가입, 계정 관련 ///
@@ -85,6 +86,20 @@ class ApiService {
   /// 물품 관련 ///
   /////////////////////////////
 
+  Future<Response> getPriceRecommended(String title, File imageFile) async {
+    String fileName = imageFile.path;
+
+    MultipartFile multipartImage =
+        await MultipartFile.fromFile(imageFile.path, filename: fileName);
+
+    FormData formData = FormData.fromMap({
+      "photo": multipartImage,
+    });
+
+    return await _aiClient.post("predict/get_price?title=$title",
+        data: formData);
+  }
+
   // 게시글 업로드
   Future<Response> createPost({
     required String title,
@@ -148,60 +163,26 @@ class ApiService {
     int? price,
     String? description,
     int? categoryId,
-    int? useLocker,
-    List<File>? imageFiles,
-  }) async {
-    // Construct the URL with the post ID
-    final String url = '/post/$postId';
 
-    // Initialize a map for the updated post data
+    // List<File>? imageFiles,
+  }) async {
+    // print(postId);
+    // print(price);
+    // print(description);
+    // print(categoryId);
+
     Map<String, dynamic> updatedData = {
       if (title != null) "title": title,
       if (price != null) "price": price,
       if (description != null) "description": description,
       if (categoryId != null) "category_id": categoryId,
-      if (useLocker != null) "use_locker": useLocker,
-      // Add other fields if needed
     };
 
-    // Initialize a list for MultipartFiles
-    // List<MultipartFile> multipartImageList = [];
+    // FormData formData = FormData.fromMap(updatedData);
 
-    // // If imageFiles are provided, prepare them for FormData
-    // if (imageFiles != null && imageFiles.isNotEmpty) {
-    //   for (var file in imageFiles) {
-    //     // String fileName =
-    //     file.path; // Use the 'path' package to get a file name.
-    //     // multipartImageList
-    //     //     .add(await MultipartFile.fromFile(file.path, filename: fileName));
-    //     multipartImageList.add(await MultipartFile.fromFile(file.path));
-    //     print("add");
-    //   }
-    // }
-
-    List<MultipartFile>? multipartImageList;
-
-    if (imageFiles != null && imageFiles.isNotEmpty) {
-      for (var file in imageFiles) {
-        String fileName =
-            file.path; // Use the 'path' package to get a file name.
-        multipartImageList!
-            .add(await MultipartFile.fromFile(file.path, filename: fileName));
-      }
-    }
-
-    // Add the files to the FormData only if there are any
-    if (multipartImageList!.isNotEmpty) {
-      updatedData["files"] = multipartImageList;
-    }
-
-    // Create FormData
-    FormData formData = FormData.fromMap(updatedData);
-
-    // Use the FormData object with your patch request
     return await _authClient.patch(
-      url,
-      data: formData,
+      '/post/$postId',
+      data: updatedData,
     );
   }
 

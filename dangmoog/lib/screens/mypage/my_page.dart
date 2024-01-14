@@ -136,20 +136,22 @@ class _MyPageState extends State<MyPage> {
                       Text(
                         userNickname,
                         style: const TextStyle(
-                          color: Color(0xFF552619),
+                          color: Color(0xFF302E2E),
                           fontFamily: 'Pretendard-SemiBold',
                           fontSize: 18,
                           fontWeight: FontWeight.w600,
                         ),
+                        overflow: TextOverflow.ellipsis,
                       ),
                       Text(
                         userEmail,
                         style: const TextStyle(
-                          color: Color(0xFFA07272),
+                          color: Color(0xFF726E6E),
                           fontFamily: 'Pretendard-Regular',
                           fontSize: 14,
                           fontWeight: FontWeight.w400,
                         ),
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ],
                   ),

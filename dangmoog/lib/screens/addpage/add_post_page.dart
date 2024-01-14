@@ -1,5 +1,7 @@
 import 'dart:io';
 import 'package:dangmoog/screens/home.dart';
+import 'package:dangmoog/utils/convert_money_format.dart';
+import 'package:dangmoog/widgets/bottom_popup.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -69,7 +71,7 @@ class _AddPostPageState extends State<AddPostPage> {
     String description = detailController.text;
     int categoryId = categeryItems.indexOf(_selectedItem);
 
-    if (widget.title.contains('직접')) {
+    if (!widget.fromChooseLocker) {
       useLocker = 0;
     } else {
       useLocker = 1;
@@ -184,12 +186,15 @@ class _AddPostPageState extends State<AddPostPage> {
       } catch (e) {
         print("Error picking images: $e");
       }
-    } else if (status.isPermanentlyDenied) {
+    } else if (status.isPermanentlyDenied || status.isDenied) {
       if (!mounted) return;
       await showDialog(
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(14),
+            ),
             title: const Text("앨범 권한 필요"),
             content:
                 const Text("이 기능을 사용하기 위해서는 권한이 필요합니다. 설정으로 이동하여 권한을 허용해주세요."),
@@ -236,12 +241,15 @@ class _AddPostPageState extends State<AddPostPage> {
       } catch (e) {
         print("Error picking images: $e");
       }
-    } else if (status.isPermanentlyDenied) {
+    } else if (status.isPermanentlyDenied || status.isDenied) {
       if (!mounted) return;
       await showDialog(
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(14),
+            ),
             title: const Text("카메라 권한 필요"),
             content:
                 const Text("이 기능을 사용하기 위해서는 권한이 필요합니다. 설정으로 이동하여 권한을 허용해주세요."),
@@ -273,7 +281,30 @@ class _AddPostPageState extends State<AddPostPage> {
   String _selectedItem = '';
 
   bool isFree = false;
+
   bool _showPrice = false;
+  List<dynamic> recommendedPriceList = [0, 0, 0];
+  bool isAiLoading = false;
+
+  void getRecommendedPrice() async {
+    try {
+      File imageFile = File(_imageList[0]);
+
+      Response response = await ApiService()
+          .getPriceRecommended(productNameController.text, imageFile);
+
+      if (response.statusCode == 200) {
+        List<dynamic> data = response.data;
+        setState(() {
+          recommendedPriceList = data;
+          _showPrice = true;
+        });
+      }
+    } catch (e) {
+      print(e);
+      showPopup(context, "가격 추천에 실패했습니다.");
+    }
+  }
 
   TextEditingController productNameController = TextEditingController();
   TextEditingController priceController = TextEditingController();
@@ -357,43 +388,50 @@ class _AddPostPageState extends State<AddPostPage> {
         ),
         centerTitle: true,
       ),
-      body: GestureDetector(
-        onTap: () => FocusScope.of(context).unfocus(),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Expanded(
-              child: SingleChildScrollView(
-                controller: _scrollController,
-                child: Column(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: Column(
-                        children: [
-                          _imagePickerSection(context),
-                          _textFieldsAndDropdown(),
-                        ],
-                      ),
-                    ),
-                    Column(
+      body: Stack(
+        children: [
+          GestureDetector(
+            onTap: () => FocusScope.of(context).unfocus(),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: SingleChildScrollView(
+                    controller: _scrollController,
+                    child: Column(
                       children: [
-                        const Divider(
-                          color: Color(
-                            0xffBEBCBC,
+                        Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: Column(
+                            children: [
+                              _imagePickerSection(context),
+                              _textFieldsAndDropdown(),
+                            ],
                           ),
-                          thickness: 0.5,
-                          height: 0.5,
                         ),
-                        _submitButton(context, screenSize)
+                        Column(
+                          children: [
+                            const Divider(
+                              color: Color(
+                                0xffBEBCBC,
+                              ),
+                              thickness: 0.5,
+                              height: 0.5,
+                            ),
+                            _submitButton(context, screenSize)
+                          ],
+                        ),
                       ],
                     ),
-                  ],
+                  ),
                 ),
-              ),
+              ],
             ),
-          ],
-        ),
+          ),
+          isUploading
+              ? const Center(child: CircularProgressIndicator())
+              : const SizedBox.shrink()
+        ],
       ),
     );
   }
@@ -472,8 +510,7 @@ class _AddPostPageState extends State<AddPostPage> {
             Size screenSize = MediaQuery.of(context).size;
             return AlertDialog(
               shape: RoundedRectangleBorder(
-                borderRadius:
-                    BorderRadius.circular(14), // 여기서 원하는 값으로 둥글게 조절할 수 있습니다.
+                borderRadius: BorderRadius.circular(14),
               ),
               content: SizedBox(
                 width: screenSize.width * 0.55,
@@ -585,9 +622,15 @@ class _AddPostPageState extends State<AddPostPage> {
   Widget _imagePreview(String imagePath) {
     return Container(
       margin: const EdgeInsets.only(left: 8),
+      decoration: BoxDecoration(
+        border: Border.all(
+          width: 1,
+          color: const Color(0xffA19E9E),
+        ),
+        borderRadius: BorderRadius.circular(8),
+      ),
       child: Stack(
         alignment: Alignment.topRight,
-        // clipBehavior: Clip.none,
         children: [
           ClipRRect(
             borderRadius: BorderRadius.circular(8),
@@ -599,8 +642,6 @@ class _AddPostPageState extends State<AddPostPage> {
             ),
           ),
           Positioned(
-            // right: -10,
-            // top: -10,
             child: GestureDetector(
               onTap: () {
                 setState(() {
@@ -1124,7 +1165,7 @@ class _AddPostPageState extends State<AddPostPage> {
                 builder: (BuildContext context) {
                   return Dialog(
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
+                      borderRadius: BorderRadius.circular(14),
                     ),
                     elevation: 5,
                     child: Container(
@@ -1286,9 +1327,17 @@ class _AddPostPageState extends State<AddPostPage> {
           padding: const EdgeInsets.only(right: 8.0),
           child: TextButton(
             onPressed: () {
-              setState(() {
-                _showPrice = true;
-              });
+              if (isAiLoading) return;
+              if (_imageList.isEmpty) {
+                showPopup(context, "물품 사진을 1개 이상 입력해주세요");
+                return;
+              }
+              if (productNameController.text.isEmpty) {
+                showPopup(context, "물품 이름을 입력해주세요");
+                return;
+              }
+              showPopup(context, "가격 추천 중입니다...");
+              getRecommendedPrice();
             },
             style: TextButton.styleFrom(
               minimumSize: const Size(111, 24),
@@ -1314,14 +1363,12 @@ class _AddPostPageState extends State<AddPostPage> {
   Widget _recommendedPriceButtons() {
     return Row(
       children: [
-        ...<String>['₩ 1,011,000', '₩ 1,212,000', '₩ 1,413,000']
+        ...recommendedPriceList
             .map((price) => Padding(
-                  padding: const EdgeInsets.only(
-                      right:
-                          4.0), // This gives each button a right padding of 4.0
+                  padding: const EdgeInsets.only(right: 4.0),
                   child: TextButton(
                     onPressed: () {
-                      priceController.text = price.replaceFirst('₩ ', '');
+                      priceController.text = convertMoneyFormat(price);
                       if (isFree == true) {
                         setState(() {
                           isFree = !isFree;
@@ -1330,14 +1377,13 @@ class _AddPostPageState extends State<AddPostPage> {
                     },
                     style: TextButton.styleFrom(
                       backgroundColor: const Color(0xFFEC5870),
-                      padding: const EdgeInsets.symmetric(
-                          vertical: 8), // Vertical padding of 8 for buttons
+                      padding: const EdgeInsets.symmetric(vertical: 8),
                       minimumSize: const Size(82, 24),
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(6)),
                     ),
                     child: Text(
-                      price,
+                      convertMoneyFormat(price),
                       style: const TextStyle(
                         fontFamily: 'Pretendard',
                         fontSize: 11,
@@ -1357,8 +1403,7 @@ class _AddPostPageState extends State<AddPostPage> {
           ),
           onPressed: () {
             setState(() {
-              _showPrice =
-                  false; // Switching back to the _initialAiRecommended widget
+              _showPrice = false;
             });
           },
         ),
@@ -1406,6 +1451,10 @@ class _AddPostPageState extends State<AddPostPage> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius:
+                BorderRadius.circular(14), // 여기서 원하는 값으로 둥글게 조절할 수 있습니다.
+          ),
           title: const Column(
             children: [
               Padding(
@@ -1528,6 +1577,9 @@ class _AddPostPageState extends State<AddPostPage> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(14),
+          ),
           title: const Column(
             children: [
               Padding(
