@@ -225,20 +225,22 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
         ],
       ),
       extendBodyBehindAppBar: true,
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          SizedBox(
-            child: Stack(
-              alignment: Alignment.bottomCenter,
-              children: [
-                sliderWidget(context),
-                sliderIndicator(context),
-              ],
+      body: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            SizedBox(
+              child: Stack(
+                alignment: Alignment.bottomCenter,
+                children: [
+                  sliderWidget(context),
+                  sliderIndicator(context),
+                ],
+              ),
             ),
-          ),
-          productInfo(product),
-        ],
+            productInfo(product),
+          ],
+        ),
       ),
       bottomNavigationBar:
           _buildChatButton(context, product, provider.chatAvailable),
