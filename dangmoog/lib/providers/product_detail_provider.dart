@@ -72,7 +72,7 @@ class ProductDetailProvider with ChangeNotifier {
 
   Future<void> _checkIfFavorited(int postId) async {
     try {
-      final response = await apiService.getLikeList();
+      final response = await apiService.getLikePostList();
       if (response.statusCode == 200) {
         List<dynamic> likedPosts = response.data;
         bool isFavorited = likedPosts.any((item) => item['post_id'] == postId);

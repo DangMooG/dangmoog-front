@@ -410,7 +410,7 @@ class ApiService {
     return response;
   }
 
-  Future<Response> getLikeList() async {
+  Future<Response> getLikePostList() async {
     Response response = await _authClient.post("post/get_like_list");
     return response;
   }

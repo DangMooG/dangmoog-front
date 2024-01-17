@@ -153,6 +153,7 @@ class _MySellMainPageState extends State<MySellMainPage> {
             return MyProductList(
               productList: _sortProducts(snapshot.data!),
               sortingOrder: sorting,
+              reloadProductList: () {},
             );
           } else {
             return const Center(child: CircularProgressIndicator());
