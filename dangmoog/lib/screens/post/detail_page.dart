@@ -161,22 +161,23 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                                     if (response.statusCode == 204) {
                                       if (!mounted) return;
                                       Navigator.pop(context);
+                                      Navigator.pushAndRemoveUntil(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) =>
+                                                const MyHome()),
+                                        (Route<dynamic> route) => false,
+                                      );
                                     } else {
                                       print(
                                           'Failed to delete the post: ${response.statusCode}');
                                     }
                                   } catch (e) {
-                                    // Handle any exceptions here
-                                    print(
-                                        'An error occurred while deleting the post: $e');
+                                    if (!mounted) return;
+                                    Navigator.pop(context);
+                                    showPopup(
+                                        context, "채팅내역이 존재하는 게시글은 삭제할 수 없습니다.");
                                   }
-                                  if (!mounted) return;
-                                  Navigator.pushAndRemoveUntil(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) => const MyHome()),
-                                    (Route<dynamic> route) => false,
-                                  );
                                 },
                                 style: TextButton.styleFrom(
                                   minimumSize: const Size(270, 28),
@@ -650,6 +651,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                           context,
                           MaterialPageRoute(
                             builder: (context) => ChatDetail(
+                              userName: product.userName,
                               imBuyer: true,
                               postId: product.postId,
                               roomId: roomId,
