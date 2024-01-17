@@ -83,6 +83,7 @@ class _LockerValState extends State<LockerValPage> {
   Widget _buildBody() {
     return Stack(children: [
       GestureDetector(
+        behavior: HitTestBehavior.opaque,
         onTap: () {
           FocusScope.of(context).unfocus();
         },

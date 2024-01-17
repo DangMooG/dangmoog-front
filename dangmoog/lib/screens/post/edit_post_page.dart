@@ -212,6 +212,7 @@ class _EditPostPageState extends State<EditPostPage> {
         centerTitle: true,
       ),
       body: GestureDetector(
+        behavior: HitTestBehavior.opaque,
         onTap: () => FocusScope.of(context).unfocus(),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,

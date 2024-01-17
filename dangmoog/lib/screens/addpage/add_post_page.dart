@@ -391,6 +391,7 @@ class _AddPostPageState extends State<AddPostPage> {
       body: Stack(
         children: [
           GestureDetector(
+            behavior: HitTestBehavior.opaque,
             onTap: () => FocusScope.of(context).unfocus(),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,

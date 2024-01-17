@@ -406,6 +406,7 @@ class _AuthPageState extends State<AuthPage> {
       appBar: const BackAppBar(),
       resizeToAvoidBottomInset: false,
       body: GestureDetector(
+        behavior: HitTestBehavior.opaque,
         onTap: () => FocusScope.of(context).unfocus(),
         child: Stack(
           children: [
@@ -428,11 +429,6 @@ class _AuthPageState extends State<AuthPage> {
                       _inputField(screenSize),
                     ],
                   ),
-                  const Expanded(
-                      child: SizedBox(
-                    width: double.infinity,
-                    child: Text(""),
-                  )),
                   SizedBox(
                     height: screenSize.height * 0.2,
                     child: Column(
