@@ -124,6 +124,9 @@ class _MyHomeState extends State<MyHome> {
       socketChannel.setChatReceivedCallback(handleChatReceived);
 
       chatProvider = Provider.of<ChatProvider>(context, listen: false);
+      chatProvider.updateNewChatList(() {
+        _getAllMyChatList();
+      });
       chatListProvider = Provider.of<ChatListProvider>(context, listen: false);
     });
     _getAllMyChatList();
