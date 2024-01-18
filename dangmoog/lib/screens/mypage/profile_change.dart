@@ -96,9 +96,6 @@ class _ProfileChangePageState extends State<ProfileChangePage> {
 
             buttonAcitve = true;
 
-            Provider.of<UserProvider>(context, listen: false)
-                .setUserImage(_image!);
-
             profileSubmit();
           });
         }
@@ -144,46 +141,14 @@ class _ProfileChangePageState extends State<ProfileChangePage> {
           _image = File(pickedFile.path);
           imagePath = pickedFile.path;
           buttonAcitve = true;
-          // 이미지를 선택한 경우 버튼의 색상을 빨간색으로 변경
-          //buttonColor = const Color(0xFFE20529); // 빨간색
-
-          // 이미지를 Provider에 저장
-          Provider.of<UserProvider>(context, listen: false)
-              .setUserImage(_image!);
 
           profileSubmit();
-          fetchProfileImageUrl();
         });
       }
     }
   }
 
-  // API에서 사진가져오기
-  Future<String?> fetchProfileImageUrl() async {
-    try {
-      final Response response = await ApiService().autoLogin();
-
-      if (response.statusCode == 200) {
-        final Map<String, dynamic> data = response.data;
-        final String? profileUrl = data["profile_url"];
-
-        if (profileUrl != null) {
-          return profileUrl;
-        } else {
-          // "profile_url"이 null인 경우 처리
-          return null;
-        }
-      } else {
-        // API 응답에 문제가 있는 경우 오류 처리
-        throw Exception('API 응답 오류: ${response.statusCode}');
-      }
-    } catch (e) {
-      print('이미지 URL 가져오기 오류: $e');
-      return null; // 에러 발생 시 null 반환
-    }
-  }
-
-  void profileSubmit() async {
+  Future<String?> profileSubmit() async {
     // If imageFiles are provided, prepare them for FormData
 
     if (_image != null) {
@@ -194,9 +159,6 @@ class _ProfileChangePageState extends State<ProfileChangePage> {
 
         if (response.statusCode == 200) {
           // int userId = response.data['account_id'];
-          if (!mounted) return;
-          Provider.of<UserProvider>(context, listen: false)
-              .setUserImage(_image!);
           // await storage.write(key: 'userId', value: userId.toString());
 
           Navigator.pushReplacement(
@@ -209,19 +171,33 @@ class _ProfileChangePageState extends State<ProfileChangePage> {
                   const Duration(seconds: 0), // No animation when pop
             ),
           );
+
+          final Map<String, dynamic> data = response.data;
+          final String? profileUrl =
+              data["profile_url"]; // "profile_url" 값을 가져옴
+
+          if (profileUrl != null) {
+            imagePath = profileUrl;
+            Provider.of<UserProvider>(context, listen: false)
+                .setUserImage(imagePath);
+          } else {
+            // "profile_url"이 null인 경우 처리
+            return null;
+          }
         }
       } catch (e) {
         print(e);
       }
     }
+    return null;
   }
 
-  late Future<String?> profileImageUrl; // 프로필 이미지 URL을 저장할 변수
+  //late Future<String?> profileImageUrl; // 프로필 이미지 URL을 저장할 변수
 
   @override
   void initState() {
     super.initState();
-    profileImageUrl = fetchProfileImageUrl(); // 프로필 이미지 URL 가져오기
+    // profileImageUrl = profileSubmit(); // 프로필 이미지 URL 가져오기
   }
 
   @override
@@ -229,9 +205,10 @@ class _ProfileChangePageState extends State<ProfileChangePage> {
     Size screenSize = MediaQuery.of(context).size;
     String userEmail = Provider.of<UserProvider>(context).inputEmail;
     String userNickname = Provider.of<UserProvider>(context).nickname;
-    File? userImage = Provider.of<UserProvider>(context).userImage;
-    final userProvider = Provider.of<UserProvider>(context);
-    late bool isButtonDisabled = userProvider.isButtonDisabled;
+
+    int isButtonDisabled = Provider.of<UserProvider>(context).isButtonDisabled;
+
+    imagePath = Provider.of<UserProvider>(context).userImage;
 
     return Scaffold(
       resizeToAvoidBottomInset: false,
@@ -264,31 +241,18 @@ class _ProfileChangePageState extends State<ProfileChangePage> {
                 width: screenSize.width * 0.56,
                 height: screenSize.width * 0.56,
                 child: ClipOval(
-                  child: FutureBuilder<String?>(
-                    future:
-                        profileImageUrl, // fetchImage 함수 호출하여 profileUrl을 가져옴
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.done) {
-                        final profileUrl = snapshot.data;
-                        if (profileUrl != null) {
-                          return Image.network(
-                            profileUrl,
-                            fit: BoxFit.cover,
-                          );
-                        } else {
-                          return Image.asset(
-                            'assets/images/basic_profile.png',
-                            fit: BoxFit.cover,
-                          );
-                        }
-                      } else if (snapshot.hasError) {
-                        return Text('Error: ${snapshot.error}');
-                      } else {
-                        return const CircularProgressIndicator(); // 데이터 로딩 중 표시
-                      }
-                    },
-                  ),
-                ),
+                    child:
+                        // fetchImage 함수 호출하여 profileUrl을 가져옴
+
+                        imagePath != null
+                            ? Image.network(
+                                imagePath,
+                                fit: BoxFit.cover,
+                              )
+                            : Image.asset(
+                                'assets/images/basic_profile.png',
+                                fit: BoxFit.cover,
+                              )),
               ),
               Positioned(
                 top: screenSize.height * 0.19,
@@ -396,7 +360,7 @@ class _ProfileChangePageState extends State<ProfileChangePage> {
             ),
           ),
           ElevatedButton(
-            onPressed: isButtonDisabled
+            onPressed: isButtonDisabled == 1
                 ? () {
                     Navigator.push(
                       context,
@@ -404,6 +368,7 @@ class _ProfileChangePageState extends State<ProfileChangePage> {
                         builder: (context) => const NicknameChangePage(),
                       ),
                     );
+                    print(isButtonDisabled);
                   }
                 : null,
             style: ElevatedButton.styleFrom(

@@ -143,9 +143,9 @@ class _NicknameChangePageState extends State<NicknameChangePage> {
   Widget build(BuildContext context) {
     Size screenSize = MediaQuery.of(context).size;
     String changeUserNickname = Provider.of<UserProvider>(context).nickname;
-    File? userImage = Provider.of<UserProvider>(context).userImage;
+    String userImage = Provider.of<UserProvider>(context).userImage;
     final user = Provider.of<UserProvider>(context);
-    bool isButtonDisabled = user.isButtonDisabled;
+    int isButtonDisabled = user.isButtonDisabled;
 
     return Scaffold(
       resizeToAvoidBottomInset: false,
@@ -231,7 +231,7 @@ class _NicknameChangePageState extends State<NicknameChangePage> {
     BuildContext context,
     String nickname,
     String changeUserNickname,
-    bool isButtonDisabled,
+    int isButtonDisabled,
     bool isChecked,
   ) {
     return TextButton(
@@ -284,10 +284,9 @@ class _NicknameChangePageState extends State<NicknameChangePage> {
                     children: [
                       ElevatedButton(
                         onPressed: () {
-                          nickNameSubmit();
-
                           Provider.of<UserProvider>(context, listen: false)
-                              .updateBoolValue(false);
+                              .updateNicknameButton(0);
+                          nickNameSubmit();
 
                           Navigator.of(context).pop();
                           Navigator.of(context).pop();

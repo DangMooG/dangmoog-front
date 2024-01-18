@@ -1,10 +1,13 @@
+import 'dart:io';
+
 import 'package:dangmoog/screens/mypage/account_delete.dart';
-import 'package:dangmoog/screens/mypage/bye_page.dart';
-import 'package:dangmoog/screens/mypage/like/like_mainpage.dart';
+
 import 'package:dangmoog/screens/auth/welcome.dart';
 import 'package:dangmoog/services/api.dart';
+
 import 'package:dangmoog/widgets/bottom_popup.dart';
 import 'package:dio/dio.dart';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:dangmoog/providers/provider.dart';
@@ -13,7 +16,6 @@ import 'package:dangmoog/screens/mypage/profile_change.dart';
 import 'package:dangmoog/screens/mypage/my_bank_account.dart';
 import 'package:dangmoog/screens/mypage/sell/my_sell_mainpage.dart';
 import 'package:dangmoog/screens/mypage/purchase/purchase_mainpage.dart';
-import 'dart:io';
 
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
@@ -35,30 +37,6 @@ Future<double?> tillGetSource(Stream<double> source) async {
   return null; // No positive value found
 }
 
-Future<String?> fetchProfileImageUrl() async {
-  try {
-    final Response response = await ApiService().autoLogin(); // API 호출
-
-    if (response.statusCode == 200) {
-      final Map<String, dynamic> data = response.data;
-      final String? profileUrl = data["profile_url"]; // "profile_url" 값을 가져옴
-
-      if (profileUrl != null) {
-        return profileUrl;
-      } else {
-        // "profile_url"이 null인 경우 처리
-        return null;
-      }
-    } else {
-      // API 응답에 문제가 있는 경우 오류 처리
-      throw Exception('API 응답 오류: ${response.statusCode}');
-    }
-  } catch (e) {
-    print('이미지 URL 가져오기 오류: $e');
-    return null; // 에러 발생 시 null 반환
-  }
-}
-
 class _MyPageState extends State<MyPage> {
   final storage = const FlutterSecureStorage();
   //late Future<String?> profileImageUrl; // 프로필 이미지 URL을 저장할 변수
@@ -73,7 +51,7 @@ class _MyPageState extends State<MyPage> {
   Widget build(BuildContext context) {
     String userEmail = Provider.of<UserProvider>(context).inputEmail;
     String userNickname = Provider.of<UserProvider>(context).nickname;
-    File? userImage = Provider.of<UserProvider>(context).userImage;
+    String userImage = Provider.of<UserProvider>(context).userImage;
     Size screenSize = MediaQuery.of(context).size;
 
     return SingleChildScrollView(
@@ -86,46 +64,22 @@ class _MyPageState extends State<MyPage> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 ClipOval(
-                  child: fetchProfileImageUrl() != null
-                      ? FutureBuilder<String?>(
-                          future:
-                              fetchProfileImageUrl(), // fetchImage 함수 호출하여 profileUrl을 가져옴
-                          builder: (context, snapshot) {
-                            if (snapshot.connectionState ==
-                                ConnectionState.done) {
-                              final profileUrl = snapshot.data;
-                              if (profileUrl != null) {
-                                return Image.network(
-                                  profileUrl,
-                                  width: screenSize.width * 0.14,
-                                  height: screenSize.width * 0.14,
-                                  fit: BoxFit.cover,
-                                );
-                              } else {
-                                return Image.asset(
-                                  'assets/images/basic_profile.png',
-                                  width: screenSize.width * 0.14,
-                                  height: screenSize.width * 0.14,
-                                  fit: BoxFit.cover,
-                                );
-                              }
-                            } else if (snapshot.hasError) {
-                              return Text('Error: ${snapshot.error}');
-                            } else {
-                              return Container(
-                                width: screenSize.width * 0.14,
-                                height: screenSize.width * 0.14,
-                                decoration: const BoxDecoration(
-                                    color: Color(0xFFF1F1F1)),
-                              ); // 데이터 로딩 중 표시
-                            }
-                          },
-                        )
-                      : Image.asset(
-                          'assets/images/basic_profile.png',
-                          fit: BoxFit.cover,
-                        ),
-                ),
+                    child: userImage != null
+                        ?
+                        // fetchImage 함수 호출하여 profileUrl을 가져옴
+
+                        Image.network(
+                            userImage,
+                            width: screenSize.width * 0.14,
+                            height: screenSize.width * 0.14,
+                            fit: BoxFit.cover,
+                          )
+                        : Image.asset(
+                            'assets/images/basic_profile.png',
+                            width: screenSize.width * 0.14,
+                            height: screenSize.width * 0.14,
+                            fit: BoxFit.cover,
+                          )),
                 const SizedBox(width: 8),
                 Expanded(
                   // width: screenSize.width * 0.44,

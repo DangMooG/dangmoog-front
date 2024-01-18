@@ -149,7 +149,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
           // 이미지를 Provider에 저장
           Provider.of<UserProvider>(context, listen: false)
-              .setUserImage(_image!);
+              .setUserImage(imagePath);
 
           profileSubmit();
         });
@@ -157,7 +157,7 @@ class _ProfilePageState extends State<ProfilePage> {
     }
   }
 
-  void profileSubmit() async {
+  Future<String?> profileSubmit() async {
     // If imageFiles are provided, prepare them for FormData
 
     if (_image != null) {
@@ -168,16 +168,26 @@ class _ProfilePageState extends State<ProfilePage> {
 
         if (response.statusCode == 200) {
           // int userId = response.data['account_id'];
-          if (!mounted) return;
-          Provider.of<UserProvider>(context, listen: false)
-              .setUserImage(_image!);
           // await storage.write(key: 'userId', value: userId.toString());
-          print(response);
+
+          final Map<String, dynamic> data = response.data;
+          final String? profileUrl =
+              data["profile_url"]; // "profile_url" 값을 가져옴
+
+          if (profileUrl != null) {
+            imagePath = profileUrl;
+            Provider.of<UserProvider>(context, listen: false)
+                .setUserImage(imagePath);
+          } else {
+            // "profile_url"이 null인 경우 처리
+            return null;
+          }
         }
       } catch (e) {
         print(e);
       }
     }
+    return null;
   }
 
   late Future<String?> profileImageUrl; // 프로필 이미지 URL을 저장할 변수

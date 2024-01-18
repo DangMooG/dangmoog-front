@@ -13,15 +13,15 @@ class UserProvider with ChangeNotifier {
 
   String get nickname => _nickname;
 
-  File? userImage;
+  String userImage = '';
 
   String _account = '';
 
   String get account => _account;
 
-  late bool _isButtonDisabled = true;
+  late int _isButtonDisabled = 1;
 
-  bool get isButtonDisabled => _isButtonDisabled;
+  int get isButtonDisabled => _isButtonDisabled;
 
   List<String> _myPostListId = <String>[];
 
@@ -47,12 +47,12 @@ class UserProvider with ChangeNotifier {
     notifyListeners(); // 상태 업데이트를 구독하는 위젯에 알리기
   }
 
-  void setUserImage(File newImage) {
+  void setUserImage(String newImage) {
     userImage = newImage;
     notifyListeners();
   }
 
-  void updateBoolValue(bool newValue) {
+  void updateNicknameButton(int newValue) {
     _isButtonDisabled = newValue;
     notifyListeners();
   }
