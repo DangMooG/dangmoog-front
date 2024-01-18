@@ -107,10 +107,8 @@ class ApiService {
     required String description,
     required int categoryId,
     required int useLocker,
-    List<File>?
-        imageFiles, // Make sure this parameter is available in your method signature.
+    List<File>? imageFiles,
   }) async {
-    // Prepare the query parameters
     final queryParams = {
       "title": title,
       "price": price.toString(),
@@ -119,10 +117,7 @@ class ApiService {
       "use_locker": useLocker.toString(),
     };
 
-    // Construct the query string
     final queryString = Uri(queryParameters: queryParams).query;
-
-    // Construct the URL with query parameters
     final String url = '/post/create_with_photo?$queryString';
 
     // Check if imageFiles are provided and not empty
@@ -132,8 +127,7 @@ class ApiService {
 
       // Prepare the image files for FormData
       for (var file in imageFiles) {
-        String fileName =
-            file.path; // Use the 'path' package to get a file name.
+        String fileName = file.path;
         multipartImageList
             .add(await MultipartFile.fromFile(file.path, filename: fileName));
       }
@@ -419,7 +413,6 @@ class ApiService {
   /// 사물함 관련 ///
   ////////////////
   Future<Response> loadLocker() async {
-    // Make the HTTP request first
     Response response = await _publicClient.get("locker/list");
     return response;
   }
