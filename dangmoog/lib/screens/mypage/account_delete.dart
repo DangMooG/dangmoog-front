@@ -10,14 +10,14 @@ import 'package:dangmoog/providers/provider.dart';
 
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
-class accountDeletePage extends StatefulWidget {
-  const accountDeletePage({Key? key}) : super(key: key);
+class AccountDeletePage extends StatefulWidget {
+  const AccountDeletePage({Key? key}) : super(key: key);
 
   @override
-  _accountDeletePageState createState() => _accountDeletePageState();
+  State<AccountDeletePage> createState() => _AccountDeletePageState();
 }
 
-class _accountDeletePageState extends State<accountDeletePage> {
+class _AccountDeletePageState extends State<AccountDeletePage> {
   final storage = const FlutterSecureStorage();
 
   bool isSubmitVerificationCodeActive = false;
@@ -47,6 +47,7 @@ class _accountDeletePageState extends State<accountDeletePage> {
           centerTitle: true,
         ),
         body: GestureDetector(
+            behavior: HitTestBehavior.opaque,
             onTap: () => FocusScope.of(context).unfocus(),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
@@ -56,7 +57,7 @@ class _accountDeletePageState extends State<accountDeletePage> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
-                      SizedBox(height: screenSize.height * 0.024),
+                      const SizedBox(height: 32),
                       const Text(
                         '계정을 탈퇴하시나요?',
                         style: TextStyle(
@@ -65,13 +66,12 @@ class _accountDeletePageState extends State<accountDeletePage> {
                           fontWeight: FontWeight.w600,
                         ),
                       ),
-                      SizedBox(height: screenSize.height * 0.039),
+                      const SizedBox(height: 32),
                       Container(
                         width: screenSize.width * 0.91,
-                        // height: screenSize.height * 0.123,
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(4.0),
-                          color: const Color(0xFFF1F1F1), // 회색 배경색
+                          color: const Color(0xFFF1F1F1),
                         ),
                         child: const Padding(
                           padding: EdgeInsets.symmetric(
@@ -100,6 +100,7 @@ class _accountDeletePageState extends State<accountDeletePage> {
                         ),
                       ),
                       Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
                         children: [
                           Checkbox(
                             value: isChecked,
