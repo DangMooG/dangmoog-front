@@ -85,6 +85,15 @@ class _MyBankAccountPageState extends State<MyBankAccountPage> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.white,
+        leading: IconButton(
+          icon: const Icon(
+            Icons.keyboard_backspace,
+            size: 24,
+          ),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
         title: appBarTitle("내 계좌정보"),
         bottom: appBarBottomLine(),
         centerTitle: true,
