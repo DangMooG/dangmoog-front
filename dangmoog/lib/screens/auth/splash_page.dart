@@ -78,7 +78,10 @@ class _SplashScreenState extends State<SplashScreen> {
         if (response.statusCode == 200) {
           final userEmail = response.data["email"];
           final userNickname = response.data['username'];
-
+          final nicknameState = response.data['available'];
+          final String profileUrl = response.data["profile_url"];
+          print(nicknameState);
+          print(profileUrl);
           // async 내에서 BuildContexts를 사용할 경우
           // 위젯이 마운트되지 않았으면 context에 아무런 값이 없기 때문에
           // 아래 조건문을 추가해줘야 한다.
@@ -88,6 +91,12 @@ class _SplashScreenState extends State<SplashScreen> {
           // 이메일을 provider로 전역변수에 저장한다
           Provider.of<UserProvider>(context, listen: false).setEmail(userEmail);
           Provider.of<UserProvider>(context, listen: false).getMyPostListId();
+
+          Provider.of<UserProvider>(context, listen: false)
+              .setUserImage(profileUrl);
+
+          Provider.of<UserProvider>(context, listen: false)
+              .updateNicknameButton(nicknameState);
 
           // 별명을 설정하지 않았을 경우
           // 별명 설정 페이지로 이동한다
