@@ -107,15 +107,28 @@ class ApiService {
     required String description,
     required int categoryId,
     required int useLocker,
+    int? lockerId,
     List<File>? imageFiles,
   }) async {
-    final queryParams = {
-      "title": title,
-      "price": price.toString(),
-      "description": description,
-      "category_id": (categoryId + 1).toString(),
-      "use_locker": useLocker.toString(),
-    };
+    late dynamic queryParams;
+    if (useLocker == 1) {
+      queryParams = {
+        "title": title,
+        "price": price.toString(),
+        "description": description,
+        "category_id": (categoryId + 1).toString(),
+        "use_locker": useLocker.toString(),
+        "locker_id": lockerId.toString(),
+      };
+    } else {
+      queryParams = {
+        "title": title,
+        "price": price.toString(),
+        "description": description,
+        "category_id": (categoryId + 1).toString(),
+        "use_locker": useLocker.toString(),
+      };
+    }
 
     final queryString = Uri(queryParameters: queryParams).query;
     final String url = '/post/create_with_photo?$queryString';
