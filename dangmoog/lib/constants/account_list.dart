@@ -1,4 +1,4 @@
-List<String> accountItems = [
+List<String> bankNameList = [
   'NH농협은행',
   '카카오뱅크',
   'KB국민은행',

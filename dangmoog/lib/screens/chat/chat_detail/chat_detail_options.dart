@@ -84,7 +84,7 @@ class _ChatDetailOptionsState extends State<ChatDetailOptions> {
 
   List<double> _getCustomItemsHeights() {
     final List<double> itemsHeights = [];
-    for (int i = 0; i < (accountItems.length * 2) - 1; i++) {
+    for (int i = 0; i < (bankNameList.length * 2) - 1; i++) {
       if (i.isEven) {
         itemsHeights.add(40);
       }
@@ -103,69 +103,79 @@ class _ChatDetailOptionsState extends State<ChatDetailOptions> {
         return StatefulBuilder(
           builder: (context, setState) {
             return GestureDetector(
+              behavior: HitTestBehavior.opaque,
               onTap: () {
                 FocusScope.of(context).unfocus();
               },
-              child: AlertDialog(
+              child: Dialog(
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(14),
                 ),
                 backgroundColor: Colors.white,
                 surfaceTintColor: Colors.transparent,
-                title: const Text(
-                  '새로운 계좌 정보를 입력해주세요!',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: Color(0xff302E2E),
-                  ),
-                ),
-                content: const Text(
-                  '은행과 계좌번호를 정확히 입력해주세요',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w400,
-                    color: Color(0xff302E2E),
-                  ),
-                ),
-                actions: <Widget>[
-                  Column(
+                insetPadding: const EdgeInsets.all(10),
+                child: Container(
+                  padding: const EdgeInsets.all(20),
+                  width: 350,
+                  child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
+                      const Text(
+                        '새로운 계좌 정보를 입력해주세요!',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: Color(0xff302E2E),
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      const Text(
+                        '은행과 계좌번호를 정확히 입력해주세요',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w400,
+                          color: Color(0xff302E2E),
+                        ),
+                      ),
+                      const SizedBox(height: 8),
                       Column(
                         children: [
-                          TextField(
-                            decoration: const InputDecoration(
-                              hintText: '계좌번호 입력',
-                              hintStyle: TextStyle(
+                          SizedBox(
+                            width: 300,
+                            child: TextField(
+                              decoration: const InputDecoration(
+                                hintText: '계좌번호 입력',
+                                hintStyle: TextStyle(
                                   color: Color(0xffA19E9E),
                                   fontSize: 14,
-                                  fontWeight: FontWeight.w400),
-                              labelText: null,
-                              enabledBorder: UnderlineInputBorder(
-                                borderSide:
-                                    BorderSide(color: Color(0xffD3D2D2)),
+                                  fontWeight: FontWeight.w400,
+                                ),
+                                labelText: null,
+                                enabledBorder: UnderlineInputBorder(
+                                  borderSide:
+                                      BorderSide(color: Color(0xffD3D2D2)),
+                                ),
+                                focusedBorder: UnderlineInputBorder(
+                                  borderSide:
+                                      BorderSide(color: Color(0xff726E6E)),
+                                ),
+                                contentPadding: EdgeInsets.symmetric(
+                                    vertical: 10, horizontal: 8),
+                                floatingLabelBehavior:
+                                    FloatingLabelBehavior.never,
                               ),
-                              focusedBorder: UnderlineInputBorder(
-                                borderSide:
-                                    BorderSide(color: Color(0xff726E6E)),
+                              style: const TextStyle(
+                                color: Color(0xff302E2E),
+                                fontSize: 14.0,
+                                fontWeight: FontWeight.w400,
                               ),
-                              contentPadding: EdgeInsets.symmetric(
-                                  vertical: 10.0, horizontal: 8.0),
-                              floatingLabelBehavior:
-                                  FloatingLabelBehavior.never,
+                              keyboardType: TextInputType.number,
+                              onChanged: (value) {
+                                accountNumber = value;
+                              },
                             ),
-                            style: const TextStyle(
-                              color: Color(0xff302E2E),
-                              fontSize: 14.0,
-                              fontWeight: FontWeight.w400,
-                            ),
-                            keyboardType: TextInputType.number,
-                            onChanged: (value) {
-                              accountNumber = value;
-                            },
                           ),
                           const SizedBox(height: 20),
                           GestureDetector(
@@ -184,7 +194,7 @@ class _ChatDetailOptionsState extends State<ChatDetailOptions> {
                                     ),
                                   ),
                                 ),
-                                items: _addDividersAfterItems(accountItems),
+                                items: _addDividersAfterItems(bankNameList),
                                 value: selectedBank,
                                 onChanged: (String? value) {
                                   setState(() {
@@ -227,9 +237,6 @@ class _ChatDetailOptionsState extends State<ChatDetailOptions> {
                                   ),
                                   offset: const Offset(0, -10),
                                   scrollbarTheme: ScrollbarThemeData(
-                                    // radius: const Radius.circular(40),
-                                    // thickness:
-                                    //     MaterialStateProperty.all<double>(4),
                                     thumbVisibility:
                                         MaterialStateProperty.all(false),
                                     trackVisibility:
@@ -335,7 +342,7 @@ class _ChatDetailOptionsState extends State<ChatDetailOptions> {
                       )
                     ],
                   ),
-                ],
+                ),
               ),
             );
           },
@@ -693,8 +700,8 @@ class _ChatDetailOptionsState extends State<ChatDetailOptions> {
       width: 300,
       child: TextButton(
         onPressed: () {
-          onTap();
           Navigator.pop(context);
+          onTap();
         },
         style: ButtonStyle(
           backgroundColor: MaterialStateProperty.resolveWith<Color>(
@@ -750,10 +757,6 @@ class _ChatDetailOptionsState extends State<ChatDetailOptions> {
               }),
             ],
           ),
-          // option box가 정중앙에 있으면 살짝 아래에 있는 느낌이 들어서 추가한 위젯
-          const SizedBox(
-            height: 15,
-          )
         ],
       )),
     );
@@ -762,8 +765,9 @@ class _ChatDetailOptionsState extends State<ChatDetailOptions> {
 
 Widget optionCircleWidget(IconData icon, String iconText, Function onTap) {
   return Container(
-    margin: const EdgeInsets.symmetric(horizontal: 22, vertical: 10),
+    margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
     child: Column(
+      mainAxisAlignment: MainAxisAlignment.center,
       children: [
         GestureDetector(
           onTap: () {
@@ -772,12 +776,10 @@ Widget optionCircleWidget(IconData icon, String iconText, Function onTap) {
           child: Container(
             width: 72,
             height: 72,
-            margin: const EdgeInsets.only(bottom: 10, left: 10, right: 10),
+            margin: const EdgeInsets.symmetric(horizontal: 8),
             decoration: const BoxDecoration(
               color: Color(0xffE83754),
-              borderRadius: BorderRadius.all(
-                Radius.circular(36),
-              ),
+              borderRadius: BorderRadius.all(Radius.circular(36)),
             ),
             child: Icon(
               icon,
@@ -785,6 +787,9 @@ Widget optionCircleWidget(IconData icon, String iconText, Function onTap) {
               color: Colors.white,
             ),
           ),
+        ),
+        const SizedBox(
+          height: 8,
         ),
         Text(
           iconText,

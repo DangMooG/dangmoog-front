@@ -44,6 +44,7 @@ class _ByePageState extends State<ByePage> {
         centerTitle: true,
       ),
       body: GestureDetector(
+        behavior: HitTestBehavior.opaque,
         onTap: () => FocusScope.of(context).unfocus(),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,

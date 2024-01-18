@@ -184,8 +184,9 @@ class _ProductListState extends State<ProductList> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) =>
-                                  const AddPostPage(title: '직접거래 등록'),
+                              builder: (context) => const AddPostPage(
+                                fromChooseLocker: false,
+                              ),
                             ),
                           );
                         }),

@@ -25,10 +25,10 @@ class _PurchaseMainPageState extends State<PurchaseMainPage> {
   @override
   void initState() {
     super.initState();
-    _loadPurchaseProducts(context);
+    _loadPurchaseProducts();
   }
 
-  Future<List<ProductModel>> _loadPurchaseProducts(BuildContext context) async {
+  Future<List<ProductModel>> _loadPurchaseProducts() async {
     String userNickname =
         Provider.of<UserProvider>(context, listen: false).nickname;
 
@@ -51,7 +51,6 @@ class _PurchaseMainPageState extends State<PurchaseMainPage> {
               throw Exception('Data format from server is unexpected.');
             }
           }
-          print(productIds);
 
           List<ProductModel> productList = [];
 
@@ -115,7 +114,11 @@ class _PurchaseMainPageState extends State<PurchaseMainPage> {
         ),
       ),
       body: products != null && products!.isNotEmpty
-          ? MyProductList(productList: products!, sortingOrder: null)
+          ? MyProductList(
+              productList: products!,
+              sortingOrder: null,
+              reloadProductList: () {},
+            )
           : const Center(
               child: Text('구매한 게시물이 없어요.'),
             ),

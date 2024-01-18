@@ -17,12 +17,14 @@ enum SortingOrder { ascending, descending }
 
 class MyProductList extends StatefulWidget {
   final List<ProductModel> productList;
+  final VoidCallback reloadProductList;
 
-  const MyProductList(
-      {Key? key,
-      required this.productList,
-      required SortingOrder? sortingOrder})
-      : super(key: key);
+  const MyProductList({
+    Key? key,
+    required this.productList,
+    required SortingOrder? sortingOrder,
+    required this.reloadProductList,
+  }) : super(key: key);
   @override
   State<MyProductList> createState() => _MyProductListState();
 }
@@ -67,11 +69,12 @@ class _MyProductListState extends State<MyProductList> {
   Widget _postListView() {
     return RefreshIndicator(
         onRefresh: () async {
-          setState(() {
-            //   futureProducts = widget.productList as Future<List<ProductModel>>;
-            futureProducts = Future.value(widget.productList);
-          });
-          await futureProducts;
+          widget.reloadProductList();
+          // setState(() {
+          //   //   futureProducts = widget.productList as Future<List<ProductModel>>;
+          //   futureProducts = Future.value(widget.productList);
+          // });
+          // await futureProducts;
         },
         child: ListView.separated(
           itemCount: widget.productList.length,

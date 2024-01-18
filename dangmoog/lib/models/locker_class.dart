@@ -1,6 +1,6 @@
 class Locker {
   final int lockerId;
-  int status; // 0 : 선택불가능, 1 : 선택가능, 2 : 사용중, 3 : 점검중
+  int status; // 0 : 선택불가능, 1 : 선택가능
   final int? postId;
   final int? accountId;
   final String name;

@@ -15,7 +15,8 @@ class MyBankAccountPage extends StatefulWidget {
 }
 
 class _MyBankAccountPageState extends State<MyBankAccountPage> {
-  final FlutterSecureStorage _storage = const FlutterSecureStorage();
+  final FlutterSecureStorage storage = const FlutterSecureStorage();
+
   late TextEditingController _accountController = TextEditingController();
   late TextEditingController _bankController = TextEditingController();
 
@@ -24,13 +25,12 @@ class _MyBankAccountPageState extends State<MyBankAccountPage> {
 
   bool isSubmitVerificationCodeActive = false;
   String selectedBank = '';
-  String account = '';
+  String accountNumber = '';
   bool data = true;
   bool _isSelectListVisible = false;
   String _selectedItem = '';
 
   String buttonext = '';
-  bool isClicked = false;
   bool Pressed = false;
 
   String text = '';
@@ -42,6 +42,7 @@ class _MyBankAccountPageState extends State<MyBankAccountPage> {
     super.initState();
     _accountController = TextEditingController();
     _bankController = TextEditingController();
+
     _loadAccount().then((_) {
       // Check if both account number and bank name are stored
       if (_storedAccount.isNotEmpty && _storedBank.isNotEmpty) {
@@ -55,8 +56,8 @@ class _MyBankAccountPageState extends State<MyBankAccountPage> {
   }
 
   Future<void> _loadAccount() async {
-    String? storedAccount = await _storage.read(key: 'encrypted_account');
-    String? storedBank = await _storage.read(key: 'encrypted_bank');
+    String? storedAccount = await storage.read(key: 'encrypted_account');
+    String? storedBank = await storage.read(key: 'encrypted_bank');
     if (storedAccount != null && storedAccount.isNotEmpty) {
       setState(() {
         _storedAccount = storedAccount;
@@ -66,8 +67,8 @@ class _MyBankAccountPageState extends State<MyBankAccountPage> {
   }
 
   Future<void> _saveAccount(String accountNumber, String bankName) async {
-    await _storage.write(key: 'encrypted_account', value: accountNumber);
-    await _storage.write(key: 'encrypted_bank', value: bankName);
+    await storage.write(key: 'encrypted_account', value: accountNumber);
+    await storage.write(key: 'encrypted_bank', value: bankName);
   }
 
   @override
@@ -84,27 +85,35 @@ class _MyBankAccountPageState extends State<MyBankAccountPage> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.white,
+        leading: IconButton(
+          icon: const Icon(
+            Icons.keyboard_backspace,
+            size: 24,
+          ),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
         title: appBarTitle("내 계좌정보"),
         bottom: appBarBottomLine(),
         centerTitle: true,
       ),
       body: GestureDetector(
-        onTap: () => FocusScope.of(context).unfocus(),
+        behavior: HitTestBehavior.opaque,
+        onTap: () {
+          FocusScope.of(context).unfocus();
+        },
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Expanded(
-              child: SingleChildScrollView(
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 18),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      SizedBox(height: screenSize.height * 0.024),
-                      _inputField(screenSize),
-                    ],
-                  ),
-                ),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 18),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  _buildInputField(screenSize),
+                ],
               ),
             ),
             Padding(
@@ -123,7 +132,9 @@ class _MyBankAccountPageState extends State<MyBankAccountPage> {
                         }
                         _accountPopup(screenSize, context);
 
-                        isClicked = false;
+                        setState(() {
+                          _isSelectListVisible = false;
+                        });
                       },
                       buttonText: text3,
                       isActive: Pressed,
@@ -140,47 +151,43 @@ class _MyBankAccountPageState extends State<MyBankAccountPage> {
     );
   }
 
-  SizedBox _inputField(Size screenSize) {
-    return SizedBox(
-      width: screenSize.width,
-      height: screenSize.height * 0.58,
+  Widget _buildInputField(Size screenSize) {
+    return Padding(
+      // width: screenSize.width,
+      // height: screenSize.height * 0.58,
+      padding: const EdgeInsets.only(top: 32),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            '계좌번호',
-            style: TextStyle(
-              color: Color(0xFF302E2E),
-              fontSize: 13,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-          _accountNumber(screenSize),
-          _accountSelect(_storedBank)
+          _buildAccountNumber(screenSize),
+          const SizedBox(height: 24),
+          _buildAccountSelect(_storedBank),
         ],
       ),
     );
   }
 
-  Widget _accountNumber(Size screenSize) {
+  Widget _buildAccountNumber(Size screenSize) {
     String hintText = _storedAccount.isEmpty ? '계좌번호 입력(-제외)' : _storedAccount;
 
     void onAccountChanged(String value) {
       setState(() {
-        account = value;
-        Provider.of<UserProvider>(context, listen: false).setAccount(account);
+        accountNumber = value;
+        // Provider.of<UserProvider>(context, listen: false)
+        //     .setAccount(accountNumber);
       });
     }
 
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        _titleEachSection("계좌번호"),
         Container(
           alignment: Alignment.center,
           width: screenSize.width * 0.91,
           height: screenSize.height * 0.06,
           child: TextField(
             onChanged: onAccountChanged,
-            onTap: () {},
             controller: _accountController,
             keyboardType: TextInputType.number,
             inputFormatters: [
@@ -213,12 +220,11 @@ class _MyBankAccountPageState extends State<MyBankAccountPage> {
   }
 
 //은행 선택
-  Widget _accountSelect(String bankText) {
-    void _toggleListVisibility() {
+  Widget _buildAccountSelect(String bankText) {
+    void toggleListVisibility() {
       FocusScope.of(context).unfocus();
       setState(() {
         _isSelectListVisible = !_isSelectListVisible;
-        isClicked = true;
       });
     }
 
@@ -232,98 +238,95 @@ class _MyBankAccountPageState extends State<MyBankAccountPage> {
       });
     }
 
-    return Padding(
-      padding: const EdgeInsets.only(top: 20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _titleEachSection("은행 선택"),
-          GestureDetector(
-            onTap: () {
-              setState(() {
-                _toggleListVisibility();
-              });
-            },
-            child: Container(
-              height: 38,
-              decoration: BoxDecoration(
-                border: Border.all(
-                  color: isClicked
-                      ? const Color(0xFF302E2E)
-                      : const Color(0xFFA19E9E),
-                ),
-                borderRadius: const BorderRadius.all(Radius.circular(4)),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _titleEachSection("은행 선택"),
+        GestureDetector(
+          onTap: () {
+            setState(() {
+              toggleListVisibility();
+            });
+          },
+          child: Container(
+            height: 40,
+            decoration: BoxDecoration(
+              border: Border.all(
+                color: _isSelectListVisible
+                    ? const Color(0xFF302E2E)
+                    : const Color(0xFFA19E9E),
               ),
-              padding: const EdgeInsets.all(8),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  (bankText.isEmpty)
-                      ? const Text(
-                          '은행 선택',
-                          textAlign: TextAlign.left,
-                          style: TextStyle(
-                            color: Color(0xffA19E9E),
-                            fontSize: 14,
-                            fontWeight: FontWeight.w400,
-                          ),
-                        )
-                      : Text(
-                          bankText,
-                          style: TextStyle(
-                            color: isClicked
-                                ? const Color(0xff302E2E)
-                                : const Color(0xFFA19E9E),
-                            fontSize: 14,
-                            fontWeight: FontWeight.w400,
-                          ),
+              borderRadius: const BorderRadius.all(Radius.circular(4)),
+            ),
+            padding: const EdgeInsets.all(8),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                (bankText.isEmpty)
+                    ? const Text(
+                        '은행 선택',
+                        textAlign: TextAlign.left,
+                        style: TextStyle(
+                          color: Color(0xffA19E9E),
+                          fontSize: 14,
+                          fontWeight: FontWeight.w400,
                         ),
-                  Icon(
-                    _isSelectListVisible
-                        ? Icons.keyboard_arrow_down_sharp
-                        : Icons.keyboard_arrow_right_sharp,
-                    color: _isSelectListVisible
-                        ? const Color(0xff726E6E)
-                        : const Color(0xffA19E9E),
-                  )
-                ],
-              ),
+                      )
+                    : Text(
+                        bankText,
+                        style: TextStyle(
+                          color: _isSelectListVisible
+                              ? const Color(0xff302E2E)
+                              : const Color(0xFFA19E9E),
+                          fontSize: 14,
+                          fontWeight: FontWeight.w400,
+                        ),
+                      ),
+                Icon(
+                  _isSelectListVisible
+                      ? Icons.keyboard_arrow_down_sharp
+                      : Icons.keyboard_arrow_right_sharp,
+                  color: _isSelectListVisible
+                      ? const Color(0xff726E6E)
+                      : const Color(0xffA19E9E),
+                )
+              ],
             ),
           ),
-          if (_isSelectListVisible)
-            Container(
-              margin: const EdgeInsets.only(top: 8),
-              decoration: BoxDecoration(
-                border: Border.all(color: const Color(0xffD3D2D2)),
-                borderRadius: const BorderRadius.all(Radius.circular(4)),
-              ),
-              constraints: const BoxConstraints(maxHeight: 3 * 41.0),
-              child: ListView(
-                padding: EdgeInsets.zero,
-                physics: const AlwaysScrollableScrollPhysics(),
-                shrinkWrap: true,
-                children: accountItems.map((category) {
-                  return ListTile(
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 8),
-                    dense: true,
-                    visualDensity: VisualDensity.compact,
-                    hoverColor: const Color(0xffF1F1F1),
-                    title: Text(
-                      category,
-                      style: const TextStyle(
-                        color: Color(0xff302E2E),
-                        fontSize: 14,
-                        fontWeight: FontWeight.w400,
-                      ),
-                    ),
-                    onTap: () => _selectItem(category),
-                  );
-                }).toList(),
-              ),
+        ),
+        if (_isSelectListVisible)
+          Container(
+            margin: const EdgeInsets.only(top: 8),
+            decoration: BoxDecoration(
+              border: Border.all(color: const Color(0xffD3D2D2)),
+              borderRadius: const BorderRadius.all(Radius.circular(4)),
             ),
-        ],
-      ),
+            constraints: const BoxConstraints(maxHeight: 3 * 41.0),
+            child: ListView(
+              padding: EdgeInsets.zero,
+              physics: const AlwaysScrollableScrollPhysics(),
+              shrinkWrap: true,
+              children: bankNameList.map((bankItem) {
+                return ListTile(
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 8),
+                  dense: true,
+                  visualDensity: VisualDensity.compact,
+                  hoverColor: const Color(0xffF1F1F1),
+                  title: Text(
+                    bankItem,
+                    style: const TextStyle(
+                      color: Color(0xff302E2E),
+                      fontSize: 14,
+                      fontWeight: FontWeight.w400,
+                    ),
+                  ),
+                  onTap: () => _selectItem(bankItem),
+                );
+              }).toList(),
+            ),
+          ),
+      ],
     );
   }
 
@@ -373,7 +376,7 @@ class _MyBankAccountPageState extends State<MyBankAccountPage> {
             ],
           ),
           content: Text(
-            '$account $_selectedItem',
+            '$accountNumber $_selectedItem',
             textAlign: TextAlign.center,
             style: const TextStyle(
                 fontSize: 16,

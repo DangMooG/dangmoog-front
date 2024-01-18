@@ -5,6 +5,7 @@ typedef ChatReceivedCallback = void Function(String message);
 
 class SocketProvider {
   late WebSocketChannel channel;
+  late dynamic _streamSubscription;
 
   // 채팅을 받았을 때 실행할 함수
   late ChatReceivedCallback onChatReceived;
@@ -31,7 +32,7 @@ class SocketProvider {
     channel = WebSocketChannel.connect(Uri.parse(wsUrl));
 
     // 연결이 성공했을 때 할 작업
-    channel.stream.listen(
+    _streamSubscription = channel.stream.listen(
       (message) {
         // 서버로부터 메시지 수신
         print(message);
@@ -73,6 +74,7 @@ class SocketProvider {
   }
 
   void dispose() {
+    _streamSubscription.cancel();
     channel.sink.close();
   }
 }

@@ -1,3 +1,4 @@
+import 'package:dangmoog/screens/app_bar.dart';
 import 'package:dangmoog/screens/mypage/nickname_change.dart';
 import 'package:dangmoog/services/api.dart';
 import 'package:dio/dio.dart';
@@ -26,14 +27,8 @@ class _ProfileChangePageState extends State<ProfileChangePage> {
   String nickname = '';
   String email = '';
   final ImagePicker picker = ImagePicker();
-  //Color buttonColor = const Color(0xFFDADADA); // 초기 버튼 색상
 
   bool buttonAcitve = false;
-
-  // 이미지 설정 시 유의사항 visibility
-  bool isHelpVisible = false;
-
-  static const storage = FlutterSecureStorage();
 
   Future<void> getImagesFromCamera() async {
     PermissionStatus status = await Permission.camera.request();
@@ -224,7 +219,16 @@ class _ProfileChangePageState extends State<ProfileChangePage> {
             Navigator.of(context).pop();
           },
         ),
+        title: const Text(
+          "프로필 변경",
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.w600,
+            color: Color(0xff302E2E),
+          ),
+        ),
         centerTitle: true,
+        bottom: appBarBottomLine(),
       ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.center,

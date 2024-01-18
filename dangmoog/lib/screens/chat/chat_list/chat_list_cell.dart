@@ -98,6 +98,7 @@ class _ChatCellState extends State<ChatCell> {
                 imBuyer: imBuyer,
                 postId: postId,
                 roomId: roomId,
+                userName: userName,
               ),
             ),
           ),

@@ -1,40 +1,40 @@
-import 'dart:io';
-import 'package:dangmoog/screens/home.dart';
-import 'package:dangmoog/utils/convert_money_format.dart';
-import 'package:dangmoog/widgets/bottom_popup.dart';
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'dart:io';
+import 'package:dio/dio.dart';
 import 'package:flutter/rendering.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:dangmoog/constants/category_list.dart';
 import 'package:intl/intl.dart';
 
-// 권한 확인
 import 'package:permission_handler/permission_handler.dart';
+import 'package:image_picker/image_picker.dart';
 
+import 'package:dangmoog/screens/home.dart';
+import 'package:dangmoog/widgets/bottom_popup.dart';
+import 'package:dangmoog/constants/category_list.dart';
 import 'package:dangmoog/services/api.dart';
 
+import 'package:dangmoog/utils/convert_money_format.dart';
+
 class AddPostPage extends StatefulWidget {
-  final String title;
   final int? lockerId;
   final bool fromChooseLocker;
 
-  const AddPostPage(
-      {Key? key,
-      required this.title,
-      this.lockerId,
-      this.fromChooseLocker = false})
-      : super(key: key);
+  const AddPostPage({
+    Key? key,
+    this.lockerId,
+    required this.fromChooseLocker,
+  }) : super(key: key);
 
   @override
   State<AddPostPage> createState() => _AddPostPageState();
 }
 
 class _AddPostPageState extends State<AddPostPage> {
-  int useLocker = 1;
+  late int useLocker;
   final List<String> _imageList = <String>[];
   final ImagePicker picker = ImagePicker();
   final ApiService apiService = ApiService();
+
+  late String appbarTitle;
 
   bool get isImageUploaded => _imageList.isNotEmpty;
   bool get isProductNameFilled => productNameController.text.isNotEmpty;
@@ -52,6 +52,7 @@ class _AddPostPageState extends State<AddPostPage> {
   String? productDescriptionError;
 
   void _createNewPost() async {
+    // 업로드 버튼 중복 클릭 방지
     if (isUploading) {
       return;
     }
@@ -65,91 +66,74 @@ class _AddPostPageState extends State<AddPostPage> {
       price = int.parse(priceController.text.replaceAll(',', ''));
     } catch (e) {
       print("Error parsing price: $e");
-      return; // exit the function since price couldn't be parsed
+      return;
     }
 
     String description = detailController.text;
     int categoryId = categeryItems.indexOf(_selectedItem);
 
-    if (!widget.fromChooseLocker) {
-      useLocker = 0;
-    } else {
-      useLocker = 1;
-    }
-
-    // Check if there are any images selected, otherwise set imageFiles to null
     List<File>? imageFiles;
     if (_imageList.isNotEmpty) {
       imageFiles = _imageList.map((path) => File(path)).toList();
     }
 
-    Response response = await apiService.createPost(
-      title: title,
-      price: price,
-      description: description,
-      categoryId: categoryId,
-      useLocker: useLocker,
-      imageFiles: imageFiles,
-    );
-
-    if (response.statusCode == 200) {
-      // Successful Response
-      var responseData = response.data;
-
-      var postId = responseData['post_id'];
-      var createTime = responseData['create_time'];
-      var updateTime = responseData['update_time'];
-
-      // Implement your success logic here. For example, show a success message and navigate to another screen.
-      print(
-          "Post created successfully! Post ID: $postId, Created at: $createTime, Updated at: $updateTime");
-
-      // Check if the locker is to be used
-      if (useLocker == 1) {
-        // Update the locker information with the new post_id
-        Map<String, dynamic> lockerUpdates = {
-          "post_id":
-              postId, // assuming 'post_id' is the field you want to update in the locker
-        };
-
-        try {
-          Response lockerResponse =
-              await apiService.patchLocker(widget.lockerId!, lockerUpdates);
-          if (lockerResponse.statusCode == 200) {
-            print('Locker updated successfully with Post ID: $postId');
-          } else {
-            print('Failed to update locker: ${lockerResponse.statusCode}');
-          }
-        } catch (e) {
-          print('Error updating locker with Post ID: $e');
-        }
-      }
-      if (!mounted) return;
-      Navigator.pushAndRemoveUntil(
-        context,
-        MaterialPageRoute(builder: (context) => const MyHome()),
-        (Route<dynamic> route) => false,
+    try {
+      Response response = await apiService.createPost(
+        title: title,
+        price: price,
+        description: description,
+        categoryId: categoryId,
+        useLocker: useLocker,
+        lockerId: widget.lockerId,
+        imageFiles: imageFiles,
       );
-      // Your additional success logic
-    } else if (response.statusCode == 422) {
-      // Validation Error
-      var errorData = response.data;
-      var errorDetail = errorData['detail'];
-      // Here you might want to iterate through 'detail' if it's a list to extract specific error messages
-      for (var error in errorDetail) {
-        var location = error['loc'];
-        var errorMsg = error['msg'];
-        var errorType = error['type'];
 
-        // Handle the validation error. For example, display a relevant error message to the user.
-        print("Error at $location: $errorMsg (Type: $errorType)");
+      if (response.statusCode == 200) {
+        var responseData = response.data;
+
+        var postId = responseData['post_id'];
+
+        if (useLocker == 1) {
+          Map<String, dynamic> lockerUpdates = {
+            "post_id": postId,
+          };
+
+          try {
+            Response lockerResponse =
+                await apiService.patchLocker(widget.lockerId!, lockerUpdates);
+            if (lockerResponse.statusCode == 200) {
+              print('Locker updated successfully with Post ID: $postId');
+            } else {
+              print('Failed to update locker: ${lockerResponse.statusCode}');
+            }
+          } catch (e) {
+            print('Error updating locker with Post ID: $e');
+          }
+        }
+        if (!mounted) return;
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (context) => const MyHome()),
+          (Route<dynamic> route) => false,
+        );
+      } else if (response.statusCode == 422) {
+        var errorData = response.data;
+        var errorDetail = errorData['detail'];
+        // Here you might want to iterate through 'detail' if it's a list to extract specific error messages
+        for (var error in errorDetail) {
+          var location = error['loc'];
+          var errorMsg = error['msg'];
+          var errorType = error['type'];
+
+          print("Error at $location: $errorMsg (Type: $errorType)");
+        }
+      } else {
+        // Other potential errors
+        print(
+            "Error creating post. Status Code: ${response.statusCode}, Error Message: ${response.statusMessage}");
       }
-
-      // Maybe display a general error toast message or specific field error messages
-    } else {
-      // Other potential errors
-      print(
-          "Error creating post. Status Code: ${response.statusCode}, Error Message: ${response.statusMessage}");
+    } catch (e) {
+      print(e);
     }
 
     setState(() {
@@ -274,9 +258,6 @@ class _AddPostPageState extends State<AddPostPage> {
     }
   }
 
-  bool useCabinet = false;
-  int userId = 3;
-
   bool _isSelectListVisible = false;
   String _selectedItem = '';
 
@@ -284,9 +265,25 @@ class _AddPostPageState extends State<AddPostPage> {
 
   bool _showPrice = false;
   List<dynamic> recommendedPriceList = [0, 0, 0];
+  bool recommendedAlready = false;
   bool isAiLoading = false;
 
   void getRecommendedPrice() async {
+    if (isAiLoading) return;
+    if (_imageList.isEmpty) {
+      showPopup(context, "물품 사진을 1개 이상 입력해주세요");
+      return;
+    }
+    if (productNameController.text.isEmpty) {
+      showPopup(context, "물품 이름을 입력해주세요");
+      return;
+    }
+    showPopup(context, "가격 추천 중입니다...");
+
+    setState(() {
+      isAiLoading = true;
+    });
+
     try {
       File imageFile = File(_imageList[0]);
 
@@ -296,14 +293,20 @@ class _AddPostPageState extends State<AddPostPage> {
       if (response.statusCode == 200) {
         List<dynamic> data = response.data;
         setState(() {
+          // recommendedAlready = true;
           recommendedPriceList = data;
           _showPrice = true;
         });
       }
     } catch (e) {
       print(e);
+      if (!mounted) return;
       showPopup(context, "가격 추천에 실패했습니다.");
     }
+
+    setState(() {
+      isAiLoading = false;
+    });
   }
 
   TextEditingController productNameController = TextEditingController();
@@ -326,6 +329,19 @@ class _AddPostPageState extends State<AddPostPage> {
   @override
   void initState() {
     super.initState();
+
+    if (widget.fromChooseLocker) {
+      setState(() {
+        appbarTitle = "사물함거래 등록";
+        useLocker = 1;
+      });
+    } else {
+      setState(() {
+        appbarTitle = "직접거래 등록";
+        useLocker = 0;
+      });
+    }
+
     productNameController.addListener(() {
       if (isProductNameFilled) {
         setState(() {
@@ -368,7 +384,7 @@ class _AddPostPageState extends State<AddPostPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.title),
+        title: Text(appbarTitle),
         leading: IconButton(
           icon: const Icon(Icons.close),
           onPressed: () {
@@ -391,6 +407,7 @@ class _AddPostPageState extends State<AddPostPage> {
       body: Stack(
         children: [
           GestureDetector(
+            behavior: HitTestBehavior.opaque,
             onTap: () => FocusScope.of(context).unfocus(),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -691,7 +708,6 @@ class _AddPostPageState extends State<AddPostPage> {
     return Padding(
       padding: const EdgeInsets.only(top: 16),
       child: Column(
-        // mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _titleEachSection("물품 이름"),
@@ -725,9 +741,7 @@ class _AddPostPageState extends State<AddPostPage> {
                 borderSide: BorderSide(
                     color: productNameError == null
                         ? const Color(0xff726E6E)
-                        : const Color(
-                            0xFFE20529) // Changes based on error condition
-                    ),
+                        : const Color(0xFFE20529)),
                 borderRadius: const BorderRadius.all(Radius.circular(4)),
               ),
             ),
@@ -1104,7 +1118,7 @@ class _AddPostPageState extends State<AddPostPage> {
               focusedBorder: OutlineInputBorder(
                 borderSide: BorderSide(
                   color: productDescriptionError == null
-                      ? const Color(0xffD3D2D2)
+                      ? const Color(0xff726E6E)
                       : const Color(0xFFE20529),
                 ),
                 borderRadius: const BorderRadius.all(Radius.circular(4)),
@@ -1155,7 +1169,6 @@ class _AddPostPageState extends State<AddPostPage> {
       child: ElevatedButton(
         onPressed: () {
           _setFieldErrors();
-          setState(() {});
 
           if (isButtonEnabled) {
             if (_imageList.isEmpty) {
@@ -1196,7 +1209,6 @@ class _AddPostPageState extends State<AddPostPage> {
                               onPressed: () {
                                 if (!isUploading) {
                                   _createNewPost();
-                                  if (useLocker == 1) {}
                                 }
                               },
                               style: ButtonStyle(
@@ -1234,7 +1246,7 @@ class _AddPostPageState extends State<AddPostPage> {
                             width: 300,
                             child: TextButton(
                               onPressed: () {
-                                Navigator.of(context).pop(); // close the dialog
+                                Navigator.of(context).pop();
                               },
                               style: ButtonStyle(
                                 backgroundColor:
@@ -1273,6 +1285,12 @@ class _AddPostPageState extends State<AddPostPage> {
               if (!isUploading) {
                 _createNewPost();
               }
+            }
+
+            if (mounted) {
+              setState(() {
+                isUploading = false;
+              });
             }
           }
 
@@ -1327,16 +1345,6 @@ class _AddPostPageState extends State<AddPostPage> {
           padding: const EdgeInsets.only(right: 8.0),
           child: TextButton(
             onPressed: () {
-              if (isAiLoading) return;
-              if (_imageList.isEmpty) {
-                showPopup(context, "물품 사진을 1개 이상 입력해주세요");
-                return;
-              }
-              if (productNameController.text.isEmpty) {
-                showPopup(context, "물품 이름을 입력해주세요");
-                return;
-              }
-              showPopup(context, "가격 추천 중입니다...");
               getRecommendedPrice();
             },
             style: TextButton.styleFrom(
@@ -1611,13 +1619,7 @@ class _AddPostPageState extends State<AddPostPage> {
                   width: 300,
                   child: TextButton(
                     onPressed: () {
-                      // if (useLocker==1){
-                      //   Map<String, dynamic> updates= {"status":1};
-                      //   apiService.patchLocker(widget.lockerId!, updates);
-                      // }
-
-                      Navigator.of(context).pop(
-                          true); // Close the dialog and confirm exit without saving
+                      Navigator.of(context).pop(true);
                     },
                     style: ButtonStyle(
                       backgroundColor: MaterialStateProperty.resolveWith<Color>(
