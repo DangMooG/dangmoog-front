@@ -109,9 +109,10 @@ class _AuthPageState extends State<AuthPage> {
           // 유저가 선택한 플로우와 이메일의 계정 존재 여부가 일치하지 않을 경우
           // // 로그인 and 존재하지 않는 계정
           // // 회원가입 and 이미 존재하는 계정
-          isSending = false;
+          setState(() {
+            isSending = false;
+          });
           if (isLogin != isExistingAccount) {
-            setState(() {});
             if (!mounted) return;
             showDialog(
               context: context,
@@ -252,6 +253,9 @@ class _AuthPageState extends State<AuthPage> {
         }
       } catch (e) {
         print("Exception: $e");
+        setState(() {
+          isSending = false;
+        });
       }
     } else {
       setState(() {
@@ -560,9 +564,7 @@ class _AuthPageState extends State<AuthPage> {
                       borderRadius: BorderRadius.circular(6),
                       side: isEmailSend
                           ? const BorderSide(color: Color(0xffE20529))
-                          : const BorderSide(color: Colors.transparent)
-                      //isEmailSend
-                      ),
+                          : const BorderSide(color: Colors.transparent)),
                   padding:
                       const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                   minimumSize: const Size(0, 0),
