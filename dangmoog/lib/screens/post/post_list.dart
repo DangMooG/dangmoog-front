@@ -492,35 +492,28 @@ class _ProductListState extends State<ProductList> {
         double paddingValue = MediaQuery.of(context).size.width * 0.042;
         return InkWell(
           onTap: () {
+            var productDetailPage = ProductDetailPage(postId: product.postId);
+
             Navigator.push(
               context,
               PageRouteBuilder(
                 transitionDuration: const Duration(milliseconds: 400),
-                pageBuilder: (context, animation, secondaryAnimation) =>
-                    ProductDetailPage(
-                  postId: product.postId,
-                ),
-                transitionsBuilder:
-                    (context, animation, secondaryAnimation, child) {
-                  var previousPageOffsetAnimation =
-                      Tween(begin: const Offset(1, 0), end: const Offset(0, 0))
-                          .chain(CurveTween(curve: Curves.decelerate))
-                          .animate(animation);
+                pageBuilder: (context, animation, secondaryAnimation) => productDetailPage,
+                transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                  var previousPageOffsetAnimation = Tween(begin: const Offset(1, 0), end: const Offset(0, 0))
+                      .chain(CurveTween(curve: Curves.decelerate))
+                      .animate(animation);
 
                   return SlideTransition(
                     position: previousPageOffsetAnimation,
-                    child: ProductDetailPage(
-                      postId: product.postId,
-                    ),
+                    child: child, // Using the same instance of ProductDetailPage
                   );
                 },
               ),
             );
           },
           child: Padding(
-            padding: EdgeInsets.all(
-              paddingValue,
-            ),
+            padding: EdgeInsets.all(paddingValue),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
@@ -533,6 +526,7 @@ class _ProductListState extends State<ProductList> {
       },
     );
   }
+
 
   // 게시물 내역 이미지
   Widget _buildProductImage(BuildContext context, ProductModel product) {
