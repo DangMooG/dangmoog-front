@@ -27,6 +27,8 @@ class _AuthPageState extends State<AuthPage> {
   // 로그인인지 회원가입인지 구분
   late bool isLogin;
 
+  late bool isExist;
+
   // 이메일, 인증번호
   String inputEmail = '';
   String verificationCode = '';
@@ -89,12 +91,12 @@ class _AuthPageState extends State<AuthPage> {
   }
 
   void submitEmail(BuildContext context) async {
-    Size screenSize = MediaQuery.of(context).size;
     if (isEmailFormatValid(inputEmail)) {
       showVerificationCodeTextField();
       startTimer();
       setState(() {
-        isEmailSend = true;
+        isEmailSend = false;
+        isSubmitEmailVisible = false;
         isSending = true;
       });
 
@@ -109,147 +111,8 @@ class _AuthPageState extends State<AuthPage> {
           // 유저가 선택한 플로우와 이메일의 계정 존재 여부가 일치하지 않을 경우
           // // 로그인 and 존재하지 않는 계정
           // // 회원가입 and 이미 존재하는 계정
-          setState(() {
-            isSending = false;
-          });
-          if (isLogin != isExistingAccount) {
-            if (!mounted) return;
-            showDialog(
-              context: context,
-              barrierDismissible: false,
-              builder: (BuildContext context) {
-                return AlertDialog(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(14),
-                  ),
-                  title: isExistingAccount
-                      ? const Text(
-                          "어라? 이미 가입된 계정이에요!",
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                            color: Color(0xFF302E2E),
-                          ),
-                        )
-                      : const Text(
-                          "존재하지 않는 이메일입니다",
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                            color: Color(0xFF302E2E),
-                          ),
-                        ),
-                  content: isExistingAccount
-                      ? const Text(
-                          "로그인을 진행할까요?",
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w400,
-                            color: Color(0xFF302E2E),
-                          ),
-                        )
-                      : const Text(
-                          "회원가입을 진행할까요?",
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w400,
-                            color: Color(0xFF302E2E),
-                          ),
-                        ),
-                  actions: <Widget>[
-                    Column(
-                      children: [
-                        isExistingAccount
-                            ? ElevatedButton(
-                                onPressed: () {
-                                  isLogin = isExistingAccount;
-                                  Navigator.of(context).pop();
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: const Color(0xFFE20529),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(6),
-                                  ),
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 12, vertical: 4),
-                                  minimumSize: Size(
-                                    screenSize.width * 0.67,
-                                    screenSize.height * 0.044,
-                                  ),
-                                ),
-                                child: const Text(
-                                  "로그인하기",
-                                  style: TextStyle(
-                                    fontSize: 13,
-                                    fontWeight: FontWeight.w400,
-                                    color: Color(0xFFFFFFFF),
-                                  ),
-                                ),
-                              )
-                            : ElevatedButton(
-                                onPressed: () {
-                                  isLogin = isExistingAccount;
-                                  Navigator.of(context).pop();
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: const Color(0xFFE20529),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(6),
-                                  ),
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 12, vertical: 4),
-                                  minimumSize: Size(
-                                    screenSize.width * 0.67,
-                                    screenSize.height * 0.044,
-                                  ),
-                                ),
-                                child: const Text(
-                                  "회원가입하기",
-                                  style: TextStyle(
-                                    fontSize: 13,
-                                    fontWeight: FontWeight.w400,
-                                    color: Color(0xFFFFFFFF),
-                                  ),
-                                ),
-                              ),
-                        ElevatedButton(
-                          onPressed: () {
-                            Navigator.of(context).pop();
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFFFFFFFF),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(6),
-                              side: const BorderSide(
-                                  color: Color(0xFF726E6E), width: 1),
-                            ),
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 12, vertical: 4),
-                            minimumSize: Size(
-                              screenSize.width * 0.67,
-                              screenSize.height * 0.044,
-                            ),
-                          ),
-                          child: const Text(
-                            '다시 입력하기',
-                            style: TextStyle(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w400,
-                              color: Color(0xFF726E6E),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                );
-              },
-            );
-          }
+          isSending = false;
+          isExist = isExistingAccount;
         }
       } catch (e) {
         print("Exception: $e");
@@ -306,7 +169,7 @@ class _AuthPageState extends State<AuthPage> {
         // 내가 올린 게시글들의 ID 목록 전역 상태로 저장
         Provider.of<UserProvider>(context, listen: false).getMyPostListId();
 
-        if (isLogin) {
+        if (isLogin || isExist) {
           bool hasNickname =
               int.parse(response.data["is_username"].toString()) == 1
                   ? true
@@ -546,8 +409,10 @@ class _AuthPageState extends State<AuthPage> {
               ),
               ElevatedButton(
                 onPressed: () {
-                  submitEmail(context);
-                  FocusScope.of(context).unfocus();
+                  if (isSubmitEmailVisible) {
+                    submitEmail(context);
+                    FocusScope.of(context).unfocus();
+                  }
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: isEmailSend

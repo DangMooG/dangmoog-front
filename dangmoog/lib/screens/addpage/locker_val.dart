@@ -6,6 +6,7 @@ import 'package:dangmoog/widgets/bottom_popup.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class LockerValPage extends StatefulWidget {
   final ProductModel product;
@@ -23,16 +24,6 @@ class _LockerValState extends State<LockerValPage> {
   final TextEditingController _passwordController = TextEditingController();
 
   bool isLoading = false;
-
-  Future<void> _pickImage() async {
-    final XFile? pickedFile =
-        await _picker.pickImage(source: ImageSource.gallery);
-    if (pickedFile != null) {
-      setState(() {
-        _image = File(pickedFile.path);
-      });
-    }
-  }
 
   bool get isButtonEnabled {
     return _image != null && _passwordController.text.length == 4;
@@ -162,6 +153,214 @@ class _LockerValState extends State<LockerValPage> {
       ],
     );
   }
+
+  Future<void> _pickImage() async {
+
+    Widget addPhotoButtonPopUp(
+        Size screenSize, IconData icon, String text, Function onTap) {
+      return GestureDetector(
+        onTap: () {
+          onTap();
+          Navigator.of(context).pop();
+        },
+        child: Container(
+          width: screenSize.width * 0.192,
+          height: screenSize.width * 0.192,
+          decoration: const BoxDecoration(
+            color: Color(0xffE20529),
+            borderRadius: BorderRadius.all(Radius.circular(4)),
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                icon,
+                color: Colors.white,
+              ),
+              Text(
+                text,
+                style: const TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w400,
+                  color: Colors.white,
+                ),
+              )
+            ],
+          ),
+        ),
+      );
+    }
+
+    showDialog(
+      context: context,
+      barrierDismissible: true,
+      builder: (BuildContext dialogContext) {
+        Size screenSize = MediaQuery.of(context).size;
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(14),
+          ),
+          content: SizedBox(
+            width: screenSize.width * 0.55,
+            height: screenSize.height * 0.21,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  '사진 업로드 방식을\n선택해주세요!',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    addPhotoButtonPopUp(
+                        screenSize, Icons.add_a_photo_outlined, '카메라', () {
+                      _pickImageFromCamera(context);
+                    }),
+                    const SizedBox(
+                      width: 30,
+                    ),
+                    addPhotoButtonPopUp(screenSize,
+                        Icons.add_photo_alternate_outlined, '앨범', () {
+                          _pickImageFromAlbum(context);
+                        }),
+                  ],
+                ),
+                GestureDetector(
+                  onTap: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: Container(
+                    width: 228,
+                    height: 36,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      border: Border.all(
+                        color: const Color(0xff726E6E),
+                        width: 1.0,
+                      ),
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: const Text(
+                      '취소하기',
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w400,
+                        color: Color(0xff726E6E),
+                      ),
+                    ),
+                  ),
+                )
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _pickImageFromAlbum(BuildContext context) async {
+
+
+    PermissionStatus status = await Permission.photos.request();
+
+    if (status.isGranted || status.isLimited) {
+      try {
+        final XFile? pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+
+        if (pickedFile != null) {
+          setState(() {
+            _image = File(pickedFile.path);
+          });
+        }
+      } catch (e) {
+        print("Error picking images: $e");
+      }
+    } else if (status.isPermanentlyDenied || status.isDenied) {
+      if (!mounted) return;
+      await showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(14),
+            ),
+            title: const Text("앨범 권한 필요"),
+            content:
+            const Text("이 기능을 사용하기 위해서는 권한이 필요합니다. 설정으로 이동하여 권한을 허용해주세요."),
+            actions: <Widget>[
+              TextButton(
+                child: const Text("취소"),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+              TextButton(
+                child: const Text("설정으로 이동"),
+                onPressed: () {
+                  openAppSettings();
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          );
+        },
+      );
+    }
+  }
+
+  Future<void> _pickImageFromCamera(BuildContext context) async {
+    PermissionStatus status = await Permission.camera.request();
+
+    if (status.isGranted || status.isLimited) {
+      try {
+        final XFile? pickedFile = await _picker.pickImage(source: ImageSource.camera);
+
+        if (pickedFile != null) {
+          setState(() {
+            _image = File(pickedFile.path);
+          });
+        }
+      } catch (e) {
+        print("Error picking images: $e");
+      }
+    } else if (status.isPermanentlyDenied || status.isDenied) {
+      if (!mounted) return;
+      await showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(14),
+            ),
+            title: const Text("카메라 권한 필요"),
+            content:
+            const Text("이 기능을 사용하기 위해서는 권한이 필요합니다. 설정으로 이동하여 권한을 허용해주세요."),
+            actions: <Widget>[
+              TextButton(
+                child: const Text("취소"),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+              TextButton(
+                child: const Text("설정으로 이동"),
+                onPressed: () {
+                  openAppSettings();
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          );
+        },
+      );
+    }
+  }
+
 
   Widget _buildBottomBar(BuildContext context) {
     return BottomAppBar(
