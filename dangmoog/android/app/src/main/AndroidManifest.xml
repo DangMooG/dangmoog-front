@@ -1,11 +1,13 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <uses-permission android:name="android.permission.CAMERA"/>
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <!-- SDK33부터 해당 권한 세분화(이미지/비디오/오디오) -->
+    <!-- <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" /> --> 
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES"/>
     
     <!-- <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE" />  -->
     <application
-        android:label="dangmoog"
+        android:label="도토릿"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

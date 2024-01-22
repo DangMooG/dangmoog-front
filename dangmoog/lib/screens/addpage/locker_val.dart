@@ -2,6 +2,8 @@ import 'dart:io';
 import 'package:dangmoog/models/product_class.dart';
 import 'package:dangmoog/screens/home.dart';
 import 'package:dangmoog/services/api.dart';
+import 'package:dangmoog/widgets/bottom_popup.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -19,6 +21,8 @@ class _LockerValState extends State<LockerValPage> {
   File? _image; // Variable to hold the image file
   final ImagePicker _picker = ImagePicker(); // ImagePicker instance
   final TextEditingController _passwordController = TextEditingController();
+
+  bool isLoading = false;
 
   Future<void> _pickImage() async {
     final XFile? pickedFile =
@@ -77,18 +81,29 @@ class _LockerValState extends State<LockerValPage> {
   }
 
   Widget _buildBody() {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(20.0),
-      child: Column(
-        // crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          _buildUploadText(),
-          _buildUploadSection(),
-          const SizedBox(height: 20),
-          _buildPasswordSection(),
-        ],
+    return Stack(children: [
+      GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: () {
+          FocusScope.of(context).unfocus();
+        },
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(20.0),
+          child: Column(
+            // crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              _buildUploadText(),
+              _buildUploadSection(),
+              const SizedBox(height: 20),
+              _buildPasswordSection(),
+            ],
+          ),
+        ),
       ),
-    );
+      isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : const SizedBox.shrink()
+    ]);
   }
 
   Widget _buildUploadText() {
@@ -150,6 +165,8 @@ class _LockerValState extends State<LockerValPage> {
 
   Widget _buildBottomBar(BuildContext context) {
     return BottomAppBar(
+      color: Colors.white,
+      surfaceTintColor: Colors.white,
       child: SizedBox(
         height: 60.0,
         child: Row(
@@ -158,6 +175,9 @@ class _LockerValState extends State<LockerValPage> {
             ElevatedButton(
               onPressed: isButtonEnabled
                   ? () async {
+                      setState(() {
+                        isLoading = true;
+                      });
                       try {
                         // Get the necessary data
                         int postId = widget.product
@@ -166,7 +186,7 @@ class _LockerValState extends State<LockerValPage> {
                         String password = _passwordController.text;
 
                         Map<String, dynamic> filters = {"post_id": postId};
-                        var searchResponse =
+                        Response searchResponse =
                             await widget.apiService.searchLocker(filters);
                         if (searchResponse.data is List &&
                             searchResponse.data.isNotEmpty) {
@@ -181,6 +201,10 @@ class _LockerValState extends State<LockerValPage> {
                                   postId, lockerId, password, _image!);
                           if (lockerAuthResponse.statusCode == 200) {
                             print("Success: ${lockerAuthResponse.data}");
+                            setState(() {
+                              isLoading = false;
+                            });
+
                             if (!mounted) return;
                             Navigator.pushAndRemoveUntil(
                               context,
@@ -190,18 +214,21 @@ class _LockerValState extends State<LockerValPage> {
                             );
                           } else {
                             print("Failed: ${lockerAuthResponse.statusCode}");
+                            showPopup(context, "게시글 업로드에 실패했습니다.");
                           }
 
                           // Handle success (e.g., show a success message or navigate to another screen)
                         } else {
                           // Handle the case where no lockers are found or the response is not as expected
                           print("No lockers found for the provided post_id.");
+                          showPopup(context, "게시글 업로드에 실패했습니다.");
                         }
 
                         // Handle success (e.g., show a success message or navigate to another screen)
                       } catch (e) {
                         print("Error occurred: $e");
                         // Handle error (e.g., show an error message)
+                        showPopup(context, "게시글 업로드에 실패했습니다.");
                       }
                     }
                   : null, // Disable the button if conditions aren't met
@@ -210,10 +237,10 @@ class _LockerValState extends State<LockerValPage> {
                   isButtonEnabled ? const Color(0xFFE20529) : Colors.grey,
                 ),
                 minimumSize:
-                    MaterialStateProperty.all<Size>(const Size(269, 46)),
+                    MaterialStateProperty.all<Size>(const Size(340, 48)),
                 shape: MaterialStateProperty.all<RoundedRectangleBorder>(
                   RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(12),
                   ),
                 ),
               ),

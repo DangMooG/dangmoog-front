@@ -15,7 +15,10 @@ class ProductModel extends ChangeNotifier {
   int chatCount;
   final DateTime createTime;
   final DateTime updateTime;
-  int useLocker; //사물함 1 or 직접 0
+  // 직접 거래 0
+  // 사물함 거래 인증안된 상태 1
+  // 사물함 거래 인증된 상태 2
+  int useLocker;
   bool _isFavorited = false;
   bool isUpdatingLike = false;
   bool isTimeEnded;
@@ -52,7 +55,7 @@ class ProductModel extends ChangeNotifier {
       representativePhotoId: json['representative_photo_id'] ?? 0,
       postId: json['post_id'] ?? 0,
       likeCount: json['liked'] ?? 0,
-      chatCount: json['room_count']??0,
+      chatCount: json['room_count'] ?? 0,
       createTime:
           DateTime.tryParse(json['create_time'].toString()) ?? DateTime.now(),
       updateTime:

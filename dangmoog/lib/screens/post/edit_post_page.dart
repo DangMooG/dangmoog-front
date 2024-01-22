@@ -1,13 +1,14 @@
+// ignore_for_file: avoid_print
+
 import 'dart:io';
+import 'package:dangmoog/screens/home.dart';
 import 'package:dangmoog/screens/post/post_list.dart';
+import 'package:dangmoog/widgets/bottom_popup.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:dangmoog/constants/category_list.dart';
 import 'package:intl/intl.dart';
-
-// 권한 확인
-import 'package:permission_handler/permission_handler.dart';
 
 import 'package:dangmoog/services/api.dart';
 
@@ -16,15 +17,18 @@ import '../../models/product_class.dart';
 class EditPostPage extends StatefulWidget {
   final int postId;
   final ProductModel product;
-  const EditPostPage({Key? key, required this.postId, required this.product})
-      : super(key: key);
+  const EditPostPage({
+    Key? key,
+    required this.postId,
+    required this.product,
+  }) : super(key: key);
 
   @override
   State<EditPostPage> createState() => _EditPostPageState();
 }
 
 class _EditPostPageState extends State<EditPostPage> {
-  int useLocker = 1;
+  late int useLocker;
   final List<String> _imageList = <String>[];
   final ImagePicker picker = ImagePicker();
   final List<XFile> vac = <XFile>[];
@@ -113,7 +117,6 @@ class _EditPostPageState extends State<EditPostPage> {
           priceController.text = product.price.toString();
           _selectedItem = categeryItems[product.categoryId - 1];
           detailController.text = product.description;
-          // Initialize other fields if necessary
         });
       } else {
         // Handle non-successful response
@@ -130,241 +133,48 @@ class _EditPostPageState extends State<EditPostPage> {
       price = int.parse(priceController.text.replaceAll(',', ''));
     } catch (e) {
       print("Error parsing price: $e");
-      return; // exit the function since price couldn't be parsed
+      return;
     }
 
     String description = detailController.text;
     int categoryId = categeryItems.indexOf(_selectedItem);
 
-    if (title.contains('직접')) {
-      useLocker = 0;
-    } else {
-      useLocker = 1;
-    }
-
-    // Check if there are any images selected, otherwise set imageFiles to null
-    List<File>? imageFiles;
-    if (_imageList.isNotEmpty) {
-      imageFiles = _imageList.map((path) => File(path)).toList();
-    }
-
-    Response response = await apiService.patchPost(
+    try {
+      Response response = await apiService.patchPost(
+        postId: widget.postId,
         categoryId: categoryId,
         description: description,
         price: price,
         title: title,
-        useLocker: useLocker,
-        imageFiles: imageFiles,
-        postId: widget.postId);
+      );
 
-    if (response.statusCode == 200) {
-      // Successful Response
-      var responseData = response.data;
-
-      var postId = responseData['post_id'];
-      var createTime = responseData['create_time'];
-      var updateTime = responseData['update_time'];
-
-      // Implement your success logic here. For example, show a success message and navigate to another screen.
-      print(
-          "Post created successfully! Post ID: $postId, Created at: $createTime, Updated at: $updateTime");
-
-      // Check if the locker is to be used
-      if (useLocker == 1) {
-        // Update the locker information with the new post_id
-        Map<String, dynamic> lockerUpdates = {
-          "post_id":
-              postId, // assuming 'post_id' is the field you want to update in the locker
-        };
-
-        try {
-          print("post ID는 $postId입니다.");
-          // Response lockerResponse = await apiService.patchLocker(lockerId!, lockerUpdates);
-          // if (lockerResponse.statusCode == 200) {
-          //   print('Locker updated successfully with Post ID: $postId');
-          // } else {
-          //   print('Failed to update locker: ${lockerResponse.statusCode}');
-          // }
-        } catch (e) {
-          print('Error updating locker with Post ID: $e');
-        }
+      if (response.statusCode == 200) {
         if (!mounted) return;
         Navigator.pushAndRemoveUntil(
           context,
-          MaterialPageRoute(builder: (context) => const ProductList()),
+          MaterialPageRoute(builder: (context) => const MyHome()),
           (Route<dynamic> route) => false,
         );
+      } else if (response.statusCode == 422) {
+        var errorData = response.data;
+        var errorDetail = errorData['detail'];
+        for (var error in errorDetail) {
+          var location = error['loc'];
+          var errorMsg = error['msg'];
+          var errorType = error['type'];
+
+          print("Error at $location: $errorMsg (Type: $errorType)");
+        }
+        showPopup(context, "게시글 수정에 실패했습니다.");
       } else {
-        if (!mounted) return;
-        Navigator.pop(context);
+        print(
+            "Error creating post. Status Code: ${response.statusCode}, Error Message: ${response.statusMessage}");
+        showPopup(context, "게시글 수정에 실패했습니다.");
       }
-      // Your additional success logic
-    } else if (response.statusCode == 422) {
-      // Validation Error
-      var errorData = response.data;
-      var errorDetail = errorData['detail'];
-      // Here you might want to iterate through 'detail' if it's a list to extract specific error messages
-      for (var error in errorDetail) {
-        var location = error['loc'];
-        var errorMsg = error['msg'];
-        var errorType = error['type'];
-
-        // Handle the validation error. For example, display a relevant error message to the user.
-        print("Error at $location: $errorMsg (Type: $errorType)");
-      }
-
-      // Maybe display a general error toast message or specific field error messages
-    } else {
-      // Other potential errors
-      print('Hello');
-      print(
-          "Error creating post. Status Code: ${response.statusCode}, Error Message: ${response.statusMessage}");
+    } catch (e) {
+      print(e);
     }
   }
-
-  // 앨범에서 이미지를 가져오는 함수
-  Future getImagesFromAlbum(BuildContext context) async {
-    PermissionStatus status = await Permission.photos.request();
-
-    if (status.isGranted || status.isLimited) {
-      try {
-        final List<XFile> pickedImages = await picker.pickMultiImage();
-
-        if (pickedImages.isNotEmpty) {
-          List<String> imagesPath = pickedImages
-              .where((image) => !_imageList.contains(image.path))
-              .map((image) => image.path)
-              .toList();
-
-          // Check if adding new images will exceed the limit
-          int overflowCount = _imageList.length + imagesPath.length - 10;
-          if (overflowCount > 0) {
-            // Trim the imagesPath list
-            imagesPath =
-                imagesPath.take(imagesPath.length - overflowCount).toList();
-
-            if (!mounted) return;
-            showDialog(
-              context: context,
-              builder: (context) => AlertDialog(
-                title: const Text('Image Limit Reached'),
-                content: Text(
-                    '$overflowCount images were not added due to the 10 image limit.'),
-                actions: [
-                  TextButton(
-                    onPressed: () => Navigator.of(context).pop(),
-                    child: const Text('OK'),
-                  ),
-                ],
-              ),
-            );
-          }
-
-          setState(() {
-            _imageList.addAll(imagesPath);
-          });
-        }
-      } catch (e) {
-        print("Error picking images: $e");
-      }
-    } else if (status.isPermanentlyDenied) {
-      if (!mounted) return;
-      await showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: const Text("앨범 권한 필요"),
-            content:
-                const Text("이 기능을 사용하기 위해서는 권한이 필요합니다. 설정으로 이동하여 권한을 허용해주세요."),
-            actions: <Widget>[
-              TextButton(
-                child: const Text("취소"),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-              ),
-              TextButton(
-                child: const Text("설정으로 이동"),
-                onPressed: () {
-                  openAppSettings();
-                  Navigator.of(context).pop();
-                },
-              ),
-            ],
-          );
-        },
-      );
-    }
-  }
-
-  Future getImagesFromCamera(BuildContext context) async {
-    PermissionStatus status = await Permission.camera.request();
-
-    if (status.isGranted || status.isLimited) {
-      try {
-        final XFile? pickedImage =
-            await picker.pickImage(source: ImageSource.camera);
-
-        if (pickedImage != null) {
-          String imagePath = pickedImage.path;
-
-          if (_imageList.length >= 10) {
-            // Inform the user that they've reached the limit
-            if (!mounted) return;
-            showDialog(
-              context: context,
-              builder: (context) => AlertDialog(
-                title: const Text('Error'),
-                content: const Text('You can only select up to 10 images.'),
-                actions: [
-                  TextButton(
-                    onPressed: () => Navigator.of(context).pop(),
-                    child: const Text('OK'),
-                  ),
-                ],
-              ),
-            );
-          } else {
-            setState(() {
-              _imageList.add(imagePath);
-            });
-          }
-        }
-      } catch (e) {
-        print("Error picking images: $e");
-      }
-    } else if (status.isPermanentlyDenied) {
-      if (!mounted) return;
-      await showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: const Text("카메라 권한 필요"),
-            content:
-                const Text("이 기능을 사용하기 위해서는 권한이 필요합니다. 설정으로 이동하여 권한을 허용해주세요."),
-            actions: <Widget>[
-              TextButton(
-                child: const Text("취소"),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-              ),
-              TextButton(
-                child: const Text("설정으로 이동"),
-                onPressed: () {
-                  openAppSettings();
-                  Navigator.of(context).pop();
-                },
-              ),
-            ],
-          );
-        },
-      );
-    }
-  }
-
-  bool useCabinet = false;
-  int userId = 3;
 
   bool _isSelectListVisible = false;
   String _selectedItem = '';
@@ -402,6 +212,7 @@ class _EditPostPageState extends State<EditPostPage> {
         centerTitle: true,
       ),
       body: GestureDetector(
+        behavior: HitTestBehavior.opaque,
         onTap: () => FocusScope.of(context).unfocus(),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -440,8 +251,7 @@ class _EditPostPageState extends State<EditPostPage> {
 
   Widget _imagePickerSection(BuildContext context, int postId) {
     return FutureBuilder<List<String>>(
-      future:
-          fetchImages(postId), // This is your async function to fetch images
+      future: fetchImages(postId),
       builder: (context, snapshot) {
         // Handling loading state
         if (snapshot.connectionState == ConnectionState.waiting) {
@@ -464,7 +274,6 @@ class _EditPostPageState extends State<EditPostPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
-                _addImages(context),
                 Expanded(
                   child: SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
@@ -487,213 +296,30 @@ class _EditPostPageState extends State<EditPostPage> {
     );
   }
 
-  // 사진 추가 버튼
-  Widget _addImages(BuildContext context) {
-    // 카메라, 앨범 버튼
-    Widget addPhotoButtonPopUp(
-        Size screenSize, IconData icon, String text, Function onTap) {
-      return GestureDetector(
-        onTap: () {
-          onTap();
-          Navigator.of(context).pop();
-        },
-        child: Container(
-          width: screenSize.width * 0.192,
-          height: screenSize.width * 0.192,
-          decoration: const BoxDecoration(
-            color: Color(0xffE20529),
-            borderRadius: BorderRadius.all(Radius.circular(4)),
-          ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                icon,
-                color: Colors.white,
-              ),
-              Text(
-                text,
-                style: const TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w400,
-                  color: Colors.white,
-                ),
-              )
-            ],
-          ),
-        ),
-      );
-    }
-
-    return GestureDetector(
-      onTap: () {
-        showDialog(
-          context: context,
-          barrierDismissible: true,
-          builder: (BuildContext context) {
-            Size screenSize = MediaQuery.of(context).size;
-            return AlertDialog(
-              shape: RoundedRectangleBorder(
-                borderRadius:
-                    BorderRadius.circular(14), // 여기서 원하는 값으로 둥글게 조절할 수 있습니다.
-              ),
-              content: SizedBox(
-                width: screenSize.width * 0.55,
-                height: screenSize.height * 0.21,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text(
-                      '사진 업로드 방식을\n선택해주세요!',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        addPhotoButtonPopUp(
-                            screenSize, Icons.add_a_photo_outlined, '카메라', () {
-                          getImagesFromCamera(context);
-                        }),
-                        const SizedBox(
-                          width: 30,
-                        ),
-                        addPhotoButtonPopUp(screenSize,
-                            Icons.add_photo_alternate_outlined, '앨범', () {
-                          getImagesFromAlbum(context);
-                        }),
-                      ],
-                    ),
-                    GestureDetector(
-                      onTap: () {
-                        Navigator.of(context).pop();
-                      },
-                      child: Container(
-                        width: 228,
-                        height: 36,
-                        alignment: Alignment.center,
-                        decoration: BoxDecoration(
-                          border: Border.all(
-                            color: const Color(0xff726E6E),
-                            width: 1.0,
-                          ),
-                          borderRadius: BorderRadius.circular(6),
-                        ),
-                        child: const Text(
-                          '취소하기',
-                          style: TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w400,
-                            color: Color(0xff726E6E),
-                          ),
-                        ),
-                      ),
-                    )
-                  ],
-                ),
-              ),
-            );
-          },
-        );
-      },
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(
-            color: const Color(0xFFA19E9E),
-            width: 1,
-          ),
-        ),
-        width: 80,
-        height: 80,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(
-              Icons.image_outlined,
-              color: Color(0xFFA19E9E),
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  "${_imageList.length}",
-                  style: TextStyle(
-                    color: _imageList.isEmpty
-                        ? const Color(0xFFA19E9E)
-                        : const Color(0xFFE20529),
-                    fontSize: 12,
-                  ),
-                ),
-                const Text(
-                  "/10",
-                  style: TextStyle(
-                    color: Color(0xFFA19E9E),
-                    fontSize: 12,
-                  ),
-                ),
-              ],
-            )
-          ],
-        ),
-      ),
-    );
-  }
-
   Widget _imagePreview(String imagePath) {
     return Container(
-      margin: const EdgeInsets.only(left: 8),
-      child: Stack(
-        alignment: Alignment.topRight,
-        children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(8),
-            child: imagePath.startsWith('http')
-                ? Image.network(
-                    imagePath,
-                    width: 80,
-                    height: 80,
-                    fit: BoxFit.cover,
-                  )
-                : Image.file(
-                    File(imagePath),
-                    width: 80,
-                    height: 80,
-                    fit: BoxFit.cover,
-                  ),
-          ),
-          Positioned(
-            child: GestureDetector(
-              onTap: () {
-                setState(() {
-                  _imageList.remove(imagePath);
-                });
-              },
-              child: Stack(
-                clipBehavior: Clip.none,
-                alignment: Alignment.center,
-                children: [
-                  Container(
-                    width: 16,
-                    height: 16,
-                    decoration: const BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: Colors.white,
-                    ),
-                  ),
-                  const Icon(
-                    Icons.cancel,
-                    color: Colors.black,
-                    size: 20,
-                  ),
-                ],
+      decoration: BoxDecoration(
+        border: Border.all(
+          width: 1,
+          color: const Color(0xffA19E9E),
+        ),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(8),
+        child: imagePath.startsWith('http')
+            ? Image.network(
+                imagePath,
+                width: 80,
+                height: 80,
+                fit: BoxFit.cover,
+              )
+            : Image.file(
+                File(imagePath),
+                width: 80,
+                height: 80,
+                fit: BoxFit.cover,
               ),
-            ),
-          ),
-        ],
       ),
     );
   }
@@ -1133,15 +759,11 @@ class _EditPostPageState extends State<EditPostPage> {
               padding: const EdgeInsets.only(top: 8.0),
               child: Row(
                 children: [
-                  const Icon(Icons.error,
-                      color: Color(0xFFE20529), size: 12), // Error icon
-                  const SizedBox(
-                      width: 4), // Some spacing between icon and text
-                  Text(
-                    productDescriptionError!,
-                    style:
-                        const TextStyle(color: Color(0xFFE20529), fontSize: 12),
-                  ),
+                  const Icon(Icons.error, color: Color(0xFFE20529), size: 12),
+                  const SizedBox(width: 4),
+                  Text(productDescriptionError!,
+                      style: const TextStyle(
+                          color: Color(0xFFE20529), fontSize: 12)),
                 ],
               ),
             ),
@@ -1172,125 +794,10 @@ class _EditPostPageState extends State<EditPostPage> {
       child: ElevatedButton(
         onPressed: () {
           _setFieldErrors();
-          setState(() {});
 
           if (isButtonEnabled) {
-            if (_imageList.isEmpty) {
-              showDialog(
-                context: context,
-                barrierDismissible: false,
-                builder: (BuildContext context) {
-                  return Dialog(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    elevation: 5,
-                    child: Container(
-                      padding: const EdgeInsets.all(20),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const Text(
-                            '사진을 올리지 않았습니다!\n그래도 판매글을 업로드하시겠어요?',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                                fontSize: 18, fontWeight: FontWeight.bold),
-                          ),
-                          const SizedBox(
-                            height: 8,
-                          ),
-                          const Text(
-                            '사진이 없는 게시글은\n사진이 있는 게시물보다 전환율이 낮습니다.\n그래도 사진없이 업로드하시겠어요?',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(fontSize: 14),
-                          ),
-                          const SizedBox(
-                            height: 16,
-                          ),
-                          SizedBox(
-                            width: 300,
-                            child: TextButton(
-                              onPressed: () {
-                                _editNewPost();
-                                if (useLocker == 1) {}
-                              },
-                              style: ButtonStyle(
-                                backgroundColor:
-                                    MaterialStateProperty.resolveWith<Color>(
-                                  (Set<MaterialState> states) {
-                                    if (states
-                                        .contains(MaterialState.pressed)) {
-                                      return Colors
-                                          .red[600]!; // Color when pressed
-                                    }
-                                    return const Color(
-                                        0xffE20529); // Regular color
-                                  },
-                                ),
-                                foregroundColor:
-                                    MaterialStateProperty.all<Color>(
-                                        Colors.white),
-                                shape: MaterialStateProperty.all<
-                                    RoundedRectangleBorder>(
-                                  RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(6),
-                                    side: const BorderSide(
-                                        color: Color(0xFF726E6E)),
-                                  ),
-                                ),
-                              ),
-                              child: const Text('업로드'),
-                            ),
-                          ),
-                          const SizedBox(
-                            height: 8,
-                          ),
-                          SizedBox(
-                            width: 300,
-                            child: TextButton(
-                              onPressed: () {
-                                Navigator.of(context).pop(); // close the dialog
-                              },
-                              style: ButtonStyle(
-                                backgroundColor:
-                                    MaterialStateProperty.resolveWith<Color>(
-                                  (Set<MaterialState> states) {
-                                    if (states
-                                        .contains(MaterialState.pressed)) {
-                                      return Colors
-                                          .red[600]!; // Color when pressed
-                                    }
-                                    return Colors.transparent; // Regular color
-                                  },
-                                ),
-                                foregroundColor:
-                                    MaterialStateProperty.all<Color>(
-                                        const Color(0xFF726E6E)),
-                                shape: MaterialStateProperty.all<
-                                    RoundedRectangleBorder>(
-                                  RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(6),
-                                    side: const BorderSide(
-                                        color: Color(0xFF726E6E)),
-                                  ),
-                                ),
-                              ),
-                              child: const Text('취소하기'),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
-                },
-              );
-            } else {
-              _editNewPost();
-            }
+            _editNewPost();
           }
-
-          if (priceController.text.isNotEmpty) {
-          } else {}
         },
         style: ButtonStyle(
           backgroundColor: MaterialStateProperty.all(const Color(0xFFE20529)),
@@ -1421,8 +928,6 @@ class _EditPostPageState extends State<EditPostPage> {
   }
 
   void _setFieldErrors() {
-    // Check for product name
-
     setState(() {
       if (!isProductNameFilled) {
         productNameError = '물품 이름을 입력해주세요!';
@@ -1451,8 +956,6 @@ class _EditPostPageState extends State<EditPostPage> {
         productPriceError = null;
       }
     });
-
-    // Similarly, reset error messages for other fields if their conditions are satisfied
   }
 
   void _showExitConfirmationDialog(BuildContext context) {
@@ -1460,6 +963,9 @@ class _EditPostPageState extends State<EditPostPage> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(14),
+          ),
           title: const Column(
             children: [
               Padding(
@@ -1492,13 +998,7 @@ class _EditPostPageState extends State<EditPostPage> {
                   width: 300,
                   child: TextButton(
                     onPressed: () {
-                      // if (useLocker==1){
-                      //   Map<String, dynamic> updates= {"status":1};
-                      //   apiService.patchLocker(widget.lockerId!, updates);
-                      // }
-
-                      Navigator.of(context).pop(
-                          true); // Close the dialog and confirm exit without saving
+                      Navigator.of(context).pop(true);
                     },
                     style: ButtonStyle(
                       backgroundColor: MaterialStateProperty.resolveWith<Color>(
@@ -1545,109 +1045,6 @@ class _EditPostPageState extends State<EditPostPage> {
                       ),
                     ),
                     child: const Text('계속 수정하기'),
-                  ),
-                ),
-              ],
-            ),
-          ],
-        );
-      },
-    ).then((shouldExit) {
-      if (shouldExit == true) {
-        Navigator.of(context).pop(); // Exit the AddPostPage
-      }
-    });
-  }
-
-  void _showLockerDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Column(
-            children: [
-              Padding(
-                padding: EdgeInsets.all(8.0),
-                child: Text(
-                  '사물함거래 등록 시 유의해주세요!',
-                  style: TextStyle(
-                    fontSize: 16,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-              ),
-              Text(
-                '30분 안에 게시글을 업로드 하지 않으면 사물함 선택이 초기화돼요.\n게시글 작성 이후 15분 안에 사물함 안에 물건을 넣은 사진과 비밀번호를 인증해주셔야 합니다(구매자 확인용).',
-                style: TextStyle(
-                  fontSize: 14,
-                ),
-                textAlign: TextAlign.left,
-              ),
-            ],
-          ),
-          // content: ,
-          actions: <Widget>[
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                SizedBox(
-                  width: 300,
-                  child: TextButton(
-                    onPressed: () {
-                      // if (useLocker==1){
-                      //   Map<String, dynamic> updates= {"status":1};
-                      //   apiService.patchLocker(widget.lockerId!, updates);
-                      // }
-
-                      Navigator.of(context).pop(
-                          true); // Close the dialog and confirm exit without saving
-                    },
-                    style: ButtonStyle(
-                      backgroundColor: MaterialStateProperty.resolveWith<Color>(
-                        (Set<MaterialState> states) {
-                          if (states.contains(MaterialState.pressed)) {
-                            return Colors.red[600]!; // Color when pressed
-                          }
-                          return const Color(0xFFE20529); // Regular color
-                        },
-                      ),
-                      foregroundColor:
-                          MaterialStateProperty.all<Color>(Colors.white),
-                      shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                        RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(6),
-                        ),
-                      ),
-                    ),
-                    child: const Text('사물함거래 등록 시작하기'),
-                  ),
-                ),
-                SizedBox(
-                  width: 300,
-                  child: TextButton(
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                    style: ButtonStyle(
-                      backgroundColor: MaterialStateProperty.resolveWith<Color>(
-                        (Set<MaterialState> states) {
-                          if (states.contains(MaterialState.pressed)) {
-                            return Colors.red[600]!; // Color when pressed
-                          }
-                          return Colors.transparent; // Regular color
-                        },
-                      ),
-                      foregroundColor: MaterialStateProperty.all<Color>(
-                          const Color(0xFF726E6E)),
-                      shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                        RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(6),
-                          side: const BorderSide(color: Color(0xFF726E6E)),
-                        ),
-                      ),
-                    ),
-                    child: const Text('직접거래로 전환하기'),
                   ),
                 ),
               ],

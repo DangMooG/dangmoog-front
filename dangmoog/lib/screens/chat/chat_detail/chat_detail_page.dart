@@ -22,12 +22,14 @@ class ChatDetail extends StatefulWidget {
   final bool imBuyer;
   final int postId;
   final String roomId;
+  final String userName;
 
   const ChatDetail({
     super.key,
     required this.imBuyer,
     required this.postId,
     required this.roomId,
+    required this.userName,
   });
 
   @override
@@ -191,7 +193,7 @@ class _ChatDetailState extends State<ChatDetail> {
       },
       child: Scaffold(
         resizeToAvoidBottomInset: resizeScreenKeyboard,
-        appBar: _buildChatUserName(product != null ? product!.userName : ""),
+        appBar: _buildChatUserName(widget.userName),
         body: Center(
           child: AbsorbPointer(
             absorbing: _blockInteraction,
@@ -271,6 +273,8 @@ class _ChatDetailState extends State<ChatDetail> {
             false,
           );
           chatListProvider.resetUnreadCount(index, false);
+        } else {
+          chatProvider.addNewChatList();
         }
       }
     }

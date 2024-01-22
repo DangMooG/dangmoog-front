@@ -113,6 +113,7 @@ class _NicknamePageState extends State<NicknamePage> {
       appBar: AppBar(),
       resizeToAvoidBottomInset: false,
       body: GestureDetector(
+        behavior: HitTestBehavior.opaque,
         onTap: () => FocusScope.of(context).unfocus(),
         child: Stack(
           children: [

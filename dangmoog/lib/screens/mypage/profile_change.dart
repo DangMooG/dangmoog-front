@@ -1,3 +1,4 @@
+import 'package:dangmoog/screens/app_bar.dart';
 import 'package:dangmoog/screens/mypage/nickname_change.dart';
 import 'package:dangmoog/services/api.dart';
 import 'package:dio/dio.dart';
@@ -26,14 +27,8 @@ class _ProfileChangePageState extends State<ProfileChangePage> {
   String nickname = '';
   String email = '';
   final ImagePicker picker = ImagePicker();
-  //Color buttonColor = const Color(0xFFDADADA); // 초기 버튼 색상
 
   bool buttonAcitve = false;
-
-  // 이미지 설정 시 유의사항 visibility
-  bool isHelpVisible = false;
-
-  static const storage = FlutterSecureStorage();
 
   Future<void> getImagesFromCamera() async {
     PermissionStatus status = await Permission.camera.request();
@@ -54,12 +49,15 @@ class _ProfileChangePageState extends State<ProfileChangePage> {
       } catch (e) {
         print("Error picking images: $e");
       }
-    } else if (status.isPermanentlyDenied) {
+    } else if (status.isPermanentlyDenied || status.isDenied) {
       if (!mounted) return;
       await showDialog(
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(14),
+            ),
             title: const Text("카메라 권한 필요"),
             content:
                 const Text("이 기능을 사용하기 위해서는 권한이 필요합니다. 설정으로 이동하여 권한을 허용해주세요."),
@@ -104,13 +102,16 @@ class _ProfileChangePageState extends State<ProfileChangePage> {
       } catch (e) {
         print("Error picking images: $e");
       }
-    } else if (status.isPermanentlyDenied) {
+    } else if (status.isPermanentlyDenied || status.isDenied) {
       if (!mounted) return;
       await showDialog(
         context: context,
         barrierDismissible: false,
         builder: (BuildContext context) {
           return AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(14),
+            ),
             title: const Text("카메라 권한 필요"),
             content:
                 const Text("이 기능을 사용하기 위해서는 권한이 필요합니다. 설정으로 이동하여 권한을 허용해주세요."),
@@ -218,7 +219,16 @@ class _ProfileChangePageState extends State<ProfileChangePage> {
             Navigator.of(context).pop();
           },
         ),
+        title: const Text(
+          "프로필 변경",
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.w600,
+            color: Color(0xff302E2E),
+          ),
+        ),
         centerTitle: true,
+        bottom: appBarBottomLine(),
       ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.center,

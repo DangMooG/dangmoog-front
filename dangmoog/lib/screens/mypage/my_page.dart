@@ -90,20 +90,22 @@ class _MyPageState extends State<MyPage> {
                       Text(
                         userNickname,
                         style: const TextStyle(
-                          color: Color(0xFF552619),
+                          color: Color(0xFF302E2E),
                           fontFamily: 'Pretendard-SemiBold',
                           fontSize: 18,
                           fontWeight: FontWeight.w600,
                         ),
+                        overflow: TextOverflow.ellipsis,
                       ),
                       Text(
                         userEmail,
                         style: const TextStyle(
-                          color: Color(0xFFA07272),
+                          color: Color(0xFF726E6E),
                           fontFamily: 'Pretendard-Regular',
                           fontSize: 14,
                           fontWeight: FontWeight.w400,
                         ),
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ],
                   ),
@@ -279,38 +281,16 @@ class _MyPageState extends State<MyPage> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => const accountDeletePage(),
+                    builder: (context) => const AccountDeletePage(),
                   ),
                 );
-              }
-              //   () async {
-              //   try {
-              //     Response response = await ApiService().deleteAccount();
-              //     if (response.statusCode == 204) {
-              //       await storage.delete(key: 'accessToken');
-              //       await storage.delete(key: 'userId');
-
-              //       Navigator.pushAndRemoveUntil(
-              //         context,
-              //         MaterialPageRoute(
-              //             builder: (context) => const WelcomePage()),
-              //         (route) => false,
-              //       );
-              //     }
-              //   } catch (e) {
-              //     print(e);
-              //   }
-              // },
-              ),
+              }),
         ],
       ),
     );
   }
 
-  Future LogoutPopup(
-    Size screenSize,
-    BuildContext context,
-  ) {
+  Future LogoutPopup(Size screenSize, BuildContext context) {
     return showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -349,6 +329,8 @@ class _MyPageState extends State<MyPage> {
                     try {
                       await storage.delete(key: 'accessToken');
                       await storage.delete(key: 'userId');
+                      await storage.delete(key: 'encrypted_bank');
+                      await storage.delete(key: 'encrypted_account');
 
                       if (!mounted) return;
                       Navigator.pushAndRemoveUntil(

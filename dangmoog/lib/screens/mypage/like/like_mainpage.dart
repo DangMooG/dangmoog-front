@@ -29,40 +29,44 @@ class _LikeMainPageState extends State<LikeMainPage> {
   @override
   void initState() {
     super.initState();
-    futureProducts = _loadLikedProducts(context);
+    futureProducts = _loadLikedProducts();
   }
 
-  Future<List<ProductModel>> _loadLikedProducts(BuildContext context) async {
-    Response response = await apiService.getLikeList();
+  // 관심목록을 새로고침 액션을 통해 업데이트하기 위한 함수
+  void reloadLikedProducts() {
+    setState(() {
+      futureProducts = _loadLikedProducts();
+    });
+  }
+
+  // 좋아요한 게시글의 정보들을 리스트 형식으로 반환
+  Future<List<ProductModel>> _loadLikedProducts() async {
+    Response response = await apiService.getLikePostList();
     if (response.statusCode == 200) {
-      if (response.data is List) {
-        List<dynamic> data = response.data as List;
+      // 200 response 형식 {"liked_id": int, "account_id":int, "post_id":int}
+      List<dynamic> data = response.data;
 
-        List<int> productIds = []; // 여러 상품 ID를 저장할 리스트
-
-        // 각 아이템에서 ID를 추출하여 리스트에 추가
-        for (var item in data) {
-          int productId = item['post_id'] as int;
-          productIds.add(productId);
-        }
-
-        List<ProductModel> productList = [];
-
-        // 각 상품 ID에 대한 정보를 가져와서 productList에 추가
-        for (int productId in productIds) {
-          Response responseProduct = await apiService.loadProduct(productId);
-          Map<String, dynamic> productData =
-              responseProduct.data as Map<String, dynamic>;
-
-          // 가져온 데이터를 ProductModel로 변환하여 productList에 추가
-          ProductModel product = ProductModel.fromJson(productData);
-          productList.add(product);
-        }
-
-        return productList;
-      } else {
-        throw Exception('Data format from server is unexpected.');
+      // postId만 추출하여 저장
+      List<int> productIds = [];
+      for (var item in data) {
+        int productId = item['post_id'] as int;
+        productIds.add(productId);
       }
+
+      List<ProductModel> productList = [];
+
+      // 각 상품 ID에 대한 정보를 가져와서 productList에 추가
+      for (int productId in productIds) {
+        Response responseProduct = await apiService.loadProduct(productId);
+        Map<String, dynamic> productData =
+            responseProduct.data as Map<String, dynamic>;
+
+        // 가져온 데이터를 ProductModel로 변환하여 productList에 추가
+        ProductModel product = ProductModel.fromJson(productData);
+        productList.add(product);
+      }
+
+      return productList;
     } else {
       throw Exception('Failed to load products');
     }
@@ -172,6 +176,7 @@ class _LikeMainPageState extends State<LikeMainPage> {
             return MyProductList(
               productList: _sortProducts(snapshot.data!),
               sortingOrder: sorting,
+              reloadProductList: reloadLikedProducts,
             );
           } else {
             return const Center(child: CircularProgressIndicator());
