@@ -6,6 +6,7 @@ import 'package:dangmoog/widgets/bottom_popup.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class LockerValPage extends StatefulWidget {
   final ProductModel product;
@@ -218,14 +219,14 @@ class _LockerValState extends State<LockerValPage> {
                   children: [
                     addPhotoButtonPopUp(
                         screenSize, Icons.add_a_photo_outlined, '카메라', () {
-                      _pickImageFromCamera();
+                      _pickImageFromCamera(context);
                     }),
                     const SizedBox(
                       width: 30,
                     ),
                     addPhotoButtonPopUp(screenSize,
                         Icons.add_photo_alternate_outlined, '앨범', () {
-                          _pickImageFromAlbum();
+                          _pickImageFromAlbum(context);
                         }),
                   ],
                 ),
@@ -262,21 +263,101 @@ class _LockerValState extends State<LockerValPage> {
     );
   }
 
-  Future<void> _pickImageFromAlbum() async {
-    final XFile? pickedFile = await _picker.pickImage(source: ImageSource.gallery);
-    if (pickedFile != null) {
-      setState(() {
-        _image = File(pickedFile.path);
-      });
+  Future<void> _pickImageFromAlbum(BuildContext context) async {
+
+
+    PermissionStatus status = await Permission.photos.request();
+
+    if (status.isGranted || status.isLimited) {
+      try {
+        final XFile? pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+
+        if (pickedFile != null) {
+          setState(() {
+            _image = File(pickedFile.path);
+          });
+        }
+      } catch (e) {
+        print("Error picking images: $e");
+      }
+    } else if (status.isPermanentlyDenied || status.isDenied) {
+      if (!mounted) return;
+      await showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(14),
+            ),
+            title: const Text("앨범 권한 필요"),
+            content:
+            const Text("이 기능을 사용하기 위해서는 권한이 필요합니다. 설정으로 이동하여 권한을 허용해주세요."),
+            actions: <Widget>[
+              TextButton(
+                child: const Text("취소"),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+              TextButton(
+                child: const Text("설정으로 이동"),
+                onPressed: () {
+                  openAppSettings();
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          );
+        },
+      );
     }
   }
 
-  Future<void> _pickImageFromCamera() async {
-    final XFile? pickedFile = await _picker.pickImage(source: ImageSource.camera);
-    if (pickedFile != null) {
-      setState(() {
-        _image = File(pickedFile.path);
-      });
+  Future<void> _pickImageFromCamera(BuildContext context) async {
+    PermissionStatus status = await Permission.camera.request();
+
+    if (status.isGranted || status.isLimited) {
+      try {
+        final XFile? pickedFile = await _picker.pickImage(source: ImageSource.camera);
+
+        if (pickedFile != null) {
+          setState(() {
+            _image = File(pickedFile.path);
+          });
+        }
+      } catch (e) {
+        print("Error picking images: $e");
+      }
+    } else if (status.isPermanentlyDenied || status.isDenied) {
+      if (!mounted) return;
+      await showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(14),
+            ),
+            title: const Text("카메라 권한 필요"),
+            content:
+            const Text("이 기능을 사용하기 위해서는 권한이 필요합니다. 설정으로 이동하여 권한을 허용해주세요."),
+            actions: <Widget>[
+              TextButton(
+                child: const Text("취소"),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+              TextButton(
+                child: const Text("설정으로 이동"),
+                onPressed: () {
+                  openAppSettings();
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          );
+        },
+      );
     }
   }
 
