@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:dangmoog/providers/chat_list_provider.dart';
 import 'package:dangmoog/providers/chat_provider.dart';
 import 'package:dangmoog/providers/chat_setting_provider.dart';
@@ -14,7 +16,7 @@ import 'package:dangmoog/providers/socket_provider.dart';
 // import 'package:firebase_core/firebase_core.dart';
 // import 'firebase_options.dart';
 
-void main() async {
+void main() {
   WidgetsFlutterBinding.ensureInitialized();
   // await Firebase.initializeApp(
   //   options: DefaultFirebaseOptions.currentPlatform,
