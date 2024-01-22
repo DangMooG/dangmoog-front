@@ -42,8 +42,6 @@ class _AuthPageState extends State<AuthPage> {
 
   // 인증메일 발송 버튼 활성화 state
   bool isSubmitEmailVisible = false;
-  // 인증메일 발송 여부
-  bool isEmailSend = false;
 
   // 인증번호 인증 버튼 활성화 state
   bool isSubmitVerificationCodeActive = false;
@@ -95,13 +93,14 @@ class _AuthPageState extends State<AuthPage> {
       showVerificationCodeTextField();
       startTimer();
       setState(() {
-        isEmailSend = false;
         isSubmitEmailVisible = false;
         isSending = true;
       });
 
       try {
         Response response = await ApiService().emailSend(inputEmail);
+        print(response);
+        print(response.data);
         if (response.statusCode == 200) {
           // 이미 존재하는 계정 : true
           // 존재하지 않는 계정 : false
@@ -111,13 +110,16 @@ class _AuthPageState extends State<AuthPage> {
           // 유저가 선택한 플로우와 이메일의 계정 존재 여부가 일치하지 않을 경우
           // // 로그인 and 존재하지 않는 계정
           // // 회원가입 and 이미 존재하는 계정
-          isSending = false;
-          isExist = isExistingAccount;
+          setState(() {
+            isSending = false;
+            isExist = isExistingAccount;
+          });
         }
       } catch (e) {
         print("Exception: $e");
         setState(() {
           isSending = false;
+          isSubmitEmailVisible = true; // 이메일 인증에 문제가 생겼을 경우에는, 다시 요청 가능하도록 해야함
         });
       }
     } else {
@@ -415,31 +417,23 @@ class _AuthPageState extends State<AuthPage> {
                   }
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: isEmailSend
-                      ? const Color(0xFFFFFFFF)
-                      : isSubmitEmailVisible
-                          ? const Color(0xffE20529)
-                          : const Color(0xffD3D2D2),
-                  surfaceTintColor: isEmailSend
-                      ? const Color(0xFFFFFFFF)
-                      : isSubmitEmailVisible
-                          ? const Color(0xffE20529)
-                          : const Color(0xffD3D2D2),
+                  backgroundColor: isSubmitEmailVisible
+                      ? const Color(0xffE20529)
+                      : const Color(0xffD3D2D2),
+                  surfaceTintColor: isSubmitEmailVisible
+                      ? const Color(0xffE20529)
+                      : const Color(0xffD3D2D2),
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(6),
-                      side: isEmailSend
-                          ? const BorderSide(color: Color(0xffE20529))
-                          : const BorderSide(color: Colors.transparent)),
+                      side: const BorderSide(color: Colors.transparent)),
                   padding:
                       const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                   minimumSize: const Size(0, 0),
                 ),
-                child: Text(
+                child: const Text(
                   '인증메일 발송',
                   style: TextStyle(
-                    color: isEmailSend
-                        ? const Color(0xffE20529)
-                        : const Color(0xFFFFFFFF),
+                    color: Color(0xFFFFFFFF),
                     fontSize: 12,
                     fontWeight: FontWeight.w400,
                   ),
