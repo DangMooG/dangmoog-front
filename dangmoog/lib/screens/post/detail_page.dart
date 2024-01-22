@@ -39,15 +39,16 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
           if (provider.isLoading) {
             return Scaffold(
               appBar: AppBar(
-                leading: IconButton(
-                  icon: const Icon(
-                    Icons.keyboard_backspace,
-                    size: 24,
-                  ),
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                ),
+                automaticallyImplyLeading: true,
+                // leading: IconButton(
+                //   icon: const Icon(
+                //     Icons.keyboard_backspace,
+                //     size: 24,
+                //   ),
+                //   onPressed: () {
+                //     Navigator.of(context).pop();
+                //   },
+                // ),
               ),
               body: const Center(
                 child: CircularProgressIndicator(),
@@ -56,15 +57,16 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
           } else if (provider.product == null) {
             return Scaffold(
               appBar: AppBar(
-                leading: IconButton(
-                  icon: const Icon(
-                    Icons.keyboard_backspace,
-                    size: 24,
-                  ),
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                ),
+                automaticallyImplyLeading: true,
+                // leading: IconButton(
+                //   icon: const Icon(
+                //     Icons.keyboard_backspace,
+                //     size: 24,
+                //   ),
+                //   onPressed: () {
+                //     Navigator.of(context).pop();
+                //   },
+                // ),
               ),
               body: const Center(
                 child: Text('Product not found!'),
