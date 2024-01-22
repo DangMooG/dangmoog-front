@@ -643,10 +643,59 @@ class _ProductListState extends State<ProductList> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _buildProductTexts(product),
-            // LikeChatCount(product: product)
+            _buildProductLikeChatCount(product),
           ],
         ),
       ),
+    );
+  }
+
+  // 좋아요, 채팅 개수 표기
+  Widget _buildProductLikeChatCount(ProductModel product) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.end,
+      children: [
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            const Icon(
+              Icons.favorite_border,
+              color: Color(0xffA19E9E),
+              size: 15,
+            ),
+            const SizedBox(
+              width: 6,
+            ),
+            Text(
+              product.likeCount.toString(),
+              style: const TextStyle(
+                fontWeight: FontWeight.w400,
+                fontSize: 11,
+                color: Color(0xffA19E9E),
+              ),
+            ),
+            const SizedBox(
+              width: 10,
+            ),
+            const Icon(
+              Icons.forum_outlined,
+              color: Color(0xffA19E9E),
+              size: 15,
+            ),
+            const SizedBox(
+              width: 6,
+            ),
+            Text(
+              product.chatCount.toString(),
+              style: const TextStyle(
+                fontWeight: FontWeight.w400,
+                fontSize: 11,
+                color: Color(0xffA19E9E),
+              ),
+            ),
+          ],
+        )
+      ],
     );
   }
 
