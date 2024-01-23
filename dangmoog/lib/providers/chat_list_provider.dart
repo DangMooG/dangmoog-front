@@ -8,10 +8,17 @@ class ChatListProvider with ChangeNotifier {
   List<ChatListCell> get sellChatList => _sellChatList;
   List<ChatListCell> get buyChatList => _buyChatList;
 
+  int _sellUnreadCount = 0;
+  int _buyUnreadCount = 0;
+
+  int get sellUnreadCount => _sellUnreadCount;
+  int get buyUnreadCount => _buyUnreadCount;
+
   void setChatList(
       List<ChatListCell> sellChatList, List<ChatListCell> buyChatList) {
     _sellChatList = _sortChatListByUpdateTime(sellChatList);
     _buyChatList = _sortChatListByUpdateTime(buyChatList);
+    updateUnreadCount();
     notifyListeners();
   }
 
@@ -30,6 +37,7 @@ class ChatListProvider with ChangeNotifier {
       _sellChatList[index].unreadCount = _sellChatList[index].unreadCount + 1;
       _sellChatList = List.from(_sortChatListByUpdateTime(_sellChatList));
     }
+    updateUnreadCount();
     notifyListeners();
   }
 
@@ -39,7 +47,15 @@ class ChatListProvider with ChangeNotifier {
     } else if (!isBuyChatList) {
       _sellChatList[index].unreadCount = 0;
     }
+    updateUnreadCount();
     notifyListeners();
+  }
+
+  void updateUnreadCount() {
+    _sellUnreadCount =
+        _sellChatList.fold(0, (sum, item) => sum + item.unreadCount);
+    _buyUnreadCount =
+        _buyChatList.fold(0, (sum, item) => sum + item.unreadCount);
   }
 
   // 채팅 목록이 업데이트되면 update time을 기준으로 정렬
