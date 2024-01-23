@@ -131,6 +131,25 @@ class _ChatDetailState extends State<ChatDetail> {
 
       Provider.of<ChatProvider>(context, listen: false)
           .setImBuyer(widget.imBuyer);
+
+      // 1월 21일 0시 3분 수정 start
+      // 채팅 정보를 불러왔으면 채팅목록 페이지에서 안 읽은 채팅의 개수 초기화
+      final chatListProvider =
+          Provider.of<ChatListProvider>(context, listen: false);
+      if (chatListProvider.buyChatList
+          .any((chatListCell) => chatListCell.roomId == widget.roomId)) {
+        int index = chatListProvider.buyChatList
+            .indexWhere((chatCell) => chatCell.roomId == widget.roomId);
+
+        chatListProvider.resetUnreadCount(index, true);
+      } else if (chatListProvider.sellChatList
+          .any((chatListCell) => chatListCell.roomId == widget.roomId)) {
+        int index = chatListProvider.sellChatList
+            .indexWhere((chatCell) => chatCell.roomId == widget.roomId);
+
+        chatListProvider.resetUnreadCount(index, false);
+      }
+      // 1월 21일 0시 3분 수정 end
     }
   }
 
@@ -331,7 +350,7 @@ class _ChatDetailState extends State<ChatDetail> {
                     timer = Timer.periodic(const Duration(milliseconds: 100),
                         (timer) {
                       double keyboardHeight =
-                          MediaQuery.of(context).viewInsets.bottom ?? 0;
+                          MediaQuery.of(context).viewInsets.bottom;
                       if (keyboardHeight == _keyboardHeight) {
                         timer.cancel();
                         // 다시 키보드가 Screen 영역에 영향을 주도록 변경

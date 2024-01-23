@@ -196,6 +196,8 @@ class _MyHomeState extends State<MyHome> {
           updateTime,
           true,
         );
+
+        chatListProvider.resetUnreadCount(index, true);
       } else if (chatListProvider.sellChatList
           .any((chatListCell) => chatListCell.roomId == roomId)) {
         int index = chatListProvider.sellChatList
@@ -206,6 +208,7 @@ class _MyHomeState extends State<MyHome> {
           updateTime,
           false,
         );
+        chatListProvider.resetUnreadCount(index, false);
       }
     }
   }

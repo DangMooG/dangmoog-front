@@ -41,23 +41,6 @@ class ChatListPage extends StatefulWidget {
 class _ChatListPageState extends State<ChatListPage> {
   bool sellSelected = true;
 
-  Color activeButtonColor = const Color(0xFF552619);
-  Color activeTextColor = Colors.white;
-
-  Color deActiveButtonColor = Colors.white;
-  Color deActiveTextColor = const Color(0xFF552619);
-
-  late Future<List<Chat>> futureSellChat;
-  late Future<List<Chat>> futureBuyChat;
-
-  @override
-  void initState() {
-    super.initState();
-
-    futureSellChat = _loadChatListFromAsset('assets/chat_sell_list.json');
-    futureBuyChat = _loadChatListFromAsset('assets/chat_buy_list.json');
-  }
-
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -129,9 +112,11 @@ class ChatSelectionButton extends StatelessWidget {
 
   final Color activeButtonColor = const Color(0xFFE20529);
   final Color activeTextColor = Colors.white;
+  final Color activeUnreadColor = const Color(0xffF28C9D);
 
   final Color deActiveButtonColor = Colors.white;
-  final Color deActiveTextColor = const Color(0xFFE20529);
+  final Color deActiveTextColor = const Color(0xffA19E9E);
+  final Color deActiveUnreadColor = const Color(0xffD3D2D2);
 
   @override
   Widget build(BuildContext context) {
@@ -141,10 +126,11 @@ class ChatSelectionButton extends StatelessWidget {
       width: screenSize.width * 0.91,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           SizedBox(
             width: screenSize.width * 0.455,
-            height: 45,
+            height: 40,
             child: OutlinedButton(
               style: OutlinedButton.styleFrom(
                 backgroundColor:
@@ -161,21 +147,57 @@ class ChatSelectionButton extends StatelessWidget {
                 ),
               ),
               onPressed: onSellPressed,
-              child: Center(
-                child: Text(
-                  '판매',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: sellSelected ? activeTextColor : deActiveTextColor,
+              child: Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  Text(
+                    '판매',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: sellSelected ? activeTextColor : deActiveTextColor,
+                    ),
                   ),
-                ),
+                  Positioned(
+                    bottom: 14,
+                    left: 23,
+                    child: Consumer<ChatListProvider>(
+                        builder: (context, chatProvider, _) {
+                      int sellUnreadCount = chatProvider.sellUnreadCount;
+
+                      if (sellUnreadCount == 0) {
+                        return const SizedBox.shrink();
+                      }
+
+                      return ClipOval(
+                        child: Container(
+                          width: 16,
+                          height: 16,
+                          alignment: Alignment.center,
+                          decoration: BoxDecoration(
+                            color: sellSelected
+                                ? activeUnreadColor
+                                : deActiveUnreadColor,
+                          ),
+                          child: Text(
+                            '$sellUnreadCount',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 11,
+                              fontWeight: FontWeight.w400,
+                            ),
+                          ),
+                        ),
+                      );
+                    }),
+                  ),
+                ],
               ),
             ),
           ),
           SizedBox(
             width: screenSize.width * 0.455,
-            height: 45,
+            height: 40,
             child: OutlinedButton(
               style: OutlinedButton.styleFrom(
                 backgroundColor:
@@ -192,15 +214,51 @@ class ChatSelectionButton extends StatelessWidget {
                 ),
               ),
               onPressed: onBuyPressed,
-              child: Center(
-                child: Text(
-                  '구매',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 18,
-                    color: sellSelected ? deActiveTextColor : activeTextColor,
+              child: Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  Text(
+                    '구매',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: sellSelected ? deActiveTextColor : activeTextColor,
+                    ),
                   ),
-                ),
+                  Positioned(
+                    bottom: 14,
+                    left: 23,
+                    child: Consumer<ChatListProvider>(
+                        builder: (context, chatProvider, _) {
+                      int buyUnreadCount = chatProvider.buyUnreadCount;
+                      // 데이터가 비어 있으면 아무것도 반환하지 않음
+                      if (buyUnreadCount == 0) {
+                        return const SizedBox.shrink();
+                      }
+
+                      return ClipOval(
+                        child: Container(
+                          width: 16,
+                          height: 16,
+                          alignment: Alignment.center,
+                          decoration: BoxDecoration(
+                            color: sellSelected
+                                ? deActiveUnreadColor
+                                : activeUnreadColor,
+                          ),
+                          child: Text(
+                            '$buyUnreadCount',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 11,
+                              fontWeight: FontWeight.w400,
+                            ),
+                          ),
+                        ),
+                      );
+                    }),
+                  ),
+                ],
               ),
             ),
           ),

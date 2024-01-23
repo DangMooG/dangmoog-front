@@ -458,7 +458,6 @@ Widget addPhotoButtonPopUp(Size screenSize, IconData icon, String text,
   );
 }
 
-// 인증번호가 오지 않을 때 안내사항
 Widget profileHelpMsg() {
   Widget textCell(String text) {
     return Padding(

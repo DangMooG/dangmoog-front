@@ -147,7 +147,7 @@ class _NicknamePageState extends State<NicknamePage> {
                                   nickNameSubmit();
                                 }
                               : () {},
-                          buttonText: '인증',
+                          buttonText: '도토릿 시작하기',
                           isActive: _isChecked ? true : false,
                         ),
                       ],
@@ -325,7 +325,6 @@ class _NicknamePageState extends State<NicknamePage> {
     );
   }
 
-  // 인증번호가 오지 않을 때 안내사항
   Widget nicknameHelpMsg() {
     Widget textCell(String text) {
       return Padding(

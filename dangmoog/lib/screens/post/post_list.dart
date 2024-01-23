@@ -160,8 +160,12 @@ class _ProductListState extends State<ProductList> {
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(14),
               ),
+              surfaceTintColor: Colors.white,
               child: Container(
-                padding: const EdgeInsets.all(20),
+                padding: const EdgeInsets.only(
+                    top: 16, bottom: 20, left: 0, right: 0),
+                constraints:
+                    const BoxConstraints(maxWidth: 228, minHeight: 200),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -175,7 +179,7 @@ class _ProductListState extends State<ProductList> {
                     ),
                     const SizedBox(height: 20),
                     Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         _customButton(
                             context, '직접거래', 'assets/images/direct_icon.png',
@@ -190,6 +194,9 @@ class _ProductListState extends State<ProductList> {
                             ),
                           );
                         }),
+                        const SizedBox(
+                          width: 28,
+                        ),
                         _customButton(
                             context, '사물함거래', 'assets/images/move_to_inbox.png',
                             () {
@@ -205,7 +212,7 @@ class _ProductListState extends State<ProductList> {
                     ),
                     const SizedBox(height: 20),
                     SizedBox(
-                      width: 300,
+                      width: 228,
                       height: 36,
                       child: TextButton(
                         onPressed: () {
@@ -230,6 +237,7 @@ class _ProductListState extends State<ProductList> {
                               side: const BorderSide(color: Color(0xFF726E6E)),
                             ),
                           ),
+                          padding: MaterialStateProperty.all(EdgeInsets.zero),
                         ),
                         child: const Text('취소하기'),
                       ),
@@ -257,25 +265,29 @@ class _ProductListState extends State<ProductList> {
   Widget _customButton(BuildContext context, String label, String imagePath,
       VoidCallback onPressed) {
     return SizedBox(
-      width: 100,
-      height: 100,
+      width: 72,
+      height: 72,
       child: ElevatedButton(
         onPressed: onPressed,
         style: ElevatedButton.styleFrom(
           foregroundColor: Colors.white,
           backgroundColor: const Color(0xFFE20529),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(6),
+            borderRadius: BorderRadius.circular(4),
           ),
+          padding: EdgeInsets.zero,
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Image.asset(imagePath, width: 24, height: 24),
+            Image.asset(imagePath, width: 20, height: 20),
             const SizedBox(height: 5),
             Text(
               label,
-              style: const TextStyle(fontSize: 11),
+              style: const TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.w400,
+              ),
             ),
           ],
         ),

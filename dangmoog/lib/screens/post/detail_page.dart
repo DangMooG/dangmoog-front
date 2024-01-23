@@ -1,4 +1,5 @@
 import 'package:dangmoog/constants/category_list.dart';
+import 'package:dangmoog/providers/chat_provider.dart';
 import 'package:dangmoog/providers/product_detail_provider.dart';
 import 'package:dangmoog/providers/provider.dart';
 import 'package:dangmoog/screens/chat/chat_detail/chat_detail_page.dart';
@@ -649,6 +650,8 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                         String roomId = response.data["room_id"];
 
                         if (!mounted) return;
+                        Provider.of<ChatProvider>(context, listen: false)
+                            .setRoomId(roomId);
                         Navigator.push(
                           context,
                           MaterialPageRoute(

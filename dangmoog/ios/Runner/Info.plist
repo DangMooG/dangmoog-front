@@ -27,9 +27,9 @@
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSCameraUsageDescription</key>
-	<string>"Dotorit"의 게시글 사진, 프로필 사진, 채팅 사진 기능을 사용하기 위해선 카메라에 대한 접근 권한이 필요합니다.</string>
+	<string>"도토릿"의 게시글 사진, 프로필 사진, 채팅 사진 기능을 사용하기 위해선 카메라에 대한 접근 권한이 필요합니다.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>"Dotorit"의 게시글 사진, 프로필 사진, 채팅 사진 기능을 사용하기 위해선 앨범에 대한 접근 권한이 필요합니다.</string>
+	<string>"도토릿"의 게시글 사진, 프로필 사진, 채팅 사진 기능을 사용하기 위해선 앨범에 대한 접근 권한이 필요합니다.</string>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 	<key>UILaunchStoryboardName</key>

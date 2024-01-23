@@ -1333,7 +1333,6 @@ class _AddPostPageState extends State<AddPostPage> {
           child: Text(
             '중고가를 어떻게 설정해야 할지 모르겠다면?\nAI가 대표사진을 분석하여 가격을 추천해줘요!',
             style: TextStyle(
-              fontFamily: 'Pretendard',
               fontSize: 11,
               height: 1.45,
               color: Color(0xFF302E2E),
