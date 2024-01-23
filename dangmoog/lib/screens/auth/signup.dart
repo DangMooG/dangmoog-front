@@ -27,7 +27,7 @@ class _AuthPageState extends State<AuthPage> {
   // 로그인인지 회원가입인지 구분
   late bool isLogin;
 
-  late bool isExist;
+  late bool isExistingAccount;
 
   // 이메일, 인증번호
   String inputEmail = '';
@@ -99,20 +99,18 @@ class _AuthPageState extends State<AuthPage> {
 
       try {
         Response response = await ApiService().emailSend(inputEmail);
-        print(response);
-        print(response.data);
+
         if (response.statusCode == 200) {
           // 이미 존재하는 계정 : true
           // 존재하지 않는 계정 : false
           int status = int.parse(response.data[0]['status'].toString());
-          bool isExistingAccount = status == 1 ? true : false;
 
           // 유저가 선택한 플로우와 이메일의 계정 존재 여부가 일치하지 않을 경우
           // // 로그인 and 존재하지 않는 계정
           // // 회원가입 and 이미 존재하는 계정
           setState(() {
             isSending = false;
-            isExist = isExistingAccount;
+            isExistingAccount = status == 1 ? true : false;
           });
         }
       } catch (e) {
@@ -171,7 +169,7 @@ class _AuthPageState extends State<AuthPage> {
         // 내가 올린 게시글들의 ID 목록 전역 상태로 저장
         Provider.of<UserProvider>(context, listen: false).getMyPostListId();
 
-        if (isLogin || isExist) {
+        if (isLogin || isExistingAccount) {
           bool hasNickname =
               int.parse(response.data["is_username"].toString()) == 1
                   ? true
