@@ -154,18 +154,15 @@ class _ProductListState extends State<ProductList> {
       onTap: () {
         showDialog(
           context: context,
-          barrierDismissible: false,
           builder: (BuildContext context) {
             return Dialog(
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(14),
               ),
-              surfaceTintColor: Colors.white,
+              surfaceTintColor: Colors.transparent,
               child: Container(
                 padding: const EdgeInsets.only(
-                    top: 16, bottom: 20, left: 0, right: 0),
-                constraints:
-                    const BoxConstraints(maxWidth: 228, minHeight: 200),
+                    top: 16, bottom: 20, left: 21, right: 21),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -180,6 +177,7 @@ class _ProductListState extends State<ProductList> {
                     const SizedBox(height: 20),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
+                      mainAxisSize: MainAxisSize.min,
                       children: [
                         _customButton(
                             context, '직접거래', 'assets/images/direct_icon.png',
@@ -190,6 +188,7 @@ class _ProductListState extends State<ProductList> {
                             MaterialPageRoute(
                               builder: (context) => const AddPostPage(
                                 fromChooseLocker: false,
+                                lockerId: null,
                               ),
                             ),
                           );

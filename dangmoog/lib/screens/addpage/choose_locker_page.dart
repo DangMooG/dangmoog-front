@@ -128,8 +128,10 @@ class _ChooseLockerPageState extends State<ChooseLockerPage> {
                             Row(
                               children: [
                                 Image(
-                                  image:
-                                      AssetImage('assets/images/s_image.png'),
+                                  image: AssetImage(
+                                    'assets/images/s_image.png',
+                                  ),
+                                  color: Color(0xff726E6E),
                                   height: 20,
                                   width: 20,
                                 ),
@@ -152,6 +154,7 @@ class _ChooseLockerPageState extends State<ChooseLockerPage> {
                                 Image(
                                   image:
                                       AssetImage('assets/images/l_image.png'),
+                                  color: Color(0xff726E6E),
                                   width: 20,
                                   height: 20,
                                 ),
@@ -309,17 +312,17 @@ class _ChooseLockerPageState extends State<ChooseLockerPage> {
                       surfaceTintColor: Colors.transparent,
                       title: Column(
                         children: [
-                          const Padding(
-                            padding: EdgeInsets.all(8.0),
-                            child: Text(
-                              "선택하신 사물함은 아래와 같습니다!",
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
-                                color: Color(0xff302E2E),
-                              ),
-                              textAlign: TextAlign.center,
+                          const Text(
+                            "선택하신 사물함은 아래와 같습니다!",
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                              color: Color(0xff302E2E),
                             ),
+                            textAlign: TextAlign.center,
+                          ),
+                          const SizedBox(
+                            height: 8,
                           ),
                           Text(
                             "사물함 번호 : ${locker.name}",
@@ -335,42 +338,50 @@ class _ChooseLockerPageState extends State<ChooseLockerPage> {
                       content: Column(
                         crossAxisAlignment: CrossAxisAlignment.center,
                         mainAxisSize: MainAxisSize.min,
-                        // Use minimum space required by children
                         children: [
                           if (locker.name == "A4" || locker.name == "B4") ...[
                             const Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Image(
                                   image:
                                       AssetImage('assets/images/l_image.png'),
-                                  width: 12,
-                                  height: 12,
+                                  color: Color(0xff726E6E),
+                                  width: 16,
+                                  height: 16,
                                 ),
                                 SizedBox(
-                                  width: 6,
+                                  width: 4,
                                 ),
                                 Flexible(
                                   child: Text(
-                                      '너비 : 500mm / 높이 : 700mm / 깊이 : 600mm',
-                                      style: TextStyle(fontSize: 12)),
+                                    '너비: 500mm / 높이: 700mm / 깊이: 600mm',
+                                    style: TextStyle(
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w400,
+                                      color: Color(0xff726E6E),
+                                    ),
+                                  ),
                                 )
                               ],
                             ),
                           ] else ...[
                             const Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Image(
                                   image:
                                       AssetImage('assets/images/s_image.png'),
-                                  height: 12,
-                                  width: 12,
+                                  color: Color(0xff726E6E),
+                                  height: 16,
+                                  width: 16,
                                 ),
                                 SizedBox(
                                   width: 6,
                                 ),
                                 Flexible(
                                   child: Text(
-                                    '너비 : 500mm / 높이 : 365mm / 깊이 : 600mm',
+                                    '너비: 500mm / 높이: 365mm / 깊이: 600mm',
                                     style: TextStyle(
                                       fontSize: 11,
                                       fontWeight: FontWeight.w400,
@@ -394,7 +405,7 @@ class _ChooseLockerPageState extends State<ChooseLockerPage> {
                             ),
                           ),
                           const SizedBox(
-                            height: 10,
+                            height: 16,
                           ),
                           Column(
                             children: [
