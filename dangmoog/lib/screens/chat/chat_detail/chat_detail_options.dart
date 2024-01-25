@@ -582,7 +582,6 @@ class _ChatDetailOptionsState extends State<ChatDetailOptions> {
       final lockerMessage = "사물함 위치 : $lockerName\n비밀번호 : $password";
 
       showDialog(
-        barrierDismissible: false,
         context: context,
         builder: (context) {
           return StatefulBuilder(
@@ -738,10 +737,10 @@ class _ChatDetailOptionsState extends State<ChatDetailOptions> {
               optionCircleWidget(Icons.camera_alt_outlined, '카메라', () {
                 showPopup(context, "서비스 예정입니다");
                 // getImageFromCamera(context);
-              }),
+              }, true),
               optionCircleWidget(Icons.image_outlined, '앨범', () {
                 showPopup(context, "서비스 예정입니다");
-              }),
+              }, true),
             ],
           ),
           Row(
@@ -749,12 +748,10 @@ class _ChatDetailOptionsState extends State<ChatDetailOptions> {
             children: [
               optionCircleWidget(Icons.credit_card_outlined, '거래정보 발송', () {
                 sendBankAccount(context);
-              }),
+              }, true),
               optionCircleWidget(Icons.vpn_key_outlined, '사물함 정보 발송', () {
-                if (widget.useLocker == 2 && !widget.imBuyer) {
-                  sendLockerInfo(context);
-                }
-              }),
+                sendLockerInfo(context);
+              }, widget.useLocker == 2 && !widget.imBuyer),
             ],
           ),
         ],
@@ -763,7 +760,8 @@ class _ChatDetailOptionsState extends State<ChatDetailOptions> {
   }
 }
 
-Widget optionCircleWidget(IconData icon, String iconText, Function onTap) {
+Widget optionCircleWidget(
+    IconData icon, String iconText, Function onTap, bool isActive) {
   return Container(
     margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
     child: Column(
@@ -771,16 +769,25 @@ Widget optionCircleWidget(IconData icon, String iconText, Function onTap) {
       children: [
         GestureDetector(
           onTap: () {
-            onTap();
+            if (isActive) {
+              onTap();
+            }
           },
           child: Container(
             width: 72,
             height: 72,
             margin: const EdgeInsets.symmetric(horizontal: 8),
-            decoration: const BoxDecoration(
-              color: Color(0xffE83754),
-              borderRadius: BorderRadius.all(Radius.circular(36)),
-            ),
+            decoration: BoxDecoration(
+                color: isActive
+                    ? const Color(0xffE83754)
+                    : const Color(0xffA19E9E),
+                borderRadius: const BorderRadius.all(Radius.circular(36)),
+                border: Border.all(
+                  width: 2,
+                  color: isActive
+                      ? const Color(0xffEC5870)
+                      : const Color(0xffBEBCBC),
+                )),
             child: Icon(
               icon,
               size: 33,

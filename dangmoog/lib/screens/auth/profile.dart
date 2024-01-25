@@ -57,6 +57,7 @@ class _ProfilePageState extends State<ProfilePage> {
       if (!mounted) return;
       await showDialog(
         context: context,
+        barrierDismissible: false,
         builder: (BuildContext context) {
           return AlertDialog(
             shape: RoundedRectangleBorder(
@@ -253,12 +254,10 @@ class _ProfilePageState extends State<ProfilePage> {
                         onTap: () {
                           showDialog(
                             context: context,
-                            barrierDismissible: true,
                             builder: (BuildContext context) {
                               return AlertDialog(
                                 shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(
-                                      14), // 여기서 원하는 값으로 둥글게 조절할 수 있습니다.
+                                  borderRadius: BorderRadius.circular(14),
                                 ),
                                 content: SizedBox(
                                   width: screenSize.width * 0.55,

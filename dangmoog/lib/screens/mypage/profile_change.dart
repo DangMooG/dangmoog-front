@@ -261,7 +261,6 @@ class _ProfileChangePageState extends State<ProfileChangePage> {
                   onTap: () {
                     showDialog(
                       context: context,
-                      barrierDismissible: false,
                       builder: (BuildContext context) {
                         return AlertDialog(
                           shape: RoundedRectangleBorder(
