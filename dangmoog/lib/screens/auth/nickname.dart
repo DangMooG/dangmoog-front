@@ -293,7 +293,7 @@ class _NicknamePageState extends State<NicknamePage> {
 
   // 인증번호가 오지 않나요?
   Widget errorMsgHelpMsg() {
-    return Row(
+    return Column(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         if (errorMessage.isNotEmpty)

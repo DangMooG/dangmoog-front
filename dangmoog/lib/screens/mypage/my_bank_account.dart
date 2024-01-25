@@ -347,6 +347,7 @@ class _MyBankAccountPageState extends State<MyBankAccountPage> {
   Future<void> _accountPopup(Size screenSize, BuildContext context) async {
     await showDialog(
       context: context,
+      barrierDismissible: false,
       builder: (BuildContext context) {
         return AlertDialog(
           backgroundColor: const Color(0xFFFFFFFF),

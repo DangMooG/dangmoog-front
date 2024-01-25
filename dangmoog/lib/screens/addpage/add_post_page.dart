@@ -29,7 +29,9 @@ class AddPostPage extends StatefulWidget {
 }
 
 class _AddPostPageState extends State<AddPostPage> {
+  late int? lockerId; // 직접거래일 경우 null
   late int useLocker;
+
   final List<String> _imageList = <String>[];
   final ImagePicker picker = ImagePicker();
   final ApiService apiService = ApiService();
@@ -84,7 +86,7 @@ class _AddPostPageState extends State<AddPostPage> {
         description: description,
         categoryId: categoryId,
         useLocker: useLocker,
-        lockerId: widget.lockerId,
+        lockerId: lockerId,
         imageFiles: imageFiles,
       );
 
@@ -100,7 +102,7 @@ class _AddPostPageState extends State<AddPostPage> {
 
           try {
             Response lockerResponse =
-                await apiService.patchLocker(widget.lockerId!, lockerUpdates);
+                await apiService.patchLocker(lockerId!, lockerUpdates);
             if (lockerResponse.statusCode == 200) {
               print('Locker updated successfully with Post ID: $postId');
             } else {
@@ -174,6 +176,7 @@ class _AddPostPageState extends State<AddPostPage> {
       if (!mounted) return;
       await showDialog(
         context: context,
+        barrierDismissible: false,
         builder: (BuildContext context) {
           return AlertDialog(
             shape: RoundedRectangleBorder(
@@ -229,6 +232,7 @@ class _AddPostPageState extends State<AddPostPage> {
       if (!mounted) return;
       await showDialog(
         context: context,
+        barrierDismissible: false,
         builder: (BuildContext context) {
           return AlertDialog(
             shape: RoundedRectangleBorder(
@@ -334,11 +338,13 @@ class _AddPostPageState extends State<AddPostPage> {
       setState(() {
         appbarTitle = "사물함거래 등록";
         useLocker = 1;
+        lockerId = widget.lockerId;
       });
     } else {
       setState(() {
         appbarTitle = "직접거래 등록";
         useLocker = 0;
+        lockerId = widget.lockerId;
       });
     }
 
@@ -365,6 +371,12 @@ class _AddPostPageState extends State<AddPostPage> {
     });
     _scrollController = ScrollController();
     _scrollController.addListener(_scrollListener);
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (widget.fromChooseLocker) {
+        _showLockerDialog(context);
+      }
+    });
   }
 
   @override
@@ -382,73 +394,87 @@ class _AddPostPageState extends State<AddPostPage> {
   Widget build(BuildContext context) {
     Size screenSize = MediaQuery.of(context).size;
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(appbarTitle),
-        leading: IconButton(
-          icon: const Icon(Icons.close),
-          onPressed: () {
-            if (widget.fromChooseLocker) {
-              _showLockerDialog(context);
-            } else if (isImageUploaded ||
-                isProductNameFilled ||
-                isCategorySelected ||
-                isPriceFilled ||
-                isDescriptionProvided) {
-              _showExitConfirmationDialog(context);
-            } else {
-              _updateLockerStatusOnExit();
-              Navigator.of(context).pop();
-            }
-          },
+    return WillPopScope(
+      onWillPop: () async {
+        if (isImageUploaded ||
+            isProductNameFilled ||
+            isCategorySelected ||
+            isPriceFilled ||
+            isDescriptionProvided) {
+          _showExitConfirmationDialog(context);
+        } else {
+          _updateLockerUnused();
+          Navigator.of(context).pop();
+        }
+
+        return false;
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(appbarTitle),
+          leading: IconButton(
+            icon: const Icon(Icons.close),
+            onPressed: () {
+              if (isImageUploaded ||
+                  isProductNameFilled ||
+                  isCategorySelected ||
+                  isPriceFilled ||
+                  isDescriptionProvided) {
+                _showExitConfirmationDialog(context);
+              } else {
+                _updateLockerUnused();
+                Navigator.of(context).pop();
+              }
+            },
+          ),
+          centerTitle: true,
         ),
-        centerTitle: true,
-      ),
-      body: Stack(
-        children: [
-          GestureDetector(
-            behavior: HitTestBehavior.opaque,
-            onTap: () => FocusScope.of(context).unfocus(),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(
-                  child: SingleChildScrollView(
-                    controller: _scrollController,
-                    child: Column(
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.all(16),
-                          child: Column(
+        body: Stack(
+          children: [
+            GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: () => FocusScope.of(context).unfocus(),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: SingleChildScrollView(
+                      controller: _scrollController,
+                      child: Column(
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.all(16),
+                            child: Column(
+                              children: [
+                                _imagePickerSection(context),
+                                _textFieldsAndDropdown(),
+                              ],
+                            ),
+                          ),
+                          Column(
                             children: [
-                              _imagePickerSection(context),
-                              _textFieldsAndDropdown(),
+                              const Divider(
+                                color: Color(
+                                  0xffBEBCBC,
+                                ),
+                                thickness: 0.5,
+                                height: 0.5,
+                              ),
+                              _submitButton(context, screenSize)
                             ],
                           ),
-                        ),
-                        Column(
-                          children: [
-                            const Divider(
-                              color: Color(
-                                0xffBEBCBC,
-                              ),
-                              thickness: 0.5,
-                              height: 0.5,
-                            ),
-                            _submitButton(context, screenSize)
-                          ],
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-          isUploading
-              ? const Center(child: CircularProgressIndicator())
-              : const SizedBox.shrink()
-        ],
+            isUploading
+                ? const Center(child: CircularProgressIndicator())
+                : const SizedBox.shrink()
+          ],
+        ),
       ),
     );
   }
@@ -522,7 +548,6 @@ class _AddPostPageState extends State<AddPostPage> {
       onTap: () {
         showDialog(
           context: context,
-          barrierDismissible: true,
           builder: (BuildContext dialogContext) {
             Size screenSize = MediaQuery.of(context).size;
             return AlertDialog(
@@ -1449,31 +1474,28 @@ class _AddPostPageState extends State<AddPostPage> {
         productPriceError = null;
       }
     });
-
-    // Similarly, reset error messages for other fields if their conditions are satisfied
   }
 
   void _showExitConfirmationDialog(BuildContext context) {
     showDialog(
       context: context,
+      barrierDismissible: false,
       builder: (BuildContext context) {
         return AlertDialog(
           shape: RoundedRectangleBorder(
-            borderRadius:
-                BorderRadius.circular(14), // 여기서 원하는 값으로 둥글게 조절할 수 있습니다.
+            borderRadius: BorderRadius.circular(14),
           ),
+          surfaceTintColor: Colors.transparent,
           title: const Column(
             children: [
-              Padding(
-                padding: EdgeInsets.all(8.0),
-                child: Text(
-                  '작성 중인 판매글을 삭제하시겠어요?',
-                  style: TextStyle(
-                    fontSize: 16,
-                  ),
-                  textAlign: TextAlign.center,
+              Text(
+                '작성 중인 판매글을 삭제하시겠어요?',
+                style: TextStyle(
+                  fontSize: 16,
                 ),
+                textAlign: TextAlign.center,
               ),
+              SizedBox(height: 8),
               Text(
                 '삭제하기를 누르시면 저장되지 않습니다.',
                 style: TextStyle(
@@ -1483,7 +1505,6 @@ class _AddPostPageState extends State<AddPostPage> {
               ),
             ],
           ),
-          // content: ,
           actions: <Widget>[
             Column(
               crossAxisAlignment: CrossAxisAlignment.center,
@@ -1493,20 +1514,20 @@ class _AddPostPageState extends State<AddPostPage> {
                   width: 300,
                   child: TextButton(
                     onPressed: () async {
-                      if (widget.fromChooseLocker && widget.lockerId != null) {
-                        _updateLockerStatusOnExit();
+                      // 사물함 거래일 경우, 사물함 점유 해제
+                      if (useLocker == 1 && widget.lockerId != null) {
+                        _updateLockerUnused();
+                        Navigator.of(context).pop();
+                        Navigator.of(context).pop();
                       }
 
-                      Navigator.of(context).pop(
-                          true); // Close the dialog and confirm exit without saving
+                      Navigator.of(context).pop();
+                      Navigator.of(context).pop();
                     },
                     style: ButtonStyle(
                       backgroundColor: MaterialStateProperty.resolveWith<Color>(
                         (Set<MaterialState> states) {
-                          if (states.contains(MaterialState.pressed)) {
-                            return Colors.red[600]!; // Color when pressed
-                          }
-                          return const Color(0xFFE20529); // Regular color
+                          return const Color(0xFFE20529);
                         },
                       ),
                       foregroundColor:
@@ -1517,7 +1538,14 @@ class _AddPostPageState extends State<AddPostPage> {
                         ),
                       ),
                     ),
-                    child: const Text('삭제하기'),
+                    child: const Text(
+                      '삭제하기',
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w400,
+                        color: Colors.white,
+                      ),
+                    ),
                   ),
                 ),
                 SizedBox(
@@ -1544,7 +1572,14 @@ class _AddPostPageState extends State<AddPostPage> {
                         ),
                       ),
                     ),
-                    child: const Text('취소하기'),
+                    child: const Text(
+                      '취소하기',
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w400,
+                        color: Color(0xff726E6E),
+                      ),
+                    ),
                   ),
                 ),
               ],
@@ -1554,22 +1589,26 @@ class _AddPostPageState extends State<AddPostPage> {
       },
     ).then((shouldExit) {
       if (shouldExit == true) {
-        if (widget.fromChooseLocker && widget.lockerId != null) {
-          // Only update the locker status if we came from the locker selection
-          _updateLockerStatusOnExit();
+        if (useLocker == 1 && lockerId != null) {
+          _updateLockerUnused();
         }
-        Navigator.of(context).pop(); // Exit the AddPostPage
+        Navigator.of(context).pop();
       }
     });
   }
 
-  void _updateLockerStatusOnExit() async {
-    if (widget.lockerId != null) {
+  // 사물함 점유 해제
+  void _updateLockerUnused() async {
+    if (lockerId != null) {
       try {
         Response lockerResponse =
-            await apiService.patchLocker(widget.lockerId!, {"status": 1});
+            await apiService.patchLocker(lockerId!, {"status": 1});
         if (lockerResponse.statusCode == 200) {
-          print('Locker status updated successfully.');
+          setState(() {
+            useLocker = 0;
+            lockerId = null;
+            appbarTitle = "직접거래 등록";
+          });
         } else {
           print('Failed to update locker status: ${lockerResponse.statusCode}');
         }
@@ -1580,53 +1619,81 @@ class _AddPostPageState extends State<AddPostPage> {
   }
 
   void _showLockerDialog(BuildContext context) {
+    Widget textCell(String text) {
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            "• ",
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w400,
+              color: Color(0xff302E2E),
+            ),
+            overflow: TextOverflow.ellipsis,
+          ),
+          Expanded(
+            child: Text(
+              text,
+              style: const TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w400,
+                color: Color(0xff302E2E),
+              ),
+              overflow: TextOverflow.ellipsis,
+              maxLines: 4,
+            ),
+          )
+        ],
+      );
+    }
+
     showDialog(
       context: context,
+      barrierDismissible: false,
       builder: (BuildContext context) {
-        return AlertDialog(
+        return Dialog(
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(14),
           ),
-          title: const Column(
-            children: [
-              Padding(
-                padding: EdgeInsets.all(8.0),
-                child: Text(
+          surfaceTintColor: Colors.transparent,
+          child: Container(
+            padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 18),
+            constraints: const BoxConstraints(maxWidth: 300, minHeight: 272),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Text(
                   '사물함거래 등록 시 유의해주세요!',
                   style: TextStyle(
                     fontSize: 16,
+                    fontWeight: FontWeight.w600,
                   ),
                   textAlign: TextAlign.center,
                 ),
-              ),
-              Text(
-                '30분 안에 게시글을 업로드 하지 않으면 사물함 선택이 초기화돼요.\n게시글 작성 이후 15분 안에 사물함 안에 물건을 넣은 사진과 비밀번호를 인증해주셔야 합니다(구매자 확인용).',
-                style: TextStyle(
-                  fontSize: 14,
+                Container(
+                  padding: const EdgeInsets.only(top: 8, bottom: 16),
+                  width: 246,
+                  child: Column(
+                    children: [
+                      textCell('30분 안에 게시글을 업로드 하지 않으면 사물함 선택이 초기화돼요.'),
+                      textCell(
+                          '게시글 작성 이후 15분 안에 사물함 안에 물건을 넣은 사진과 비밀번호를 인증해주셔야 합니다(구매자 확인용).'),
+                    ],
+                  ),
                 ),
-                textAlign: TextAlign.left,
-              ),
-            ],
-          ),
-          // content: ,
-          actions: <Widget>[
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisSize: MainAxisSize.min,
-              children: [
                 SizedBox(
-                  width: 300,
+                  width: 252,
                   child: TextButton(
                     onPressed: () {
-                      Navigator.of(context).pop(true);
+                      Navigator.of(context).pop();
                     },
                     style: ButtonStyle(
                       backgroundColor: MaterialStateProperty.resolveWith<Color>(
                         (Set<MaterialState> states) {
-                          if (states.contains(MaterialState.pressed)) {
-                            return Colors.red[600]!; // Color when pressed
-                          }
-                          return const Color(0xFFE20529); // Regular color
+                          return const Color(0xFFE20529);
                         },
                       ),
                       foregroundColor:
@@ -1636,23 +1703,30 @@ class _AddPostPageState extends State<AddPostPage> {
                           borderRadius: BorderRadius.circular(6),
                         ),
                       ),
+                      padding: MaterialStateProperty.all(EdgeInsets.zero),
                     ),
-                    child: const Text('사물함거래 등록 시작하기'),
+                    child: const Text(
+                      '사물함거래 등록 시작하기',
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w400,
+                        color: Colors.white,
+                      ),
+                    ),
                   ),
                 ),
                 SizedBox(
-                  width: 300,
+                  width: 252,
                   child: TextButton(
-                    onPressed: () {
+                    onPressed: () async {
+                      _updateLockerUnused();
+
                       Navigator.of(context).pop();
                     },
                     style: ButtonStyle(
                       backgroundColor: MaterialStateProperty.resolveWith<Color>(
                         (Set<MaterialState> states) {
-                          if (states.contains(MaterialState.pressed)) {
-                            return Colors.red[600]!; // Color when pressed
-                          }
-                          return Colors.transparent; // Regular color
+                          return Colors.transparent;
                         },
                       ),
                       foregroundColor: MaterialStateProperty.all<Color>(
@@ -1663,13 +1737,21 @@ class _AddPostPageState extends State<AddPostPage> {
                           side: const BorderSide(color: Color(0xFF726E6E)),
                         ),
                       ),
+                      padding: MaterialStateProperty.all(EdgeInsets.zero),
                     ),
-                    child: const Text('직접거래로 전환하기'),
+                    child: const Text(
+                      '직접거래로 전환하기',
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w400,
+                        color: Color(0xff726E6E),
+                      ),
+                    ),
                   ),
                 ),
               ],
             ),
-          ],
+          ),
         );
       },
     ).then((shouldExit) {
