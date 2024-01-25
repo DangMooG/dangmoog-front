@@ -155,7 +155,6 @@ class _LockerValState extends State<LockerValPage> {
   }
 
   Future<void> _pickImage() async {
-
     Widget addPhotoButtonPopUp(
         Size screenSize, IconData icon, String text, Function onTap) {
       return GestureDetector(
@@ -193,7 +192,6 @@ class _LockerValState extends State<LockerValPage> {
 
     showDialog(
       context: context,
-      barrierDismissible: true,
       builder: (BuildContext dialogContext) {
         Size screenSize = MediaQuery.of(context).size;
         return AlertDialog(
@@ -224,10 +222,11 @@ class _LockerValState extends State<LockerValPage> {
                     const SizedBox(
                       width: 30,
                     ),
-                    addPhotoButtonPopUp(screenSize,
-                        Icons.add_photo_alternate_outlined, '앨범', () {
-                          _pickImageFromAlbum(context);
-                        }),
+                    addPhotoButtonPopUp(
+                        screenSize, Icons.add_photo_alternate_outlined, '앨범',
+                        () {
+                      _pickImageFromAlbum(context);
+                    }),
                   ],
                 ),
                 GestureDetector(
@@ -264,13 +263,12 @@ class _LockerValState extends State<LockerValPage> {
   }
 
   Future<void> _pickImageFromAlbum(BuildContext context) async {
-
-
     PermissionStatus status = await Permission.photos.request();
 
     if (status.isGranted || status.isLimited) {
       try {
-        final XFile? pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+        final XFile? pickedFile =
+            await _picker.pickImage(source: ImageSource.gallery);
 
         if (pickedFile != null) {
           setState(() {
@@ -284,6 +282,7 @@ class _LockerValState extends State<LockerValPage> {
       if (!mounted) return;
       await showDialog(
         context: context,
+        barrierDismissible: false,
         builder: (BuildContext context) {
           return AlertDialog(
             shape: RoundedRectangleBorder(
@@ -291,7 +290,7 @@ class _LockerValState extends State<LockerValPage> {
             ),
             title: const Text("앨범 권한 필요"),
             content:
-            const Text("이 기능을 사용하기 위해서는 권한이 필요합니다. 설정으로 이동하여 권한을 허용해주세요."),
+                const Text("이 기능을 사용하기 위해서는 권한이 필요합니다. 설정으로 이동하여 권한을 허용해주세요."),
             actions: <Widget>[
               TextButton(
                 child: const Text("취소"),
@@ -318,7 +317,8 @@ class _LockerValState extends State<LockerValPage> {
 
     if (status.isGranted || status.isLimited) {
       try {
-        final XFile? pickedFile = await _picker.pickImage(source: ImageSource.camera);
+        final XFile? pickedFile =
+            await _picker.pickImage(source: ImageSource.camera);
 
         if (pickedFile != null) {
           setState(() {
@@ -332,6 +332,7 @@ class _LockerValState extends State<LockerValPage> {
       if (!mounted) return;
       await showDialog(
         context: context,
+        barrierDismissible: false,
         builder: (BuildContext context) {
           return AlertDialog(
             shape: RoundedRectangleBorder(
@@ -339,7 +340,7 @@ class _LockerValState extends State<LockerValPage> {
             ),
             title: const Text("카메라 권한 필요"),
             content:
-            const Text("이 기능을 사용하기 위해서는 권한이 필요합니다. 설정으로 이동하여 권한을 허용해주세요."),
+                const Text("이 기능을 사용하기 위해서는 권한이 필요합니다. 설정으로 이동하여 권한을 허용해주세요."),
             actions: <Widget>[
               TextButton(
                 child: const Text("취소"),
@@ -360,7 +361,6 @@ class _LockerValState extends State<LockerValPage> {
       );
     }
   }
-
 
   Widget _buildBottomBar(BuildContext context) {
     return BottomAppBar(
