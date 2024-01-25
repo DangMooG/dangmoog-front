@@ -395,17 +395,138 @@ class _ChooseLockerPageState extends State<ChooseLockerPage> {
                           const SizedBox(
                             height: 10,
                           ),
-                          const Text(
-                            '물건의 크기를 다시 한 번 확인해주세요.\n 해당 사물함을 이용하시겠어요?',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w400,
-                              color: Color(0xff302E2E),
-                            ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                "• ",
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w400,
+                                  color: Color(0xff302E2E),
+                                  height: 1,
+                                ),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              Expanded(
+                                child: RichText(
+                                    text: const TextSpan(
+                                  text: "하나의 사물함에 위탁된 물품은 ",
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w400,
+                                    color: Color(0xff302E2E),
+                                  ),
+                                  children: <TextSpan>[
+                                    TextSpan(
+                                        text: '모두 한번에 거래',
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w800,
+                                          color: Color(0xff302E2E),
+                                        )),
+                                    TextSpan(
+                                        text: '되어야 합니다.',
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w400,
+                                          color: Color(0xff302E2E),
+                                        )),
+                                  ],
+                                )),
+                              )
+                            ],
                           ),
                           const SizedBox(
-                            height: 16,
+                            height: 4,
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                "• ",
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w400,
+                                  color: Color(0xff302E2E),
+                                  height: 1,
+                                ),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              Expanded(
+                                child: RichText(
+                                    text: const TextSpan(
+                                  text: "인당 최대 1개",
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w800,
+                                    color: Color(0xff302E2E),
+                                  ),
+                                  children: <TextSpan>[
+                                    TextSpan(
+                                        text: '의 사물함을 이용할 수 있습니다.',
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w400,
+                                          color: Color(0xff302E2E),
+                                        )),
+                                  ],
+                                )),
+                              )
+                            ],
+                          ),
+                          const SizedBox(
+                            height: 4,
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                "• ",
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w400,
+                                  color: Color(0xff302E2E),
+                                  height: 1,
+                                ),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              Expanded(
+                                child: RichText(
+                                    text: const TextSpan(
+                                  text: "최종 물품 등록을 위한 임시 점유는 ",
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w400,
+                                    color: Color(0xff302E2E),
+                                  ),
+                                  children: <TextSpan>[
+                                    TextSpan(
+                                      text: '최대 15분',
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w800,
+                                        color: Color(0xff302E2E),
+                                      ),
+                                    ),
+                                    TextSpan(
+                                      text: '까지 가능합니다.',
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w400,
+                                        color: Color(0xff302E2E),
+                                      ),
+                                    ),
+                                  ],
+                                )),
+                              )
+                            ],
+                          ),
+                          const SizedBox(
+                            height: 12,
                           ),
                           Column(
                             children: [
