@@ -200,7 +200,7 @@ class _ProfilePageState extends State<ProfilePage> {
       appBar: AppBar(),
       resizeToAvoidBottomInset: false,
       body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 18),
+        padding: const EdgeInsets.symmetric(horizontal: 16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -213,7 +213,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     color: Color(0xFF302E2E),
                     fontSize: 24,
                     fontWeight: FontWeight.w600,
-                    height: 1.35,
+                    height: 1.33,
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -226,15 +226,15 @@ class _ProfilePageState extends State<ProfilePage> {
                     color: Color(0xFF302E2E),
                     fontSize: 14,
                     fontWeight: FontWeight.w400,
-                    height: 1.35,
+                    height: 1.43,
                   ),
                 ),
                 const SizedBox(height: 16),
                 Stack(
                   children: [
                     SizedBox(
-                      width: screenSize.width * 0.56,
-                      height: screenSize.width * 0.56,
+                      width: 210,
+                      height: 210,
                       child: ClipOval(
                         child: _image != null
                             ? Image.file(
@@ -248,8 +248,8 @@ class _ProfilePageState extends State<ProfilePage> {
                       ),
                     ),
                     Positioned(
-                      top: screenSize.height * 0.19,
-                      left: screenSize.height * 0.19,
+                      top: 150,
+                      left: 150,
                       child: GestureDetector(
                         onTap: () {
                           showDialog(
@@ -372,7 +372,7 @@ class _ProfilePageState extends State<ProfilePage> {
             Column(
               children: [
                 SizedBox(
-                  height: screenSize.height * 0.2,
+                  height: 144,
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
@@ -388,7 +388,7 @@ class _ProfilePageState extends State<ProfilePage> {
                         buttonText: '프로필 설정 완료!',
                         isActive: buttonAcitve,
                       ),
-                      const SizedBox(height: 30),
+                      const SizedBox(height: 21),
                       GestureDetector(
                         onTap: () {
                           Navigator.pushAndRemoveUntil(
@@ -489,7 +489,7 @@ Widget profileHelpMsg() {
   }
 
   return Padding(
-    padding: const EdgeInsets.only(top: 10),
+    padding: const EdgeInsets.only(top: 16),
     child: Row(
       children: [
         Expanded(
@@ -501,7 +501,7 @@ Widget profileHelpMsg() {
             ),
             borderRadius: const BorderRadius.all(Radius.circular(10)),
           ),
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
@@ -516,7 +516,7 @@ Widget profileHelpMsg() {
                   ),
                 ),
               ),
-              textCell("부적절한 이미지는 제한되며, 관리자에 의해 예고없이 사용이 중지될 수 있습니다."),
+              textCell("부적절한 이미지는 제한되며, 등록되었더라도 관리자에 의해 예고없이 사용이 중지될 수 있습니다."),
               const Padding(
                 padding: EdgeInsets.symmetric(vertical: 8),
                 child: Text(
