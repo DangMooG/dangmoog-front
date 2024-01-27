@@ -1,6 +1,7 @@
 import 'package:dangmoog/screens/auth/profile.dart';
 
 import 'package:dangmoog/services/api.dart';
+import 'package:dangmoog/widgets/bottom_popup.dart';
 import 'package:dio/dio.dart';
 
 import 'package:flutter/material.dart';
@@ -84,6 +85,10 @@ class _NicknamePageState extends State<NicknamePage> {
   }
 
   void nickNameSubmit() async {
+    if (isLoading) {
+      return;
+    }
+
     setState(() {
       isLoading = true;
     });
@@ -102,7 +107,12 @@ class _NicknamePageState extends State<NicknamePage> {
         );
       }
     } catch (e) {
-      print(e);
+      showPopup(context, "별명 설정에 실패했습니다.");
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+        });
+      }
     }
   }
 
@@ -132,12 +142,12 @@ class _NicknamePageState extends State<NicknamePage> {
                           _nicknameMessage(screenSize),
                         ],
                       ),
-                      SizedBox(height: screenSize.height * 0.024),
+                      const SizedBox(height: 16),
                       _inputField(screenSize)
                     ],
                   ),
                   SizedBox(
-                    height: screenSize.height * 0.2,
+                    height: 144,
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: [
@@ -178,6 +188,9 @@ class _NicknamePageState extends State<NicknamePage> {
             fontSize: 24,
             fontWeight: FontWeight.w600,
           ),
+        ),
+        SizedBox(
+          height: 8,
         ),
         Text(
           '도토릿 앱 내에서는 별명을 이용하실 수 있으며 \n최초 1회 변경가능하오니 이점 참고바랍니다! ',
