@@ -182,7 +182,7 @@ class _NicknamePageState extends State<NicknamePage> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          '환영합니다!\n앱에서 사용하실 별명을 알려주세요!',
+          '환영합니다!\n별명을 알려주세요!',
           style: TextStyle(
             color: Color(0xFF302E2E),
             fontSize: 24,
