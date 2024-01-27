@@ -589,6 +589,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                     // 사용자 신고하기 option
                     TextButton(
                       onPressed: () {
+                        Navigator.pop(context);
                         Navigator.of(context).push(MaterialPageRoute(
                           builder: (context) => UserReportPage(product: product),
                         ));
@@ -616,6 +617,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                     // 게시글 신고하기 option
                     TextButton(
                       onPressed: () {
+                        Navigator.pop(context);
                         Navigator.of(context).push(MaterialPageRoute(
                           builder: (context) => PostReportPage(product: product),
                         ));
