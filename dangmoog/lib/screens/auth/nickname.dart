@@ -297,29 +297,39 @@ class _NicknamePageState extends State<NicknamePage> {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         if (errorMessage.isNotEmpty)
-          Text(
-            errorMessage,
-            style: TextStyle(
-              color: isRedText ? const Color(0xFFE20529) : Colors.blue,
-              fontSize: 11,
-            ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              Text(
+                errorMessage,
+                style: TextStyle(
+                  color: isRedText ? const Color(0xFFE20529) : Colors.blue,
+                  fontSize: 11,
+                ),
+              ),
+            ],
           ),
         const SizedBox.shrink(),
-        InkWell(
-          onTap: () {
-            setState(() {
-              isHelpVisible = !isHelpVisible;
-            });
-          },
-          child: const Text(
-            '별명은 어떻게 설정해야 하나요?',
-            style: TextStyle(
-              color: Color(0xFF726E6E),
-              fontSize: 11,
-              fontWeight: FontWeight.w400,
-              decoration: TextDecoration.underline,
+        Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            InkWell(
+              onTap: () {
+                setState(() {
+                  isHelpVisible = !isHelpVisible;
+                });
+              },
+              child: const Text(
+                '별명은 어떻게 설정해야 하나요?',
+                style: TextStyle(
+                  color: Color(0xFF726E6E),
+                  fontSize: 11,
+                  fontWeight: FontWeight.w400,
+                  decoration: TextDecoration.underline,
+                ),
+              ),
             ),
-          ),
+          ],
         ),
       ],
     );
