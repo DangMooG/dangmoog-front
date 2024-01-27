@@ -10,7 +10,7 @@ import 'package:dio/dio.dart';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:dangmoog/providers/provider.dart';
+import 'package:dangmoog/providers/%08user_provider.dart';
 import 'package:dangmoog/widgets/mypage_text.dart';
 import 'package:dangmoog/screens/mypage/profile_change.dart';
 import 'package:dangmoog/screens/mypage/my_bank_account.dart';
@@ -49,9 +49,9 @@ class _MyPageState extends State<MyPage> {
 
   @override
   Widget build(BuildContext context) {
-    String userEmail = Provider.of<UserProvider>(context).inputEmail;
+    String userEmail = Provider.of<UserProvider>(context).userEmail;
     String userNickname = Provider.of<UserProvider>(context).nickname;
-    String userImage = Provider.of<UserProvider>(context).userImage;
+    String? userImage = Provider.of<UserProvider>(context).userProfileImageUrl;
     Size screenSize = MediaQuery.of(context).size;
 
     return SingleChildScrollView(
@@ -64,7 +64,7 @@ class _MyPageState extends State<MyPage> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 ClipOval(
-                    child: userImage != ""
+                    child: userImage != "" && userImage != null
                         ? Image.network(
                             userImage,
                             width: screenSize.width * 0.14,

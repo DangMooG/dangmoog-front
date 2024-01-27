@@ -3,13 +3,10 @@ import 'package:dangmoog/screens/mypage/nickname_change.dart';
 import 'package:dangmoog/services/api.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import 'package:provider/provider.dart';
-import 'package:dangmoog/providers/provider.dart';
+import 'package:dangmoog/providers/%08user_provider.dart';
 import 'package:image_picker/image_picker.dart';
-
-import 'dart:io';
 
 // 권환 확인
 import 'package:permission_handler/permission_handler.dart';
@@ -22,11 +19,14 @@ class ProfileChangePage extends StatefulWidget {
 }
 
 class _ProfileChangePageState extends State<ProfileChangePage> {
-  File? _image;
-  String imagePath = 'assets/images/basic_profile.png';
-  String nickname = '';
-  String email = '';
+  // 사용자 이름, 이메일, 프로필 사진 url
+  String? profileImageUrl;
+  String? userNickname;
+  String? userEmail;
+
+  // 프로필 변경 시 사용
   final ImagePicker picker = ImagePicker();
+  String? imagePath;
 
   bool buttonAcitve = false;
 
@@ -37,9 +37,8 @@ class _ProfileChangePageState extends State<ProfileChangePage> {
       try {
         final pickedImage = await picker.pickImage(source: ImageSource.camera);
 
-        if (pickedImage != null) {
+        if (pickedImage != null && pickedImage.path != "") {
           setState(() {
-            _image = File(pickedImage.path);
             imagePath = pickedImage.path;
 
             buttonAcitve = true;
@@ -89,9 +88,8 @@ class _ProfileChangePageState extends State<ProfileChangePage> {
       try {
         final pickedImage = await picker.pickImage(source: ImageSource.gallery);
 
-        if (pickedImage != null) {
+        if (pickedImage != null && pickedImage.path != "") {
           setState(() {
-            _image = File(pickedImage.path);
             imagePath = pickedImage.path;
 
             buttonAcitve = true;
@@ -138,7 +136,6 @@ class _ProfileChangePageState extends State<ProfileChangePage> {
 
       if (pickedFile != null) {
         setState(() {
-          _image = File(pickedFile.path);
           imagePath = pickedFile.path;
           buttonAcitve = true;
 
@@ -151,16 +148,11 @@ class _ProfileChangePageState extends State<ProfileChangePage> {
   Future<String?> profileSubmit() async {
     // If imageFiles are provided, prepare them for FormData
 
-    if (_image != null) {
+    if (imagePath != null && imagePath != "") {
       try {
-        //  final binaryString = toBinaryString(imagePath);
-
-        Response response = await ApiService().setUserProfile(imagePath);
+        Response response = await ApiService().setUserProfile(imagePath!);
 
         if (response.statusCode == 200) {
-          // int userId = response.data['account_id'];
-          // await storage.write(key: 'userId', value: userId.toString());
-
           Navigator.pushReplacement(
             context,
             PageRouteBuilder(
@@ -173,13 +165,12 @@ class _ProfileChangePageState extends State<ProfileChangePage> {
           );
 
           final Map<String, dynamic> data = response.data;
-          final String? profileUrl =
-              data["profile_url"]; // "profile_url" 값을 가져옴
+          final String? profileUrl = data["profile_url"];
 
-          if (profileUrl != null) {
-            imagePath = profileUrl;
+          if (profileUrl != null && profileUrl != "") {
+            profileImageUrl = profileUrl;
             Provider.of<UserProvider>(context, listen: false)
-                .setUserImage(imagePath);
+                .setUserImage(profileImageUrl);
           } else {
             // "profile_url"이 null인 경우 처리
             return null;
@@ -192,23 +183,25 @@ class _ProfileChangePageState extends State<ProfileChangePage> {
     return null;
   }
 
-  //late Future<String?> profileImageUrl; // 프로필 이미지 URL을 저장할 변수
-
   @override
   void initState() {
     super.initState();
-    // profileImageUrl = profileSubmit(); // 프로필 이미지 URL 가져오기
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      setState(() {
+        profileImageUrl =
+            Provider.of<UserProvider>(context).userProfileImageUrl;
+        userEmail = Provider.of<UserProvider>(context).userEmail;
+        userNickname = Provider.of<UserProvider>(context).nickname;
+      });
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     Size screenSize = MediaQuery.of(context).size;
-    String userEmail = Provider.of<UserProvider>(context).inputEmail;
-    String userNickname = Provider.of<UserProvider>(context).nickname;
 
     int isButtonDisabled = Provider.of<UserProvider>(context).isButtonDisabled;
-
-    imagePath = Provider.of<UserProvider>(context).userImage;
 
     return Scaffold(
       resizeToAvoidBottomInset: false,
@@ -237,23 +230,24 @@ class _ProfileChangePageState extends State<ProfileChangePage> {
           Stack(
             alignment: Alignment.center,
             children: [
-              SizedBox(
-                width: screenSize.width * 0.56,
-                height: screenSize.width * 0.56,
-                child: ClipOval(
-                    child:
-                        // fetchImage 함수 호출하여 profileUrl을 가져옴
-
-                        imagePath != null
-                            ? Image.network(
-                                imagePath,
-                                fit: BoxFit.cover,
-                              )
-                            : Image.asset(
-                                'assets/images/basic_profile.png',
-                                fit: BoxFit.cover,
-                              )),
-              ),
+              Consumer<UserProvider>(builder: (context, userProvider, _) {
+                return SizedBox(
+                  width: screenSize.width * 0.56,
+                  height: screenSize.width * 0.56,
+                  child: ClipOval(
+                    child: userProvider.userProfileImageUrl != null &&
+                            userProvider.userProfileImageUrl != ""
+                        ? Image.network(
+                            userProvider.userProfileImageUrl!,
+                            fit: BoxFit.cover,
+                          )
+                        : Image.asset(
+                            'assets/images/basic_profile.png',
+                            fit: BoxFit.cover,
+                          ),
+                  ),
+                );
+              }),
               Positioned(
                 top: screenSize.height * 0.19,
                 left: screenSize.height * 0.19,
@@ -286,9 +280,6 @@ class _ProfileChangePageState extends State<ProfileChangePage> {
                                       Icons.add_a_photo_outlined, '카메라', () {
                                     getImagesFromCamera();
                                   }, context),
-                                  // const SizedBox(
-                                  //   width: 30,
-                                  // ),
                                   addPhotoButtonPopUp(
                                       screenSize,
                                       Icons.add_photo_alternate_outlined,
@@ -351,7 +342,7 @@ class _ProfileChangePageState extends State<ProfileChangePage> {
           ),
           SizedBox(height: screenSize.height * 0.02),
           Text(
-            userNickname,
+            userNickname ?? "Nickname not found",
             style: const TextStyle(
               color: Color(0xFF302E2E),
               fontSize: 24,
@@ -367,7 +358,6 @@ class _ProfileChangePageState extends State<ProfileChangePage> {
                         builder: (context) => const NicknameChangePage(),
                       ),
                     );
-                    print(isButtonDisabled);
                   }
                 : null,
             style: ElevatedButton.styleFrom(
@@ -396,7 +386,7 @@ class _ProfileChangePageState extends State<ProfileChangePage> {
             ),
           ),
           Text(
-            userEmail,
+            userEmail ?? "Email not found",
             style: const TextStyle(
               color: Color(0xFF302E2E),
               fontSize: 16,

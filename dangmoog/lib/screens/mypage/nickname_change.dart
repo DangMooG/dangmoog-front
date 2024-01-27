@@ -3,7 +3,7 @@ import 'package:dangmoog/services/api.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:dangmoog/providers/provider.dart';
+import 'package:dangmoog/providers/%08user_provider.dart';
 
 import 'dart:io';
 
@@ -143,7 +143,7 @@ class _NicknameChangePageState extends State<NicknameChangePage> {
   Widget build(BuildContext context) {
     Size screenSize = MediaQuery.of(context).size;
     String changeUserNickname = Provider.of<UserProvider>(context).nickname;
-    String userImage = Provider.of<UserProvider>(context).userImage;
+    String? userImage = Provider.of<UserProvider>(context).userProfileImageUrl;
     final user = Provider.of<UserProvider>(context);
     int isButtonDisabled = user.isButtonDisabled;
 

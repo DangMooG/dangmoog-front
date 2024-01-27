@@ -1,4 +1,4 @@
-import 'package:dangmoog/providers/provider.dart';
+import 'package:dangmoog/providers/%08user_provider.dart';
 import 'package:dangmoog/screens/auth/nickname.dart';
 import 'package:dangmoog/screens/home.dart';
 import 'package:dangmoog/services/api.dart';
@@ -79,7 +79,7 @@ class _SplashScreenState extends State<SplashScreen> {
           final userEmail = response.data["email"];
           final userNickname = response.data['username'];
           final nicknameState = response.data['available'];
-          final String profileUrl = response.data["profile_url"];
+          final String? profileUrl = response.data["profile_url"];
 
           // async 내에서 BuildContexts를 사용할 경우
           // 위젯이 마운트되지 않았으면 context에 아무런 값이 없기 때문에
@@ -111,6 +111,9 @@ class _SplashScreenState extends State<SplashScreen> {
           }
         }
       } catch (e) {
+        print(e);
+        await storage.delete(key: 'accessToken');
+        await storage.delete(key: 'userId');
         // 자동 로그인에 실패했을 경우
         // 로그인 페이지로 이동
         if (!mounted) return;
