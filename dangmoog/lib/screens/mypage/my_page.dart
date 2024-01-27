@@ -64,11 +64,8 @@ class _MyPageState extends State<MyPage> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 ClipOval(
-                    child: userImage != null
-                        ?
-                        // fetchImage 함수 호출하여 profileUrl을 가져옴
-
-                        Image.network(
+                    child: userImage != ""
+                        ? Image.network(
                             userImage,
                             width: screenSize.width * 0.14,
                             height: screenSize.width * 0.14,
@@ -91,7 +88,6 @@ class _MyPageState extends State<MyPage> {
                         userNickname,
                         style: const TextStyle(
                           color: Color(0xFF302E2E),
-                          fontFamily: 'Pretendard-SemiBold',
                           fontSize: 18,
                           fontWeight: FontWeight.w600,
                         ),
@@ -101,7 +97,6 @@ class _MyPageState extends State<MyPage> {
                         userEmail,
                         style: const TextStyle(
                           color: Color(0xFF726E6E),
-                          fontFamily: 'Pretendard-Regular',
                           fontSize: 14,
                           fontWeight: FontWeight.w400,
                         ),
