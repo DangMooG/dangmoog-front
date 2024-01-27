@@ -80,8 +80,7 @@ class _SplashScreenState extends State<SplashScreen> {
           final userNickname = response.data['username'];
           final nicknameState = response.data['available'];
           final String profileUrl = response.data["profile_url"];
-          print(nicknameState);
-          print(profileUrl);
+
           // async 내에서 BuildContexts를 사용할 경우
           // 위젯이 마운트되지 않았으면 context에 아무런 값이 없기 때문에
           // 아래 조건문을 추가해줘야 한다.
