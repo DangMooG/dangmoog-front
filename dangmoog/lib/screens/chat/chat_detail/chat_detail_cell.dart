@@ -74,7 +74,7 @@ class SingleChatMessage extends StatelessWidget {
       decoration: BoxDecoration(
           color: me ? const Color(0xFFEC5870) : const Color(0xFFF1F1F1),
           borderRadius: const BorderRadius.all(Radius.circular(15))),
-      child: Text(
+      child: SelectableText(
         text,
         style: TextStyle(
           fontSize: 14,
