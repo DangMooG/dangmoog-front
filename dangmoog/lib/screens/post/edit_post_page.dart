@@ -52,6 +52,7 @@ class _EditPostPageState extends State<EditPostPage> {
   @override
   void initState() {
     super.initState();
+    fetchImages();
     fetchProductDetails();
 
     productNameController.text = widget.product.title; // Example field
@@ -84,24 +85,21 @@ class _EditPostPageState extends State<EditPostPage> {
     });
   }
 
-  Future<List<String>> fetchImages(int postId) async {
+  Future<void> fetchImages() async {
     try {
-      Response response = await apiService.searchPhoto(postId);
+      Response response = await apiService.searchPhoto(widget.postId);
       if (response.statusCode == 200) {
-        // Assuming the response body is a list of image paths or URLs
         List<dynamic> responseData = response.data;
-        print(response.data);
         List<String> imagePaths =
-            responseData.map((e) => e['url'].toString()).toList();
-        return imagePaths;
+        responseData.map((e) => e['url'].toString()).toList();
+        setState(() {
+          _imageList.addAll(imagePaths);
+        });
       } else {
-        // Handle error response
         print('Error fetching images: ${response.statusCode}');
-        return [];
       }
     } catch (e) {
       print('Exception in fetchImages: $e');
-      return [];
     }
   }
 
@@ -223,7 +221,7 @@ class _EditPostPageState extends State<EditPostPage> {
                   padding: const EdgeInsets.all(16),
                   child: Column(
                     children: [
-                      _imagePickerSection(context, widget.postId),
+                      _imagePickerSection(context),
                       _textFieldsAndDropdown(),
                     ],
                   ),
@@ -249,51 +247,33 @@ class _EditPostPageState extends State<EditPostPage> {
     );
   }
 
-  Widget _imagePickerSection(BuildContext context, int postId) {
-    return FutureBuilder<List<String>>(
-      future: fetchImages(postId),
-      builder: (context, snapshot) {
-        // Handling loading state
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const CircularProgressIndicator();
-        }
-
-        // Handling error state
-        if (snapshot.hasError) {
-          return Text('Error: ${snapshot.error}');
-        }
-
-        // Handling data state
-        if (snapshot.hasData && snapshot.data!.isNotEmpty) {
-          List<String> imageList =
-              snapshot.data!; // Using the fetched image list
-
-          return Padding(
-            padding: const EdgeInsets.only(bottom: 8),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                Expanded(
-                  child: SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Row(
-                      children: List.generate(
-                        imageList.length,
-                        (index) => _imagePreview(imageList[index]),
-                      ),
-                    ),
+  Widget _imagePickerSection(BuildContext context) {
+    // Directly use _imageList to build the image picker section
+    if (_imageList.isNotEmpty) {
+      return Padding(
+        padding: const EdgeInsets.only(bottom: 8),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            Expanded(
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: List.generate(
+                    _imageList.length,
+                        (index) => _imagePreview(_imageList[index]),
                   ),
-                )
-              ],
-            ),
-          );
-        }
-
-        // Handling empty data state
-        return const Text('No images found');
-      },
-    );
+                ),
+              ),
+            )
+          ],
+        ),
+      );
+    } else {
+      // Display a message or a loading indicator if _imageList is empty
+      return const Text('No images found');
+    }
   }
 
   Widget _imagePreview(String imagePath) {
