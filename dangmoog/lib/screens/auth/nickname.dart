@@ -9,7 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:dangmoog/widgets/submit_button.dart';
 
 import 'package:provider/provider.dart';
-import 'package:dangmoog/providers/provider.dart';
+import 'package:dangmoog/providers/user_provider.dart';
 
 class NicknamePage extends StatefulWidget {
   const NicknamePage({Key? key}) : super(key: key);

@@ -5,7 +5,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 
 import 'package:provider/provider.dart';
-import 'package:dangmoog/providers/%08user_provider.dart';
+import 'package:dangmoog/providers/user_provider.dart';
 import 'package:image_picker/image_picker.dart';
 
 // 권환 확인
