@@ -326,6 +326,7 @@ class _ProductListState extends State<ProductList> {
         controller: _scrollController,
         child: ListView.separated(
           // cacheExtent: 200,
+          physics: const AlwaysScrollableScrollPhysics(),
           addAutomaticKeepAlives: true,
           controller: _scrollController,
           itemCount: lockerProducts.length + products.length,
@@ -509,15 +510,19 @@ class _ProductListState extends State<ProductList> {
               context,
               PageRouteBuilder(
                 transitionDuration: const Duration(milliseconds: 400),
-                pageBuilder: (context, animation, secondaryAnimation) => productDetailPage,
-                transitionsBuilder: (context, animation, secondaryAnimation, child) {
-                  var previousPageOffsetAnimation = Tween(begin: const Offset(1, 0), end: const Offset(0, 0))
-                      .chain(CurveTween(curve: Curves.decelerate))
-                      .animate(animation);
+                pageBuilder: (context, animation, secondaryAnimation) =>
+                    productDetailPage,
+                transitionsBuilder:
+                    (context, animation, secondaryAnimation, child) {
+                  var previousPageOffsetAnimation =
+                      Tween(begin: const Offset(1, 0), end: const Offset(0, 0))
+                          .chain(CurveTween(curve: Curves.decelerate))
+                          .animate(animation);
 
                   return SlideTransition(
                     position: previousPageOffsetAnimation,
-                    child: child, // Using the same instance of ProductDetailPage
+                    child:
+                        child, // Using the same instance of ProductDetailPage
                   );
                 },
               ),
@@ -537,7 +542,6 @@ class _ProductListState extends State<ProductList> {
       },
     );
   }
-
 
   // 게시물 내역 이미지
   Widget _buildProductImage(BuildContext context, ProductModel product) {
