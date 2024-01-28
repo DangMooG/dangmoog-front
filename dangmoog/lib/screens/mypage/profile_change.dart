@@ -189,10 +189,11 @@ class _ProfileChangePageState extends State<ProfileChangePage> {
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       setState(() {
-        profileImageUrl =
-            Provider.of<UserProvider>(context).userProfileImageUrl;
-        userEmail = Provider.of<UserProvider>(context).userEmail;
-        userNickname = Provider.of<UserProvider>(context).nickname;
+        profileImageUrl = Provider.of<UserProvider>(context, listen: false)
+            .userProfileImageUrl;
+        userEmail = Provider.of<UserProvider>(context, listen: false).userEmail;
+        userNickname =
+            Provider.of<UserProvider>(context, listen: false).nickname;
       });
     });
   }
