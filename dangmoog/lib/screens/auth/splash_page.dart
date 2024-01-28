@@ -1,6 +1,7 @@
-import 'package:dangmoog/providers/%08user_provider.dart';
+import 'package:dangmoog/providers/user_provider.dart';
 import 'package:dangmoog/screens/auth/nickname.dart';
 import 'package:dangmoog/screens/home.dart';
+import 'package:dangmoog/screens/main_page.dart';
 import 'package:dangmoog/services/api.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
@@ -41,10 +42,15 @@ class _SplashScreenState extends State<SplashScreen> {
     });
   }
 
-  _navigateToHome(BuildContext context) async {
-    Navigator.pushReplacement(
+  _navigateToMainPage(BuildContext context) async {
+    // Navigator.pushReplacement(
+    //   context,
+    //   MaterialPageRoute(builder: (context) => const MainPage()),
+    // );
+    Navigator.pushNamedAndRemoveUntil(
       context,
-      MaterialPageRoute(builder: (context) => const MyHome()),
+      '/mainpage',
+      ModalRoute.withName('/myhome'),
     );
   }
 
@@ -107,7 +113,7 @@ class _SplashScreenState extends State<SplashScreen> {
           else {
             Provider.of<UserProvider>(context, listen: false)
                 .setNickname(userNickname);
-            _navigateToHome(context);
+            _navigateToMainPage(context);
           }
         }
       } catch (e) {

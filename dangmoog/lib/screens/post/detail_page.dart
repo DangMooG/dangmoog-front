@@ -4,6 +4,7 @@ import 'package:dangmoog/providers/product_detail_provider.dart';
 import 'package:dangmoog/providers/user_provider.dart';
 import 'package:dangmoog/screens/chat/chat_detail/chat_detail_page.dart';
 import 'package:dangmoog/screens/home.dart';
+import 'package:dangmoog/screens/main_page.dart';
 import 'package:dangmoog/widgets/bottom_popup.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
@@ -168,7 +169,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                                         context,
                                         MaterialPageRoute(
                                             builder: (context) =>
-                                                const MyHome()),
+                                                const MainPage()),
                                         (Route<dynamic> route) => false,
                                       );
                                     } else {
@@ -523,6 +524,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
 
   // 카테고리, 올린 날짜
   Widget _buildProductDetails(ProductModel product) {
+    print(product.categoryId);
     return Container(
       margin: const EdgeInsets.only(top: 4),
       child: Text(

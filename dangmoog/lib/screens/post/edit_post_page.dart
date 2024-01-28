@@ -2,6 +2,7 @@
 
 import 'dart:io';
 import 'package:dangmoog/screens/home.dart';
+import 'package:dangmoog/screens/main_page.dart';
 import 'package:dangmoog/screens/post/post_list.dart';
 import 'package:dangmoog/widgets/bottom_popup.dart';
 import 'package:dio/dio.dart';
@@ -152,7 +153,7 @@ class _EditPostPageState extends State<EditPostPage> {
         if (!mounted) return;
         Navigator.pushAndRemoveUntil(
           context,
-          MaterialPageRoute(builder: (context) => const MyHome()),
+          MaterialPageRoute(builder: (context) => const MainPage()),
           (Route<dynamic> route) => false,
         );
       } else if (response.statusCode == 422) {
