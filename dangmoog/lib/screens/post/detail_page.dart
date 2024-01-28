@@ -132,7 +132,6 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                                     context,
                                     MaterialPageRoute(
                                         builder: (context) => EditPostPage(
-                                              postId: widget.postId!,
                                               product: product,
                                             )),
                                   );
@@ -528,7 +527,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
     return Container(
       margin: const EdgeInsets.only(top: 4),
       child: Text(
-        '${categeryItems[product.categoryId - 1]} | ${timeAgo(product.createTime)}',
+        '${categeryItems[product.categoryId]} | ${timeAgo(product.createTime)}',
         style: const TextStyle(
           fontSize: 11,
           color: Color(0xffA19E9E),

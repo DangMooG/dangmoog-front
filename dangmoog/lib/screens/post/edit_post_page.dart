@@ -15,11 +15,9 @@ import 'package:dangmoog/services/api.dart';
 import '../../models/product_class.dart';
 
 class EditPostPage extends StatefulWidget {
-  final int postId;
   final ProductModel product;
   const EditPostPage({
     Key? key,
-    required this.postId,
     required this.product,
   }) : super(key: key);
 
@@ -57,7 +55,7 @@ class _EditPostPageState extends State<EditPostPage> {
 
     productNameController.text = widget.product.title; // Example field
     priceController.text = widget.product.price.toString();
-    _selectedItem = categeryItems[widget.product.categoryId - 1];
+    _selectedItem = categeryItems[widget.product.categoryId];
     detailController.text = widget.product.description;
 
     // Initialize other controllers similarly
@@ -87,7 +85,7 @@ class _EditPostPageState extends State<EditPostPage> {
 
   Future<void> fetchImages() async {
     try {
-      Response response = await apiService.searchPhoto(widget.postId);
+      Response response = await apiService.searchPhoto(widget.product.postId);
       if (response.statusCode == 200) {
         List<dynamic> responseData = response.data;
         List<String> imagePaths =
@@ -105,7 +103,7 @@ class _EditPostPageState extends State<EditPostPage> {
 
   void fetchProductDetails() async {
     try {
-      final response = await apiService.loadProduct(widget.postId);
+      final response = await apiService.loadProduct(widget.product.postId);
       if (response.statusCode == 200) {
         ProductModel product = ProductModel.fromJson(response.data);
 
@@ -113,7 +111,7 @@ class _EditPostPageState extends State<EditPostPage> {
         setState(() {
           productNameController.text = product.title;
           priceController.text = product.price.toString();
-          _selectedItem = categeryItems[product.categoryId - 1];
+          _selectedItem = categeryItems[product.categoryId];
           detailController.text = product.description;
         });
       } else {
@@ -139,12 +137,14 @@ class _EditPostPageState extends State<EditPostPage> {
 
     try {
       Response response = await apiService.patchPost(
-        postId: widget.postId,
+        postId: widget.product.postId,
         categoryId: categoryId,
         description: description,
         price: price,
         title: title,
       );
+
+      print(response);
 
       if (response.statusCode == 200) {
         if (!mounted) return;
@@ -281,25 +281,28 @@ class _EditPostPageState extends State<EditPostPage> {
       decoration: BoxDecoration(
         border: Border.all(
           width: 1,
-          color: const Color(0xffA19E9E),
+          color: Colors.transparent,
         ),
         borderRadius: BorderRadius.circular(8),
       ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(8),
-        child: imagePath.startsWith('http')
-            ? Image.network(
-                imagePath,
-                width: 80,
-                height: 80,
-                fit: BoxFit.cover,
-              )
-            : Image.file(
-                File(imagePath),
-                width: 80,
-                height: 80,
-                fit: BoxFit.cover,
-              ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 4.0),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(8),
+          child: imagePath.startsWith('http')
+              ? Image.network(
+                  imagePath,
+                  width: 80,
+                  height: 80,
+                  fit: BoxFit.cover,
+                )
+              : Image.file(
+                  File(imagePath),
+                  width: 80,
+                  height: 80,
+                  fit: BoxFit.cover,
+                ),
+        ),
       ),
     );
   }
