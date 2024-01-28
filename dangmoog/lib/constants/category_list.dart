@@ -1,4 +1,5 @@
 List<String> categeryItems = [
+  '',
   '도서',
   '수업교재',
   '생활용품',

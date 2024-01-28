@@ -116,7 +116,7 @@ class ApiService {
         "title": title,
         "price": price.toString(),
         "description": description,
-        "category_id": (categoryId + 1).toString(),
+        "category_id": (categoryId).toString(),
         "use_locker": useLocker.toString(),
         "locker_id": lockerId.toString(),
       };
@@ -125,7 +125,7 @@ class ApiService {
         "title": title,
         "price": price.toString(),
         "description": description,
-        "category_id": (categoryId + 1).toString(),
+        "category_id": (categoryId).toString(),
         "use_locker": useLocker.toString(),
       };
     }
