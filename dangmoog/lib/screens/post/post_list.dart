@@ -722,7 +722,7 @@ class _ProductListState extends State<ProductList> {
         Padding(
           padding: const EdgeInsets.symmetric(vertical: 4),
           child: Text(
-            "${categeryItems[product.categoryId - 1]} | ${timeAgo(product.createTime)}",
+            "${categeryItems[product.categoryId]} | ${timeAgo(product.createTime)}",
             style: const TextStyle(
               fontWeight: FontWeight.w400,
               fontSize: 11,
@@ -775,7 +775,7 @@ class _ProductListState extends State<ProductList> {
                   : const Color(0xff726E6E),
             ),
             child: Text(
-              dealStatus == 1 ? '예약중' : '판매완료',
+              dealStatus == 1 ? '예약중' : '거래완료',
               style: TextStyle(
                 color: Colors.white,
                 fontSize: 11,

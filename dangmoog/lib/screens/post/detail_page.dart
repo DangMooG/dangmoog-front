@@ -4,6 +4,7 @@ import 'package:dangmoog/providers/product_detail_provider.dart';
 import 'package:dangmoog/providers/provider.dart';
 import 'package:dangmoog/screens/chat/chat_detail/chat_detail_page.dart';
 import 'package:dangmoog/screens/home.dart';
+import 'package:dangmoog/screens/report/post_report.dart';
 import 'package:dangmoog/widgets/bottom_popup.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
@@ -13,6 +14,7 @@ import 'package:dangmoog/utils/convert_money_format.dart';
 import 'package:dangmoog/services/api.dart';
 import 'package:provider/provider.dart';
 
+import '../report/user_report.dart';
 import 'edit_post_page.dart';
 
 class ProductDetailPage extends StatefulWidget {
@@ -130,7 +132,6 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                                     context,
                                     MaterialPageRoute(
                                         builder: (context) => EditPostPage(
-                                              postId: widget.postId!,
                                               product: product,
                                             )),
                                   );
@@ -526,7 +527,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
     return Container(
       margin: const EdgeInsets.only(top: 4),
       child: Text(
-        '${categeryItems[product.categoryId - 1]} | ${timeAgo(product.createTime)}',
+        '${categeryItems[product.categoryId]} | ${timeAgo(product.createTime)}',
         style: const TextStyle(
           fontSize: 11,
           color: Color(0xffA19E9E),
@@ -570,12 +571,96 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
 
   Widget _buildReportButton(ProductModel product) {
     return Container(
-      margin: const EdgeInsets.only(
-        top: 8,
-      ),
+      margin: const EdgeInsets.only(top: 8),
       child: InkWell(
         onTap: () {
-          showPopup(context, "서비스 예정입니다");
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                contentPadding: EdgeInsets.zero,
+                shape: const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(14)),
+                ),
+                content: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    // 사용자 신고하기 option
+                    TextButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                        Navigator.of(context).push(MaterialPageRoute(
+                          builder: (context) => UserReportPage(product: product),
+                        ));
+                      },
+                      style: TextButton.styleFrom(
+                        minimumSize: const Size(270, 36),
+                        tapTargetSize:
+                        MaterialTapTargetSize.shrinkWrap,
+                        padding: const EdgeInsets.only(
+                            top:
+                            8), // Ensures no additional padding is affecting the alignment
+                      ),
+                      child: const Text(
+                        '사용자 신고하기',
+                        // style: TextStyle(color: Color(0xFFE20529)),
+                        style: TextStyle(
+                          fontFamily: 'Pretendard',
+                          fontSize: 14,
+                          fontWeight: FontWeight.w400,
+                          color: Color(0xFFE20529),
+                        ),
+                      ),
+                    ),
+                    const Divider(),
+                    // 게시글 신고하기 option
+                    TextButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                        Navigator.of(context).push(MaterialPageRoute(
+                          builder: (context) => PostReportPage(product: product),
+                        ));
+                      },
+                      style: TextButton.styleFrom(
+                        minimumSize: const Size(270, 36),
+                        tapTargetSize:
+                        MaterialTapTargetSize.shrinkWrap, // Ensures no additional padding is affecting the alignment
+                      ),
+                      child: const Text(
+                        '게시글 신고하기',
+                        style: TextStyle(
+                          fontFamily: 'Pretendard',
+                          fontSize: 14,
+                          fontWeight: FontWeight.w400,
+                          color: Color(0xFFE20529),
+                        ),
+                      ),
+                    ),
+                    const Divider(),
+                    // 취소 option
+                    TextButton(
+                      onPressed: () {
+                        Navigator.of(context).pop(); // Close the dialog
+                      },
+                      style: TextButton.styleFrom(
+                        minimumSize: const Size(270, 36),
+                        tapTargetSize:
+                        MaterialTapTargetSize.shrinkWrap,
+                        padding: const EdgeInsets.only(
+                            bottom:
+                            8), // Ensures no additional padding is affecting the alignment
+                      ),
+                      child: const Text(
+                        '취소',
+                        style: TextStyle(color: Color(0xFFA19E9E)),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+
+            },
+          );
         },
         child: const Text(
           '신고하기',
@@ -590,6 +675,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
       ),
     );
   }
+
 
   Widget _buildChatButton(
       BuildContext context, ProductModel product, bool chatAvailable) {
