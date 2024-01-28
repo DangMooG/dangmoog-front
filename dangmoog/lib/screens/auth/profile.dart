@@ -1,3 +1,4 @@
+import 'package:dangmoog/screens/main_page.dart';
 import 'package:dangmoog/services/api.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
@@ -5,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:dangmoog/providers/user_provider.dart';
 
-import 'package:dangmoog/screens/home.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 
@@ -168,12 +168,8 @@ class _ProfilePageState extends State<ProfilePage> {
         Response response = await ApiService().setUserProfile(imagePath);
 
         if (response.statusCode == 200) {
-          // int userId = response.data['account_id'];
-          // await storage.write(key: 'userId', value: userId.toString());
-
           final Map<String, dynamic> data = response.data;
-          final String? profileUrl =
-              data["profile_url"]; // "profile_url" 값을 가져옴
+          final String? profileUrl = data["profile_url"];
 
           if (profileUrl != null) {
             imagePath = profileUrl;
@@ -381,7 +377,7 @@ class _ProfilePageState extends State<ProfilePage> {
                           Navigator.pushAndRemoveUntil(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => const MyHome()),
+                                builder: (context) => const MainPage()),
                             (route) => false,
                           );
                         },
@@ -394,7 +390,7 @@ class _ProfilePageState extends State<ProfilePage> {
                           Navigator.pushAndRemoveUntil(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => const MyHome()),
+                                builder: (context) => const MainPage()),
                             (route) => false,
                           );
                         },
