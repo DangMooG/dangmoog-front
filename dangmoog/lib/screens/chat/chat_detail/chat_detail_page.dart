@@ -202,7 +202,7 @@ class _ChatDetailState extends State<ChatDetail> {
             product: product!,
             imBuyer: widget.imBuyer,
           )
-        : const CircularProgressIndicator();
+        : const Center(child: CircularProgressIndicator());
 
     return WillPopScope(
       onWillPop: () async {
