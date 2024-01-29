@@ -132,8 +132,6 @@ class _ChatDetailState extends State<ChatDetail> {
       Provider.of<ChatProvider>(context, listen: false)
           .setImBuyer(widget.imBuyer);
 
-      // 1월 21일 0시 3분 수정 start
-      // 채팅 정보를 불러왔으면 채팅목록 페이지에서 안 읽은 채팅의 개수 초기화
       final chatListProvider =
           Provider.of<ChatListProvider>(context, listen: false);
       if (chatListProvider.buyChatList
@@ -149,7 +147,6 @@ class _ChatDetailState extends State<ChatDetail> {
 
         chatListProvider.resetUnreadCount(index, false);
       }
-      // 1월 21일 0시 3분 수정 end
     }
   }
 
@@ -197,13 +194,6 @@ class _ChatDetailState extends State<ChatDetail> {
   Widget build(BuildContext context) {
     socketChannel = Provider.of<SocketProvider>(context, listen: false);
 
-    Widget productWidget = product != null
-        ? ChatDetailProduct(
-            product: product!,
-            imBuyer: widget.imBuyer,
-          )
-        : const Center(child: CircularProgressIndicator());
-
     return WillPopScope(
       onWillPop: () async {
         Provider.of<ChatProvider>(context, listen: false).resetChatProvider();
@@ -220,7 +210,12 @@ class _ChatDetailState extends State<ChatDetail> {
               crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
-                productWidget,
+                product != null
+                    ? ChatDetailProduct(
+                        product: product!,
+                        imBuyer: widget.imBuyer,
+                      )
+                    : const Center(child: CircularProgressIndicator()),
                 Expanded(
                   child: GestureDetector(
                     onTap: unFocusKeyBoard,
