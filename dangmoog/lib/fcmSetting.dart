@@ -77,8 +77,5 @@ Future<String?> fcmSetting() async {
 
   // firebase token 발급
   String? firebaseToken = await messaging.getToken();
-
-  print("firebaseToken : $firebaseToken");
-
   return firebaseToken;
 }
