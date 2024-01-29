@@ -1,3 +1,4 @@
+import 'package:dangmoog/screens/main_page.dart';
 import 'package:flutter/material.dart';
 import 'dart:io';
 import 'package:dio/dio.dart';
@@ -115,7 +116,7 @@ class _AddPostPageState extends State<AddPostPage> {
         if (!mounted) return;
         Navigator.pushAndRemoveUntil(
           context,
-          MaterialPageRoute(builder: (context) => const MyHome()),
+          MaterialPageRoute(builder: (context) => const MainPage()),
           (Route<dynamic> route) => false,
         );
       } else if (response.statusCode == 422) {
@@ -954,6 +955,11 @@ class _AddPostPageState extends State<AddPostPage> {
                 priceController.selection = TextSelection.collapsed(
                     offset: cursorPosition +
                         (formattedValue.length - value.length));
+              }
+              if (isFree) {
+                setState(() {
+                  isFree = false;
+                });
               }
             },
             keyboardType: TextInputType.number,

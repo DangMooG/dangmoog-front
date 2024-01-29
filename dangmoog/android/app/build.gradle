@@ -64,6 +64,8 @@ android {
         targetSdkVersion localProperties.getProperty('flutter.targetSdkVersion').toInteger() // change from flutter.targetSdkVersion
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
+
+        multiDexEnabled true // 추가
     }
 
     signingConfigs {
@@ -90,4 +92,6 @@ flutter {
 
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    implementation platform('com.google.firebase:firebase-bom:32.3.1')
+    implementation 'com.google.firebase:firebase-analytics'
 }

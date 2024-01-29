@@ -4,6 +4,9 @@ import 'package:firebase_core/firebase_core.dart' show FirebaseOptions;
 import 'package:flutter/foundation.dart'
     show defaultTargetPlatform, kIsWeb, TargetPlatform;
 
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
+
 /// Default [FirebaseOptions] for use with your Firebase apps.
 ///
 /// Example:
@@ -51,7 +54,7 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyAgqlDelXGVvHcMHzDBQifwTh4vwJ31G98',
-    appId: '1:68243508411:android:f6361938c486b125686d9e',
+    appId: '1:68243508411:android:5235ec5766b8d47f686d9e',
     messagingSenderId: '68243508411',
     projectId: 'dangmoog-chat-19ac3',
     storageBucket: 'dangmoog-chat-19ac3.appspot.com',

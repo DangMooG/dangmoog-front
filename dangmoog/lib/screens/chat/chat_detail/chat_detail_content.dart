@@ -31,26 +31,26 @@ class _ChatContentsState extends State<ChatContents> {
 
   bool showScrollDownButton = true;
 
-  // void _scrollListener() {
-  //   bool isNearBottom = widget.scrollController.position.maxScrollExtent -
-  //           widget.scrollController.offset <=
-  //       200;
+  void _scrollListener() {
+    bool isNearBottom = widget.scrollController.position.maxScrollExtent -
+            widget.scrollController.offset <=
+        200;
 
-  //   if (isNearBottom && showScrollDownButton) {
-  //     setState(() {
-  //       showScrollDownButton = false;
-  //     });
-  //   } else if (!isNearBottom && !showScrollDownButton) {
-  //     setState(() {
-  //       showScrollDownButton = true;
-  //     });
-  //   }
-  // }
+    if (isNearBottom && showScrollDownButton) {
+      setState(() {
+        showScrollDownButton = false;
+      });
+    } else if (!isNearBottom && !showScrollDownButton) {
+      setState(() {
+        showScrollDownButton = true;
+      });
+    }
+  }
 
   @override
   void initState() {
     super.initState();
-    // widget.scrollController.addListener(_scrollListener);
+    widget.scrollController.addListener(_scrollListener);
   }
 
   @override
@@ -61,10 +61,6 @@ class _ChatContentsState extends State<ChatContents> {
 
   @override
   Widget build(BuildContext context) {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      scrollDown();
-    });
-
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Consumer<ChatProvider>(
@@ -82,23 +78,29 @@ class _ChatContentsState extends State<ChatContents> {
               ListView.builder(
                 controller: widget.scrollController,
                 reverse: false,
-                itemCount: chatContents.isNotEmpty
-                    ? chatContents.length
-                    : 1, // 비어 있을 경우 하나의 빈 아이템을 가진 리스트를 만듭니다.
+                itemCount: chatContents.isNotEmpty ? chatContents.length : 1,
                 itemBuilder: (context, index) {
                   ChatDetailMessageModel singleChat = chatContents[index];
 
                   var profileOmit = false;
                   var dateVisible = false;
+                  var timeOmit = false;
 
                   // 맨 첫 채팅이 아니라면
                   if (index != 0) {
                     // 이전 채팅과 같은 유저이면서 같은 날짜이면
                     // -> 프로필 중복 표시 제거
-                    if ((chatContents[index - 1].isMine == singleChat.isMine) &&
-                        (isSameDate(chatContents[index - 1].createTime,
-                            singleChat.createTime))) {
-                      profileOmit = true;
+                    if (chatContents[index - 1].isMine == singleChat.isMine) {
+                      if (isSameDate(chatContents[index - 1].createTime,
+                          singleChat.createTime)) {
+                        profileOmit = true;
+                      }
+                      if (index + 1 < chatContents.length) {
+                        if (isSameDateTime(chatContents[index + 1].createTime,
+                            singleChat.createTime)) {
+                          timeOmit = true;
+                        }
+                      }
                     } else {
                       // 이전 채팅과 다른 유저이면서 이전 채팅과 다른 날짜이면 -> 날짜 위젯 표시
                       if (!isSameDate(chatContents[index - 1].createTime,
@@ -120,6 +122,7 @@ class _ChatContentsState extends State<ChatContents> {
                         me: singleChat.isMine,
                         profileOmit: profileOmit,
                         time: convertTimeFormat(singleChat.createTime),
+                        timeOmit: timeOmit,
                       )
                     ],
                   );
@@ -181,4 +184,12 @@ bool isSameDate(DateTime date1, DateTime date2) {
   return date1.day == date2.day &&
       date1.month == date2.month &&
       date1.year == date2.year;
+}
+
+bool isSameDateTime(DateTime date1, DateTime date2) {
+  return date1.day == date2.day &&
+      date1.month == date2.month &&
+      date1.year == date2.year &&
+      date1.hour == date2.hour &&
+      date1.minute == date2.minute;
 }

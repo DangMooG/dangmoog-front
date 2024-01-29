@@ -5,13 +5,16 @@ class SingleChatMessage extends StatelessWidget {
   final bool me;
   final bool profileOmit;
   final String time;
+  final bool timeOmit;
 
-  const SingleChatMessage(
-      {super.key,
-      required this.text,
-      required this.me,
-      required this.profileOmit,
-      required this.time});
+  const SingleChatMessage({
+    super.key,
+    required this.text,
+    required this.me,
+    required this.profileOmit,
+    required this.time,
+    required this.timeOmit,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +31,7 @@ class SingleChatMessage extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       const SizedBox.shrink(),
-                      _chatTime(time, me),
+                      timeOmit ? const SizedBox.shrink() : _chatTime(time, me),
                     ],
                   ),
                   _chatTextBox(text, me),
@@ -40,7 +43,7 @@ class SingleChatMessage extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       const SizedBox.shrink(),
-                      _chatTime(time, me),
+                      timeOmit ? const SizedBox.shrink() : _chatTime(time, me),
                     ],
                   ),
                 ],
@@ -74,7 +77,7 @@ class SingleChatMessage extends StatelessWidget {
       decoration: BoxDecoration(
           color: me ? const Color(0xFFEC5870) : const Color(0xFFF1F1F1),
           borderRadius: const BorderRadius.all(Radius.circular(15))),
-      child: Text(
+      child: SelectableText(
         text,
         style: TextStyle(
           fontSize: 14,
@@ -88,8 +91,9 @@ class SingleChatMessage extends StatelessWidget {
 
   Widget _chatTime(String time, bool me) {
     return Padding(
-      padding:
-          me ? const EdgeInsets.only(right: 4) : const EdgeInsets.only(left: 4),
+      padding: me
+          ? const EdgeInsets.only(right: 4, bottom: 2)
+          : const EdgeInsets.only(left: 4, bottom: 2),
       child: Text(
         time,
         style: const TextStyle(

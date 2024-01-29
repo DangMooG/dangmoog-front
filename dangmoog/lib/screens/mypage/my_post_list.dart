@@ -77,6 +77,7 @@ class _MyProductListState extends State<MyProductList> {
           // await futureProducts;
         },
         child: ListView.separated(
+          physics: const AlwaysScrollableScrollPhysics(),
           itemCount: widget.productList.length,
           itemBuilder: (context, index) {
             Widget productCard = ChangeNotifierProvider<ProductModel>.value(

@@ -7,9 +7,28 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:68243508411:android:f6361938c486b125686d9e",
+        "mobilesdk_app_id": "1:68243508411:android:5235ec5766b8d47f686d9e",
         "android_client_info": {
           "package_name": "com.dangmoog"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAgqlDelXGVvHcMHzDBQifwTh4vwJ31G98"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:68243508411:android:f6361938c486b125686d9e",
+        "android_client_info": {
+          "package_name": "com.example.dangmoog"
         }
       },
       "oauth_client": [],

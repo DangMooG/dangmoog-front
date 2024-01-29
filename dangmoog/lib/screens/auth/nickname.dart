@@ -1,6 +1,7 @@
 import 'package:dangmoog/screens/auth/profile.dart';
 
 import 'package:dangmoog/services/api.dart';
+import 'package:dangmoog/widgets/bottom_popup.dart';
 import 'package:dio/dio.dart';
 
 import 'package:flutter/material.dart';
@@ -8,7 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:dangmoog/widgets/submit_button.dart';
 
 import 'package:provider/provider.dart';
-import 'package:dangmoog/providers/provider.dart';
+import 'package:dangmoog/providers/user_provider.dart';
 
 class NicknamePage extends StatefulWidget {
   const NicknamePage({Key? key}) : super(key: key);
@@ -84,6 +85,10 @@ class _NicknamePageState extends State<NicknamePage> {
   }
 
   void nickNameSubmit() async {
+    if (isLoading) {
+      return;
+    }
+
     setState(() {
       isLoading = true;
     });
@@ -102,7 +107,12 @@ class _NicknamePageState extends State<NicknamePage> {
         );
       }
     } catch (e) {
-      print(e);
+      showPopup(context, "별명 설정에 실패했습니다.");
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+        });
+      }
     }
   }
 
@@ -132,12 +142,12 @@ class _NicknamePageState extends State<NicknamePage> {
                           _nicknameMessage(screenSize),
                         ],
                       ),
-                      SizedBox(height: screenSize.height * 0.024),
+                      const SizedBox(height: 16),
                       _inputField(screenSize)
                     ],
                   ),
                   SizedBox(
-                    height: screenSize.height * 0.2,
+                    height: 144,
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: [
@@ -172,12 +182,15 @@ class _NicknamePageState extends State<NicknamePage> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          '환영합니다!\n앱에서 사용하실 별명을 알려주세요!',
+          '환영합니다!\n별명을 알려주세요!',
           style: TextStyle(
             color: Color(0xFF302E2E),
             fontSize: 24,
             fontWeight: FontWeight.w600,
           ),
+        ),
+        SizedBox(
+          height: 8,
         ),
         Text(
           '도토릿 앱 내에서는 별명을 이용하실 수 있으며 \n최초 1회 변경가능하오니 이점 참고바랍니다! ',
@@ -297,29 +310,39 @@ class _NicknamePageState extends State<NicknamePage> {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         if (errorMessage.isNotEmpty)
-          Text(
-            errorMessage,
-            style: TextStyle(
-              color: isRedText ? const Color(0xFFE20529) : Colors.blue,
-              fontSize: 11,
-            ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              Text(
+                errorMessage,
+                style: TextStyle(
+                  color: isRedText ? const Color(0xFFE20529) : Colors.blue,
+                  fontSize: 11,
+                ),
+              ),
+            ],
           ),
         const SizedBox.shrink(),
-        InkWell(
-          onTap: () {
-            setState(() {
-              isHelpVisible = !isHelpVisible;
-            });
-          },
-          child: const Text(
-            '별명은 어떻게 설정해야 하나요?',
-            style: TextStyle(
-              color: Color(0xFF726E6E),
-              fontSize: 11,
-              fontWeight: FontWeight.w400,
-              decoration: TextDecoration.underline,
+        Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            InkWell(
+              onTap: () {
+                setState(() {
+                  isHelpVisible = !isHelpVisible;
+                });
+              },
+              child: const Text(
+                '별명은 어떻게 설정해야 하나요?',
+                style: TextStyle(
+                  color: Color(0xFF726E6E),
+                  fontSize: 11,
+                  fontWeight: FontWeight.w400,
+                  decoration: TextDecoration.underline,
+                ),
+              ),
             ),
-          ),
+          ],
         ),
       ],
     );

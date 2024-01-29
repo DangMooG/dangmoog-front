@@ -1,6 +1,6 @@
 import 'dart:io';
 import 'package:dangmoog/models/product_class.dart';
-import 'package:dangmoog/screens/home.dart';
+import 'package:dangmoog/screens/main_page.dart';
 import 'package:dangmoog/services/api.dart';
 import 'package:dangmoog/widgets/bottom_popup.dart';
 import 'package:dio/dio.dart';
@@ -408,7 +408,7 @@ class _LockerValState extends State<LockerValPage> {
                             Navigator.pushAndRemoveUntil(
                               context,
                               MaterialPageRoute(
-                                  builder: (context) => const MyHome()),
+                                  builder: (context) => const MainPage()),
                               (Route<dynamic> route) => false,
                             );
                           } else {

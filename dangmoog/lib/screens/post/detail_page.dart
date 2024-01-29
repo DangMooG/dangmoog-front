@@ -1,10 +1,11 @@
 import 'package:dangmoog/constants/category_list.dart';
 import 'package:dangmoog/providers/chat_provider.dart';
 import 'package:dangmoog/providers/product_detail_provider.dart';
-import 'package:dangmoog/providers/provider.dart';
+import 'package:dangmoog/providers/user_provider.dart';
 import 'package:dangmoog/screens/chat/chat_detail/chat_detail_page.dart';
 import 'package:dangmoog/screens/home.dart';
 import 'package:dangmoog/screens/report/post_report.dart';
+import 'package:dangmoog/screens/main_page.dart';
 import 'package:dangmoog/widgets/bottom_popup.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
@@ -169,7 +170,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                                         context,
                                         MaterialPageRoute(
                                             builder: (context) =>
-                                                const MyHome()),
+                                                const MainPage()),
                                         (Route<dynamic> route) => false,
                                       );
                                     } else {
@@ -524,6 +525,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
 
   // 카테고리, 올린 날짜
   Widget _buildProductDetails(ProductModel product) {
+    print(product.categoryId);
     return Container(
       margin: const EdgeInsets.only(top: 4),
       child: Text(
@@ -590,16 +592,16 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                       onPressed: () {
                         Navigator.pop(context);
                         Navigator.of(context).push(MaterialPageRoute(
-                          builder: (context) => UserReportPage(product: product),
+                          builder: (context) =>
+                              UserReportPage(product: product),
                         ));
                       },
                       style: TextButton.styleFrom(
                         minimumSize: const Size(270, 36),
-                        tapTargetSize:
-                        MaterialTapTargetSize.shrinkWrap,
+                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                         padding: const EdgeInsets.only(
                             top:
-                            8), // Ensures no additional padding is affecting the alignment
+                                8), // Ensures no additional padding is affecting the alignment
                       ),
                       child: const Text(
                         '사용자 신고하기',
@@ -618,13 +620,14 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                       onPressed: () {
                         Navigator.pop(context);
                         Navigator.of(context).push(MaterialPageRoute(
-                          builder: (context) => PostReportPage(product: product),
+                          builder: (context) =>
+                              PostReportPage(product: product),
                         ));
                       },
                       style: TextButton.styleFrom(
                         minimumSize: const Size(270, 36),
-                        tapTargetSize:
-                        MaterialTapTargetSize.shrinkWrap, // Ensures no additional padding is affecting the alignment
+                        tapTargetSize: MaterialTapTargetSize
+                            .shrinkWrap, // Ensures no additional padding is affecting the alignment
                       ),
                       child: const Text(
                         '게시글 신고하기',
@@ -644,11 +647,10 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                       },
                       style: TextButton.styleFrom(
                         minimumSize: const Size(270, 36),
-                        tapTargetSize:
-                        MaterialTapTargetSize.shrinkWrap,
+                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                         padding: const EdgeInsets.only(
                             bottom:
-                            8), // Ensures no additional padding is affecting the alignment
+                                8), // Ensures no additional padding is affecting the alignment
                       ),
                       child: const Text(
                         '취소',
@@ -658,7 +660,6 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                   ],
                 ),
               );
-
             },
           );
         },
@@ -675,7 +676,6 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
       ),
     );
   }
-
 
   Widget _buildChatButton(
       BuildContext context, ProductModel product, bool chatAvailable) {

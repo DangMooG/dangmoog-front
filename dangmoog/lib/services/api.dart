@@ -27,14 +27,14 @@ class ApiService {
 
   // 인증번호 인증
   Future<Response> verifyCode(
-      String inputEmail, String verificationCode) async {
+      String inputEmail, String verificationCode, String fcmToken) async {
     _publicClient.options.headers['Content-Type'] =
         "application/x-www-form-urlencoded";
 
     return await _publicClient.post("account/verification", data: {
       "username": inputEmail.split("@").first.toString(),
       "password": verificationCode.toString(),
-      "fcm": "jasidofjgaoiwjijwaofju20lakdjfkl"
+      "fcm": fcmToken,
     });
   }
 

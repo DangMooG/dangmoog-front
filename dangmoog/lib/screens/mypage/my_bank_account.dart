@@ -1,11 +1,10 @@
 import 'package:dangmoog/constants/account_list.dart';
-import 'package:dangmoog/providers/provider.dart';
+import 'package:dangmoog/providers/user_provider.dart';
 import 'package:dangmoog/screens/app_bar.dart';
 import 'package:dangmoog/widgets/submit_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:provider/provider.dart';
 
 class MyBankAccountPage extends StatefulWidget {
   const MyBankAccountPage({Key? key}) : super(key: key);

@@ -1,4 +1,5 @@
 import 'package:dangmoog/screens/home.dart';
+import 'package:dangmoog/screens/main_page.dart';
 import 'package:dangmoog/services/api.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -10,7 +11,7 @@ import 'package:provider/provider.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import 'package:dangmoog/screens/auth/nickname.dart';
-import 'package:dangmoog/providers/provider.dart';
+import 'package:dangmoog/providers/user_provider.dart';
 import 'package:dangmoog/widgets/back_appbar.dart';
 import 'package:dangmoog/widgets/submit_button.dart';
 
@@ -149,8 +150,12 @@ class _AuthPageState extends State<AuthPage> {
     });
 
     try {
-      Response response =
-          await ApiService().verifyCode(inputEmail, verificationCode);
+      final fcmToken = await storage.read(key: "fcmToken");
+      Response response = await ApiService().verifyCode(
+        inputEmail,
+        verificationCode,
+        fcmToken!,
+      );
 
       if (response.statusCode == 200) {
         setState(() {
@@ -158,6 +163,10 @@ class _AuthPageState extends State<AuthPage> {
         });
         String accessToken = response.data['access_token'];
         int userId = response.data['account_id'];
+
+        // 키에 대한 값이 없어도 에러 발생 X
+        await storage.delete(key: 'accessToken');
+        await storage.delete(key: 'userId');
 
         await storage.write(key: 'accessToken', value: accessToken);
         await storage.write(key: 'userId', value: userId.toString());
@@ -192,11 +201,13 @@ class _AuthPageState extends State<AuthPage> {
               print(e);
             }
 
-            Navigator.pushAndRemoveUntil(
-              context,
-              MaterialPageRoute(builder: (context) => const MyHome()),
-              (route) => false,
-            );
+            // Navigator.pushAndRemoveUntil(
+            //   context,
+            //   MaterialPageRoute(builder: (context) => const MainPage()),
+            //   (route) => false,
+            // );
+            Navigator.pushNamedAndRemoveUntil(
+                context, '/mainpage', ModalRoute.withName('/myhome'));
           }
         } else {
           // 별명 설정 페이지로 이동
@@ -211,8 +222,9 @@ class _AuthPageState extends State<AuthPage> {
       }
     } catch (e) {
       print("Exception: $e");
-      errorMessageVerificationCode = '인증번호를 잘못 입력하셨습니다. 다시 입력해주세요.';
-      print(errorMessageVerificationCode);
+      setState(() {
+        errorMessageVerificationCode = '인증번호를 잘못 입력하셨습니다. 다시 입력해주세요.';
+      });
     }
     setState(() {
       isLoading = false;

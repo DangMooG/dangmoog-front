@@ -10,7 +10,7 @@ import 'package:dio/dio.dart';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:dangmoog/providers/provider.dart';
+import 'package:dangmoog/providers/user_provider.dart';
 import 'package:dangmoog/widgets/mypage_text.dart';
 import 'package:dangmoog/screens/mypage/profile_change.dart';
 import 'package:dangmoog/screens/mypage/my_bank_account.dart';
@@ -49,9 +49,9 @@ class _MyPageState extends State<MyPage> {
 
   @override
   Widget build(BuildContext context) {
-    String userEmail = Provider.of<UserProvider>(context).inputEmail;
+    String userEmail = Provider.of<UserProvider>(context).userEmail;
     String userNickname = Provider.of<UserProvider>(context).nickname;
-    String userImage = Provider.of<UserProvider>(context).userImage;
+    String? userImage = Provider.of<UserProvider>(context).userProfileImageUrl;
     Size screenSize = MediaQuery.of(context).size;
 
     return SingleChildScrollView(
@@ -64,11 +64,8 @@ class _MyPageState extends State<MyPage> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 ClipOval(
-                    child: userImage != null
-                        ?
-                        // fetchImage 함수 호출하여 profileUrl을 가져옴
-
-                        Image.network(
+                    child: userImage != "" && userImage != null
+                        ? Image.network(
                             userImage,
                             width: screenSize.width * 0.14,
                             height: screenSize.width * 0.14,
@@ -91,7 +88,6 @@ class _MyPageState extends State<MyPage> {
                         userNickname,
                         style: const TextStyle(
                           color: Color(0xFF302E2E),
-                          fontFamily: 'Pretendard-SemiBold',
                           fontSize: 18,
                           fontWeight: FontWeight.w600,
                         ),
@@ -101,7 +97,6 @@ class _MyPageState extends State<MyPage> {
                         userEmail,
                         style: const TextStyle(
                           color: Color(0xFF726E6E),
-                          fontFamily: 'Pretendard-Regular',
                           fontSize: 14,
                           fontWeight: FontWeight.w400,
                         ),
