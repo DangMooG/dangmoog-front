@@ -598,7 +598,7 @@ class _ProductListState extends State<ProductList> {
       children: [
         Text(
           product.title,
-          maxLines: 2,
+          maxLines: 1,
           overflow: TextOverflow.ellipsis,
           style: const TextStyle(
             fontWeight: FontWeight.w600,
