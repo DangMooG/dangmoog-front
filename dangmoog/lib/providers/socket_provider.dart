@@ -24,8 +24,7 @@ class SocketProvider {
 
   void onConnect() async {
     const storage = FlutterSecureStorage();
-    const socketBaseUrl =
-        "port-0-dangmoog-chat-p8xrq2mlfc80j33.sel3.cloudtype.app";
+    const socketBaseUrl = "chat.dangmoog.site:2024";
     String? accessToken = await storage.read(key: 'accessToken');
     wsUrl = 'ws://$socketBaseUrl/ws?token=$accessToken';
 
