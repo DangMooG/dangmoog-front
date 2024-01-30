@@ -343,17 +343,22 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildProductInformation(product),
-              Column(
-                children: [
-                  _buildProductLikeChatCount(product),
-                  Padding(
-                    padding: const EdgeInsets.only(top: 8.0),
-                    child: _buildProductStatusImage(product),
-                  ),
-                ],
+              Flexible(
+                flex: 3,
+                child: _buildProductInformation(product), // Adjust the flex factor as needed
               ),
-              // LikeChatCount(product: product, apiService: apiService,)
+              Expanded(
+                child: Column(
+                  children: [
+                    _buildProductLikeChatCount(product),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8.0),
+                      child: _buildProductStatusImage(product),
+                    ),
+                  ],
+                ),
+              ),
+              // Other widgets can be added here as needed
             ],
           ),
           _buildProductDescription(product),
@@ -362,6 +367,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
       ),
     );
   }
+
 
   Widget _buildProductStatusImage(ProductModel product) {
     int saleStatus = product.status;

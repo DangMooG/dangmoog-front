@@ -290,6 +290,7 @@ class _AddPostPageState extends State<AddPostPage> {
 
     try {
       File imageFile = File(_imageList[0]);
+      print(imageFile);
 
       Response response = await ApiService()
           .getPriceRecommended(productNameController.text, imageFile);
@@ -900,7 +901,9 @@ class _AddPostPageState extends State<AddPostPage> {
                   padding: EdgeInsets.zero,
                   physics: const AlwaysScrollableScrollPhysics(),
                   shrinkWrap: true,
-                  children: categeryItems.map((category) {
+                  children: categeryItems
+                      .where((category) => category.isNotEmpty)
+                      .map((category) {
                     return ListTile(
                       contentPadding: const EdgeInsets.symmetric(horizontal: 8),
                       dense: true,
@@ -1352,12 +1355,11 @@ class _AddPostPageState extends State<AddPostPage> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        const SizedBox(
-          width: 212,
-          height: 32,
+        const Expanded(
           child: Text(
-            '중고가를 어떻게 설정해야 할지 모르겠다면?\nAI가 대표사진을 분석하여 가격을 추천해줘요!',
-            style: TextStyle(
+          '중고가를 어떻게 설정해야 할지 모르겠다면?\nAI가 대표사진을 분석하여 가격을 추천해줘요!',
+          style:
+            TextStyle(
               fontSize: 11,
               height: 1.45,
               color: Color(0xFF302E2E),

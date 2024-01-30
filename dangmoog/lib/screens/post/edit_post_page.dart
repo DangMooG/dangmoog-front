@@ -179,6 +179,52 @@ class _EditPostPageState extends State<EditPostPage> {
 
   bool isFree = false;
   bool _showPrice = false;
+  List<dynamic> recommendedPriceList = [0, 0, 0];
+  bool recommendedAlready = false;
+  bool isAiLoading = false;
+
+
+  void getRecommendedPrice() async {
+    if (isAiLoading) return;
+    if (_imageList.isEmpty) {
+      showPopup(context, "물품 사진을 1개 이상 입력해주세요");
+      return;
+    }
+    if (productNameController.text.isEmpty) {
+      showPopup(context, "물품 이름을 입력해주세요");
+      return;
+    }
+    showPopup(context, "가격 추천 중입니다...");
+
+    setState(() {
+      isAiLoading = true;
+    });
+
+    try {
+      File imageFile = File(_imageList[0]);
+      print(imageFile);
+
+      Response response = await ApiService()
+          .getPriceRecommended(productNameController.text, imageFile);
+
+      if (response.statusCode == 200) {
+        List<dynamic> data = response.data;
+        setState(() {
+          // recommendedAlready = true;
+          recommendedPriceList = data;
+          _showPrice = true;
+        });
+      }
+    } catch (e) {
+      print(e);
+      if (!mounted) return;
+      showPopup(context, "가격 추천에 실패했습니다.");
+    }
+
+    setState(() {
+      isAiLoading = false;
+    });
+  }
 
   TextEditingController productNameController = TextEditingController();
   TextEditingController priceController = TextEditingController();
@@ -208,6 +254,13 @@ class _EditPostPageState extends State<EditPostPage> {
           },
         ),
         centerTitle: true,
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(1.0),
+          child: Container(
+            color: const Color(0xFFBEBCBC), // Divider color
+            height: 1.0, // Divider thickness
+          ),
+        ),
       ),
       body: GestureDetector(
         behavior: HitTestBehavior.opaque,
@@ -270,9 +323,10 @@ class _EditPostPageState extends State<EditPostPage> {
           ],
         ),
       );
-    } else {
+    }
+    else {
       // Display a message or a loading indicator if _imageList is empty
-      return const Text('No images found');
+      return const Text('이미지가 없어요!');
     }
   }
 
@@ -487,7 +541,9 @@ class _EditPostPageState extends State<EditPostPage> {
                   padding: EdgeInsets.zero,
                   physics: const AlwaysScrollableScrollPhysics(),
                   shrinkWrap: true,
-                  children: categeryItems.map((category) {
+                  children: categeryItems
+                      .where((category) => category.isNotEmpty)
+                      .map((category) {
                     return ListTile(
                       contentPadding: const EdgeInsets.symmetric(horizontal: 8),
                       dense: true,
@@ -830,9 +886,7 @@ class _EditPostPageState extends State<EditPostPage> {
           padding: const EdgeInsets.only(right: 8.0),
           child: TextButton(
             onPressed: () {
-              setState(() {
-                _showPrice = true;
-              });
+              getRecommendedPrice();
             },
             style: TextButton.styleFrom(
               minimumSize: const Size(111, 24),
