@@ -86,6 +86,8 @@ class _LockerValState extends State<LockerValPage> {
               _buildUploadText(),
               _buildUploadSection(),
               const SizedBox(height: 20),
+              _buildPreviousPasswordSection(),
+              const SizedBox(height: 20),
               _buildPasswordSection(),
             ],
           ),
@@ -109,7 +111,7 @@ class _LockerValState extends State<LockerValPage> {
 
   Widget _buildUploadSection() {
     return Column(
-      // crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: <Widget>[
         // const Text('사물함 인증사진 업로드', textAlign: TextAlign.left),
         const SizedBox(height: 20),
@@ -133,6 +135,41 @@ class _LockerValState extends State<LockerValPage> {
                 : const Icon(Icons.camera_alt, size: 50),
           ),
         ),
+      ],
+    );
+  }
+
+  Widget _buildPreviousPasswordSection(){
+    return const Column(
+      children: [
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget> [
+            Text('발급 받은 비밀번호', textAlign: TextAlign.left),
+          ],
+        ),
+        SizedBox(height: 8),
+        Row(
+          children: [
+            Text('2024',
+            style:
+            TextStyle(
+                color: Color(0xFFE20529),
+                fontSize: 32,
+                fontWeight: FontWeight.w600,
+
+                //styleName: Headline L;
+
+                // font-family: Pretendard;
+            // fontsize: 32px;
+            // font-weight: 600;
+            // line-height: 40px;
+            // letter-spacing: 0em;
+            // text-align: left;
+
+            ),),
+          ],
+        )
       ],
     );
   }

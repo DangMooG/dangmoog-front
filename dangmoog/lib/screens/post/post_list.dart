@@ -435,91 +435,105 @@ class _ProductListState extends State<ProductList> {
       padding: EdgeInsets.only(
         right: paddingValue,
       ),
-      child: Container(
-        width: size,
-        height: size,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(
-            strokeAlign: BorderSide.strokeAlignInside,
-            color: const Color(0xffF1F1F1),
-            width: 0.5,
-          ),
-        ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(8),
-          child: imageCache.containsKey(product.representativePhotoId)
-              ? Image.network(
-                  imageCache[product.representativePhotoId]!,
-                  fit: BoxFit.cover,
-                  errorBuilder: (BuildContext context, Object exception,
-                      StackTrace? stackTrace) {
-                    return Image.asset(
-                      "assets/images/sample.png",
-                      width: 90,
+      child: Stack(
+        children: [
+          Container(
+            width: size,
+            height: size,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(
+                strokeAlign: BorderSide.strokeAlignInside,
+                color: const Color(0xffD3D2D2),
+                width: 0.5,
+              ),
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: imageCache.containsKey(product.representativePhotoId)
+                  ? Image.network(
+                      imageCache[product.representativePhotoId]!,
                       fit: BoxFit.cover,
-                    );
-                  },
-                )
-              : product.representativePhotoId == 0
-                  ? Image.asset(
-                      "assets/images/sample.png",
-                      width: 90,
-                      fit: BoxFit.cover,
+                      errorBuilder: (BuildContext context, Object exception,
+                          StackTrace? stackTrace) {
+                        return Image.asset(
+                          "assets/images/sample.png",
+                          width: 90,
+                          fit: BoxFit.cover,
+                        );
+                      },
                     )
-                  : FutureBuilder<Response>(
-                      future:
-                          apiService.loadPhoto(product.representativePhotoId),
-                      builder: (context, snapshot) {
-                        if (snapshot.connectionState ==
-                            ConnectionState.waiting) {
-                          return Container(
-                            decoration: const BoxDecoration(
-                              color: Color(0xffF1F1F1),
-                            ),
-                          );
-                        } else if (snapshot.hasError) {
-                          return Image.asset(
-                            "assets/images/sample.png",
-                            width: 90,
-                            errorBuilder: (BuildContext context,
-                                Object exception, StackTrace? stackTrace) {
+                  : product.representativePhotoId == 0
+                      ? Image.asset(
+                          "assets/images/sample.png",
+                          width: 90,
+                          fit: BoxFit.cover,
+                        )
+                      : FutureBuilder<Response>(
+                          future:
+                              apiService.loadPhoto(product.representativePhotoId),
+                          builder: (context, snapshot) {
+                            if (snapshot.connectionState ==
+                                ConnectionState.waiting) {
+                              return Container(
+                                decoration: const BoxDecoration(
+                                  color: Color(0xffF1F1F1),
+                                ),
+                              );
+                            } else if (snapshot.hasError) {
                               return Image.asset(
                                 "assets/images/sample.png",
                                 width: 90,
-                                fit: BoxFit.cover,
+                                errorBuilder: (BuildContext context,
+                                    Object exception, StackTrace? stackTrace) {
+                                  return Image.asset(
+                                    "assets/images/sample.png",
+                                    width: 90,
+                                    fit: BoxFit.cover,
+                                  );
+                                },
                               );
-                            },
-                          );
-                        } else if (snapshot.data == null) {
-                          return Image.asset(
-                            '/assets/images/sample.png',
-                            fit: BoxFit.cover,
-                          );
-                        } else if (snapshot.hasData) {
-                          Map<String, dynamic> data = snapshot.data!.data;
-                          String imageUrl = data["url"];
-                          imageCache[product.representativePhotoId] = imageUrl;
-                          return Image.network(
-                            imageUrl,
-                            fit: BoxFit.cover,
-                            errorBuilder: (BuildContext context, Object error,
-                                StackTrace? stackTrace) {
+                            } else if (snapshot.data == null) {
                               return Image.asset(
                                 '/assets/images/sample.png',
                                 fit: BoxFit.cover,
                               );
-                            },
-                          );
-                        } else {
-                          return Image.asset(
-                            "assets/images/sample.png",
-                            fit: BoxFit.cover,
-                          );
-                        }
-                      },
-                    ),
-        ),
+                            } else if (snapshot.hasData) {
+                              Map<String, dynamic> data = snapshot.data!.data;
+                              String imageUrl = data["url"];
+                              imageCache[product.representativePhotoId] = imageUrl;
+                              return Image.network(
+                                imageUrl,
+                                fit: BoxFit.cover,
+                                errorBuilder: (BuildContext context, Object error,
+                                    StackTrace? stackTrace) {
+                                  return Image.asset(
+                                    '/assets/images/sample.png',
+                                    fit: BoxFit.cover,
+                                  );
+                                },
+                              );
+                            } else {
+                              return Image.asset(
+                                "assets/images/sample.png",
+                                fit: BoxFit.cover,
+                              );
+                            }
+                          },
+                        ),
+            ),
+
+          ),
+          if (product.useLocker != 0)
+            Positioned(
+              top: 4, // Adjust these values as needed for your logo's position
+              left: 4,
+              child: Image.asset(
+                'assets/images/uselocker_logo.png', // Replace with your logo asset path
+                width: size*0.25, // Adjust the size as needed
+              ),
+            ),
+        ],
       ),
     );
   }
@@ -535,7 +549,8 @@ class _ProductListState extends State<ProductList> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _buildProductTexts(product),
-            _buildProductLikeChatCount(product),
+            if (product.useLocker != 1)
+              _buildProductLikeChatCount(product),
           ],
         ),
       ),
