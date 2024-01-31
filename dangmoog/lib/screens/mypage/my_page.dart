@@ -70,6 +70,15 @@ class _MyPageState extends State<MyPage> {
                             width: screenSize.width * 0.14,
                             height: screenSize.width * 0.14,
                             fit: BoxFit.cover,
+                            errorBuilder: (BuildContext context,
+                                Object exception, StackTrace? stackTrace) {
+                              return Image.asset(
+                                "assets/images/basic_profile.png",
+                                width: screenSize.width * 0.14,
+                                height: screenSize.width * 0.14,
+                                fit: BoxFit.cover,
+                              );
+                            },
                           )
                         : Image.asset(
                             'assets/images/basic_profile.png',
