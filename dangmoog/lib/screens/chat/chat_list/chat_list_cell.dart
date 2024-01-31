@@ -88,17 +88,16 @@ class _ChatCellState extends State<ChatCell> {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () {
-        Provider.of<ChatProvider>(context, listen: false).setRoomId(roomId);
+        Provider.of<ChatProvider>(context, listen: false)
+            .getInChatRoom(imBuyer, postId, userName);
+
         Navigator.push(
           context,
           MaterialPageRoute(
             builder: (context) => ChangeNotifierProvider(
               create: (context) => ChatSettingProvider(),
               child: ChatDetail(
-                imBuyer: imBuyer,
-                postId: postId,
                 roomId: roomId,
-                userName: userName,
               ),
             ),
           ),
@@ -109,6 +108,7 @@ class _ChatCellState extends State<ChatCell> {
           vertical: 4,
           horizontal: 2,
         ),
+        height: 64,
         child: SizedBox(
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -152,15 +152,41 @@ class _ChatCellState extends State<ChatCell> {
                       children: [
                         Row(
                           children: [
-                            Text(userName),
-                            const Text(' ∙ '),
-                            Text(timeAgoTilWeek(updateTime)),
+                            Text(
+                              userName,
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                                color: Color(0xff302E2E),
+                              ),
+                            ),
+                            const Text(
+                              ' ∙ ',
+                              style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w400,
+                                color: Color(0xffA19E9E),
+                              ),
+                            ),
+                            Text(
+                              timeAgoTilWeek(updateTime),
+                              style: const TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w400,
+                                color: Color(0xffA19E9E),
+                              ),
+                            ),
                           ],
                         ),
                         Text(
                           lastMessage,
                           overflow: TextOverflow.ellipsis,
                           maxLines: 1,
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w400,
+                            color: Color(0xff302E2E),
+                          ),
                         ),
                       ],
                     ),
@@ -184,6 +210,7 @@ class _ChatCellState extends State<ChatCell> {
                               color: Colors.white,
                               fontSize: 13,
                               fontWeight: FontWeight.w400,
+                              height: 1,
                             ),
                           ),
                         ),

@@ -80,36 +80,50 @@ class _ChatDetailProductState extends State<ChatDetailProduct> {
                           height: 48,
                           fit: BoxFit.cover,
                         )
-                      : Image.network(representativePhotoUrl!,
-                          width: 48, height: 48, fit: BoxFit.cover),
+                      : Image.network(
+                          representativePhotoUrl!,
+                          width: 48,
+                          height: 48,
+                          fit: BoxFit.cover,
+                          errorBuilder: (BuildContext context, Object error,
+                              StackTrace? stackTrace) {
+                            return Image.asset(
+                              '/assets/images/sample.png',
+                              fit: BoxFit.cover,
+                            );
+                          },
+                        ),
             ),
           ),
           Expanded(
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxHeight: 48),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    product.title,
-                    style: const TextStyle(
-                      color: Color(0xFF302E2E),
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
+              child: Padding(
+                padding: const EdgeInsets.only(right: 4),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      product.title,
+                      style: const TextStyle(
+                        color: Color(0xFF302E2E),
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      ),
+                      overflow: TextOverflow.ellipsis,
                     ),
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  Text(
-                    NumberFormat('###,###,###원', 'ko_KR')
-                        .format(product.price.toInt()),
-                    style: const TextStyle(
-                      color: Color(0xFF302E2E),
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
+                    Text(
+                      NumberFormat('###,###,###원', 'ko_KR')
+                          .format(product.price.toInt()),
+                      style: const TextStyle(
+                        color: Color(0xFF302E2E),
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),

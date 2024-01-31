@@ -5,11 +5,17 @@ class ChatProvider with ChangeNotifier {
   List<ChatDetailMessageModel> _chatContents = [];
   List<ChatDetailMessageModel> get chatContents => _chatContents;
 
-  String _roomId = "";
-  String get roomId => _roomId;
+  String? _roomId;
+  String? get roomId => _roomId;
 
-  bool? _imbuyer;
-  bool? get imbuyer => _imbuyer;
+  bool? _imBuyer;
+  bool? get imBuyer => _imBuyer;
+
+  int? _postId;
+  int? get postId => _postId;
+
+  String? _userName;
+  String? get userName => _userName;
 
   // 상세 게시글에서 상세 채팅방 접근해서 첫 채팅 시, 내 채팅방 목록 새로 불러오기
   late VoidCallback addNewChatList;
@@ -26,20 +32,40 @@ class ChatProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  void setRoomId(String roomId) {
+  void setRoomId(String? roomId) {
     _roomId = roomId;
     notifyListeners();
   }
 
-  void setImBuyer(bool imbuyer) {
-    _imbuyer = imbuyer;
+  void setImBuyer(bool? imbuyer) {
+    _imBuyer = imbuyer;
+    notifyListeners();
+  }
+
+  void setPostId(int? postId) {
+    _postId = postId;
+    notifyListeners();
+  }
+
+  void setuserName(String? userName) {
+    _userName = userName;
+    notifyListeners();
+  }
+
+  void getInChatRoom(bool? imbuyer, int? postId, String? userName) {
+    _chatContents = [];
+    _imBuyer = imbuyer;
+    _postId = postId;
+    _userName = userName;
     notifyListeners();
   }
 
   void resetChatProvider() {
     _chatContents = [];
-    _roomId = "";
-    _imbuyer = null;
+    _roomId = null;
+    _imBuyer = null;
+    _postId = null;
+    _userName = null;
     notifyListeners();
   }
 

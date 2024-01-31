@@ -1,4 +1,5 @@
 import 'package:dangmoog/constants/category_list.dart';
+import 'package:dangmoog/providers/chat_list_provider.dart';
 import 'package:dangmoog/providers/chat_provider.dart';
 import 'package:dangmoog/providers/product_detail_provider.dart';
 import 'package:dangmoog/providers/user_provider.dart';
@@ -346,7 +347,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
             children: [
               Flexible(
                 flex: 3,
-                child: _buildProductInformation(product), // Adjust the flex factor as needed
+                child: _buildProductInformation(product),
               ),
               Expanded(
                 child: Column(
@@ -368,7 +369,6 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
       ),
     );
   }
-
 
   Widget _buildProductStatusImage(ProductModel product) {
     int saleStatus = product.status;
@@ -736,29 +736,41 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
             onPressed: chatAvailable
                 ? () async {
                     try {
-                      Response response =
-                          await ApiService().getChatRoomId(product.postId);
-                      if (response.statusCode == 200) {
-                        String roomId = response.data["room_id"];
+                      String? roomId;
 
-                        if (!mounted) return;
-                        Provider.of<ChatProvider>(context, listen: false)
-                            .setRoomId(roomId);
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => ChatDetail(
-                              userName: product.userName,
-                              imBuyer: true,
-                              postId: product.postId,
-                              roomId: roomId,
-                            ),
-                          ),
-                        );
-                      } else {
-                        // 삭제된 게시글이라든지, 예약중이거나 거래완료된 게시글이라든지
-                        // 알 수 없는 게시글이라든지
+                      // 만약 이미 사용자가 구매자로서 채팅을 보낸 적이 있는 게시글이면
+                      // // 해당 게시글에 대한 채탕방 roomId를 찾아서 ChatProvider에 저장
+                      // 그렇지 않다면, null값이 저장됨
+                      ChatListProvider chatListProvider =
+                          Provider.of<ChatListProvider>(context, listen: false);
+                      if (chatListProvider.buyChatList.any((chatListCell) =>
+                          chatListCell.postId == product.postId)) {
+                        // chat list page의 정보 update
+                        int index = chatListProvider.buyChatList.indexWhere(
+                            (chatListCell) =>
+                                chatListCell.postId == product.postId);
+                        roomId = chatListProvider.buyChatList[index].roomId;
                       }
+
+                      if (!mounted) return;
+                      Provider.of<ChatProvider>(context, listen: false)
+                          .getInChatRoom(
+                              true, product.postId, product.userName);
+
+                      // final userName =
+                      //     Provider.of<ChatProvider>(context, listen: false)
+                      //         .userName;
+                      // print(11111);
+                      // print(userName);
+                      // print(22222);
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ChatDetail(
+                            roomId: roomId,
+                          ),
+                        ),
+                      );
                     } catch (e) {
                       // 채팅이 불가능함을 사용자에게 알리기
                       print(e);
