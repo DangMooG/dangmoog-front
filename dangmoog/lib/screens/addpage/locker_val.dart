@@ -24,6 +24,7 @@ class _LockerValState extends State<LockerValPage> {
   final TextEditingController _passwordController = TextEditingController();
 
   bool isLoading = false;
+  bool isChecked = false;
 
   bool get isButtonEnabled {
     return _image != null && _passwordController.text.length == 4;
@@ -53,10 +54,24 @@ class _LockerValState extends State<LockerValPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: _buildAppBar(),
-      body: _buildBody(),
-      bottomNavigationBar: _buildBottomBar(context),
+      body: Column(
+        children: [
+          const Divider(height: 1, thickness: 1, color: Color(0xFFBEBCBC),), // Divider below the AppBar
+          Expanded(
+            child: _buildBody(),
+          ),
+        ],
+      ),
+      bottomNavigationBar: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Divider(height: 1, thickness: 1, color: Color(0xFFBEBCBC)), // Divider above the BottomAppBar
+          _buildBottomBar(context, isChecked),
+        ],
+      ),
     );
   }
+
 
   AppBar _buildAppBar() {
     return AppBar(
@@ -89,6 +104,7 @@ class _LockerValState extends State<LockerValPage> {
               _buildPreviousPasswordSection(),
               const SizedBox(height: 20),
               _buildPasswordSection(),
+              _buildNotificationSection(),
             ],
           ),
         ),
@@ -399,7 +415,64 @@ class _LockerValState extends State<LockerValPage> {
     }
   }
 
-  Widget _buildBottomBar(BuildContext context) {
+  Widget _buildNotificationSection(){
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        const Padding(
+          padding: EdgeInsets.only(bottom: 10),
+          child: Text(
+            "사물함 인증 유의사항",
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: Color(0xff302E2E),
+            ),
+          ),
+        ),
+        textCell("발급받은 비밀번호를 잠금장치 키패드에 입력하면 잠금장치가 해제됩니다."),
+        textCell(
+            "물품을 넣고 문을 닫으면 자동으로 잠깁니다."),
+        textCell(
+            "사물함의 실제 비밀번호와 앱에 입력한 비밀번호가 일치하는지 꼭 확인해주세요."),
+        textCell("본인이 설정하신 비밀번호는 설정 이후 바꾸실 수 없으니 신중하게 설정해주세요!"),
+        // const SizedBox(height: 80),
+      ],
+    );
+  }
+
+  Widget textCell(String text) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 16.0, bottom: 6.0, right: 16.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            "• ",
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w400,
+              color: Color(0xff302E2E),
+            ),
+          ),
+          Expanded(
+            child: Text(
+              text,
+              style: const TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w400,
+                color: Color(0xff302E2E),
+              ),
+            ),
+          )
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBottomBar(BuildContext context, bool isChecked) {
+    // bool isChecked= false;
     return BottomAppBar(
       color: Colors.white,
       surfaceTintColor: Colors.white,
@@ -410,64 +483,13 @@ class _LockerValState extends State<LockerValPage> {
           children: <Widget>[
             ElevatedButton(
               onPressed: isButtonEnabled
-                  ? () async {
-                      setState(() {
-                        isLoading = true;
-                      });
-                      try {
-                        // Get the necessary data
-                        int postId = widget.product
-                            .postId; // Assuming postId is a property of ProductModel
-                        // int lockerId = lockerId; // Assuming lockerId is a property of ProductModel
-                        String password = _passwordController.text;
-
-                        Map<String, dynamic> filters = {"post_id": postId};
-                        Response searchResponse =
-                            await widget.apiService.searchLocker(filters);
-                        if (searchResponse.data is List &&
-                            searchResponse.data.isNotEmpty) {
-                          var locker = searchResponse
-                              .data[0]; // Use the first locker in the list
-                          int lockerId =
-                              locker['locker_id']; // Extract locker_id
-
-                          // Call valLockerPost from ApiService
-                          var lockerAuthResponse = await widget.apiService
-                              .valLockerPost(
-                                  postId, lockerId, password, _image!);
-                          if (lockerAuthResponse.statusCode == 200) {
-                            print("Success: ${lockerAuthResponse.data}");
-                            setState(() {
-                              isLoading = false;
-                            });
-
-                            if (!mounted) return;
-                            Navigator.pushAndRemoveUntil(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => const MyHome()),
-                              (Route<dynamic> route) => false,
-                            );
-                          } else {
-                            print("Failed: ${lockerAuthResponse.statusCode}");
-                            showPopup(context, "게시글 업로드에 실패했습니다.");
-                          }
-
-                          // Handle success (e.g., show a success message or navigate to another screen)
-                        } else {
-                          // Handle the case where no lockers are found or the response is not as expected
-                          print("No lockers found for the provided post_id.");
-                          showPopup(context, "게시글 업로드에 실패했습니다.");
-                        }
-
-                        // Handle success (e.g., show a success message or navigate to another screen)
-                      } catch (e) {
-                        print("Error occurred: $e");
-                        // Handle error (e.g., show an error message)
-                        showPopup(context, "게시글 업로드에 실패했습니다.");
-                      }
-                    }
-                  : null, // Disable the button if conditions aren't met
+                  ? () {
+                _showConfirmationDialog(context, (bool value) {
+                  setState(() {
+                    isChecked = value;
+                  });
+                });
+              } : null, // Disable the button if conditions aren't met
               style: ButtonStyle(
                 backgroundColor: MaterialStateProperty.all<Color>(
                   isButtonEnabled ? const Color(0xFFE20529) : Colors.grey,
@@ -488,6 +510,190 @@ class _LockerValState extends State<LockerValPage> {
           ],
         ),
       ),
+
     );
   }
+
+  void _showConfirmationDialog(BuildContext context, Function(bool) onChecked) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext dialogContext) {
+        bool localChecked = isChecked; // Local variable to handle checkbox state
+
+        return StatefulBuilder( // Use StatefulBuilder to manage state within the dialog
+          builder: (BuildContext context, StateSetter setState) {
+            return Dialog(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(14),
+              ),
+              elevation: 5,
+              child: Container(
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Text(
+                      '마지막 업로드 전 확인해주세요!',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 8),
+                    const Text(
+                      '비밀번호를 제대로 설정하셨나요?\n설정한 비밀번호를 모두 확인했다면\n아래 체크표시를 눌러 업로드를 진행해주세요!',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontSize: 14),
+                    ),
+                    const SizedBox(height: 16),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Flexible(
+                          child: Text(
+                            '제가 설정한 비밀번호를 정확히 확인했습니다!',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(fontSize: 12),
+                          ),
+                        ),
+                        Checkbox(
+                          value: localChecked,
+                          onChanged: (bool? value) {
+                            setState(() {
+                              localChecked = value!;
+                            });
+                            onChecked(value!); // Update the state in the parent widget
+                          },
+                          activeColor: const Color(0xFFE20529),
+                        ),
+                      ],
+                    ),
+                    SizedBox(
+                      width: 300,
+                      child: TextButton(
+                        onPressed: localChecked?() async{
+                          print("hello");
+                          try {
+                            // Get the necessary data
+                            int postId = widget.product
+                                .postId; // Assuming postId is a property of ProductModel
+                            // int lockerId = lockerId; // Assuming lockerId is a property of ProductModel
+                            String password = _passwordController.text;
+
+                            Map<String, dynamic> filters = {"post_id": postId};
+                            Response searchResponse =
+                            await widget.apiService.searchLocker(filters);
+                            if (searchResponse.data is List &&
+                                searchResponse.data.isNotEmpty) {
+                              var locker = searchResponse
+                                  .data[0]; // Use the first locker in the list
+                              int lockerId =
+                              locker['locker_id']; // Extract locker_id
+
+                              // Call valLockerPost from ApiService
+                              var lockerAuthResponse = await widget.apiService
+                                  .valLockerPost(
+                                  postId, lockerId, password, _image!);
+                              if (lockerAuthResponse.statusCode == 200) {
+                                print("Success: ${lockerAuthResponse.data}");
+                                setState(() {
+                                  isLoading = false;
+                                });
+
+                                if (!mounted) return;
+                                Navigator.pushAndRemoveUntil(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => const MyHome()),
+                                      (Route<dynamic> route) => false,
+                                );
+                              } else {
+                                print("Failed: ${lockerAuthResponse.statusCode}");
+                                showPopup(context, "게시글 업로드에 실패했습니다.");
+                              }
+
+                              // Handle success (e.g., show a success message or navigate to another screen)
+                            } else {
+                              // Handle the case where no lockers are found or the response is not as expected
+                              print("No lockers found for the provided post_id.");
+                              showPopup(context, "게시글 업로드에 실패했습니다.");
+                            }
+
+                            // Handle success (e.g., show a success message or navigate to another screen)
+                          } catch (e) {
+                            print("Error occurred: $e");
+                            // Handle error (e.g., show an error message)
+                            showPopup(context, "게시글 업로드에 실패했습니다.");
+                          }
+                        }:null,
+                        style: ButtonStyle(
+                          backgroundColor: MaterialStateProperty.all<Color>(
+                              localChecked? const Color(0xFFE20529) : const Color(0xFF726E6E)
+                          ),
+                          // Color:
+                          //   isChecked ? const Color(0xFFE20529) : Colors.grey,
+                          // minimumSize:
+                          // MaterialStateProperty.all<Size>(const Size(340, 48)),
+                          shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                            RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                          ),
+                        ),
+                        child: const Text(
+                          '업로드하기',
+                          style: TextStyle(
+                            color: Color(0xFFFFFFFF), // Set the text color as well if needed
+                          ),),
+                      ),
+                    ),
+                    // const SizedBox(
+                    //   height: 8,
+                    // ),
+                    SizedBox(
+                      width: 300,
+                      child: TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                        style: ButtonStyle(
+                          backgroundColor:
+                          MaterialStateProperty.resolveWith<Color>(
+                                (Set<MaterialState> states) {
+                              if (states
+                                  .contains(MaterialState.pressed)) {
+                                return Colors
+                                    .red[600]!; // Color when pressed
+                              }
+                              return Colors.transparent; // Regular color
+                            },
+                          ),
+                          foregroundColor:
+                          MaterialStateProperty.all<Color>(
+                              const Color(0xFF726E6E)),
+                          shape: MaterialStateProperty.all<
+                              RoundedRectangleBorder>(
+                            RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(6),
+                              side: const BorderSide(
+                                  color: Color(0xFF726E6E)),
+                            ),
+                          ),
+                        ),
+                        child: const Text('취소하기'),
+                      ),
+                    ),
+
+
+                    // ... Add your upload and cancel buttons here ...
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+
 }
