@@ -23,7 +23,7 @@ class ChatDetailProduct extends StatefulWidget {
 class _ChatDetailProductState extends State<ChatDetailProduct> {
   // late Future<ChatDetailModel> futureChatDetail;
   late ProductModel product;
-  String representativePhotoUrl = "";
+  String? representativePhotoUrl;
 
   @override
   void initState() {
@@ -35,6 +35,9 @@ class _ChatDetailProductState extends State<ChatDetailProduct> {
   }
 
   void getRepresentativePhotoUrl() async {
+    if (widget.product.representativePhotoId == 0) {
+      return;
+    }
     try {
       Response response =
           await ApiService().getOnePhoto(widget.product.representativePhotoId);
@@ -69,15 +72,16 @@ class _ChatDetailProductState extends State<ChatDetailProduct> {
             padding: const EdgeInsets.only(right: 8),
             child: ClipRRect(
               borderRadius: BorderRadius.circular(6),
-              child: representativePhotoUrl == ""
-                  ? const Image(
-                      image: AssetImage("assets/images/basic_profile.png"),
-                      width: 48,
-                      height: 48,
-                      fit: BoxFit.cover,
-                    )
-                  : Image.network(representativePhotoUrl,
-                      width: 48, height: 48, fit: BoxFit.cover),
+              child:
+                  representativePhotoUrl == "" || representativePhotoUrl == null
+                      ? const Image(
+                          image: AssetImage("assets/images/basic_profile.png"),
+                          width: 48,
+                          height: 48,
+                          fit: BoxFit.cover,
+                        )
+                      : Image.network(representativePhotoUrl!,
+                          width: 48, height: 48, fit: BoxFit.cover),
             ),
           ),
           Expanded(

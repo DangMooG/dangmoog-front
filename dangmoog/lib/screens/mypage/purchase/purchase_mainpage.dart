@@ -1,5 +1,5 @@
 import 'package:dangmoog/models/product_class.dart';
-import 'package:dangmoog/providers/provider.dart';
+import 'package:dangmoog/providers/user_provider.dart';
 import 'package:dangmoog/screens/mypage/my_post_list.dart';
 
 import 'package:dangmoog/services/api.dart';

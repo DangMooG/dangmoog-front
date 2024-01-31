@@ -5,15 +5,15 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 
 class UserProvider with ChangeNotifier {
-  String _inputEmail = '';
+  String _userEmail = '';
 
-  String get inputEmail => _inputEmail;
+  String get userEmail => _userEmail;
 
   String _nickname = '';
 
   String get nickname => _nickname;
 
-  String userImage = '';
+  String? userProfileImageUrl = '';
 
   String _account = '';
 
@@ -27,8 +27,8 @@ class UserProvider with ChangeNotifier {
 
   List<String> get myPostListId => _myPostListId;
 
-  void setEmail(String inputEmail) {
-    _inputEmail = inputEmail;
+  void setEmail(String userEmail) {
+    _userEmail = userEmail;
     notifyListeners();
   }
 
@@ -47,8 +47,8 @@ class UserProvider with ChangeNotifier {
     notifyListeners(); // 상태 업데이트를 구독하는 위젯에 알리기
   }
 
-  void setUserImage(String newImage) {
-    userImage = newImage;
+  void setUserImage(String? newImage) {
+    userProfileImageUrl = newImage;
     notifyListeners();
   }
 
