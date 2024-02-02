@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:dangmoog/models/product_class.dart';
+import 'package:dangmoog/screens/home.dart';
 import 'package:dangmoog/screens/main_page.dart';
 import 'package:dangmoog/services/api.dart';
 import 'package:dangmoog/widgets/bottom_popup.dart';
@@ -56,7 +57,11 @@ class _LockerValState extends State<LockerValPage> {
       appBar: _buildAppBar(),
       body: Column(
         children: [
-          const Divider(height: 1, thickness: 1, color: Color(0xFFBEBCBC),), // Divider below the AppBar
+          const Divider(
+            height: 1,
+            thickness: 1,
+            color: Color(0xFFBEBCBC),
+          ), // Divider below the AppBar
           Expanded(
             child: _buildBody(),
           ),
@@ -65,13 +70,15 @@ class _LockerValState extends State<LockerValPage> {
       bottomNavigationBar: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Divider(height: 1, thickness: 1, color: Color(0xFFBEBCBC)), // Divider above the BottomAppBar
+          const Divider(
+              height: 1,
+              thickness: 1,
+              color: Color(0xFFBEBCBC)), // Divider above the BottomAppBar
           _buildBottomBar(context, isChecked),
         ],
       ),
     );
   }
-
 
   AppBar _buildAppBar() {
     return AppBar(
@@ -155,21 +162,21 @@ class _LockerValState extends State<LockerValPage> {
     );
   }
 
-  Widget _buildPreviousPasswordSection(){
+  Widget _buildPreviousPasswordSection() {
     return const Column(
       children: [
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget> [
+          children: <Widget>[
             Text('발급 받은 비밀번호', textAlign: TextAlign.left),
           ],
         ),
         SizedBox(height: 8),
         Row(
           children: [
-            Text('2024',
-            style:
-            TextStyle(
+            Text(
+              '2024',
+              style: TextStyle(
                 color: Color(0xFFE20529),
                 fontSize: 32,
                 fontWeight: FontWeight.w600,
@@ -177,13 +184,13 @@ class _LockerValState extends State<LockerValPage> {
                 //styleName: Headline L;
 
                 // font-family: Pretendard;
-            // fontsize: 32px;
-            // font-weight: 600;
-            // line-height: 40px;
-            // letter-spacing: 0em;
-            // text-align: left;
-
-            ),),
+                // fontsize: 32px;
+                // font-weight: 600;
+                // line-height: 40px;
+                // letter-spacing: 0em;
+                // text-align: left;
+              ),
+            ),
           ],
         )
       ],
@@ -415,7 +422,7 @@ class _LockerValState extends State<LockerValPage> {
     }
   }
 
-  Widget _buildNotificationSection(){
+  Widget _buildNotificationSection() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
@@ -431,10 +438,8 @@ class _LockerValState extends State<LockerValPage> {
           ),
         ),
         textCell("발급받은 비밀번호를 잠금장치 키패드에 입력하면 잠금장치가 해제됩니다."),
-        textCell(
-            "물품을 넣고 문을 닫으면 자동으로 잠깁니다."),
-        textCell(
-            "사물함의 실제 비밀번호와 앱에 입력한 비밀번호가 일치하는지 꼭 확인해주세요."),
+        textCell("물품을 넣고 문을 닫으면 자동으로 잠깁니다."),
+        textCell("사물함의 실제 비밀번호와 앱에 입력한 비밀번호가 일치하는지 꼭 확인해주세요."),
         textCell("본인이 설정하신 비밀번호는 설정 이후 바꾸실 수 없으니 신중하게 설정해주세요!"),
         // const SizedBox(height: 80),
       ],
@@ -484,12 +489,13 @@ class _LockerValState extends State<LockerValPage> {
             ElevatedButton(
               onPressed: isButtonEnabled
                   ? () {
-                _showConfirmationDialog(context, (bool value) {
-                  setState(() {
-                    isChecked = value;
-                  });
-                });
-              } : null, // Disable the button if conditions aren't met
+                      _showConfirmationDialog(context, (bool value) {
+                        setState(() {
+                          isChecked = value;
+                        });
+                      });
+                    }
+                  : null, // Disable the button if conditions aren't met
               style: ButtonStyle(
                 backgroundColor: MaterialStateProperty.all<Color>(
                   isButtonEnabled ? const Color(0xFFE20529) : Colors.grey,
@@ -510,7 +516,6 @@ class _LockerValState extends State<LockerValPage> {
           ],
         ),
       ),
-
     );
   }
 
@@ -519,9 +524,11 @@ class _LockerValState extends State<LockerValPage> {
       context: context,
       barrierDismissible: false,
       builder: (BuildContext dialogContext) {
-        bool localChecked = isChecked; // Local variable to handle checkbox state
+        bool localChecked =
+            isChecked; // Local variable to handle checkbox state
 
-        return StatefulBuilder( // Use StatefulBuilder to manage state within the dialog
+        return StatefulBuilder(
+          // Use StatefulBuilder to manage state within the dialog
           builder: (BuildContext context, StateSetter setState) {
             return Dialog(
               shape: RoundedRectangleBorder(
@@ -536,7 +543,8 @@ class _LockerValState extends State<LockerValPage> {
                     const Text(
                       '마지막 업로드 전 확인해주세요!',
                       textAlign: TextAlign.center,
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      style:
+                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 8),
                     const Text(
@@ -561,7 +569,8 @@ class _LockerValState extends State<LockerValPage> {
                             setState(() {
                               localChecked = value!;
                             });
-                            onChecked(value!); // Update the state in the parent widget
+                            onChecked(
+                                value!); // Update the state in the parent widget
                           },
                           activeColor: const Color(0xFFE20529),
                         ),
@@ -570,70 +579,85 @@ class _LockerValState extends State<LockerValPage> {
                     SizedBox(
                       width: 300,
                       child: TextButton(
-                        onPressed: localChecked?() async{
-                          print("hello");
-                          try {
-                            // Get the necessary data
-                            int postId = widget.product
-                                .postId; // Assuming postId is a property of ProductModel
-                            // int lockerId = lockerId; // Assuming lockerId is a property of ProductModel
-                            String password = _passwordController.text;
+                        onPressed: localChecked
+                            ? () async {
+                                print("hello");
+                                try {
+                                  // Get the necessary data
+                                  int postId = widget.product
+                                      .postId; // Assuming postId is a property of ProductModel
+                                  // int lockerId = lockerId; // Assuming lockerId is a property of ProductModel
+                                  String password = _passwordController.text;
 
-                            Map<String, dynamic> filters = {"post_id": postId};
-                            Response searchResponse =
-                            await widget.apiService.searchLocker(filters);
-                            if (searchResponse.data is List &&
-                                searchResponse.data.isNotEmpty) {
-                              var locker = searchResponse
-                                  .data[0]; // Use the first locker in the list
-                              int lockerId =
-                              locker['locker_id']; // Extract locker_id
+                                  Map<String, dynamic> filters = {
+                                    "post_id": postId
+                                  };
+                                  Response searchResponse = await widget
+                                      .apiService
+                                      .searchLocker(filters);
+                                  if (searchResponse.data is List &&
+                                      searchResponse.data.isNotEmpty) {
+                                    var locker = searchResponse.data[
+                                        0]; // Use the first locker in the list
+                                    int lockerId = locker[
+                                        'locker_id']; // Extract locker_id
 
-                              // Call valLockerPost from ApiService
-                              var lockerAuthResponse = await widget.apiService
-                                  .valLockerPost(
-                                  postId, lockerId, password, _image!);
-                              if (lockerAuthResponse.statusCode == 200) {
-                                print("Success: ${lockerAuthResponse.data}");
-                                setState(() {
-                                  isLoading = false;
-                                });
+                                    // Call valLockerPost from ApiService
+                                    var lockerAuthResponse =
+                                        await widget.apiService.valLockerPost(
+                                            postId,
+                                            lockerId,
+                                            password,
+                                            _image!);
+                                    if (lockerAuthResponse.statusCode == 200) {
+                                      print(
+                                          "Success: ${lockerAuthResponse.data}");
+                                      setState(() {
+                                        isLoading = false;
+                                      });
 
-                                if (!mounted) return;
-                                Navigator.pushAndRemoveUntil(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) => const MyHome()),
-                                      (Route<dynamic> route) => false,
-                                );
-                              } else {
-                                print("Failed: ${lockerAuthResponse.statusCode}");
-                                showPopup(context, "게시글 업로드에 실패했습니다.");
+                                      if (!mounted) return;
+                                      Navigator.pushAndRemoveUntil(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) => MyHome(
+                                                  fcmToken: '',
+                                                )),
+                                        (Route<dynamic> route) => false,
+                                      );
+                                    } else {
+                                      print(
+                                          "Failed: ${lockerAuthResponse.statusCode}");
+                                      showPopup(context, "게시글 업로드에 실패했습니다.");
+                                    }
+
+                                    // Handle success (e.g., show a success message or navigate to another screen)
+                                  } else {
+                                    // Handle the case where no lockers are found or the response is not as expected
+                                    print(
+                                        "No lockers found for the provided post_id.");
+                                    showPopup(context, "게시글 업로드에 실패했습니다.");
+                                  }
+
+                                  // Handle success (e.g., show a success message or navigate to another screen)
+                                } catch (e) {
+                                  print("Error occurred: $e");
+                                  // Handle error (e.g., show an error message)
+                                  showPopup(context, "게시글 업로드에 실패했습니다.");
+                                }
                               }
-
-                              // Handle success (e.g., show a success message or navigate to another screen)
-                            } else {
-                              // Handle the case where no lockers are found or the response is not as expected
-                              print("No lockers found for the provided post_id.");
-                              showPopup(context, "게시글 업로드에 실패했습니다.");
-                            }
-
-                            // Handle success (e.g., show a success message or navigate to another screen)
-                          } catch (e) {
-                            print("Error occurred: $e");
-                            // Handle error (e.g., show an error message)
-                            showPopup(context, "게시글 업로드에 실패했습니다.");
-                          }
-                        }:null,
+                            : null,
                         style: ButtonStyle(
                           backgroundColor: MaterialStateProperty.all<Color>(
-                              localChecked? const Color(0xFFE20529) : const Color(0xFF726E6E)
-                          ),
+                              localChecked
+                                  ? const Color(0xFFE20529)
+                                  : const Color(0xFF726E6E)),
                           // Color:
                           //   isChecked ? const Color(0xFFE20529) : Colors.grey,
                           // minimumSize:
                           // MaterialStateProperty.all<Size>(const Size(340, 48)),
-                          shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                          shape:
+                              MaterialStateProperty.all<RoundedRectangleBorder>(
                             RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(6),
                             ),
@@ -642,8 +666,10 @@ class _LockerValState extends State<LockerValPage> {
                         child: const Text(
                           '업로드하기',
                           style: TextStyle(
-                            color: Color(0xFFFFFFFF), // Set the text color as well if needed
-                          ),),
+                            color: Color(
+                                0xFFFFFFFF), // Set the text color as well if needed
+                          ),
+                        ),
                       ),
                     ),
                     // const SizedBox(
@@ -657,32 +683,27 @@ class _LockerValState extends State<LockerValPage> {
                         },
                         style: ButtonStyle(
                           backgroundColor:
-                          MaterialStateProperty.resolveWith<Color>(
-                                (Set<MaterialState> states) {
-                              if (states
-                                  .contains(MaterialState.pressed)) {
-                                return Colors
-                                    .red[600]!; // Color when pressed
+                              MaterialStateProperty.resolveWith<Color>(
+                            (Set<MaterialState> states) {
+                              if (states.contains(MaterialState.pressed)) {
+                                return Colors.red[600]!; // Color when pressed
                               }
                               return Colors.transparent; // Regular color
                             },
                           ),
-                          foregroundColor:
-                          MaterialStateProperty.all<Color>(
+                          foregroundColor: MaterialStateProperty.all<Color>(
                               const Color(0xFF726E6E)),
-                          shape: MaterialStateProperty.all<
-                              RoundedRectangleBorder>(
+                          shape:
+                              MaterialStateProperty.all<RoundedRectangleBorder>(
                             RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(6),
-                              side: const BorderSide(
-                                  color: Color(0xFF726E6E)),
+                              side: const BorderSide(color: Color(0xFF726E6E)),
                             ),
                           ),
                         ),
                         child: const Text('취소하기'),
                       ),
                     ),
-
 
                     // ... Add your upload and cancel buttons here ...
                   ],
@@ -694,6 +715,4 @@ class _LockerValState extends State<LockerValPage> {
       },
     );
   }
-
-
 }
