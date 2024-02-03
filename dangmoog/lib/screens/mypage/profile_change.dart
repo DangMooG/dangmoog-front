@@ -2,6 +2,7 @@ import 'package:dangmoog/screens/app_bar.dart';
 import 'package:dangmoog/screens/mypage/nickname_change.dart';
 import 'package:dangmoog/services/api.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import 'package:provider/provider.dart';
@@ -153,17 +154,6 @@ class _ProfileChangePageState extends State<ProfileChangePage> {
         Response response = await ApiService().setUserProfile(imagePath!);
 
         if (response.statusCode == 200) {
-          Navigator.pushReplacement(
-            context,
-            PageRouteBuilder(
-              pageBuilder: (context, animation1, animation2) =>
-                  const ProfileChangePage(),
-              transitionDuration: const Duration(seconds: 0), // No animation
-              reverseTransitionDuration:
-                  const Duration(seconds: 0), // No animation when pop
-            ),
-          );
-
           final Map<String, dynamic> data = response.data;
           final String? profileUrl = data["profile_url"];
 
@@ -175,6 +165,9 @@ class _ProfileChangePageState extends State<ProfileChangePage> {
             // "profile_url"이 null인 경우 처리
             return null;
           }
+
+          if (!mounted) return Future(() => null);
+          Navigator.pop(context);
         }
       } catch (e) {
         print(e);

@@ -1,14 +1,12 @@
-import 'dart:io';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 
 import 'package:dangmoog/screens/mypage/account_delete.dart';
 
 import 'package:dangmoog/screens/auth/welcome.dart';
-import 'package:dangmoog/services/api.dart';
 
 import 'package:dangmoog/widgets/bottom_popup.dart';
-import 'package:dio/dio.dart';
 
-import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:dangmoog/providers/user_provider.dart';
 import 'package:dangmoog/widgets/mypage_text.dart';
@@ -20,9 +18,9 @@ import 'package:dangmoog/screens/mypage/purchase/purchase_mainpage.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class MyPage extends StatefulWidget {
-  final String email;
-
-  const MyPage({super.key, required this.email, required String nickname});
+  const MyPage({
+    super.key,
+  });
 
   @override
   State<MyPage> createState() => _MyPageState();
@@ -39,19 +37,20 @@ Future<double?> tillGetSource(Stream<double> source) async {
 
 class _MyPageState extends State<MyPage> {
   final storage = const FlutterSecureStorage();
-  //late Future<String?> profileImageUrl; // 프로필 이미지 URL을 저장할 변수
 
   @override
   void initState() {
     super.initState();
-    // profileImageUrl = fetchProfileImageUrl(); // 프로필 이미지 URL 가져오기
   }
 
   @override
   Widget build(BuildContext context) {
-    String userEmail = Provider.of<UserProvider>(context).userEmail;
-    String userNickname = Provider.of<UserProvider>(context).nickname;
-    String? userImage = Provider.of<UserProvider>(context).userProfileImageUrl;
+    String userEmail =
+        Provider.of<UserProvider>(context, listen: false).userEmail;
+    String userNickname =
+        Provider.of<UserProvider>(context, listen: true).nickname;
+    String? userImage =
+        Provider.of<UserProvider>(context, listen: true).userProfileImageUrl;
     Size screenSize = MediaQuery.of(context).size;
 
     return SingleChildScrollView(
@@ -70,6 +69,15 @@ class _MyPageState extends State<MyPage> {
                             width: screenSize.width * 0.14,
                             height: screenSize.width * 0.14,
                             fit: BoxFit.cover,
+                            errorBuilder: (BuildContext context,
+                                Object exception, StackTrace? stackTrace) {
+                              return Image.asset(
+                                "assets/images/basic_profile.png",
+                                width: screenSize.width * 0.14,
+                                height: screenSize.width * 0.14,
+                                fit: BoxFit.cover,
+                              );
+                            },
                           )
                         : Image.asset(
                             'assets/images/basic_profile.png',

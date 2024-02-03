@@ -1,4 +1,5 @@
 import 'package:dangmoog/models/chat_detail_message_model.dart';
+import 'package:dangmoog/providers/chat_list_provider.dart';
 import 'package:dangmoog/providers/chat_provider.dart';
 import 'package:dangmoog/providers/socket_provider.dart';
 import 'package:dangmoog/services/api.dart';
@@ -20,18 +21,17 @@ import 'package:provider/provider.dart';
 class ChatDetailOptions extends StatefulWidget {
   final bool isOptionOn;
   final double keyboardHeight;
-  final String roomId;
-  final bool imBuyer;
-  final int postId;
+  final String? roomId;
+  final Function(String) setRoomId;
+
   final int? useLocker; // 0은 사용 안함, 1은 사용함
 
   const ChatDetailOptions({
     required this.isOptionOn,
     required this.keyboardHeight,
-    required this.roomId,
-    required this.imBuyer,
-    required this.postId,
     required this.useLocker,
+    required this.roomId,
+    required this.setRoomId,
     super.key,
   });
 
@@ -40,6 +40,10 @@ class ChatDetailOptions extends StatefulWidget {
 }
 
 class _ChatDetailOptionsState extends State<ChatDetailOptions> {
+  String? roomId;
+  bool? imBuyer;
+  int? postId;
+
   static const storage = FlutterSecureStorage();
 
   bool saveBankAccount = true;
@@ -275,20 +279,22 @@ class _ChatDetailOptionsState extends State<ChatDetailOptions> {
                                     value: accountNumber);
                               }
                             }
-                            Provider.of<SocketProvider>(context, listen: false)
-                                .onSendMessage(
-                              "$selectedBank $accountNumber",
-                              widget.roomId,
-                            );
 
-                            var newMessage = ChatDetailMessageModel(
-                              isMine: true,
-                              message: "$selectedBank $accountNumber",
-                              read: true,
-                              createTime: DateTime.now(),
-                            );
-                            Provider.of<ChatProvider>(context, listen: false)
-                                .addChatContent(newMessage);
+                            handleSubmitted("$selectedBank $accountNumber");
+                            // Provider.of<SocketProvider>(context, listen: false)
+                            //     .onSendMessage(
+                            //   "$selectedBank $accountNumber",
+                            //   widget.roomId,
+                            // );
+
+                            // var newMessage = ChatDetailMessageModel(
+                            //   isMine: true,
+                            //   message: "$selectedBank $accountNumber",
+                            //   read: true,
+                            //   createTime: DateTime.now(),
+                            // );
+                            // Provider.of<ChatProvider>(context, listen: false)
+                            //     .addChatContent(newMessage);
                           }),
                           accountButtonWidget(
                             '취소하기',
@@ -412,20 +418,9 @@ class _ChatDetailOptionsState extends State<ChatDetailOptions> {
                         width: 300,
                         child: TextButton(
                           onPressed: () {
-                            Provider.of<SocketProvider>(context, listen: false)
-                                .onSendMessage(
-                              "$bankAccountNumber $bankAccountName",
-                              widget.roomId,
-                            );
+                            handleSubmitted(
+                                "$bankAccountNumber $bankAccountName");
 
-                            var newMessage = ChatDetailMessageModel(
-                              isMine: true,
-                              message: "$bankAccountNumber $bankAccountName",
-                              read: true,
-                              createTime: DateTime.now(),
-                            );
-                            Provider.of<ChatProvider>(context, listen: false)
-                                .addChatContent(newMessage);
                             Navigator.pop(context);
                           },
                           style: ButtonStyle(
@@ -571,7 +566,7 @@ class _ChatDetailOptionsState extends State<ChatDetailOptions> {
   }
 
   void sendLockerInfo(BuildContext context) async {
-    Response response = await ApiService().getLockerInfo(widget.postId);
+    Response response = await ApiService().getLockerInfo(postId!);
 
     if (response.statusCode == 200) {
       if (!mounted) return;
@@ -658,11 +653,7 @@ class _ChatDetailOptionsState extends State<ChatDetailOptions> {
                               const Color(0xFFE20529),
                               Colors.transparent,
                               Colors.white, () {
-                            Provider.of<SocketProvider>(context, listen: false)
-                                .onSendMessage(
-                              lockerMessage,
-                              widget.roomId,
-                            );
+                            handleSubmitted(lockerMessage);
 
                             var newMessage = ChatDetailMessageModel(
                               isMine: true,
@@ -722,8 +713,98 @@ class _ChatDetailOptionsState extends State<ChatDetailOptions> {
     );
   }
 
+  void handleSubmitted(String message) async {
+    if (message != "" && (roomId == null || roomId == "")) {
+      try {
+        Response response = await ApiService().getChatRoomId(postId!);
+        if (response.statusCode == 200) {
+          String newRoomId = response.data["room_id"];
+
+          if (!mounted) return;
+          Provider.of<ChatProvider>(context, listen: false)
+              .setRoomId(newRoomId);
+          setState(() {
+            roomId = newRoomId;
+          });
+          widget.setRoomId(newRoomId);
+
+          if (newRoomId != "") {
+            Provider.of<SocketProvider>(context, listen: false)
+                .beginChat(newRoomId);
+          }
+        }
+      } catch (e) {
+        print(e);
+      }
+    }
+
+    if (roomId != null && roomId != "") {
+      // 서버로 전송
+      await socketChannel.onSendMessage(message, roomId!);
+
+      final currentTime = DateTime.now();
+      final chatMessage = message;
+
+      var newMessage = ChatDetailMessageModel(
+        isMine: true,
+        message: chatMessage,
+        read: true,
+        createTime: currentTime,
+      );
+
+      final chatProvider = Provider.of<ChatProvider>(context, listen: false);
+      chatProvider.addChatContent(newMessage);
+
+      final chatListProvider =
+          Provider.of<ChatListProvider>(context, listen: false);
+      if (chatListProvider.buyChatList
+          .any((chatListCell) => chatListCell.roomId == roomId)) {
+        int index = chatListProvider.buyChatList
+            .indexWhere((chatCell) => chatCell.roomId == roomId);
+
+        chatListProvider.updateChatList(
+          index,
+          chatMessage,
+          currentTime,
+          true,
+        );
+        chatListProvider.resetUnreadCount(index, true);
+      } else if (chatListProvider.sellChatList
+          .any((chatListCell) => chatListCell.roomId == roomId)) {
+        int index = chatListProvider.sellChatList
+            .indexWhere((chatCell) => chatCell.roomId == roomId);
+        chatListProvider.updateChatList(
+          index,
+          chatMessage,
+          currentTime,
+          false,
+        );
+        chatListProvider.resetUnreadCount(index, false);
+      } else {
+        chatProvider.addNewChatList();
+      }
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      setState(() {
+        postId = Provider.of<ChatProvider>(context, listen: false).postId;
+        imBuyer = Provider.of<ChatProvider>(context, listen: false).imBuyer;
+      });
+      setState(() {
+        roomId = widget.roomId;
+      });
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
+    socketChannel = Provider.of<SocketProvider>(context, listen: false);
+
     return SizedBox(
       height: widget.isOptionOn ? widget.keyboardHeight : 0,
       child: Center(
@@ -751,7 +832,7 @@ class _ChatDetailOptionsState extends State<ChatDetailOptions> {
               }, true),
               optionCircleWidget(Icons.vpn_key_outlined, '사물함 정보 발송', () {
                 sendLockerInfo(context);
-              }, widget.useLocker == 2 && !widget.imBuyer),
+              }, widget.useLocker == 2 && !imBuyer!),
             ],
           ),
         ],

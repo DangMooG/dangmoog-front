@@ -44,11 +44,8 @@ dependencies:
   dio: ^5.3.2
   flutter_secure_storage: ^9.0.0
   keyboard_height_plugin: ^0.0.4
-  path_provider: ^2.1.1
   shared_preferences: ^2.2.1
   like_button: ^2.0.5
-  # stomp_dart_client: ^1.0.0
-  # socket_io_client: ^2.0.3+1
   web_socket_channel: ^2.4.0
   dropdown_button2: ^2.3.9
   cached_network_image: ^3.3.1
@@ -56,6 +53,7 @@ dependencies:
   firebase_core: ^2.24.2
   firebase_messaging: ^14.7.9
   flutter_local_notifications: ^16.3.2
+  socket_io_client: ^2.0.3+1
 
 dev_dependencies:
   flutter_test:

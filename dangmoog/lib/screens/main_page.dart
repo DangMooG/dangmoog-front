@@ -1,5 +1,4 @@
-import 'dart:io';
-
+import 'package:dangmoog/providers/post_list_scroll_provider.dart';
 import 'package:dangmoog/screens/post/post_list.dart';
 import 'package:dio/dio.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -40,11 +39,7 @@ class _MainPageState extends State<MainPage> {
     const ProductList(key: ValueKey("ProductListPage")),
     const LikeMainPage(key: ValueKey("LikePage")),
     const ChatListPage(key: ValueKey("ChatListPage")),
-    const MyPage(
-      key: ValueKey("MyPage"),
-      nickname: '',
-      email: '',
-    )
+    const MyPage(key: ValueKey("MyPage"))
   ];
 
   void _getAllMyChatList() async {
@@ -125,6 +120,7 @@ class _MainPageState extends State<MainPage> {
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       socketChannel = Provider.of<SocketProvider>(context, listen: false);
+
       socketChannel.onConnect();
       socketChannel.setChatReceivedCallback(handleChatReceived);
 
@@ -229,6 +225,10 @@ class _MainPageState extends State<MainPage> {
       bottomNavigationBar: MainNavigationBar(
         currentTabIndex: currentTabIndex,
         onTap: (index) {
+          if (currentTabIndex == 0 && index == 0) {
+            Provider.of<PostListScrollProvider>(context, listen: false)
+                .scrollToTop();
+          }
           setState(() {
             currentTabIndex = index;
           });
