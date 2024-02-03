@@ -87,11 +87,21 @@ class _MySellMainPageState extends State<MySellMainPage> {
               color: Color(0xFF302E2E)),
         ),
         centerTitle: true,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+        ),
         actions: [
           FutureBuilder<List<ProductModel>>(
             future: futureProducts,
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.done) {
+                if (snapshot.data == null) {
+                  return const SizedBox.shrink();
+                }
+
                 if (snapshot.hasError) {
                   return const Center(
                     child: Text('게시물을 불러오는데 실패했습니다.'),
@@ -137,15 +147,15 @@ class _MySellMainPageState extends State<MySellMainPage> {
         future: futureProducts,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.done) {
-            if (snapshot.hasError) {
-              return const Center(
-                child: Text('게시물을 불러오는데 실패했습니다.'),
-              );
-            }
             if (snapshot.data == null || snapshot.data!.isEmpty) {
               // 판매 목록이 없는 경우 메시지를 표시
               return const Center(
                 child: Text('판매목록이 없습니다.'),
+              );
+            }
+            if (snapshot.hasError) {
+              return const Center(
+                child: Text('게시물을 불러오는데 실패했습니다.'),
               );
             }
 
