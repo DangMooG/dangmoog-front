@@ -740,7 +740,7 @@ class _ChatDetailOptionsState extends State<ChatDetailOptions> {
 
     if (roomId != null && roomId != "") {
       // 서버로 전송
-      socketChannel.onSendMessage(message, roomId!);
+      await socketChannel.onSendMessage(message, roomId!);
 
       final currentTime = DateTime.now();
       final chatMessage = message;

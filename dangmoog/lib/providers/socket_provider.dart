@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
@@ -22,11 +24,11 @@ class SocketProvider {
   }
 
   void onConnect() async {
-    const storage = FlutterSecureStorage();
+    const socketBaseUrl = "chat.dangmoog.site:4048";
+    socketUrl = 'http://$socketBaseUrl';
 
-    const socketBaseUrl = "chat.dangmoog.site:2024";
+    const storage = FlutterSecureStorage();
     String? accessToken = await storage.read(key: 'accessToken');
-    socketUrl = 'http://$socketBaseUrl/chat';
 
     socket = IO.io(socketUrl, <String, dynamic>{
       'transports': ['websocket'],
@@ -35,14 +37,18 @@ class SocketProvider {
       'reconnectionAttempts': maxRetryCount,
       'reconnectionDelay': 2000,
       'reconnectionDelayMax': 5000,
+      'path': '/ws/socket.io',
+      'auth': {
+        'token': accessToken,
+      },
     });
 
     socket.onConnect((_) {
-      socket.emit('connect', [socket.id, accessToken]);
+      print("Socket Connected");
     });
 
     socket.onDisconnect((_) {
-      socket.emit('disconnect', [socket.id, accessToken]);
+      socket.emit('disconnect', [accessToken]);
     });
 
     socket.on('chat', (data) {
@@ -53,20 +59,27 @@ class SocketProvider {
       print("연결 에러: $data");
     });
 
-    socket.connect();
+    try {
+      socket.connect();
+    } catch (e) {
+      print(e);
+    }
   }
 
   void beginChat(String roomId) {
-    socket.emit('begin_chat', [socket.id, roomId]);
+    socket.emit('begin_chat', [roomId]);
   }
 
   void exitChat(String roomId) {
-    socket.emit('exit_chat', [socket.id, roomId]);
+    socket.emit('exit_chat', [roomId]);
   }
 
-  void onSendMessage(String message, String roomId) {
-    var messageDict = {'message': message};
-    socket.emit('send_chat', [socket.id, roomId, messageDict]);
+  Future<void> onSendMessage(String message, String roomId) async {
+    var messageDict = {
+      'content': message,
+      "room": roomId,
+    };
+    socket.emit('send_chat', [messageDict]);
   }
 
   void dispose() {

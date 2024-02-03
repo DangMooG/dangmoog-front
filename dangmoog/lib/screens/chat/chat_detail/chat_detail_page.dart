@@ -214,8 +214,12 @@ class _ChatDetailState extends State<ChatDetail> {
     return WillPopScope(
       onWillPop: () async {
         Provider.of<ChatProvider>(context, listen: false).resetChatProvider();
+
+        if (roomId != null && roomId != "") {
+          socketChannel.exitChat(roomId!);
+        }
         Navigator.pop(context);
-        return false;
+        return true;
       },
       child: Scaffold(
         resizeToAvoidBottomInset: resizeScreenKeyboard,
@@ -275,7 +279,7 @@ class _ChatDetailState extends State<ChatDetail> {
 
       if (_textController.text != '' && roomId != null && roomId != "") {
         // 서버로 전송
-        socketChannel.onSendMessage(_textController.text, roomId!);
+        await socketChannel.onSendMessage(_textController.text, roomId!);
 
         final currentTime = DateTime.now();
         final chatMessage = _textController.text;
@@ -550,6 +554,9 @@ class _ChatDetailState extends State<ChatDetail> {
         onPressed: () {
           Provider.of<ChatProvider>(context, listen: false).resetChatProvider();
           Navigator.pop(context);
+          if (roomId != null && roomId != "") {
+            socketChannel.exitChat(roomId!);
+          }
         },
       ),
       backgroundColor: Colors.white,
