@@ -1,5 +1,7 @@
+import 'package:dangmoog/providers/post_list_scroll_provider.dart';
 import 'package:dangmoog/screens/addpage/locker_val.dart';
 import 'package:dangmoog/utils/time_ago.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
 import 'package:provider/provider.dart';
@@ -127,6 +129,11 @@ class _ProductListState extends State<ProductList> {
     super.initState();
     _scrollController.addListener(_scrollListener);
     _initializeData();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<PostListScrollProvider>(context, listen: false)
+          .setScrollController(_scrollController);
+    });
   }
 
   Future<void> _initializeData() async {
@@ -392,22 +399,24 @@ class _ProductListState extends State<ProductList> {
 
             Navigator.push(
               context,
-              PageRouteBuilder(
-                transitionDuration: const Duration(milliseconds: 400),
-                pageBuilder: (context, animation, secondaryAnimation) =>
-                    productDetailPage,
-                transitionsBuilder:
-                    (context, animation, secondaryAnimation, child) {
-                  var previousPageOffsetAnimation =
-                      Tween(begin: const Offset(1, 0), end: const Offset(0, 0))
-                          .chain(CurveTween(curve: Curves.decelerate))
-                          .animate(animation);
+              CupertinoPageRoute(
+                builder: (context) => productDetailPage,
+                // PageRouteBuilder(
+                // transitionDuration: const Duration(milliseconds: 400),
+                // pageBuilder: (context, animation, secondaryAnimation) =>
+                //     productDetailPage,
+                // transitionsBuilder:
+                //     (context, animation, secondaryAnimation, child) {
+                //   var previousPageOffsetAnimation =
+                //       Tween(begin: const Offset(1, 0), end: const Offset(0, 0))
+                //           .chain(CurveTween(curve: Curves.decelerate))
+                //           .animate(animation);
 
-                  return SlideTransition(
-                    position: previousPageOffsetAnimation,
-                    child: child,
-                  );
-                },
+                //   return SlideTransition(
+                //     position: previousPageOffsetAnimation,
+                //     child: child,
+                //   );
+                // },)
               ),
             );
           },
@@ -470,8 +479,8 @@ class _ProductListState extends State<ProductList> {
                           fit: BoxFit.cover,
                         )
                       : FutureBuilder<Response>(
-                          future:
-                              apiService.loadPhoto(product.representativePhotoId),
+                          future: apiService
+                              .loadPhoto(product.representativePhotoId),
                           builder: (context, snapshot) {
                             if (snapshot.connectionState ==
                                 ConnectionState.waiting) {
@@ -501,12 +510,13 @@ class _ProductListState extends State<ProductList> {
                             } else if (snapshot.hasData) {
                               Map<String, dynamic> data = snapshot.data!.data;
                               String imageUrl = data["url"];
-                              imageCache[product.representativePhotoId] = imageUrl;
+                              imageCache[product.representativePhotoId] =
+                                  imageUrl;
                               return Image.network(
                                 imageUrl,
                                 fit: BoxFit.cover,
-                                errorBuilder: (BuildContext context, Object error,
-                                    StackTrace? stackTrace) {
+                                errorBuilder: (BuildContext context,
+                                    Object error, StackTrace? stackTrace) {
                                   return Image.asset(
                                     '/assets/images/sample.png',
                                     fit: BoxFit.cover,
@@ -522,7 +532,6 @@ class _ProductListState extends State<ProductList> {
                           },
                         ),
             ),
-
           ),
           if (product.useLocker != 0)
             Positioned(
@@ -530,7 +539,7 @@ class _ProductListState extends State<ProductList> {
               left: 4,
               child: Image.asset(
                 'assets/images/uselocker_logo.png', // Replace with your logo asset path
-                width: size*0.25, // Adjust the size as needed
+                width: size * 0.25, // Adjust the size as needed
               ),
             ),
         ],
@@ -549,8 +558,7 @@ class _ProductListState extends State<ProductList> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _buildProductTexts(product),
-            if (product.useLocker != 1)
-              _buildProductLikeChatCount(product),
+            if (product.useLocker != 1) _buildProductLikeChatCount(product),
           ],
         ),
       ),
