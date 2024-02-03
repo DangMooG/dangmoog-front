@@ -1,11 +1,10 @@
+import 'package:dangmoog/screens/app_bar.dart';
 import 'package:dangmoog/screens/mypage/profile_change.dart';
 import 'package:dangmoog/services/api.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:dangmoog/providers/user_provider.dart';
-
-import 'dart:io';
 
 class NicknameChangePage extends StatefulWidget {
   const NicknameChangePage({Key? key}) : super(key: key);
@@ -169,16 +168,25 @@ class _NicknameChangePageState extends State<NicknameChangePage> {
         resizeToAvoidBottomInset: true,
         appBar: AppBar(
           leading: IconButton(
-            icon: const Icon(Icons.arrow_back), // 뒤로 가기 아이콘
+            icon: const Icon(Icons.arrow_back),
             onPressed: () {
               Navigator.of(context).pop();
             },
+          ),
+          title: const Text(
+            "닉네임 변경",
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w600,
+              color: Color(0xff302E2E),
+            ),
           ),
           centerTitle: true,
           actions: [
             _changeNicknameButton(screenSize, context, nickname,
                 changeUserNickname, isButtonDisabled, _isChecked),
           ],
+          bottom: appBarBottomLine(),
         ),
         body: SingleChildScrollView(
           controller: scrollController,
