@@ -4,11 +4,12 @@ import 'package:dangmoog/providers/chat_provider.dart';
 import 'package:dangmoog/providers/product_detail_provider.dart';
 import 'package:dangmoog/providers/user_provider.dart';
 import 'package:dangmoog/screens/chat/chat_detail/chat_detail_page.dart';
-import 'package:dangmoog/screens/home.dart';
+
 import 'package:dangmoog/screens/report/post_report.dart';
 import 'package:dangmoog/screens/main_page.dart';
 import 'package:dangmoog/widgets/bottom_popup.dart';
-import 'package:dio/dio.dart';
+
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:dangmoog/models/product_class.dart';
 import 'package:carousel_slider/carousel_slider.dart';
@@ -45,15 +46,16 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
             return Scaffold(
               appBar: AppBar(
                 automaticallyImplyLeading: true,
-                // leading: IconButton(
-                //   icon: const Icon(
-                //     Icons.keyboard_backspace,
-                //     size: 24,
-                //   ),
-                //   onPressed: () {
-                //     Navigator.of(context).pop();
-                //   },
-                // ),
+                leading: IconButton(
+                  icon: const Icon(
+                    Icons.keyboard_backspace,
+                    size: 24,
+                    color: Colors.white,
+                  ),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                ),
               ),
               body: const Center(
                 child: CircularProgressIndicator(),
@@ -129,13 +131,14 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                             children: <Widget>[
                               TextButton(
                                 onPressed: () {
-                                  Navigator.pop(context); // Close the dialog
+                                  Navigator.pop(context);
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                        builder: (context) => EditPostPage(
-                                              product: product,
-                                            )),
+                                      builder: (context) => EditPostPage(
+                                        product: product,
+                                      ),
+                                    ),
                                   );
                                 },
                                 style: TextButton.styleFrom(
@@ -531,7 +534,6 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
 
   // 카테고리, 올린 날짜
   Widget _buildProductDetails(ProductModel product) {
-    print(product.categoryId);
     return Container(
       margin: const EdgeInsets.only(top: 4),
       child: Text(
@@ -597,10 +599,12 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                     TextButton(
                       onPressed: () {
                         Navigator.pop(context);
-                        Navigator.of(context).push(MaterialPageRoute(
-                          builder: (context) =>
-                              UserReportPage(product: product),
-                        ));
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                UserReportPage(product: product),
+                          ),
+                        );
                       },
                       style: TextButton.styleFrom(
                         minimumSize: const Size(270, 36),
@@ -625,10 +629,12 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                     TextButton(
                       onPressed: () {
                         Navigator.pop(context);
-                        Navigator.of(context).push(MaterialPageRoute(
-                          builder: (context) =>
-                              PostReportPage(product: product),
-                        ));
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                PostReportPage(product: product),
+                          ),
+                        );
                       },
                       style: TextButton.styleFrom(
                         minimumSize: const Size(270, 36),
@@ -757,15 +763,9 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                           .getInChatRoom(
                               true, product.postId, product.userName);
 
-                      // final userName =
-                      //     Provider.of<ChatProvider>(context, listen: false)
-                      //         .userName;
-                      // print(11111);
-                      // print(userName);
-                      // print(22222);
                       Navigator.push(
                         context,
-                        MaterialPageRoute(
+                        CupertinoPageRoute(
                           builder: (context) => ChatDetail(
                             roomId: roomId,
                           ),
