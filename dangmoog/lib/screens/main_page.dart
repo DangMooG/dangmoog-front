@@ -39,11 +39,7 @@ class _MainPageState extends State<MainPage> {
     const ProductList(key: ValueKey("ProductListPage")),
     const LikeMainPage(key: ValueKey("LikePage")),
     const ChatListPage(key: ValueKey("ChatListPage")),
-    const MyPage(
-      key: ValueKey("MyPage"),
-      nickname: '',
-      email: '',
-    )
+    const MyPage(key: ValueKey("MyPage"))
   ];
 
   void _getAllMyChatList() async {

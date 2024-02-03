@@ -207,7 +207,10 @@ class _AuthPageState extends State<AuthPage> {
             //   (route) => false,
             // );
             Navigator.pushNamedAndRemoveUntil(
-                context, '/mainpage', ModalRoute.withName('/myhome'));
+              context,
+              '/mainpage',
+              ModalRoute.withName('/myhome'),
+            );
           }
         } else {
           // 별명 설정 페이지로 이동
