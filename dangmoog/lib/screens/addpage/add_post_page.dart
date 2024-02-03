@@ -412,25 +412,39 @@ class _AddPostPageState extends State<AddPostPage> {
         return false;
       },
       child: Scaffold(
-        appBar: AppBar(
-          title: Text(appbarTitle),
-          leading: IconButton(
-            icon: const Icon(Icons.close),
-            onPressed: () {
-              if (isImageUploaded ||
-                  isProductNameFilled ||
-                  isCategorySelected ||
-                  isPriceFilled ||
-                  isDescriptionProvided) {
-                _showExitConfirmationDialog(context);
-              } else {
-                _updateLockerUnused();
-                Navigator.of(context).pop();
-              }
-            },
+        appBar: PreferredSize(
+          preferredSize: const Size.fromHeight(kToolbarHeight + 0.5), // AppBar height + divider thickness
+          child: Column(
+            children: [
+              AppBar(
+                title: Text(appbarTitle),
+                leading: IconButton(
+                  icon: const Icon(Icons.close),
+                  onPressed: () {
+                    if (isImageUploaded ||
+                        isProductNameFilled ||
+                        isCategorySelected ||
+                        isPriceFilled ||
+                        isDescriptionProvided) {
+                      _showExitConfirmationDialog(context);
+                    } else {
+                      _updateLockerUnused();
+                      Navigator.of(context).pop();
+                    }
+                  },
+                ),
+                centerTitle: true,
+              ),
+              const Divider(
+                color: Color(0xffBEBCBC),
+                thickness: 0.5,
+                height: 0.5,
+              ),
+            ],
           ),
-          centerTitle: true,
         ),
+
+
         body: Stack(
           children: [
             GestureDetector(

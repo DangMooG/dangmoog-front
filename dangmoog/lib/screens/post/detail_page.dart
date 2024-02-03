@@ -65,15 +65,6 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
             return Scaffold(
               appBar: AppBar(
                 automaticallyImplyLeading: true,
-                // leading: IconButton(
-                //   icon: const Icon(
-                //     Icons.keyboard_backspace,
-                //     size: 24,
-                //   ),
-                //   onPressed: () {
-                //     Navigator.of(context).pop();
-                //   },
-                // ),
               ),
               body: const Center(
                 child: Text('Product not found!'),
@@ -248,7 +239,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                 ],
               ),
             ),
-            productInfo(product),
+            productInfo(product, provider, isUserProduct),
           ],
         ),
       ),
@@ -338,7 +329,11 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
     );
   }
 
-  Widget productInfo(ProductModel product) {
+  Widget productInfo(
+    ProductModel product,
+    ProductDetailProvider provider,
+    bool isUserProduct,
+  ) {
     return Padding(
       padding: const EdgeInsets.all(17),
       child: Column(
@@ -367,7 +362,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
             ],
           ),
           _buildProductDescription(product),
-          _buildReportButton(product),
+          if (!isUserProduct) _buildReportButton(product),
         ],
       ),
     );
