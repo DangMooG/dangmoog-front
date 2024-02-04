@@ -1,13 +1,15 @@
 import 'package:dangmoog/constants/category_list.dart';
+import 'package:dangmoog/providers/chat_list_provider.dart';
 import 'package:dangmoog/providers/chat_provider.dart';
 import 'package:dangmoog/providers/product_detail_provider.dart';
 import 'package:dangmoog/providers/user_provider.dart';
 import 'package:dangmoog/screens/chat/chat_detail/chat_detail_page.dart';
-import 'package:dangmoog/screens/home.dart';
+
 import 'package:dangmoog/screens/report/post_report.dart';
 import 'package:dangmoog/screens/main_page.dart';
 import 'package:dangmoog/widgets/bottom_popup.dart';
-import 'package:dio/dio.dart';
+
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:dangmoog/models/product_class.dart';
 import 'package:carousel_slider/carousel_slider.dart';
@@ -44,6 +46,16 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
             return Scaffold(
               appBar: AppBar(
                 automaticallyImplyLeading: true,
+                leading: IconButton(
+                  icon: const Icon(
+                    Icons.keyboard_backspace,
+                    size: 24,
+                    color: Colors.white,
+                  ),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                ),
               ),
               body: const Center(
                 child: CircularProgressIndicator(),
@@ -110,13 +122,14 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                             children: <Widget>[
                               TextButton(
                                 onPressed: () {
-                                  Navigator.pop(context); // Close the dialog
+                                  Navigator.pop(context);
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                        builder: (context) => EditPostPage(
-                                              product: product,
-                                            )),
+                                      builder: (context) => EditPostPage(
+                                        product: product,
+                                      ),
+                                    ),
                                   );
                                 },
                                 style: TextButton.styleFrom(
@@ -316,7 +329,11 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
     );
   }
 
-  Widget productInfo(ProductModel product, ProductDetailProvider provider, bool isUserProduct) {
+  Widget productInfo(
+    ProductModel product,
+    ProductDetailProvider provider,
+    bool isUserProduct,
+  ) {
     return Padding(
       padding: const EdgeInsets.all(17),
       child: Column(
@@ -328,7 +345,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
             children: [
               Flexible(
                 flex: 3,
-                child: _buildProductInformation(product), // Adjust the flex factor as needed
+                child: _buildProductInformation(product),
               ),
               Expanded(
                 child: Column(
@@ -350,7 +367,6 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
       ),
     );
   }
-
 
   Widget _buildProductStatusImage(ProductModel product) {
     int saleStatus = product.status;
@@ -513,7 +529,6 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
 
   // 카테고리, 올린 날짜
   Widget _buildProductDetails(ProductModel product) {
-    print(product.categoryId);
     return Container(
       margin: const EdgeInsets.only(top: 4),
       child: Text(
@@ -579,10 +594,12 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                     TextButton(
                       onPressed: () {
                         Navigator.pop(context);
-                        Navigator.of(context).push(MaterialPageRoute(
-                          builder: (context) =>
-                              UserReportPage(product: product),
-                        ));
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                UserReportPage(product: product),
+                          ),
+                        );
                       },
                       style: TextButton.styleFrom(
                         minimumSize: const Size(270, 36),
@@ -607,10 +624,12 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                     TextButton(
                       onPressed: () {
                         Navigator.pop(context);
-                        Navigator.of(context).push(MaterialPageRoute(
-                          builder: (context) =>
-                              PostReportPage(product: product),
-                        ));
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                PostReportPage(product: product),
+                          ),
+                        );
                       },
                       style: TextButton.styleFrom(
                         minimumSize: const Size(270, 36),
@@ -651,8 +670,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
             },
           );
         },
-        child:
-        const Text(
+        child: const Text(
           '신고하기',
           style: TextStyle(
             color: Color(0xff726E6E),
@@ -719,29 +737,35 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
             onPressed: chatAvailable
                 ? () async {
                     try {
-                      Response response =
-                          await ApiService().getChatRoomId(product.postId);
-                      if (response.statusCode == 200) {
-                        String roomId = response.data["room_id"];
+                      String? roomId;
 
-                        if (!mounted) return;
-                        Provider.of<ChatProvider>(context, listen: false)
-                            .setRoomId(roomId);
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => ChatDetail(
-                              userName: product.userName,
-                              imBuyer: true,
-                              postId: product.postId,
-                              roomId: roomId,
-                            ),
-                          ),
-                        );
-                      } else {
-                        // 삭제된 게시글이라든지, 예약중이거나 거래완료된 게시글이라든지
-                        // 알 수 없는 게시글이라든지
+                      // 만약 이미 사용자가 구매자로서 채팅을 보낸 적이 있는 게시글이면
+                      // // 해당 게시글에 대한 채탕방 roomId를 찾아서 ChatProvider에 저장
+                      // 그렇지 않다면, null값이 저장됨
+                      ChatListProvider chatListProvider =
+                          Provider.of<ChatListProvider>(context, listen: false);
+                      if (chatListProvider.buyChatList.any((chatListCell) =>
+                          chatListCell.postId == product.postId)) {
+                        // chat list page의 정보 update
+                        int index = chatListProvider.buyChatList.indexWhere(
+                            (chatListCell) =>
+                                chatListCell.postId == product.postId);
+                        roomId = chatListProvider.buyChatList[index].roomId;
                       }
+
+                      if (!mounted) return;
+                      Provider.of<ChatProvider>(context, listen: false)
+                          .getInChatRoom(
+                              true, product.postId, product.userName);
+
+                      Navigator.push(
+                        context,
+                        CupertinoPageRoute(
+                          builder: (context) => ChatDetail(
+                            roomId: roomId,
+                          ),
+                        ),
+                      );
                     } catch (e) {
                       // 채팅이 불가능함을 사용자에게 알리기
                       print(e);

@@ -19,17 +19,19 @@ class _PostReportPageState extends State<PostReportPage> {
   int _selectedReportIndex = -1;
   final ApiService apiService= ApiService();
 
-  List<bool> isChecked = List.generate(productReport.length, (index) => false); // Assuming productReport is a List of Strings for report reasons
+  List<bool> isChecked = List.generate(
+      productReport.length,
+      (index) =>
+          false); // Assuming productReport is a List of Strings for report reasons
 
   @override
   Widget build(BuildContext context) {
     bool isSubmitButtonEnabled = _selectedReportIndex != -1;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('게시글 신고',
-          style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.w600),
+        title: const Text(
+          '게시글 신고',
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
         ),
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(1.0),
@@ -45,7 +47,6 @@ class _PostReportPageState extends State<PostReportPage> {
           builder: (BuildContext context, BoxConstraints constraints) {
             double availableWidth = constraints.maxWidth;
             double buttonWidth = (availableWidth - 16) / 2;
-
             return ListView( // Changed to ListView to accommodate dynamic content
               children: <Widget>[
                 Text(
@@ -98,57 +99,75 @@ class _PostReportPageState extends State<PostReportPage> {
                             });
                           },
                           activeColor: const Color(0xFFEC5870),
+
                         ),
                       ),
-                    ),
-                  );
-
-                }),
-                if (_selectedReportIndex == productReport.length - 1) // If the last checkbox is checked, show the TextField
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 8.0),
-
-                    child: TextField(
-                      controller: _customReportController,
-                      decoration: InputDecoration(
-                        // border: OutlineInputBorder(),
-                        contentPadding: const EdgeInsets.symmetric(vertical: 15.0, horizontal: 10.0),
-                        hintText: '자세한 신고 사유를 작성해주세요',
-                        border: OutlineInputBorder(
-                          borderSide: const BorderSide(color: Color(0xFFEC5870)),
-                          borderRadius: BorderRadius.circular(5),
-                        ),
-
+                      trailing: Checkbox(
+                        value: isSelected,
+                        onChanged: (bool? value) {
+                          setState(() {
+                            _selectedReportIndex = value! ? index : -1;
+                            if (_selectedReportIndex ==
+                                productReport.length - 1) {
+                              // Last item's special condition
+                              _customReportController.clear();
+                            }
+                          });
+                        },
+                        activeColor: const Color(0xFFEC5870),
                       ),
-                      maxLines: null,
                     ),
                   ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    TextButton(
-                      style: ButtonStyle(
-                        backgroundColor: MaterialStateProperty.all<Color>(const Color(0xFFFFFFFF)),
-                        minimumSize: MaterialStateProperty.all<Size>(Size(buttonWidth, 46)),
-                        shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                          RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                            side: const BorderSide(color: Color(0xFF726E6E)), // Border color
-                          ),
-                        ),
+                );
+              }),
+              if (_selectedReportIndex ==
+                  productReport.length -
+                      1) // If the last checkbox is checked, show the TextField
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8.0),
+                  child: TextField(
+                    controller: _customReportController,
+                    decoration: InputDecoration(
+                      // border: OutlineInputBorder(),
+                      contentPadding: const EdgeInsets.symmetric(
+                          vertical: 15.0, horizontal: 10.0),
+                      hintText: '자세한 신고 사유를 작성해주세요',
+                      border: OutlineInputBorder(
+                        borderSide: const BorderSide(color: Color(0xFFEC5870)),
+                        borderRadius: BorderRadius.circular(5),
                       ),
-                      onPressed: () {
-                        Navigator.pop(context);// Handle button press
-                      },
-                      child: const Text(
-                        '취소하기',
-                        style: TextStyle(
-                          color: Color(0xFF726E6E), // Set the text color as well if needed
+                    ),
+                    maxLines: null,
+                  ),
+                ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  TextButton(
+                    style: ButtonStyle(
+                      backgroundColor: MaterialStateProperty.all<Color>(
+                          const Color(0xFFFFFFFF)),
+                      minimumSize: MaterialStateProperty.all<Size>(
+                          Size(buttonWidth, 46)),
+                      shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                        RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          side: const BorderSide(
+                              color: Color(0xFF726E6E)), // Border color
                         ),
                       ),
                     ),
-
+                    onPressed: () {
+                      Navigator.pop(context); // Handle button press
+                    },
+                    child: const Text(
+                      '취소하기',
+                      style: TextStyle(
+                        color: Color(
+                            0xFF726E6E), // Set the text color as well if needed
+                      ),
+                    ),
                     const SizedBox(width: 16,),
                     TextButton(
                       onPressed: isSubmitButtonEnabled ? () async {
@@ -161,8 +180,6 @@ class _PostReportPageState extends State<PostReportPage> {
                           // When a predefined report reason is selected
                           content = productReport[_selectedReportIndex];
                         }
-
-
                         // Call the API service to report the post with the determined content
                         try{
                           final response = await apiService.reportPost(0, widget.product.postId, content);
@@ -200,21 +217,21 @@ class _PostReportPageState extends State<PostReportPage> {
                           ),
                         ),
                       ),
-                      child: const Text(
-                          '신고 접수',
-                        style: TextStyle(
-                          color: Color(0xFFFFFFFF), // Set the text color as well if needed
-                        ),
+                    ),
+                    child: const Text(
+                      '신고 접수',
+                      style: TextStyle(
+                        color: Color(
+                            0xFFFFFFFF), // Set the text color as well if needed
                       ),
                     ),
-                  ],
-                )
-              ],
-            );
-          }
-        ),
+                  ),
+                ],
+              )
+            ],
+          );
+        }),
       ),
-
     );
   }
 

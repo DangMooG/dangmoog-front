@@ -19,17 +19,10 @@ import 'package:keyboard_height_plugin/keyboard_height_plugin.dart';
 import 'package:provider/provider.dart';
 
 class ChatDetail extends StatefulWidget {
-  final bool imBuyer;
-  final int postId;
-  final String roomId;
-  final String userName;
-
+  final String? roomId;
   const ChatDetail({
-    super.key,
-    required this.imBuyer,
-    required this.postId,
     required this.roomId,
-    required this.userName,
+    super.key,
   });
 
   @override
@@ -37,6 +30,11 @@ class ChatDetail extends StatefulWidget {
 }
 
 class _ChatDetailState extends State<ChatDetail> {
+  String? roomId;
+  bool? imBuyer;
+  int? postId;
+  String? userName;
+
   ProductModel? product;
 
   List<ChatDetailMessageModel>? _chatDetail;
@@ -104,7 +102,7 @@ class _ChatDetailState extends State<ChatDetail> {
   late SocketProvider socketChannel;
 
   void getPostContent() async {
-    Response response = await ApiService().loadProduct(widget.postId);
+    Response response = await ApiService().loadProduct(postId!);
     if (response.statusCode == 200) {
       final post = response.data;
       if (mounted) {
@@ -116,38 +114,45 @@ class _ChatDetailState extends State<ChatDetail> {
   }
 
   void getAllMessages() async {
-    Response response = await ApiService().getChatAllMessages(widget.roomId);
-    if (response.statusCode == 200) {
-      final List<dynamic> messages = response.data;
+    if (roomId != null && roomId != "") {
+      Response response = await ApiService().getChatAllMessages(roomId!);
+      if (response.statusCode == 200) {
+        final List<dynamic> messages = response.data;
 
-      setState(() {
-        _chatDetail = messages
-            .map((msg) => ChatDetailMessageModel.fromJson(msg, widget.imBuyer))
-            .toList();
-      });
+        setState(() {
+          _chatDetail = messages
+              .map((msg) => ChatDetailMessageModel.fromJson(msg, imBuyer!))
+              .toList();
+        });
 
-      Provider.of<ChatProvider>(context, listen: false)
-          .setChatContents(_chatDetail!);
+        Provider.of<ChatProvider>(context, listen: false)
+            .setChatContents(_chatDetail!);
 
-      Provider.of<ChatProvider>(context, listen: false)
-          .setImBuyer(widget.imBuyer);
+        Provider.of<ChatProvider>(context, listen: false).setImBuyer(imBuyer!);
 
-      final chatListProvider =
-          Provider.of<ChatListProvider>(context, listen: false);
-      if (chatListProvider.buyChatList
-          .any((chatListCell) => chatListCell.roomId == widget.roomId)) {
-        int index = chatListProvider.buyChatList
-            .indexWhere((chatCell) => chatCell.roomId == widget.roomId);
+        final chatListProvider =
+            Provider.of<ChatListProvider>(context, listen: false);
+        if (chatListProvider.buyChatList
+            .any((chatListCell) => chatListCell.roomId == roomId)) {
+          int index = chatListProvider.buyChatList
+              .indexWhere((chatCell) => chatCell.roomId == roomId);
 
-        chatListProvider.resetUnreadCount(index, true);
-      } else if (chatListProvider.sellChatList
-          .any((chatListCell) => chatListCell.roomId == widget.roomId)) {
-        int index = chatListProvider.sellChatList
-            .indexWhere((chatCell) => chatCell.roomId == widget.roomId);
+          chatListProvider.resetUnreadCount(index, true);
+        } else if (chatListProvider.sellChatList
+            .any((chatListCell) => chatListCell.roomId == roomId)) {
+          int index = chatListProvider.sellChatList
+              .indexWhere((chatCell) => chatCell.roomId == roomId);
 
-        chatListProvider.resetUnreadCount(index, false);
+          chatListProvider.resetUnreadCount(index, false);
+        }
       }
     }
+  }
+
+  void setRoomId(String? newRoomId) {
+    setState(() {
+      roomId = newRoomId;
+    });
   }
 
   @override
@@ -155,6 +160,20 @@ class _ChatDetailState extends State<ChatDetail> {
     super.initState();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      setState(() {
+        userName = Provider.of<ChatProvider>(context, listen: false).userName;
+        postId = Provider.of<ChatProvider>(context, listen: false).postId;
+        imBuyer = Provider.of<ChatProvider>(context, listen: false).imBuyer;
+      });
+      setRoomId(widget.roomId);
+      Provider.of<ChatProvider>(context, listen: false)
+          .setRoomId(widget.roomId);
+
+      if (widget.roomId != null && widget.roomId != "") {
+        Provider.of<SocketProvider>(context, listen: false)
+            .beginChat(widget.roomId!);
+      }
+
       getPostContent();
       getAllMessages();
     });
@@ -185,8 +204,6 @@ class _ChatDetailState extends State<ChatDetail> {
     keyboardHeightController.close();
     timer?.cancel();
 
-    // Provider.of<ChatProvider>(context, listen: false).resetChatProvider();
-
     super.dispose();
   }
 
@@ -197,12 +214,16 @@ class _ChatDetailState extends State<ChatDetail> {
     return WillPopScope(
       onWillPop: () async {
         Provider.of<ChatProvider>(context, listen: false).resetChatProvider();
+
+        if (roomId != null && roomId != "") {
+          socketChannel.exitChat(roomId!);
+        }
         Navigator.pop(context);
-        return false;
+        return true;
       },
       child: Scaffold(
         resizeToAvoidBottomInset: resizeScreenKeyboard,
-        appBar: _buildChatUserName(widget.userName),
+        appBar: _buildChatUserName(userName),
         body: Center(
           child: AbsorbPointer(
             absorbing: _blockInteraction,
@@ -210,10 +231,10 @@ class _ChatDetailState extends State<ChatDetail> {
               crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
-                product != null
+                product != null && imBuyer != null
                     ? ChatDetailProduct(
                         product: product!,
-                        imBuyer: widget.imBuyer,
+                        imBuyer: imBuyer!,
                       )
                     : const Center(child: CircularProgressIndicator()),
                 Expanded(
@@ -234,10 +255,31 @@ class _ChatDetailState extends State<ChatDetail> {
   // chat input field + option box
   Widget _buildBottomField(BuildContext context) {
     // 채팅 전송
-    void handleSubmitted() {
-      if (_textController.text != '') {
+    void handleSubmitted() async {
+      if (roomId == null || roomId == "") {
+        try {
+          Response response = await ApiService().getChatRoomId(postId!);
+          if (response.statusCode == 200) {
+            String newRoomId = response.data["room_id"];
+
+            if (!mounted) return;
+            Provider.of<ChatProvider>(context, listen: false)
+                .setRoomId(newRoomId);
+            setRoomId(newRoomId);
+
+            if (newRoomId != "") {
+              Provider.of<SocketProvider>(context, listen: false)
+                  .beginChat(newRoomId);
+            }
+          }
+        } catch (e) {
+          print(e);
+        }
+      }
+
+      if (_textController.text != '' && roomId != null && roomId != "") {
         // 서버로 전송
-        socketChannel.onSendMessage(_textController.text, widget.roomId);
+        await socketChannel.onSendMessage(_textController.text, roomId!);
 
         final currentTime = DateTime.now();
         final chatMessage = _textController.text;
@@ -265,9 +307,9 @@ class _ChatDetailState extends State<ChatDetail> {
         final chatListProvider =
             Provider.of<ChatListProvider>(context, listen: false);
         if (chatListProvider.buyChatList
-            .any((chatListCell) => chatListCell.roomId == widget.roomId)) {
+            .any((chatListCell) => chatListCell.roomId == roomId)) {
           int index = chatListProvider.buyChatList
-              .indexWhere((chatCell) => chatCell.roomId == widget.roomId);
+              .indexWhere((chatCell) => chatCell.roomId == roomId);
 
           chatListProvider.updateChatList(
             index,
@@ -277,9 +319,9 @@ class _ChatDetailState extends State<ChatDetail> {
           );
           chatListProvider.resetUnreadCount(index, true);
         } else if (chatListProvider.sellChatList
-            .any((chatListCell) => chatListCell.roomId == widget.roomId)) {
+            .any((chatListCell) => chatListCell.roomId == roomId)) {
           int index = chatListProvider.sellChatList
-              .indexWhere((chatCell) => chatCell.roomId == widget.roomId);
+              .indexWhere((chatCell) => chatCell.roomId == roomId);
           chatListProvider.updateChatList(
             index,
             chatMessage,
@@ -296,14 +338,12 @@ class _ChatDetailState extends State<ChatDetail> {
     return Column(
       children: [
         _buildchatInputField(context, handleSubmitted),
-        // _buildAdditionalWidget(context)
         ChatDetailOptions(
           isOptionOn: _isOptionOn,
           keyboardHeight: _keyboardHeight,
-          roomId: widget.roomId,
-          imBuyer: widget.imBuyer,
-          postId: widget.postId,
           useLocker: product?.useLocker,
+          roomId: roomId,
+          setRoomId: setRoomId,
         )
       ],
     );
@@ -495,10 +535,10 @@ class _ChatDetailState extends State<ChatDetail> {
   }
 
   // 채팅 상대방 닉네임
-  AppBar _buildChatUserName(String userName) {
+  AppBar _buildChatUserName(String? userName) {
     return AppBar(
       title: Text(
-        userName,
+        userName ?? "",
         style: const TextStyle(
           color: Color(0xFF302E2E),
           fontSize: 18,
@@ -514,6 +554,9 @@ class _ChatDetailState extends State<ChatDetail> {
         onPressed: () {
           Provider.of<ChatProvider>(context, listen: false).resetChatProvider();
           Navigator.pop(context);
+          if (roomId != null && roomId != "") {
+            socketChannel.exitChat(roomId!);
+          }
         },
       ),
       backgroundColor: Colors.white,

@@ -2,8 +2,10 @@ import 'package:dangmoog/fcmSetting.dart';
 import 'package:dangmoog/providers/chat_list_provider.dart';
 import 'package:dangmoog/providers/chat_provider.dart';
 import 'package:dangmoog/providers/chat_setting_provider.dart';
+import 'package:dangmoog/providers/post_list_scroll_provider.dart';
 import 'package:dangmoog/screens/home.dart';
 import 'package:dangmoog/screens/main_page.dart';
+import 'package:dangmoog/screens/mypage/my_page.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 
 import 'package:flutter/material.dart';
@@ -52,6 +54,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (context) => ChatProvider()),
         ChangeNotifierProvider(create: (context) => ChatSettingProvider()),
         ChangeNotifierProvider(create: (context) => ChatListProvider()),
+        ChangeNotifierProvider(create: (context) => PostListScrollProvider()),
       ],
       child: MaterialApp(
         title: '도토릿',
@@ -65,6 +68,7 @@ class MyApp extends StatelessWidget {
                 fcmToken: fcmToken,
               ),
           "/mainpage": (context) => const MainPage(),
+          "/mypage": (context) => const MyPage(),
         },
       ),
     );

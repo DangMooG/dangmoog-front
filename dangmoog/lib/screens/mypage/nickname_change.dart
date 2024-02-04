@@ -1,11 +1,10 @@
+import 'package:dangmoog/screens/app_bar.dart';
 import 'package:dangmoog/screens/mypage/profile_change.dart';
 import 'package:dangmoog/services/api.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:dangmoog/providers/user_provider.dart';
-
-import 'dart:io';
 
 class NicknameChangePage extends StatefulWidget {
   const NicknameChangePage({Key? key}) : super(key: key);
@@ -139,6 +138,21 @@ class _NicknameChangePageState extends State<NicknameChangePage> {
     });
   }
 
+  final ScrollController scrollController = ScrollController();
+
+  void scrollToBottom() {
+    final position = scrollController.position.maxScrollExtent;
+
+    // if (scrollController.position.pixels == 0) {
+    //   return;
+    // }
+    scrollController.animateTo(
+      position,
+      duration: const Duration(milliseconds: 200),
+      curve: Curves.easeOut,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     Size screenSize = MediaQuery.of(context).size;
@@ -147,81 +161,114 @@ class _NicknameChangePageState extends State<NicknameChangePage> {
     final user = Provider.of<UserProvider>(context);
     int isButtonDisabled = user.isButtonDisabled;
 
-    return Scaffold(
-      resizeToAvoidBottomInset: false,
-      appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back), // 뒤로 가기 아이콘
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: () => FocusScope.of(context).unfocus(),
+      child: Scaffold(
+        resizeToAvoidBottomInset: true,
+        appBar: AppBar(
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back),
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+          ),
+          title: const Text(
+            "닉네임 변경",
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w600,
+              color: Color(0xff302E2E),
+            ),
+          ),
+          centerTitle: true,
+          actions: [
+            _changeNicknameButton(screenSize, context, nickname,
+                changeUserNickname, isButtonDisabled, _isChecked),
+          ],
+          bottom: appBarBottomLine(),
         ),
-        centerTitle: true,
-        actions: [
-          _changeNicknameButton(screenSize, context, nickname,
-              changeUserNickname, isButtonDisabled, _isChecked),
-        ],
-      ),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          SizedBox(height: screenSize.height * 0.19),
-          Stack(
-            alignment: Alignment.center,
+        body: SingleChildScrollView(
+          controller: scrollController,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              SizedBox(
-                width: screenSize.width * 0.56,
-                height: screenSize.width * 0.56,
-                child: ClipOval(
-                  child: profileUrl != null
-                      ? Image.network(
-                          profileUrl!,
-                          fit: BoxFit.cover,
-                        )
-                      : Image.asset(
-                          imagePath,
-                          fit: BoxFit.cover,
-                        ),
+              SizedBox(height: screenSize.height * 0.19),
+              Stack(
+                alignment: Alignment.center,
+                children: [
+                  SizedBox(
+                    width: screenSize.width * 0.56,
+                    height: screenSize.width * 0.56,
+                    child: ClipOval(
+                      child: profileUrl != null
+                          ? Image.network(
+                              profileUrl!,
+                              fit: BoxFit.cover,
+                            )
+                          : Image.asset(
+                              imagePath,
+                              fit: BoxFit.cover,
+                            ),
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: screenSize.height * 0.02),
+              Container(
+                alignment: Alignment.center,
+                width: screenSize.width * 0.91,
+                height: screenSize.height * 0.05,
+                child: TextField(
+                  onChanged: onNicknameChanged,
+                  textAlign: TextAlign.center,
+                  onTap: () async {
+                    Future.delayed(const Duration(milliseconds: 700), () {
+                      // 스크롤 컨트롤러를 사용하여 스크롤 가능한 위젯을 가장 아래로 스크롤합니다.
+                      // if (scrollController.hasClients) {
+                      scrollController.animateTo(
+                        scrollController.position.maxScrollExtent,
+                        duration: const Duration(milliseconds: 300),
+                        curve: Curves.easeOut,
+                      );
+                      // }
+                    });
+                  },
+                  decoration: const InputDecoration(
+                    border: OutlineInputBorder(
+                      borderSide: BorderSide(
+                        color: Color(0xFFA19E9E), // 원하는 border 색상 설정
+                        width: 2.0, // 원하는 border 너비 설정
+                      ),
+                    ),
+                    hintText: '변경할 닉네임 이름을 입력해주세요.',
+                    hintStyle: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w400,
+                      color: Color(0xFFA19E9E),
+                    ),
+                    contentPadding: EdgeInsets.symmetric(vertical: 8),
+                    isDense: true,
+                  ),
                 ),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 4),
+                child: Text(
+                  errorMessage,
+                  style: const TextStyle(
+                    color: Color(0xffE20529),
+                    fontSize: 11,
+                    fontWeight: FontWeight.w400,
+                  ),
+                ),
+              ),
+              Container(
+                alignment: Alignment.center,
               ),
             ],
           ),
-          SizedBox(height: screenSize.height * 0.02),
-          Container(
-            alignment: Alignment.center,
-            width: screenSize.width * 0.91,
-            height: screenSize.height * 0.05,
-            child: TextField(
-              onChanged: onNicknameChanged,
-              textAlign: TextAlign.center,
-              decoration: const InputDecoration(
-                border: OutlineInputBorder(
-                  borderSide: BorderSide(
-                    color: Color(0xFFA19E9E), // 원하는 border 색상 설정
-                    width: 2.0, // 원하는 border 너비 설정
-                  ),
-                ),
-                hintText: '변경할 닉네임 이름을 입력해주세요.',
-                hintStyle: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w400,
-                  color: Color(0xFFA19E9E),
-                ),
-                contentPadding: EdgeInsets.symmetric(vertical: 8),
-                isDense: true,
-              ),
-            ),
-          ),
-          Text(
-            errorMessage,
-            style: const TextStyle(
-              color: Colors.red,
-            ),
-          ),
-          Container(
-            alignment: Alignment.center,
-          ),
-        ],
+        ),
       ),
     );
   }
@@ -247,6 +294,8 @@ class _NicknameChangePageState extends State<NicknameChangePage> {
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(14.0),
                 ),
+                surfaceTintColor: Colors.transparent,
+                titlePadding: const EdgeInsets.only(top: 24),
                 title: Column(
                   children: [
                     const Text(
@@ -260,7 +309,7 @@ class _NicknameChangePageState extends State<NicknameChangePage> {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      nickname,
+                      '"$nickname"',
                       textAlign: TextAlign.center,
                       style: const TextStyle(
                         fontSize: 18,
@@ -280,67 +329,70 @@ class _NicknameChangePageState extends State<NicknameChangePage> {
                   ),
                 ),
                 actions: [
-                  Column(
-                    children: [
-                      ElevatedButton(
-                        onPressed: () {
-                          Provider.of<UserProvider>(context, listen: false)
-                              .updateNicknameButton(0);
-                          nickNameSubmit();
+                  SizedBox(
+                    width: 280,
+                    child: Column(
+                      children: [
+                        ElevatedButton(
+                          onPressed: () {
+                            Provider.of<UserProvider>(context, listen: false)
+                                .updateNicknameButton(0);
+                            nickNameSubmit();
 
-                          Navigator.of(context).pop();
-                          Navigator.of(context).pop();
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFFE20529),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(6),
+                            Navigator.of(context).pop();
+                            Navigator.of(context).pop();
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFFE20529),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 12, vertical: 4),
+                            minimumSize: Size(
+                              screenSize.width * 0.67,
+                              screenSize.height * 0.044,
+                            ),
                           ),
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 12, vertical: 4),
-                          minimumSize: Size(
-                            screenSize.width * 0.67,
-                            screenSize.height * 0.044,
-                          ),
-                        ),
-                        child: const Text(
-                          '닉네임 변경하기',
-                          style: TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w400,
-                            color: Color(0xFFFFFFFF),
-                          ),
-                        ),
-                      ),
-                      ElevatedButton(
-                        onPressed: () {
-                          // 팝업 창을 닫을 때 수행할 작업을 여기에 추가하세요.
-                          Navigator.of(context).pop();
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFFFFFFFF),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(6),
-                            side: const BorderSide(
-                                color: Color(0xFF726E6E), width: 1),
-                          ),
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 12, vertical: 4),
-                          minimumSize: Size(
-                            screenSize.width * 0.67,
-                            screenSize.height * 0.044,
+                          child: const Text(
+                            '닉네임 변경하기',
+                            style: TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w400,
+                              color: Color(0xFFFFFFFF),
+                            ),
                           ),
                         ),
-                        child: const Text(
-                          '취소하기',
-                          style: TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w400,
-                            color: Color(0xFF726E6E),
+                        ElevatedButton(
+                          onPressed: () {
+                            // 팝업 창을 닫을 때 수행할 작업을 여기에 추가하세요.
+                            Navigator.of(context).pop();
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFFFFFFFF),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(6),
+                              side: const BorderSide(
+                                  color: Color(0xFF726E6E), width: 1),
+                            ),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 12, vertical: 4),
+                            minimumSize: Size(
+                              screenSize.width * 0.67,
+                              screenSize.height * 0.044,
+                            ),
+                          ),
+                          child: const Text(
+                            '취소하기',
+                            style: TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w400,
+                              color: Color(0xFF726E6E),
+                            ),
                           ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ],
               );
