@@ -302,6 +302,7 @@ class _MyPageState extends State<MyPage> {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(14.0),
           ),
+          surfaceTintColor: Colors.transparent,
           title: const Column(
             children: [
               Text(
