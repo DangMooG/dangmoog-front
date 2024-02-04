@@ -67,11 +67,6 @@ class ApiService {
         data: formData);
   }
 
-  // Post list 조회
-  Future<Response> fetchProductData() async {
-    return await _authClient.get('products.json');
-  }
-
   // 내가 올린 게시글 목록 조회
   Future<Response> getMyPostListId() async {
     return await _authClient.post('post/my_post');
@@ -332,6 +327,7 @@ class ApiService {
 
   // 한 채팅방에 대한 모든 채팅 정보 얻기
   Future<Response> getChatAllMessages(String roomId) async {
+    print(roomId);
     return await _publicClient.get("chat/all/$roomId");
   }
 
@@ -365,6 +361,28 @@ class ApiService {
   Future<Response> changeDealStatus(int status, int postId) async {
     Map<String, int> requestBody = {"status": status};
     return await _authClient.patch("post/$postId", data: requestBody);
+  }
+
+  Future<Response> getPhotoUrls(String roomId, List<File> imageFiles) async {
+    final queryParams = {"room_id": roomId};
+
+    final queryString = Uri(queryParameters: queryParams).query;
+    final String url = '/chat/photo_chat?$queryString';
+
+    List<MultipartFile> multipartImageList = [];
+    for (var file in imageFiles) {
+      String fileName = file.path;
+      multipartImageList
+          .add(await MultipartFile.fromFile(file.path, filename: fileName));
+    }
+    FormData formData = FormData.fromMap({
+      "files": multipartImageList, // API expects 'files', so use that as key
+    });
+
+    return await _authClient.post(
+      url,
+      data: formData,
+    );
   }
 
   ///////////////
