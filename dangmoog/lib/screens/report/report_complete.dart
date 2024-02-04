@@ -1,3 +1,4 @@
+import 'package:dangmoog/screens/home.dart';
 import 'package:flutter/material.dart';
 
 class ReportCompletePage extends StatefulWidget {
@@ -31,7 +32,7 @@ class _ReportCompletePageState extends State<ReportCompletePage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(appBarTitle,
-          style: TextStyle(
+          style: const TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w600),
         ),
@@ -78,7 +79,12 @@ class _ReportCompletePageState extends State<ReportCompletePage> {
                 ),
               ),
               onPressed: () {
-                Navigator.pop(context);// Handle button press
+                if (!mounted) return;
+                Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(builder: (context) => const MyHome()),
+                      (Route<dynamic> route) => false,
+                );
               },
               child: const Text(
                 '메인 페이지로 이동하기',

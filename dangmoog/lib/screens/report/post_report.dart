@@ -1,11 +1,13 @@
 import 'package:dangmoog/models/product_class.dart';
 import 'package:dangmoog/screens/report/report_complete.dart';
+import 'package:dangmoog/services/api.dart';
 import 'package:flutter/material.dart';
 import 'package:dangmoog/constants/product_report_list.dart';
 // Assuming ProductModel is defined somewhere in your project
 
 class PostReportPage extends StatefulWidget {
   final ProductModel product;
+
 
   const PostReportPage({Key? key, required this.product}) : super(key: key);
 
@@ -15,6 +17,7 @@ class PostReportPage extends StatefulWidget {
 
 class _PostReportPageState extends State<PostReportPage> {
   int _selectedReportIndex = -1;
+  final ApiService apiService= ApiService();
 
   List<bool> isChecked = List.generate(productReport.length, (index) => false); // Assuming productReport is a List of Strings for report reasons
 
@@ -46,7 +49,7 @@ class _PostReportPageState extends State<PostReportPage> {
             return ListView( // Changed to ListView to accommodate dynamic content
               children: <Widget>[
                 Text(
-                  "\'${widget.product.title}\'\n해당 게시글 신고 사유를 알려주세요.",
+                  "'${widget.product.title}'\n해당 게시글 신고 사유를 알려주세요.",
                   style: const TextStyle(color: Color(0xFF000000),fontSize: 16, fontWeight: FontWeight.w600),
                 ),
                 const SizedBox(height: 8,),
@@ -148,16 +151,44 @@ class _PostReportPageState extends State<PostReportPage> {
 
                     const SizedBox(width: 16,),
                     TextButton(
-                      onPressed: isSubmitButtonEnabled? (){
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const ReportCompletePage(sourceType: ReportSourceType.postReport),
-                          ),
-                        );
+                      onPressed: isSubmitButtonEnabled ? () async {
+                        // Determine the content of the report
+                        String content;
+                        if (_selectedReportIndex == productReport.length - 1) {
+                          // When custom report is selected
+                          content = _customReportController.text;
+                        } else {
+                          // When a predefined report reason is selected
+                          content = productReport[_selectedReportIndex];
+                        }
 
 
-                      }:null,
+                        // Call the API service to report the post with the determined content
+                        try{
+                          final response = await apiService.reportPost(0, widget.product.postId, content);
+                          if (response.statusCode == 200) {
+                            // Navigate to the report completion page
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const ReportCompletePage(sourceType: ReportSourceType.postReport),
+                              ),
+                            );
+                          } else {
+                            // Handle non-200 responses or show an error message
+                            ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(content: Text('Report submission failed. Please try again later.'))
+                            );
+                          }
+
+                        } catch (e) {
+                        // Handle any errors that occur during the API call
+                          print(e);
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('An error occurred. Please try again later.'))
+                          );
+                        }
+                      } : null,
                       style: ButtonStyle(
                         backgroundColor: MaterialStateProperty.all<Color>(
                             isSubmitButtonEnabled ? const Color(0xFFE20529) : const Color(0xFF726E6E)
