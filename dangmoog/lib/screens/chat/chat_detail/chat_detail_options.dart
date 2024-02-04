@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:dangmoog/models/chat_detail_message_model.dart';
 import 'package:dangmoog/providers/chat_list_provider.dart';
 import 'package:dangmoog/providers/chat_provider.dart';
@@ -5,6 +7,7 @@ import 'package:dangmoog/providers/socket_provider.dart';
 import 'package:dangmoog/services/api.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
 // import 'package:image_picker/image_picker.dart';
 // import 'package:permission_handler/permission_handler.dart';
 import 'dart:math';
@@ -16,6 +19,8 @@ import 'package:dangmoog/widgets/bottom_popup.dart';
 
 // plugins
 import 'package:dropdown_button2/dropdown_button2.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 
 class ChatDetailOptions extends StatefulWidget {
@@ -280,7 +285,8 @@ class _ChatDetailOptionsState extends State<ChatDetailOptions> {
                               }
                             }
 
-                            handleSubmitted("$selectedBank $accountNumber");
+                            handleTextChatSubmitted(
+                                "$selectedBank $accountNumber");
                             // Provider.of<SocketProvider>(context, listen: false)
                             //     .onSendMessage(
                             //   "$selectedBank $accountNumber",
@@ -418,7 +424,7 @@ class _ChatDetailOptionsState extends State<ChatDetailOptions> {
                         width: 300,
                         child: TextButton(
                           onPressed: () {
-                            handleSubmitted(
+                            handleTextChatSubmitted(
                                 "$bankAccountNumber $bankAccountName");
 
                             Navigator.pop(context);
@@ -653,13 +659,14 @@ class _ChatDetailOptionsState extends State<ChatDetailOptions> {
                               const Color(0xFFE20529),
                               Colors.transparent,
                               Colors.white, () {
-                            handleSubmitted(lockerMessage);
+                            handleTextChatSubmitted(lockerMessage);
 
                             var newMessage = ChatDetailMessageModel(
                               isMine: true,
                               message: lockerMessage,
                               read: true,
                               createTime: DateTime.now(),
+                              isImage: false,
                             );
                             Provider.of<ChatProvider>(context, listen: false)
                                 .addChatContent(newMessage);
@@ -713,44 +720,198 @@ class _ChatDetailOptionsState extends State<ChatDetailOptions> {
     );
   }
 
-  void handleSubmitted(String message) async {
-    if (message != "" && (roomId == null || roomId == "")) {
+  // 한 번도 채팅을 보낸 적이 없는 채팅방일 경우, 채팅방 id를 우선 생성
+  Future getRoomIdWhenFirstChat() async {
+    try {
+      Response response = await ApiService().getChatRoomId(postId!);
+      if (response.statusCode == 200) {
+        String newRoomId = response.data["room_id"];
+
+        if (!mounted) return;
+        Provider.of<ChatProvider>(context, listen: false).setRoomId(newRoomId);
+        print("엥");
+        setState(() {
+          roomId = newRoomId;
+        });
+        print(roomId);
+        print("뭥미");
+        // widget.setRoomId(newRoomId);
+
+        if (newRoomId != "") {
+          Provider.of<SocketProvider>(context, listen: false)
+              .beginChat(newRoomId);
+        }
+      }
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  // 카메라로 사진 1장 전송
+  Future getImageUrlFromCamera() async {
+    PermissionStatus status = await Permission.camera.request();
+    final ImagePicker picker = ImagePicker();
+
+    if (status.isGranted || status.isLimited) {
       try {
-        Response response = await ApiService().getChatRoomId(postId!);
-        if (response.statusCode == 200) {
-          String newRoomId = response.data["room_id"];
+        final XFile? pickedImage =
+            await picker.pickImage(source: ImageSource.camera);
 
-          if (!mounted) return;
-          Provider.of<ChatProvider>(context, listen: false)
-              .setRoomId(newRoomId);
-          setState(() {
-            roomId = newRoomId;
-          });
-          widget.setRoomId(newRoomId);
+        if (pickedImage != null) {
+          String imagesPath = pickedImage.path;
 
-          if (newRoomId != "") {
-            Provider.of<SocketProvider>(context, listen: false)
-                .beginChat(newRoomId);
+          File imageFile = File(imagesPath);
+
+          try {
+            Response response =
+                await ApiService().getPhotoUrls(roomId!, [imageFile]);
+
+            if (response.statusCode == 200) {
+              final data = response.data;
+
+              List<dynamic> photoUrls = data["content"];
+
+              return photoUrls;
+            }
+          } catch (e) {
+            print(e);
+            return false;
           }
         }
       } catch (e) {
+        print("Error picking images: $e");
+        return false;
+      }
+    } else if (status.isPermanentlyDenied || status.isDenied) {
+      if (!mounted) return;
+      await showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(14),
+            ),
+            title: const Text("앨범 권한 필요"),
+            content:
+                const Text("이 기능을 사용하기 위해서는 권한이 필요합니다. 설정으로 이동하여 권한을 허용해주세요."),
+            actions: <Widget>[
+              TextButton(
+                child: const Text("취소"),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+              TextButton(
+                child: const Text("설정으로 이동"),
+                onPressed: () {
+                  openAppSettings();
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          );
+        },
+      );
+    }
+  }
+
+  // 앨범에서 이미지를 가져오는 함수
+  Future getImageUrlsFromAlbum() async {
+    PermissionStatus status = await Permission.photos.request();
+    final ImagePicker picker = ImagePicker();
+
+    if (status.isGranted || status.isLimited) {
+      try {
+        final List<XFile> pickedImages =
+            await picker.pickMultiImage(imageQuality: 50);
+
+        if (pickedImages.isNotEmpty) {
+          if (pickedImages.length > 4) {
+            showPopup(context, "사진 전송은 최대 4장입니다.");
+            return false;
+          }
+          List<String> imagesPath =
+              pickedImages.map((image) => image.path).toList();
+
+          List<File> imageFiles = imagesPath.map((path) => File(path)).toList();
+
+          try {
+            Response response =
+                await ApiService().getPhotoUrls(roomId!, imageFiles);
+
+            if (response.statusCode == 200) {
+              final data = response.data;
+
+              List<dynamic> photoUrls = data["content"];
+
+              return photoUrls;
+            }
+          } catch (e) {
+            print(e);
+            return false;
+          }
+        }
+      } catch (e) {
+        print("Error picking images: $e");
+        return false;
+      }
+    } else if (status.isPermanentlyDenied || status.isDenied) {
+      if (!mounted) return;
+      await showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(14),
+            ),
+            title: const Text("앨범 권한 필요"),
+            content:
+                const Text("이 기능을 사용하기 위해서는 권한이 필요합니다. 설정으로 이동하여 권한을 허용해주세요."),
+            actions: <Widget>[
+              TextButton(
+                child: const Text("취소"),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+              TextButton(
+                child: const Text("설정으로 이동"),
+                onPressed: () {
+                  openAppSettings();
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          );
+        },
+      );
+    }
+  }
+
+  void handleTextChatSubmitted(String message) async {
+    if (message != "" && (roomId == null || roomId == "")) {
+      try {
+        await getRoomIdWhenFirstChat();
+      } catch (e) {
         print(e);
+        return;
       }
     }
 
-    if (roomId != null && roomId != "") {
-      // 서버로 전송
-      await socketChannel.onSendMessage(message, roomId!);
+    if (message != "" && roomId != null && roomId != "") {
+      await socketChannel.onSendMessage(message, null, roomId!, false);
 
       final currentTime = DateTime.now();
       final chatMessage = message;
 
       var newMessage = ChatDetailMessageModel(
-        isMine: true,
-        message: chatMessage,
-        read: true,
-        createTime: currentTime,
-      );
+          isMine: true,
+          message: chatMessage,
+          read: true,
+          createTime: currentTime,
+          isImage: false);
 
       final chatProvider = Provider.of<ChatProvider>(context, listen: false);
       chatProvider.addChatContent(newMessage);
@@ -786,6 +947,79 @@ class _ChatDetailOptionsState extends State<ChatDetailOptions> {
     }
   }
 
+  void handleImageChatSubmitted(bool fromCamera) async {
+    if (roomId == null || roomId == "") {
+      try {
+        getRoomIdWhenFirstChat();
+      } catch (e) {
+        print(e);
+        return;
+      }
+    }
+
+    if (roomId != null && roomId != "") {
+      final photoUrls = fromCamera
+          ? await getImageUrlFromCamera()
+          : await getImageUrlsFromAlbum();
+
+      if (photoUrls == false) {
+        return;
+      }
+
+      if (photoUrls.runtimeType == List<dynamic>) {
+        print(333);
+        print(photoUrls);
+        // 서버로 전송
+        await socketChannel.onSendMessage(null, photoUrls, roomId!, true);
+
+        final currentTime = DateTime.now();
+        final chatMessage = photoUrls;
+
+        var newMessage = ChatDetailMessageModel(
+          isMine: true,
+          message: chatMessage,
+          read: true,
+          createTime: currentTime,
+          isImage: true,
+        );
+        print("하하하하");
+
+        final chatProvider = Provider.of<ChatProvider>(context, listen: false);
+        chatProvider.addChatContent(newMessage);
+        print("호호호호");
+
+        final chatListProvider =
+            Provider.of<ChatListProvider>(context, listen: false);
+        if (chatListProvider.buyChatList
+            .any((chatListCell) => chatListCell.roomId == roomId)) {
+          int index = chatListProvider.buyChatList
+              .indexWhere((chatCell) => chatCell.roomId == roomId);
+
+          chatListProvider.updateChatList(
+            index,
+            "사진",
+            currentTime,
+            true,
+          );
+          chatListProvider.resetUnreadCount(index, true);
+        } else if (chatListProvider.sellChatList
+            .any((chatListCell) => chatListCell.roomId == roomId)) {
+          int index = chatListProvider.sellChatList
+              .indexWhere((chatCell) => chatCell.roomId == roomId);
+          chatListProvider.updateChatList(
+            index,
+            "사진",
+            currentTime,
+            false,
+          );
+          chatListProvider.resetUnreadCount(index, false);
+        } else {
+          chatProvider.addNewChatList();
+        }
+      }
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -816,21 +1050,20 @@ class _ChatDetailOptionsState extends State<ChatDetailOptions> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               optionCircleWidget(Icons.camera_alt_outlined, '카메라', () {
-                showPopup(context, "서비스 예정입니다");
-                // getImageFromCamera(context);
+                handleImageChatSubmitted(true);
               }, true),
               optionCircleWidget(Icons.image_outlined, '앨범', () {
-                showPopup(context, "서비스 예정입니다");
+                handleImageChatSubmitted(false);
               }, true),
             ],
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              optionCircleWidget(Icons.credit_card_outlined, '거래정보 발송', () {
+              optionCircleWidget(Icons.credit_card_outlined, '거래정보\n발송', () {
                 sendBankAccount(context);
               }, true),
-              optionCircleWidget(Icons.vpn_key_outlined, '사물함 정보 발송', () {
+              optionCircleWidget(Icons.vpn_key_outlined, '사물함 정보\n발송', () {
                 sendLockerInfo(context);
               }, widget.useLocker == 2 && !imBuyer!),
             ],
@@ -886,6 +1119,7 @@ Widget optionCircleWidget(
             fontSize: 13,
             fontWeight: FontWeight.w400,
           ),
+          textAlign: TextAlign.center,
         )
       ],
     ),
