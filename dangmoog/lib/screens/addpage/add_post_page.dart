@@ -1,4 +1,5 @@
 import 'package:dangmoog/screens/main_page.dart';
+import 'package:dangmoog/utils/compress_image.dart';
 import 'package:flutter/material.dart';
 import 'dart:io';
 import 'package:dio/dio.dart';
@@ -77,7 +78,10 @@ class _AddPostPageState extends State<AddPostPage> {
 
     List<File>? imageFiles;
     if (_imageList.isNotEmpty) {
-      imageFiles = _imageList.map((path) => File(path)).toList();
+      // imageFiles = _imageList.map((path) => File(path)).toList();
+      List<Future<File>> compressedImageFutures =
+          _imageList.map((path) => compressImage(File(path))).toList();
+      imageFiles = await Future.wait(compressedImageFutures);
     }
 
     try {

@@ -5,6 +5,7 @@ import 'package:dangmoog/providers/chat_list_provider.dart';
 import 'package:dangmoog/providers/chat_provider.dart';
 import 'package:dangmoog/providers/socket_provider.dart';
 import 'package:dangmoog/services/api.dart';
+import 'package:dangmoog/utils/compress_image.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
@@ -729,12 +730,11 @@ class _ChatDetailOptionsState extends State<ChatDetailOptions> {
 
         if (!mounted) return;
         Provider.of<ChatProvider>(context, listen: false).setRoomId(newRoomId);
-        print("엥");
+
         setState(() {
           roomId = newRoomId;
         });
-        print(roomId);
-        print("뭥미");
+
         // widget.setRoomId(newRoomId);
 
         if (newRoomId != "") {
@@ -760,7 +760,7 @@ class _ChatDetailOptionsState extends State<ChatDetailOptions> {
         if (pickedImage != null) {
           String imagesPath = pickedImage.path;
 
-          File imageFile = File(imagesPath);
+          File imageFile = await compressImage(File(imagesPath));
 
           try {
             Response response =
@@ -834,7 +834,10 @@ class _ChatDetailOptionsState extends State<ChatDetailOptions> {
           List<String> imagesPath =
               pickedImages.map((image) => image.path).toList();
 
-          List<File> imageFiles = imagesPath.map((path) => File(path)).toList();
+          List<Future<File>> compressedImageFutures =
+              imagesPath.map((path) => compressImage(File(path))).toList();
+
+          List<File> imageFiles = await Future.wait(compressedImageFutures);
 
           try {
             Response response =
@@ -967,8 +970,6 @@ class _ChatDetailOptionsState extends State<ChatDetailOptions> {
       }
 
       if (photoUrls.runtimeType == List<dynamic>) {
-        print(333);
-        print(photoUrls);
         // 서버로 전송
         await socketChannel.onSendMessage(null, photoUrls, roomId!, true);
 
@@ -982,11 +983,9 @@ class _ChatDetailOptionsState extends State<ChatDetailOptions> {
           createTime: currentTime,
           isImage: true,
         );
-        print("하하하하");
 
         final chatProvider = Provider.of<ChatProvider>(context, listen: false);
         chatProvider.addChatContent(newMessage);
-        print("호호호호");
 
         final chatListProvider =
             Provider.of<ChatListProvider>(context, listen: false);
@@ -1060,7 +1059,7 @@ class _ChatDetailOptionsState extends State<ChatDetailOptions> {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              optionCircleWidget(Icons.credit_card_outlined, '거래정보\n발송', () {
+              optionCircleWidget(Icons.credit_card_outlined, '계좌정보\n발송', () {
                 sendBankAccount(context);
               }, true),
               optionCircleWidget(Icons.vpn_key_outlined, '사물함 정보\n발송', () {
