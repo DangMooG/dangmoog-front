@@ -7,7 +7,7 @@ class ProductModel extends ChangeNotifier {
   final String description;
   final int categoryId;
   int status; // 예약중 판매중 거래완료
-  final int accout_id;
+  final int accountId;
   final String userName;
   final int representativePhotoId;
   final int postId;
@@ -29,7 +29,7 @@ class ProductModel extends ChangeNotifier {
     required this.description,
     required this.categoryId,
     required this.status,
-    required this.accout_id,
+    required this.accountId,
     required this.userName,
     required this.representativePhotoId,
     required this.postId,
@@ -50,7 +50,7 @@ class ProductModel extends ChangeNotifier {
       categoryId: json['category_id'] ?? 0,
       status: json['status'] ?? 0,
       useLocker: json['use_locker'] ?? 0,
-      accout_id: json['account_id'] ?? 0,
+      accountId: json['account_id'] ?? 0,
       userName: json['username'] ?? 'Default Username',
       representativePhotoId: json['representative_photo_id'] ?? 0,
       postId: json['post_id'] ?? 0,

@@ -473,4 +473,17 @@ class ApiService {
   Future<Response> getLockerInfo(int postId) async {
     return await _authClient.get('locker/locker_auth/$postId');
   }
+
+  Future<Response> reportPost(int blameUser, int blameId, String content) async {
+
+    Map<String, dynamic> requestBody = {
+      "blame_user": blameUser,
+      "blamed_id": blameId,
+      "content": content,
+    };
+
+    Response response =  await _authClient.post('account/blame', data: requestBody);
+    return response;
+  }
+
 }

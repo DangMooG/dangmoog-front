@@ -1,5 +1,6 @@
 import 'package:dangmoog/models/product_class.dart';
 import 'package:dangmoog/screens/report/report_complete.dart';
+import 'package:dangmoog/services/api.dart';
 import 'package:flutter/material.dart';
 import 'package:dangmoog/constants/user_report_list.dart';
 
@@ -18,6 +19,7 @@ class _UserReportPageState extends State<UserReportPage> {
   // Add any state variables and methods here
 
   int _selectedReportIndex = -1;
+  final ApiService apiService= ApiService();
 
   List<bool> isChecked = List.generate(userReport.length, (index) => false); // Assuming productReport is a List of Strings for report reasons
 
@@ -150,16 +152,43 @@ class _UserReportPageState extends State<UserReportPage> {
 
                       const SizedBox(width: 16,),
                       TextButton(
-                        onPressed: isSubmitButtonEnabled? (){
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const ReportCompletePage(sourceType: ReportSourceType.userReport),
-                            ),
-                          );
+                        onPressed: isSubmitButtonEnabled? () async {
+                          String content;
+                          if (_selectedReportIndex == userReport.length - 1) {
+                            // When custom report is selected
+                            content = _customReportController.text;
+                          } else {
+                            // When a predefined report reason is selected
+                            content = userReport[_selectedReportIndex];
+                          }
 
 
-                        }:null,
+                          // Call the API service to report the post with the determined content
+                          try{
+                            final response = await apiService.reportPost(1, widget.product.accountId, content);
+                            if (response.statusCode == 200) {
+                              // Navigate to the report completion page
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const ReportCompletePage(sourceType: ReportSourceType.postReport),
+                                ),
+                              );
+                            } else {
+                              // Handle non-200 responses or show an error message
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(content: Text('Report submission failed. Please try again later.'))
+                              );
+                            }
+
+                          } catch (e) {
+                            // Handle any errors that occur during the API call
+                            print(e);
+                            ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(content: Text('An error occurred. Please try again later.'))
+                            );
+                          }
+                        } : null,
                         style: ButtonStyle(
                           backgroundColor: MaterialStateProperty.all<Color>(
                               isSubmitButtonEnabled ? const Color(0xFFE20529) : const Color(0xFF726E6E)

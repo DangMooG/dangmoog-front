@@ -39,6 +39,7 @@ class _NicknamePageState extends State<NicknamePage> {
 
   void onNicknameChanged(String value) {
     RegExp wrongRegex = RegExp(r'[^a-zA-Z0-9가-힣]');
+    double weightedLength = calculateWeightedLength(value);
 
     setState(() {
       nickname = value;
@@ -49,7 +50,7 @@ class _NicknamePageState extends State<NicknamePage> {
       _isChecked = false;
     }
 
-    if (value.length < 2) {
+    if (weightedLength < 2) {
       setErrorMessage('최소 2글자 이상 입력해주세요', true);
     } else if (wrongRegex.hasMatch(value)) {
       setErrorMessage('숫자, 한글, 또는 영문 조합으로 입력해주세요.', true);
@@ -57,11 +58,30 @@ class _NicknamePageState extends State<NicknamePage> {
       setErrorMessage("", false);
       _isRightFormat = true;
     }
+    if (weightedLength > 7) {
+      setErrorMessage('별명은 최대 7글자 입력 가능합니다', true);
+      _isRightFormat = false;
+    }
   }
 
   bool checkNicknameFormat(String value) {
     RegExp regex = RegExp(r'^[a-zA-Z0-9가-힣]{2,15}$');
     return regex.hasMatch(value);
+  }
+
+  double calculateWeightedLength(String value) {
+    double weightedLength = 0;
+    for (int i = 0; i < value.length; i++) {
+      String char = value[i];
+      if (RegExp(r'^[a-zA-Z0-9]$').hasMatch(char)) {
+        // 영어 알파벳 또는 숫자인 경우
+        weightedLength += 0.5;
+      } else if (RegExp(r'^[가-힣]$').hasMatch(char)) {
+        // 한글인 경우
+        weightedLength += 1;
+      }
+    }
+    return weightedLength;
   }
 
   void isNicknameDuplicate() async {

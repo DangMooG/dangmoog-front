@@ -59,7 +59,7 @@ class ProductDetailProvider with ChangeNotifier {
 
     if (product != null &&
         userId != null &&
-        product!.accout_id.toString() == userId.toString()) {
+        product!.accountId.toString() == userId.toString()) {
       chatAvailable = false;
     } else if (product!.status != 0) {
       chatAvailable = false;
