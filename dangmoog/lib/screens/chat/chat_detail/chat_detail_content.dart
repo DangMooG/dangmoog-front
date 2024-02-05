@@ -51,11 +51,20 @@ class _ChatContentsState extends State<ChatContents> {
   void initState() {
     super.initState();
     widget.scrollController.addListener(_scrollListener);
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (widget.scrollController.hasClients) {
+        widget.scrollController.animateTo(
+          widget.scrollController.position.maxScrollExtent,
+          duration: const Duration(milliseconds: 200),
+          curve: Curves.easeOut,
+        );
+      }
+    });
   }
 
   @override
   void dispose() {
-    // widget.scrollController.removeListener(_scrollListener);
     super.dispose();
   }
 
@@ -118,11 +127,12 @@ class _ChatContentsState extends State<ChatContents> {
                           ? _buildChatDay(singleChat.createTime)
                           : const SizedBox.shrink(),
                       SingleChatMessage(
-                        text: singleChat.message,
+                        message: singleChat.message,
                         me: singleChat.isMine,
                         profileOmit: profileOmit,
                         time: convertTimeFormat(singleChat.createTime),
                         timeOmit: timeOmit,
+                        isImage: singleChat.isImage,
                       )
                     ],
                   );

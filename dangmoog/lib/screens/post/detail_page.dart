@@ -253,6 +253,50 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
     List<String> displayImages = provider.images.isNotEmpty
         ? provider.images
         : ['assets/images/sample.png'];
+
+    // Size screenSize = MediaQuery.of(context).size;
+
+    // void _showImageDialog(
+    //     BuildContext context, List<String> imageUrls, String imageUrl) {
+    //   final int initialIndex = imageUrls.indexOf(imageUrl);
+    //   showDialog(
+    //     context: context,
+    //     builder: (_) => Column(
+    //       mainAxisSize: MainAxisSize.max,
+    //       mainAxisAlignment: MainAxisAlignment.center,
+    //       children: [
+    //         SizedBox(
+    //           width: 300,
+    //           height: 600,
+    //           child: CarouselSlider(
+    //             options: CarouselOptions(
+    //               autoPlay: false,
+    //               enlargeCenterPage: false,
+    //               enableInfiniteScroll: false,
+    //               initialPage: initialIndex,
+    //               viewportFraction: 1.0,
+    //             ),
+    //             items: imageUrls
+    //                 .map((item) => Builder(
+    //                       builder: (BuildContext context) {
+    //                         return SizedBox(
+    //                           width: 300,
+    //                           // height: 700,
+    //                           child: Image.network(
+    //                             item,
+    //                             fit: BoxFit.contain,
+    //                           ),
+    //                         );
+    //                       },
+    //                     ))
+    //                 .toList(),
+    //           ),
+    //         ),
+    //       ],
+    //     ),
+    //   );
+    // }
+
     return CarouselSlider(
       carouselController: _controller,
       options: CarouselOptions(
@@ -271,26 +315,30 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
       items: displayImages.map((imagePath) {
         return Builder(
           builder: (context) {
-            return SizedBox(
-              width: MediaQuery.of(context).size.width,
-              child: (imagePath.startsWith('http') ||
-                      imagePath.startsWith('https'))
-                  ? Image.network(
-                      imagePath,
-                      fit: BoxFit.cover,
-                      errorBuilder: (BuildContext context, Object exception,
-                          StackTrace? stackTrace) {
-                        return Image.asset(
-                          "assets/images/sample.png",
-                          width: 90,
-                          fit: BoxFit.cover,
-                        );
-                      },
-                    )
-                  : Image.asset(
-                      imagePath,
-                      fit: BoxFit.cover,
-                    ),
+            return GestureDetector(
+              // onTap: () => _showImageDialog(context, displayImages, imagePath),
+
+              child: SizedBox(
+                width: MediaQuery.of(context).size.width,
+                child: (imagePath.startsWith('http') ||
+                        imagePath.startsWith('https'))
+                    ? Image.network(
+                        imagePath,
+                        fit: BoxFit.cover,
+                        errorBuilder: (BuildContext context, Object exception,
+                            StackTrace? stackTrace) {
+                          return Image.asset(
+                            "assets/images/sample.png",
+                            width: 90,
+                            fit: BoxFit.cover,
+                          );
+                        },
+                      )
+                    : Image.asset(
+                        imagePath,
+                        fit: BoxFit.cover,
+                      ),
+              ),
             );
           },
         );

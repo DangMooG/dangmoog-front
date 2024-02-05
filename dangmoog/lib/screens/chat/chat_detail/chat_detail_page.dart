@@ -221,12 +221,12 @@ class _ChatDetailState extends State<ChatDetail> {
         Navigator.pop(context);
         return true;
       },
-      child: Scaffold(
-        resizeToAvoidBottomInset: resizeScreenKeyboard,
-        appBar: _buildChatUserName(userName),
-        body: Center(
-          child: AbsorbPointer(
-            absorbing: _blockInteraction,
+      child: AbsorbPointer(
+        absorbing: _blockInteraction,
+        child: Scaffold(
+          resizeToAvoidBottomInset: resizeScreenKeyboard,
+          appBar: _buildChatUserName(userName),
+          body: Center(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisAlignment: MainAxisAlignment.start,
@@ -255,7 +255,7 @@ class _ChatDetailState extends State<ChatDetail> {
   // chat input field + option box
   Widget _buildBottomField(BuildContext context) {
     // 채팅 전송
-    void handleSubmitted() async {
+    void handleTextChatSubmitted() async {
       if (roomId == null || roomId == "") {
         try {
           Response response = await ApiService().getChatRoomId(postId!);
@@ -279,7 +279,8 @@ class _ChatDetailState extends State<ChatDetail> {
 
       if (_textController.text != '' && roomId != null && roomId != "") {
         // 서버로 전송
-        await socketChannel.onSendMessage(_textController.text, roomId!);
+        await socketChannel.onSendMessage(
+            _textController.text, null, roomId!, false);
 
         final currentTime = DateTime.now();
         final chatMessage = _textController.text;
@@ -289,6 +290,7 @@ class _ChatDetailState extends State<ChatDetail> {
           message: chatMessage,
           read: true,
           createTime: currentTime,
+          isImage: false,
         );
 
         _textController.clear();
@@ -337,7 +339,7 @@ class _ChatDetailState extends State<ChatDetail> {
 
     return Column(
       children: [
-        _buildchatInputField(context, handleSubmitted),
+        _buildchatInputField(context, handleTextChatSubmitted),
         ChatDetailOptions(
           isOptionOn: _isOptionOn,
           keyboardHeight: _keyboardHeight,
@@ -351,7 +353,7 @@ class _ChatDetailState extends State<ChatDetail> {
 
   // option box button, chat input field, submit button
   Widget _buildchatInputField(
-      BuildContext context, VoidCallback handleSubmitted) {
+      BuildContext context, VoidCallback handleTextChatSubmitted) {
     return Container(
       decoration: const BoxDecoration(
         border: Border(
@@ -519,7 +521,7 @@ class _ChatDetailState extends State<ChatDetail> {
                     color: submitBtnColor,
                   ),
                 ),
-                onPressed: handleSubmitted,
+                onPressed: handleTextChatSubmitted,
               )
             ],
           ),

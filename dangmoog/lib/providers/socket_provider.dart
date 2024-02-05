@@ -1,9 +1,8 @@
 import 'dart:async';
-
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
-typedef ChatReceivedCallback = void Function(String message);
+typedef ChatReceivedCallback = void Function(Map<String, dynamic>);
 
 class SocketProvider {
   late IO.Socket socket;
@@ -51,7 +50,10 @@ class SocketProvider {
       socket.emit('disconnect', [accessToken]);
     });
 
-    socket.on('chat', (data) {
+    socket.on('message', (data) async {
+      print("======");
+      print(data);
+      print("======");
       onChatReceived.call(data);
     });
 
@@ -74,11 +76,18 @@ class SocketProvider {
     socket.emit('exit_chat', [roomId]);
   }
 
-  Future<void> onSendMessage(String message, String roomId) async {
+  Future<void> onSendMessage(
+    String? message,
+    List<dynamic>? photoUrls,
+    String roomId,
+    bool isImage,
+  ) async {
     var messageDict = {
-      'content': message,
       "room": roomId,
+      "type": isImage ? 'img' : 'txt',
+      'content': message ?? photoUrls,
     };
+
     socket.emit('send_chat', [messageDict]);
   }
 

@@ -84,7 +84,7 @@ class _MyHomeState extends State<MyHome> {
         body: SizedBox(
       height: 30,
       width: 30,
-      child: Text('asdfas'),
+      child: SizedBox.shrink(),
     ));
   }
 }

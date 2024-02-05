@@ -6,6 +6,7 @@ import 'package:dangmoog/screens/mypage/account_delete.dart';
 import 'package:dangmoog/screens/auth/welcome.dart';
 
 import 'package:dangmoog/widgets/bottom_popup.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 import 'package:provider/provider.dart';
 import 'package:dangmoog/providers/user_provider.dart';
@@ -220,14 +221,15 @@ class _MyPageState extends State<MyPage> {
               text: '알람 및 소리',
               icon: Icons.notifications_outlined,
               onPressed: () {
-                showPopup(context, "서비스 예정입니다");
+                openAppSettings();
+                // showPopup(context, "서비스 예정입니다");
               }),
-          MypageText(
-              text: '차단 관리',
-              icon: Icons.voice_over_off_outlined,
-              onPressed: () {
-                showPopup(context, "서비스 예정입니다");
-              }),
+          // MypageText(
+          //     text: '차단 관리',
+          //     icon: Icons.voice_over_off_outlined,
+          //     onPressed: () {
+          //       showPopup(context, "서비스 예정입니다");
+          //     }),
           SizedBox(height: screenSize.height * 0.009),
           Container(
             width: screenSize.width,
@@ -302,6 +304,7 @@ class _MyPageState extends State<MyPage> {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(14.0),
           ),
+          surfaceTintColor: Colors.transparent,
           title: const Column(
             children: [
               Text(

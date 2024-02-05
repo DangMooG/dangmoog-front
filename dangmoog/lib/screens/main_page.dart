@@ -59,7 +59,14 @@ class _MainPageState extends State<MainPage> {
           Response response3 =
               await ApiService().getAllMyChatRoomStatus(roomIdList);
           if (response3.statusCode == 200) {
-            final lastMessageList = response3.data["last_messages"];
+            dynamic lastMessageList = response3.data["last_messages"];
+
+            for (var entry in lastMessageList.asMap().entries) {
+              if (entry.value.runtimeType == List<dynamic>) {
+                lastMessageList[entry.key] = "사진";
+              }
+            }
+
             final updateTimeList = response3.data["update_times"];
             final unreadCountList = response3.data["counts"];
 
@@ -139,9 +146,10 @@ class _MainPageState extends State<MainPage> {
     super.dispose();
   }
 
-  void handleChatReceived(String message) {
-    final roomId = message.substring(0, 36);
-    final chatMessage = message.substring(36);
+  void handleChatReceived(Map<String, dynamic> data) {
+    final roomId = data["room"];
+    final chatMessage = data["content"];
+    final messageType = data["type"];
     final updateTime = DateTime.now();
 
     if (roomId != chatProvider.roomId) {
@@ -153,7 +161,7 @@ class _MainPageState extends State<MainPage> {
             .indexWhere((chatListCell) => chatListCell.roomId == roomId);
         chatListProvider.updateChatList(
           index,
-          chatMessage,
+          messageType == 'img' ? "사진" : chatMessage,
           updateTime,
           true,
         );
@@ -165,7 +173,7 @@ class _MainPageState extends State<MainPage> {
             .indexWhere((chatListCell) => chatListCell.roomId == roomId);
         chatListProvider.updateChatList(
           index,
-          chatMessage,
+          messageType == 'img' ? "사진" : chatMessage,
           updateTime,
           false,
         );
@@ -180,10 +188,12 @@ class _MainPageState extends State<MainPage> {
       // chat list에도 업데이트해줄 필요 있음
       // chat provider에 해당 채팅 추가
       final newChat = ChatDetailMessageModel(
-          isMine: false,
-          message: chatMessage,
-          read: true,
-          createTime: updateTime);
+        isMine: false,
+        message: chatMessage,
+        read: true,
+        createTime: updateTime,
+        isImage: messageType == 'img' ? true : false,
+      );
 
       chatProvider.addChatContent(newChat);
       if (chatListProvider.buyChatList
@@ -193,7 +203,7 @@ class _MainPageState extends State<MainPage> {
 
         chatListProvider.updateChatList(
           index,
-          chatMessage,
+          messageType == 'img' ? "사진" : chatMessage,
           updateTime,
           true,
         );
@@ -205,7 +215,7 @@ class _MainPageState extends State<MainPage> {
             .indexWhere((chatCell) => chatCell.roomId == roomId);
         chatListProvider.updateChatList(
           index,
-          chatMessage,
+          messageType == 'img' ? "사진" : chatMessage,
           updateTime,
           false,
         );
@@ -216,23 +226,28 @@ class _MainPageState extends State<MainPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: mainAppBar(currentTabIndex, context),
-      body: IndexedStack(
-        index: currentTabIndex,
-        children: _bodyPage,
-      ),
-      bottomNavigationBar: MainNavigationBar(
-        currentTabIndex: currentTabIndex,
-        onTap: (index) {
-          if (currentTabIndex == 0 && index == 0) {
-            Provider.of<PostListScrollProvider>(context, listen: false)
-                .scrollToTop();
-          }
-          setState(() {
-            currentTabIndex = index;
-          });
-        },
+    return WillPopScope(
+      onWillPop: () {
+        return Future(() => false);
+      },
+      child: Scaffold(
+        appBar: mainAppBar(currentTabIndex, context),
+        body: IndexedStack(
+          index: currentTabIndex,
+          children: _bodyPage,
+        ),
+        bottomNavigationBar: MainNavigationBar(
+          currentTabIndex: currentTabIndex,
+          onTap: (index) {
+            if (currentTabIndex == 0 && index == 0) {
+              Provider.of<PostListScrollProvider>(context, listen: false)
+                  .scrollToTop();
+            }
+            setState(() {
+              currentTabIndex = index;
+            });
+          },
+        ),
       ),
     );
   }

@@ -88,6 +88,7 @@ class _ProductListSortingState extends State<ProductListSorting> {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(6.0), // 버튼의 모서리를 둥글게 설정
           ),
+          surfaceTintColor: Colors.transparent,
         ),
         child: Row(
           children: [

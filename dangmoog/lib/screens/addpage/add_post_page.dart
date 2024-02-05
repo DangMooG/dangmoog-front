@@ -1,4 +1,5 @@
 import 'package:dangmoog/screens/main_page.dart';
+import 'package:dangmoog/utils/compress_image.dart';
 import 'package:flutter/material.dart';
 import 'dart:io';
 import 'package:dio/dio.dart';
@@ -77,7 +78,10 @@ class _AddPostPageState extends State<AddPostPage> {
 
     List<File>? imageFiles;
     if (_imageList.isNotEmpty) {
-      imageFiles = _imageList.map((path) => File(path)).toList();
+      // imageFiles = _imageList.map((path) => File(path)).toList();
+      List<Future<File>> compressedImageFutures =
+          _imageList.map((path) => compressImage(File(path))).toList();
+      imageFiles = await Future.wait(compressedImageFutures);
     }
 
     try {
@@ -413,7 +417,8 @@ class _AddPostPageState extends State<AddPostPage> {
       },
       child: Scaffold(
         appBar: PreferredSize(
-          preferredSize: const Size.fromHeight(kToolbarHeight + 0.5), // AppBar height + divider thickness
+          preferredSize: const Size.fromHeight(
+              kToolbarHeight + 0.5), // AppBar height + divider thickness
           child: Column(
             children: [
               AppBar(
@@ -443,8 +448,6 @@ class _AddPostPageState extends State<AddPostPage> {
             ],
           ),
         ),
-
-
         body: Stack(
           children: [
             GestureDetector(
@@ -1377,9 +1380,8 @@ class _AddPostPageState extends State<AddPostPage> {
       children: [
         const Expanded(
           child: Text(
-          '중고가를 어떻게 설정해야 할지 모르겠다면?\nAI가 대표사진을 분석하여 가격을 추천해줘요!',
-          style:
-            TextStyle(
+            '중고가를 어떻게 설정해야 할지 모르겠다면?\nAI가 대표사진을 분석하여 가격을 추천해줘요!',
+            style: TextStyle(
               fontSize: 11,
               height: 1.45,
               color: Color(0xFF302E2E),
