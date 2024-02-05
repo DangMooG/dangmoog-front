@@ -1,6 +1,7 @@
 import 'package:dangmoog/constants/account_list.dart';
 import 'package:dangmoog/providers/user_provider.dart';
 import 'package:dangmoog/screens/app_bar.dart';
+import 'package:dangmoog/widgets/bottom_popup.dart';
 import 'package:dangmoog/widgets/submit_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -389,8 +390,11 @@ class _MyBankAccountPageState extends State<MyBankAccountPage> {
               children: [
                 ElevatedButton(
                   onPressed: () {
-                    showCustomPopup(context, screenSize);
+                    // showCustomPopup(context, screenSize);
+                    showPopup(context, text);
                     Navigator.of(context).pop();
+                    Navigator.of(context).pop();
+
                     data = false;
 
                     String accountNumber = _accountController.text;
@@ -476,44 +480,5 @@ class _MyBankAccountPageState extends State<MyBankAccountPage> {
         );
       },
     );
-  }
-
-  void showCustomPopup(BuildContext context, Size screenSize) {
-    OverlayEntry overlayEntry;
-
-    overlayEntry = OverlayEntry(
-      builder: (BuildContext context) => Positioned(
-        top: screenSize.height * 0.86,
-        left: screenSize.width * 0.26,
-        child: Container(
-          width: screenSize.width * 0.47,
-          height: screenSize.height * 0.064,
-          decoration: BoxDecoration(
-            color: const Color(0xFF302E2E).withOpacity(0.8),
-            borderRadius: BorderRadius.circular(14),
-          ),
-          child: Center(
-            child: Padding(
-              padding: const EdgeInsets.all(20.0),
-              child: Text(
-                text,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 14,
-                  fontWeight: FontWeight.w400,
-                ),
-                textAlign: TextAlign.center,
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-
-    Overlay.of(context).insert(overlayEntry);
-
-    Future.delayed(const Duration(seconds: 1), () {
-      overlayEntry.remove();
-    });
   }
 }

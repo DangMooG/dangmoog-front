@@ -169,6 +169,14 @@ class _MyProductListState extends State<MyProductList> {
               ? Image.network(
                   imageCache[product.representativePhotoId]!,
                   fit: BoxFit.cover,
+                  errorBuilder: (BuildContext context, Object exception,
+                      StackTrace? stackTrace) {
+                    return Image.asset(
+                      "assets/images/sample.png",
+                      width: 90,
+                      fit: BoxFit.cover,
+                    );
+                  },
                 )
               : product.representativePhotoId == 0
                   ? Image.asset(

@@ -1,5 +1,5 @@
 import 'package:dangmoog/services/api.dart';
-import 'package:dio/dio.dart';
+
 import 'package:flutter/material.dart';
 
 class ChatDealStatus extends StatefulWidget {
@@ -24,8 +24,8 @@ class _ChatDealStatusState extends State<ChatDealStatus> {
 
   List<Color> buttonColorList = [
     const Color(0xffE20529),
-    const Color(0xffE20529),
-    const Color(0xff726E6E)
+    const Color(0xffF28C9D),
+    const Color(0xff726E6E),
   ];
 
   @override

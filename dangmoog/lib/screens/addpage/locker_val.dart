@@ -620,9 +620,8 @@ class _LockerValState extends State<LockerValPage> {
                                       Navigator.pushAndRemoveUntil(
                                         context,
                                         MaterialPageRoute(
-                                            builder: (context) => MyHome(
-                                                  fcmToken: '',
-                                                )),
+                                            builder: (context) =>
+                                                const MainPage()),
                                         (Route<dynamic> route) => false,
                                       );
                                     } else {

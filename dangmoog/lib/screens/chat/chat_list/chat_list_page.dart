@@ -159,8 +159,8 @@ class ChatSelectionButton extends StatelessWidget {
                     ),
                   ),
                   Positioned(
-                    bottom: 14,
-                    left: 23,
+                    bottom: 16,
+                    left: 28,
                     child: Consumer<ChatListProvider>(
                         builder: (context, chatProvider, _) {
                       int sellUnreadCount = chatProvider.sellUnreadCount;
@@ -185,6 +185,7 @@ class ChatSelectionButton extends StatelessWidget {
                               color: Colors.white,
                               fontSize: 11,
                               fontWeight: FontWeight.w400,
+                              height: 1,
                             ),
                           ),
                         ),
@@ -226,8 +227,8 @@ class ChatSelectionButton extends StatelessWidget {
                     ),
                   ),
                   Positioned(
-                    bottom: 14,
-                    left: 23,
+                    bottom: 16,
+                    left: 28,
                     child: Consumer<ChatListProvider>(
                         builder: (context, chatProvider, _) {
                       int buyUnreadCount = chatProvider.buyUnreadCount;
@@ -252,6 +253,7 @@ class ChatSelectionButton extends StatelessWidget {
                               color: Colors.white,
                               fontSize: 11,
                               fontWeight: FontWeight.w400,
+                              height: 1,
                             ),
                           ),
                         ),
