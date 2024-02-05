@@ -239,7 +239,7 @@ class _AccountDeletePageState extends State<AccountDeletePage> {
     }
 
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 20, 16, 8),
+      padding: const EdgeInsets.fromLTRB(16, 20, 16, 6),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
