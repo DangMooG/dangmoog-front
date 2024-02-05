@@ -226,23 +226,28 @@ class _MainPageState extends State<MainPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: mainAppBar(currentTabIndex, context),
-      body: IndexedStack(
-        index: currentTabIndex,
-        children: _bodyPage,
-      ),
-      bottomNavigationBar: MainNavigationBar(
-        currentTabIndex: currentTabIndex,
-        onTap: (index) {
-          if (currentTabIndex == 0 && index == 0) {
-            Provider.of<PostListScrollProvider>(context, listen: false)
-                .scrollToTop();
-          }
-          setState(() {
-            currentTabIndex = index;
-          });
-        },
+    return WillPopScope(
+      onWillPop: () {
+        return Future(() => false);
+      },
+      child: Scaffold(
+        appBar: mainAppBar(currentTabIndex, context),
+        body: IndexedStack(
+          index: currentTabIndex,
+          children: _bodyPage,
+        ),
+        bottomNavigationBar: MainNavigationBar(
+          currentTabIndex: currentTabIndex,
+          onTap: (index) {
+            if (currentTabIndex == 0 && index == 0) {
+              Provider.of<PostListScrollProvider>(context, listen: false)
+                  .scrollToTop();
+            }
+            setState(() {
+              currentTabIndex = index;
+            });
+          },
+        ),
       ),
     );
   }
