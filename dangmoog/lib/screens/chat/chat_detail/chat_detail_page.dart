@@ -159,13 +159,15 @@ class _ChatDetailState extends State<ChatDetail> {
   void initState() {
     super.initState();
 
+    roomId = widget.roomId;
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       setState(() {
         userName = Provider.of<ChatProvider>(context, listen: false).userName;
         postId = Provider.of<ChatProvider>(context, listen: false).postId;
         imBuyer = Provider.of<ChatProvider>(context, listen: false).imBuyer;
       });
-      setRoomId(widget.roomId);
+      // setRoomId(widget.roomId);
       Provider.of<ChatProvider>(context, listen: false)
           .setRoomId(widget.roomId);
 

@@ -972,7 +972,6 @@ class _ChatDetailOptionsState extends State<ChatDetailOptions> {
       if (photoUrls.runtimeType == List<dynamic>) {
         // 서버로 전송
         await socketChannel.onSendMessage(null, photoUrls, roomId!, true);
-
         final currentTime = DateTime.now();
         final chatMessage = photoUrls;
 
@@ -1023,14 +1022,18 @@ class _ChatDetailOptionsState extends State<ChatDetailOptions> {
   void initState() {
     super.initState();
 
+    roomId = widget.roomId;
+    print("옵션에서 방 id");
+    print(widget.roomId);
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       setState(() {
         postId = Provider.of<ChatProvider>(context, listen: false).postId;
         imBuyer = Provider.of<ChatProvider>(context, listen: false).imBuyer;
       });
-      setState(() {
-        roomId = widget.roomId;
-      });
+      // setState(() {
+      //   roomId = widget.roomId;
+      // });
     });
   }
 

@@ -4,6 +4,8 @@ import 'package:dangmoog/models/locker_class.dart';
 import 'package:dangmoog/screens/addpage/add_post_page.dart';
 import 'package:dangmoog/services/api.dart';
 import 'package:dangmoog/widgets/bottom_popup.dart';
+import 'package:dangmoog/widgets/fadein_router.dart';
+import 'package:dangmoog/widgets/fullscreen_image_viewer.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 
@@ -70,34 +72,11 @@ class _ChooseLockerPageState extends State<ChooseLockerPage> {
                     children: [
                       GestureDetector(
                         onTap: () {
-                          showDialog(
-                            context: context,
-                            builder: (context) => AlertDialog(
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(14),
-                              ),
-                              contentPadding: EdgeInsets.zero,
-                              insetPadding: const EdgeInsets.all(20),
-                              actionsPadding: const EdgeInsets.all(8),
-                              content: ClipRRect(
-                                borderRadius: BorderRadius.circular(14),
-                                child: Image.asset(
-                                  'assets/images/choose_locker.png',
-                                  fit: BoxFit.fill,
-                                ),
-                              ),
-                              actions: <Widget>[
-                                TextButton(
-                                  child: const Text('닫기',
-                                      style:
-                                          TextStyle(color: Color(0xFFE20529))),
-                                  onPressed: () {
-                                    Navigator.of(context).pop();
-                                  },
-                                ),
-                              ],
+                          Navigator.of(context).push(fadeInRouting(
+                            const FullScreenAssetImageViewer(
+                              imageUrls: 'assets/images/choose_locker.png',
                             ),
-                          );
+                          ));
                         },
                         child: Container(
                           width: MediaQuery.of(context).size.width,

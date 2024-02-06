@@ -504,7 +504,7 @@ class _ProductListState extends State<ProductList> {
                               );
                             } else if (snapshot.data == null) {
                               return Image.asset(
-                                '/assets/images/sample.png',
+                                'assets/images/sample.png',
                                 fit: BoxFit.cover,
                               );
                             } else if (snapshot.hasData) {
@@ -518,7 +518,7 @@ class _ProductListState extends State<ProductList> {
                                 errorBuilder: (BuildContext context,
                                     Object error, StackTrace? stackTrace) {
                                   return Image.asset(
-                                    '/assets/images/sample.png',
+                                    'assets/images/sample.png',
                                     fit: BoxFit.cover,
                                   );
                                 },

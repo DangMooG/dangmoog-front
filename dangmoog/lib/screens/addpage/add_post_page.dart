@@ -1055,7 +1055,7 @@ class _AddPostPageState extends State<AddPostPage> {
             padding: const EdgeInsets.only(top: 8.0), // 가격 텍스트랑 ai 추천 가격 사이 칸
             child: Container(
               padding: const EdgeInsets.only(left: 8),
-              height: 48,
+              // height: 48,
               // padding: const EdgeInsets.symmetric(horizontal:8),
               decoration: BoxDecoration(
                 color: const Color(0xFFF1F1F1),
@@ -1375,44 +1375,46 @@ class _AddPostPageState extends State<AddPostPage> {
   }
 
   Widget _initialAiRecommended() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        const Expanded(
-          child: Text(
-            '중고가를 어떻게 설정해야 할지 모르겠다면?\nAI가 대표사진을 분석하여 가격을 추천해줘요!',
-            style: TextStyle(
-              fontSize: 11,
-              height: 1.45,
-              color: Color(0xFF302E2E),
-              fontWeight: FontWeight.w400,
-            ),
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.only(right: 8.0),
-          child: TextButton(
-            onPressed: () {
-              getRecommendedPrice();
-            },
-            style: TextButton.styleFrom(
-              minimumSize: const Size(111, 24),
-              backgroundColor: const Color(0xFFEC5870),
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(6)),
-            ),
-            child: const Text(
-              'AI 가격 추천(BETA)',
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          const Expanded(
+            child: Text(
+              '중고가를 어떻게 설정해야 할지 모르겠다면?\nAI가 대표사진을 분석하여 가격을 추천해줘요!',
               style: TextStyle(
-                fontFamily: 'Pretendard',
                 fontSize: 11,
-                color: Colors.white,
+                height: 1.45,
+                color: Color(0xFF302E2E),
                 fontWeight: FontWeight.w400,
               ),
             ),
           ),
-        ),
-      ],
+          Padding(
+            padding: const EdgeInsets.only(right: 8.0),
+            child: TextButton(
+              onPressed: () {
+                getRecommendedPrice();
+              },
+              style: TextButton.styleFrom(
+                minimumSize: const Size(111, 24),
+                backgroundColor: const Color(0xFFEC5870),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(6)),
+              ),
+              child: const Text(
+                'AI 가격 추천(BETA)',
+                style: TextStyle(
+                  fontSize: 11,
+                  color: Colors.white,
+                  fontWeight: FontWeight.w400,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 

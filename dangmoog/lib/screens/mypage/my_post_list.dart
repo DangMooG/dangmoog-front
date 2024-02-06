@@ -208,7 +208,7 @@ class _MyProductListState extends State<MyProductList> {
                           );
                         } else if (snapshot.data == null) {
                           return Image.asset(
-                            '/assets/images/sample.png',
+                            'assets/images/sample.png',
                             fit: BoxFit.cover,
                           );
                         } else if (snapshot.hasData) {
