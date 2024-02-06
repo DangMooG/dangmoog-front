@@ -308,7 +308,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
         initialPage: 0,
         onPageChanged: (index, reason) {
           setState(() {
-            _current = index; // Update _current to the new page index
+            _current = index;
           });
         },
       ),

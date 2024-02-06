@@ -77,9 +77,7 @@ class _ReportCompletePageState extends State<ReportCompletePage> {
                     MaterialStateProperty.all<Size>(Size(buttonWidth, 46)),
                 shape: MaterialStateProperty.all<RoundedRectangleBorder>(
                   RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    side: const BorderSide(
-                        color: Color(0xFF726E6E)), // Border color
+                    borderRadius: BorderRadius.circular(12),
                   ),
                 ),
               ),
@@ -94,8 +92,9 @@ class _ReportCompletePageState extends State<ReportCompletePage> {
               child: const Text(
                 '메인 페이지로 이동하기',
                 style: TextStyle(
-                  color:
-                      Color(0xFFFFFFFF), // Set the text color as well if needed
+                  fontSize: 13,
+                  fontWeight: FontWeight.w400,
+                  color: Color(0xFFFFFFFF),
                 ),
               ),
             ),
