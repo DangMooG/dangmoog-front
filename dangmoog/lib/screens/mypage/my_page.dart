@@ -218,11 +218,10 @@ class _MyPageState extends State<MyPage> {
             ),
           ),
           MypageText(
-              text: '알람 및 소리',
+              text: '알림 및 권한 설정',
               icon: Icons.notifications_outlined,
               onPressed: () {
                 openAppSettings();
-                // showPopup(context, "서비스 예정입니다");
               }),
           // MypageText(
           //     text: '차단 관리',
