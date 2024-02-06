@@ -90,6 +90,8 @@ class _ChatDetailProductState extends State<ChatDetailProduct> {
                             return Image.asset(
                               'assets/images/sample.png',
                               fit: BoxFit.cover,
+                              width: 48,
+                              height: 48,
                             );
                           },
                         ),
