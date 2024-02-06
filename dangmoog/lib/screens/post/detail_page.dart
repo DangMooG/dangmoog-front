@@ -8,6 +8,8 @@ import 'package:dangmoog/screens/chat/chat_detail/chat_detail_page.dart';
 import 'package:dangmoog/screens/report/post_report.dart';
 import 'package:dangmoog/screens/main_page.dart';
 import 'package:dangmoog/widgets/bottom_popup.dart';
+import 'package:dangmoog/widgets/fadein_router.dart';
+import 'package:dangmoog/widgets/fullscreen_image_viewer.dart';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -254,49 +256,6 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
         ? provider.images
         : ['assets/images/sample.png'];
 
-    // Size screenSize = MediaQuery.of(context).size;
-
-    // void _showImageDialog(
-    //     BuildContext context, List<String> imageUrls, String imageUrl) {
-    //   final int initialIndex = imageUrls.indexOf(imageUrl);
-    //   showDialog(
-    //     context: context,
-    //     builder: (_) => Column(
-    //       mainAxisSize: MainAxisSize.max,
-    //       mainAxisAlignment: MainAxisAlignment.center,
-    //       children: [
-    //         SizedBox(
-    //           width: 300,
-    //           height: 600,
-    //           child: CarouselSlider(
-    //             options: CarouselOptions(
-    //               autoPlay: false,
-    //               enlargeCenterPage: false,
-    //               enableInfiniteScroll: false,
-    //               initialPage: initialIndex,
-    //               viewportFraction: 1.0,
-    //             ),
-    //             items: imageUrls
-    //                 .map((item) => Builder(
-    //                       builder: (BuildContext context) {
-    //                         return SizedBox(
-    //                           width: 300,
-    //                           // height: 700,
-    //                           child: Image.network(
-    //                             item,
-    //                             fit: BoxFit.contain,
-    //                           ),
-    //                         );
-    //                       },
-    //                     ))
-    //                 .toList(),
-    //           ),
-    //         ),
-    //       ],
-    //     ),
-    //   );
-    // }
-
     return CarouselSlider(
       carouselController: _controller,
       options: CarouselOptions(
@@ -316,8 +275,14 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
         return Builder(
           builder: (context) {
             return GestureDetector(
-              // onTap: () => _showImageDialog(context, displayImages, imagePath),
-
+              onTap: () {
+                Navigator.of(context).push(fadeInRouting(
+                  FullScreenImageViewer(
+                    imageUrls: displayImages,
+                    initialPage: _current,
+                  ),
+                ));
+              },
               child: SizedBox(
                 width: MediaQuery.of(context).size.width,
                 child: (imagePath.startsWith('http') ||

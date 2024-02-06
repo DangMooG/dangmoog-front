@@ -1,3 +1,5 @@
+import 'package:dangmoog/widgets/fadein_router.dart';
+import 'package:dangmoog/widgets/fullscreen_image_viewer.dart';
 import 'package:flutter/material.dart';
 
 class SingleChatMessage extends StatelessWidget {
@@ -37,13 +39,13 @@ class SingleChatMessage extends StatelessWidget {
                     ],
                   ),
                   isImage
-                      ? _chatImageBox(message, me)!
+                      ? _chatImageBox(context, message, me)!
                       : _chatTextBox(message, me),
                 ]
               : <Widget>[
                   _userProfileCircle(profileOmit),
                   isImage
-                      ? _chatImageBox(message, me)!
+                      ? _chatImageBox(context, message, me)!
                       : _chatTextBox(message, me),
                   Column(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -95,14 +97,9 @@ class SingleChatMessage extends StatelessWidget {
     );
   }
 
-  Widget? _chatImageBox(List<dynamic> photoUrls, bool me) {
+  Widget? _chatImageBox(
+      BuildContext context, List<dynamic> photoUrls, bool me) {
     final imageLengths = photoUrls.length;
-    // final numRow = imageLengths == 4 ? 2 : imageLengths;
-    // final double imageSize = imageLengths == 1
-    //     ? 208
-    //     : imageLengths == 3
-    //         ? 80
-    //         : 104;
 
     switch (imageLengths) {
       case 1:
@@ -118,18 +115,35 @@ class SingleChatMessage extends StatelessWidget {
               Radius.circular(15),
             ),
           ),
-          // child: Container(),
           child: ClipRRect(
             borderRadius: const BorderRadius.all(Radius.circular(15)),
-            child: Image.network(
-              photoUrls[0],
-              fit: BoxFit.cover,
-              width: 208,
-              height: 208,
+            child: GestureDetector(
+              onTap: () {
+                Navigator.of(context).push(fadeInRouting(
+                  FullScreenImageViewer(
+                    imageUrls: photoUrls,
+                    initialPage: 0,
+                  ),
+                ));
+              },
+              child: Image.network(
+                photoUrls[0],
+                fit: BoxFit.cover,
+                width: 208,
+                height: 208,
+                errorBuilder: (BuildContext context, Object error,
+                    StackTrace? stackTrace) {
+                  return Image.asset(
+                    'assets/images/sample.png',
+                    fit: BoxFit.cover,
+                    width: 208,
+                    height: 208,
+                  );
+                },
+              ),
             ),
           ),
         );
-
       case 2:
         return Container(
           constraints: const BoxConstraints(
@@ -147,12 +161,37 @@ class SingleChatMessage extends StatelessWidget {
             borderRadius: const BorderRadius.all(Radius.circular(15)),
             child: Row(
               children: photoUrls
-                  .map<Widget>((url) => Image.network(
+                  .asMap()
+                  .entries
+                  .map<Widget>((entry) {
+                    int index = entry.key;
+                    String url = entry.value;
+                    return GestureDetector(
+                      onTap: () {
+                        Navigator.of(context).push(fadeInRouting(
+                          FullScreenImageViewer(
+                            imageUrls: photoUrls,
+                            initialPage: index,
+                          ),
+                        ));
+                      },
+                      child: Image.network(
                         url,
                         fit: BoxFit.cover,
                         width: 104,
                         height: 104,
-                      ))
+                        errorBuilder: (BuildContext context, Object error,
+                            StackTrace? stackTrace) {
+                          return Image.asset(
+                            'assets/images/sample.png',
+                            fit: BoxFit.cover,
+                            width: 104,
+                            height: 104,
+                          );
+                        },
+                      ),
+                    );
+                  })
                   .expand((widget) => [widget, const SizedBox(width: 2)])
                   .toList()
                 ..removeLast(),
@@ -176,12 +215,37 @@ class SingleChatMessage extends StatelessWidget {
             borderRadius: const BorderRadius.all(Radius.circular(15)),
             child: Row(
               children: photoUrls
-                  .map<Widget>((url) => Image.network(
+                  .asMap()
+                  .entries
+                  .map<Widget>((entry) {
+                    int index = entry.key;
+                    String url = entry.value;
+                    return GestureDetector(
+                      onTap: () {
+                        Navigator.of(context).push(fadeInRouting(
+                          FullScreenImageViewer(
+                            imageUrls: photoUrls,
+                            initialPage: index,
+                          ),
+                        ));
+                      },
+                      child: Image.network(
                         url,
                         fit: BoxFit.cover,
                         width: 90,
                         height: 90,
-                      ))
+                        errorBuilder: (BuildContext context, Object error,
+                            StackTrace? stackTrace) {
+                          return Image.asset(
+                            'assets/images/sample.png',
+                            fit: BoxFit.cover,
+                            width: 90,
+                            height: 90,
+                          );
+                        },
+                      ),
+                    );
+                  })
                   .expand((widget) => [widget, const SizedBox(width: 2)])
                   .toList()
                 ..removeLast(),
@@ -209,18 +273,56 @@ class SingleChatMessage extends StatelessWidget {
                   children: [
                     Padding(
                       padding: const EdgeInsets.only(right: 2),
+                      child: GestureDetector(
+                        onTap: () {
+                          Navigator.of(context).push(fadeInRouting(
+                            FullScreenImageViewer(
+                              imageUrls: photoUrls,
+                              initialPage: 0,
+                            ),
+                          ));
+                        },
+                        child: Image.network(
+                          photoUrls[0],
+                          fit: BoxFit.cover,
+                          width: 104,
+                          height: 104,
+                          errorBuilder: (BuildContext context, Object error,
+                              StackTrace? stackTrace) {
+                            return Image.asset(
+                              'assets/images/sample.png',
+                              fit: BoxFit.cover,
+                              width: 104,
+                              height: 104,
+                            );
+                          },
+                        ),
+                      ),
+                    ),
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.of(context).push(fadeInRouting(
+                          FullScreenImageViewer(
+                            imageUrls: photoUrls,
+                            initialPage: 1,
+                          ),
+                        ));
+                      },
                       child: Image.network(
-                        photoUrls[0],
+                        photoUrls[1],
                         fit: BoxFit.cover,
                         width: 104,
                         height: 104,
+                        errorBuilder: (BuildContext context, Object error,
+                            StackTrace? stackTrace) {
+                          return Image.asset(
+                            'assets/images/sample.png',
+                            fit: BoxFit.cover,
+                            width: 104,
+                            height: 104,
+                          );
+                        },
                       ),
-                    ),
-                    Image.network(
-                      photoUrls[1],
-                      fit: BoxFit.cover,
-                      width: 104,
-                      height: 104,
                     )
                   ],
                 ),
@@ -231,18 +333,56 @@ class SingleChatMessage extends StatelessWidget {
                   children: [
                     Padding(
                       padding: const EdgeInsets.only(right: 2),
+                      child: GestureDetector(
+                        onTap: () {
+                          Navigator.of(context).push(fadeInRouting(
+                            FullScreenImageViewer(
+                              imageUrls: photoUrls,
+                              initialPage: 2,
+                            ),
+                          ));
+                        },
+                        child: Image.network(
+                          photoUrls[2],
+                          fit: BoxFit.cover,
+                          width: 104,
+                          height: 104,
+                          errorBuilder: (BuildContext context, Object error,
+                              StackTrace? stackTrace) {
+                            return Image.asset(
+                              'assets/images/sample.png',
+                              fit: BoxFit.cover,
+                              width: 104,
+                              height: 104,
+                            );
+                          },
+                        ),
+                      ),
+                    ),
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.of(context).push(fadeInRouting(
+                          FullScreenImageViewer(
+                            imageUrls: photoUrls,
+                            initialPage: 3,
+                          ),
+                        ));
+                      },
                       child: Image.network(
-                        photoUrls[2],
+                        photoUrls[3],
                         fit: BoxFit.cover,
                         width: 104,
                         height: 104,
+                        errorBuilder: (BuildContext context, Object error,
+                            StackTrace? stackTrace) {
+                          return Image.asset(
+                            'assets/images/sample.png',
+                            fit: BoxFit.cover,
+                            width: 104,
+                            height: 104,
+                          );
+                        },
                       ),
-                    ),
-                    Image.network(
-                      photoUrls[3],
-                      fit: BoxFit.cover,
-                      width: 104,
-                      height: 104,
                     )
                   ],
                 )
@@ -253,52 +393,6 @@ class SingleChatMessage extends StatelessWidget {
       default:
         return Container();
     }
-    // return null;
-
-    // return Container(
-    //   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-    //   decoration: const BoxDecoration(
-    //     color: Color(0xFFF1F1F1),
-    //     borderRadius: BorderRadius.all(
-    //       Radius.circular(15),
-    //     ),
-    //   ),
-    //   child: GridView.builder(
-    //     physics: const NeverScrollableScrollPhysics(),
-    //     shrinkWrap: true,
-    //     itemCount: imageLengths,
-    //     gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-    //       crossAxisCount: numRow,
-    //       childAspectRatio: 1.0,
-    //       mainAxisExtent: 2,
-    //       crossAxisSpacing: 2,
-    //     ),
-    //     itemBuilder: (BuildContext context, index) {
-    //       return Image.network(
-    //         photoUrls[index],
-    //         fit: BoxFit.cover,
-    //         // width: imageSize,
-    //         // height: imageSize,
-    //         loadingBuilder: (context, child, loadingProgress) => Container(
-    //           // width: imageSize,
-    //           // height: imageSize,
-    //           decoration: const BoxDecoration(
-    //             color: Colors.white,
-    //           ),
-    //         ),
-    //         errorBuilder:
-    //             (BuildContext context, Object error, StackTrace? stackTrace) {
-    //           return Image.asset(
-    //             '/assets/images/sample.png',
-    //             fit: BoxFit.cover,
-    //             // width: imageSize,
-    //             // height: imageSize,
-    //           );
-    //         },
-    //       );
-    //     },
-    //   ),
-    // );
   }
 
   Widget _chatTime(String time, bool me) {
