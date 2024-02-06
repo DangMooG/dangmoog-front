@@ -8,7 +8,6 @@ import 'package:dangmoog/constants/product_report_list.dart';
 class PostReportPage extends StatefulWidget {
   final ProductModel product;
 
-
   const PostReportPage({Key? key, required this.product}) : super(key: key);
 
   @override
@@ -17,7 +16,7 @@ class PostReportPage extends StatefulWidget {
 
 class _PostReportPageState extends State<PostReportPage> {
   int _selectedReportIndex = -1;
-  final ApiService apiService= ApiService();
+  final ApiService apiService = ApiService();
 
   List<bool> isChecked = List.generate(
       productReport.length,
@@ -44,62 +43,60 @@ class _PostReportPageState extends State<PostReportPage> {
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: LayoutBuilder(
-          builder: (BuildContext context, BoxConstraints constraints) {
-            double availableWidth = constraints.maxWidth;
-            double buttonWidth = (availableWidth - 16) / 2;
-            return ListView( // Changed to ListView to accommodate dynamic content
-              children: <Widget>[
-                Text(
-                  "'${widget.product.title}'\n해당 게시글 신고 사유를 알려주세요.",
-                  style: const TextStyle(color: Color(0xFF000000),fontSize: 16, fontWeight: FontWeight.w600),
-                ),
-                const SizedBox(height: 8,),
-                const Text(
-                  '신고 접수 이후 도토릿 팀에서 빠르게 조치를 도와드리겠습니다.',
-                  style: TextStyle(color: Color(0xFF302E2E), fontSize: 14, fontWeight: FontWeight.w400),
-                ),
-                const SizedBox(height: 16,),
-                ...List<Widget>.generate(isChecked.length, (index) {
-                  bool isSelected = _selectedReportIndex==index;
-                  return InkWell(
-                    onTap: (){
-                      setState(() {
-                        _selectedReportIndex = isSelected?-1:index;
-                        if (_selectedReportIndex==productReport.length-1){
-                          _customReportController.clear();
-                        }
-                      });
-                    },
-                    child: Container(
-                      margin: const EdgeInsets.only(bottom: 8),
-                      decoration: BoxDecoration(
-                        border: Border.all(
-                          color: isSelected ? const Color(0xFFEC5870) : const Color(0xFFD3D2D2),
-                        ), // Use borderColor for the border
-                        borderRadius: BorderRadius.circular(5),
-                      ),
-                      child: ListTile(
-                        title: Text(
-                          productReport[index],
-                          style: const TextStyle(
-                            color: Color(0xFF514E4E),
-                            fontSize: 14,
-                            fontWeight: FontWeight.w400,
-                          ),
-                        ),
-                        trailing: Checkbox(
-                          value: isSelected,
-                          onChanged: (bool? value) {
-                            setState(() {
-                              _selectedReportIndex = value! ? index : -1;
-                              if (_selectedReportIndex == productReport.length - 1) {
-                                // Last item's special condition
-                                _customReportController.clear();
-                              }
-                            });
-                          },
-                          activeColor: const Color(0xFFEC5870),
-
+            builder: (BuildContext context, BoxConstraints constraints) {
+          double availableWidth = constraints.maxWidth;
+          double buttonWidth = (availableWidth - 16) / 2;
+          return ListView(
+            // Changed to ListView to accommodate dynamic content
+            children: <Widget>[
+              Text(
+                "'${widget.product.title}'\n해당 게시글 신고 사유를 알려주세요.",
+                style: const TextStyle(
+                    color: Color(0xFF000000),
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600),
+              ),
+              const SizedBox(
+                height: 8,
+              ),
+              const Text(
+                '신고 접수 이후 도토릿 팀에서 빠르게 조치를 도와드리겠습니다.',
+                style: TextStyle(
+                    color: Color(0xFF302E2E),
+                    fontSize: 14,
+                    fontWeight: FontWeight.w400),
+              ),
+              const SizedBox(
+                height: 16,
+              ),
+              ...List<Widget>.generate(isChecked.length, (index) {
+                bool isSelected = _selectedReportIndex == index;
+                return InkWell(
+                  onTap: () {
+                    setState(() {
+                      _selectedReportIndex = isSelected ? -1 : index;
+                      if (_selectedReportIndex == productReport.length - 1) {
+                        _customReportController.clear();
+                      }
+                    });
+                  },
+                  child: Container(
+                    margin: const EdgeInsets.only(bottom: 8),
+                    decoration: BoxDecoration(
+                      border: Border.all(
+                        color: isSelected
+                            ? const Color(0xFFEC5870)
+                            : const Color(0xFFD3D2D2),
+                      ), // Use borderColor for the border
+                      borderRadius: BorderRadius.circular(5),
+                    ),
+                    child: ListTile(
+                      title: Text(
+                        productReport[index],
+                        style: const TextStyle(
+                          color: Color(0xFF514E4E),
+                          fontSize: 14,
+                          fontWeight: FontWeight.w400,
                         ),
                       ),
                       trailing: Checkbox(
@@ -153,76 +150,85 @@ class _PostReportPageState extends State<PostReportPage> {
                       shape: MaterialStateProperty.all<RoundedRectangleBorder>(
                         RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8),
-                          side: const BorderSide(
-                              color: Color(0xFF726E6E)), // Border color
+                          side: const BorderSide(color: Color(0xFF726E6E)),
                         ),
                       ),
                     ),
                     onPressed: () {
-                      Navigator.pop(context); // Handle button press
+                      Navigator.pop(context);
                     },
                     child: const Text(
                       '취소하기',
                       style: TextStyle(
-                        color: Color(
-                            0xFF726E6E), // Set the text color as well if needed
+                        color: Color(0xFF726E6E),
                       ),
                     ),
-                    const SizedBox(width: 16,),
-                    TextButton(
-                      onPressed: isSubmitButtonEnabled ? () async {
-                        // Determine the content of the report
-                        String content;
-                        if (_selectedReportIndex == productReport.length - 1) {
-                          // When custom report is selected
-                          content = _customReportController.text;
-                        } else {
-                          // When a predefined report reason is selected
-                          content = productReport[_selectedReportIndex];
-                        }
-                        // Call the API service to report the post with the determined content
-                        try{
-                          final response = await apiService.reportPost(0, widget.product.postId, content);
-                          if (response.statusCode == 200) {
-                            // Navigate to the report completion page
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const ReportCompletePage(sourceType: ReportSourceType.postReport),
-                              ),
-                            );
-                          } else {
-                            // Handle non-200 responses or show an error message
-                            ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(content: Text('Report submission failed. Please try again later.'))
-                            );
+                  ),
+                  const SizedBox(
+                    width: 16,
+                  ),
+                  TextButton(
+                    onPressed: isSubmitButtonEnabled
+                        ? () async {
+                            // Determine the content of the report
+                            String content;
+                            if (_selectedReportIndex ==
+                                productReport.length - 1) {
+                              // When custom report is selected
+                              content = _customReportController.text;
+                            } else {
+                              // When a predefined report reason is selected
+                              content = productReport[_selectedReportIndex];
+                            }
+                            // Call the API service to report the post with the determined content
+                            try {
+                              final response = await apiService.reportPost(
+                                  0, widget.product.postId, content);
+                              if (response.statusCode == 200) {
+                                // Navigate to the report completion page
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        const ReportCompletePage(
+                                            sourceType:
+                                                ReportSourceType.postReport),
+                                  ),
+                                );
+                              } else {
+                                // Handle non-200 responses or show an error message
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                        content: Text(
+                                            'Report submission failed. Please try again later.')));
+                              }
+                            } catch (e) {
+                              // Handle any errors that occur during the API call
+                              print(e);
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                      content: Text(
+                                          'An error occurred. Please try again later.')));
+                            }
                           }
-
-                        } catch (e) {
-                        // Handle any errors that occur during the API call
-                          print(e);
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('An error occurred. Please try again later.'))
-                          );
-                        }
-                      } : null,
-                      style: ButtonStyle(
-                        backgroundColor: MaterialStateProperty.all<Color>(
-                            isSubmitButtonEnabled ? const Color(0xFFE20529) : const Color(0xFF726E6E)
-                        ),
-                        minimumSize: MaterialStateProperty.all<Size>(Size(buttonWidth, 46)),
-                        shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                          RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
+                        : null,
+                    style: ButtonStyle(
+                      backgroundColor: MaterialStateProperty.all<Color>(
+                          isSubmitButtonEnabled
+                              ? const Color(0xFFE20529)
+                              : const Color(0xFF726E6E)),
+                      minimumSize: MaterialStateProperty.all<Size>(
+                          Size(buttonWidth, 46)),
+                      shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                        RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
                         ),
                       ),
                     ),
                     child: const Text(
                       '신고 접수',
                       style: TextStyle(
-                        color: Color(
-                            0xFFFFFFFF), // Set the text color as well if needed
+                        color: Color(0xFFFFFFFF),
                       ),
                     ),
                   ),
