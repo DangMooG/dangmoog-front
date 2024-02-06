@@ -112,3 +112,53 @@ class _FullScreenImageViewerState extends State<FullScreenImageViewer> {
     super.dispose();
   }
 }
+
+class FullScreenAssetImageViewer extends StatelessWidget {
+  final String imageUrls;
+
+  const FullScreenAssetImageViewer({
+    Key? key,
+    required this.imageUrls,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+        backgroundColor: Colors.black,
+        appBar: AppBar(
+          backgroundColor: Colors.black,
+          elevation: 0,
+          leading: IconButton(
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            icon: const Icon(
+              Icons.clear_outlined,
+              color: Colors.white,
+              size: 30,
+            ),
+          ),
+        ),
+        extendBody: true,
+        extendBodyBehindAppBar: true,
+        body: Center(
+          child: InteractiveViewer(
+            panEnabled: false,
+            boundaryMargin: const EdgeInsets.all(80),
+            minScale: 0.5,
+            maxScale: 4,
+            child: Image.asset(
+              imageUrls,
+              fit: BoxFit.contain,
+              errorBuilder:
+                  (BuildContext context, Object error, StackTrace? stackTrace) {
+                return Image.asset(
+                  'assets/images/sample.png',
+                  fit: BoxFit.contain,
+                );
+              },
+            ),
+          ),
+        ));
+  }
+}
