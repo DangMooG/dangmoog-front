@@ -56,14 +56,6 @@ class _AddPostPageState extends State<AddPostPage> {
   String? productDescriptionError;
 
   void _createNewPost() async {
-    // 업로드 버튼 중복 클릭 방지
-    if (isUploading) {
-      return;
-    }
-    setState(() {
-      isUploading = true;
-    });
-
     String title = productNameController.text;
     int price;
     try {
@@ -1256,38 +1248,45 @@ class _AddPostPageState extends State<AddPostPage> {
                           ),
                           SizedBox(
                             width: 300,
-                            child: TextButton(
-                              onPressed: () {
-                                if (!isUploading) {
+                            child: AbsorbPointer(
+                              absorbing: isUploading,
+                              child: TextButton(
+                                onPressed: () {
+                                  if (isUploading) {
+                                    return;
+                                  }
+                                  setState(() {
+                                    isUploading = true;
+                                  });
                                   _createNewPost();
-                                }
-                              },
-                              style: ButtonStyle(
-                                backgroundColor:
-                                    MaterialStateProperty.resolveWith<Color>(
-                                  (Set<MaterialState> states) {
-                                    if (states
-                                        .contains(MaterialState.pressed)) {
-                                      return Colors
-                                          .red[600]!; // Color when pressed
-                                    }
-                                    return const Color(
-                                        0xffE20529); // Regular color
-                                  },
-                                ),
-                                foregroundColor:
-                                    MaterialStateProperty.all<Color>(
-                                        Colors.white),
-                                shape: MaterialStateProperty.all<
-                                    RoundedRectangleBorder>(
-                                  RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(6),
-                                    side: const BorderSide(
-                                        color: Color(0xFF726E6E)),
+                                },
+                                style: ButtonStyle(
+                                  backgroundColor:
+                                      MaterialStateProperty.resolveWith<Color>(
+                                    (Set<MaterialState> states) {
+                                      if (states
+                                          .contains(MaterialState.pressed)) {
+                                        return Colors
+                                            .red[600]!; // Color when pressed
+                                      }
+                                      return const Color(
+                                          0xffE20529); // Regular color
+                                    },
+                                  ),
+                                  foregroundColor:
+                                      MaterialStateProperty.all<Color>(
+                                          Colors.white),
+                                  shape: MaterialStateProperty.all<
+                                      RoundedRectangleBorder>(
+                                    RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(6),
+                                      side: const BorderSide(
+                                          color: Color(0xFF726E6E)),
+                                    ),
                                   ),
                                 ),
+                                child: const Text('업로드'),
                               ),
-                              child: const Text('업로드'),
                             ),
                           ),
                           const SizedBox(
