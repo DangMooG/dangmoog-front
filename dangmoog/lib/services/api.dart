@@ -81,8 +81,7 @@ class ApiService {
   /// 물품 관련 ///
   /////////////////////////////
 
-  Future<Response> getPriceRecommended(
-      String title, String description, File imageFile) async {
+  Future<Response> getPriceRecommended(String title, File imageFile) async {
     String fileName = imageFile.path;
 
     MultipartFile multipartImage =
@@ -92,7 +91,7 @@ class ApiService {
       "photo": multipartImage,
     });
 
-    return await _aiClient.post("predict/get_price_v3?title=$title",
+    return await _aiClient.post("predict/get_price?title=$title",
         data: formData);
   }
 
