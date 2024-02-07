@@ -103,11 +103,10 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
         ),
         iconTheme: const IconThemeData(color: Colors.white),
         actions: <Widget>[
+          isUserProduct?
           IconButton(
             icon: const Icon(Icons.more_vert, color: Color(0xFF726E6E)),
-            onPressed: !isUserProduct
-                ? null
-                : () {
+            onPressed: () {
                     showDialog(
                       context: context,
                       builder: (BuildContext context) {
@@ -224,7 +223,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                       },
                     );
                   },
-          )
+          ):const SizedBox.shrink(),
         ],
       ),
       extendBodyBehindAppBar: true,
