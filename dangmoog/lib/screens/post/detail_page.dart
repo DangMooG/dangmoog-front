@@ -275,12 +275,15 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
           builder: (context) {
             return GestureDetector(
               onTap: () {
-                Navigator.of(context).push(fadeInRouting(
-                  FullScreenImageViewer(
-                    imageUrls: displayImages,
-                    initialPage: _current,
-                  ),
-                ));
+                if (imagePath !=
+                    'assets/images/sample.png') { // Check if the image is not sample.png
+                  Navigator.of(context).push(fadeInRouting(
+                    FullScreenImageViewer(
+                      imageUrls: displayImages,
+                      initialPage: _current,
+                    ),
+                  ));
+                }
               },
               child: SizedBox(
                 width: MediaQuery.of(context).size.width,
