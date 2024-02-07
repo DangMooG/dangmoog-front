@@ -81,7 +81,8 @@ class ApiService {
   /// 물품 관련 ///
   /////////////////////////////
 
-  Future<Response> getPriceRecommended(String title, File imageFile) async {
+  Future<Response> getPriceRecommended(
+      String title, String description, File imageFile) async {
     String fileName = imageFile.path;
 
     MultipartFile multipartImage =
@@ -91,7 +92,7 @@ class ApiService {
       "photo": multipartImage,
     });
 
-    return await _aiClient.post("predict/get_price?title=$title",
+    return await _aiClient.post("predict/get_price_v3?title=$title",
         data: formData);
   }
 
@@ -126,7 +127,7 @@ class ApiService {
     }
 
     final queryString = Uri(queryParameters: queryParams).query;
-    final String url = '/post/create_with_photo?$queryString';
+    final String url = 'post/create_with_photo?$queryString';
 
     // Check if imageFiles are provided and not empty
     if (imageFiles != null && imageFiles.isNotEmpty) {

@@ -4,7 +4,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 const baseUrl =
     'https://port-0-dangmoog-api-server-p8xrq2mlfc80j33.sel3.cloudtype.app/meta/';
 
-const baseUrlAI = "http://43.202.189.22/";
+const baseUrlAI = "http://ai2.dangmoog.site/";
 
 class DioClient {
   final Dio _publicClient;
