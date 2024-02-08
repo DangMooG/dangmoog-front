@@ -29,6 +29,7 @@ class _ReportCompletePageState extends State<ReportCompletePage> {
 
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         title: Text(
           appBarTitle,
           style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
