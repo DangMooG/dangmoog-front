@@ -126,7 +126,7 @@ class ApiService {
     }
 
     final queryString = Uri(queryParameters: queryParams).query;
-    final String url = '/post/create_with_photo?$queryString';
+    final String url = 'post/create_with_photo?$queryString';
 
     // Check if imageFiles are provided and not empty
     if (imageFiles != null && imageFiles.isNotEmpty) {
