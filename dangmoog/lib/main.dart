@@ -6,28 +6,28 @@ import 'package:dangmoog/providers/post_list_scroll_provider.dart';
 import 'package:dangmoog/screens/home.dart';
 import 'package:dangmoog/screens/main_page.dart';
 import 'package:dangmoog/screens/mypage/my_page.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
+// import 'package:firebase_messaging/firebase_messaging.dart';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'package:dangmoog/themes/main_theme.dart';
-import 'package:dangmoog/screens/auth/splash_page.dart';
+// import 'package:dangmoog/screens/auth/splash_page.dart';
 
 // Provider
 import 'package:dangmoog/providers/user_provider.dart';
 import 'package:dangmoog/providers/socket_provider.dart';
 
-import 'package:firebase_core/firebase_core.dart';
-import 'firebase_options.dart';
+// import 'package:firebase_core/firebase_core.dart';
+// import 'firebase_options.dart';
 // import 'package:firebase_core/firebase_core.dart';
 // import 'package:dangmoog/firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  // await Firebase.initializeApp(
+  //   options: DefaultFirebaseOptions.currentPlatform,
+  // );
 
   String? fcmToken = await fcmSetting();
   runApp(MyApp(
