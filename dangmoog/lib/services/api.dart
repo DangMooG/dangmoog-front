@@ -328,7 +328,7 @@ class ApiService {
   // 한 채팅방에 대한 모든 채팅 정보 얻기
   Future<Response> getChatAllMessages(String roomId) async {
     print(roomId);
-    return await _publicClient.get("chat/all/$roomId");
+    return await _authClient.get("chat/all/$roomId");
   }
 
   // 한 채팅방에 해당하는 게시글 id 얻기
