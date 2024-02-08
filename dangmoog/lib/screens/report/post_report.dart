@@ -17,6 +17,7 @@ class PostReportPage extends StatefulWidget {
 class _PostReportPageState extends State<PostReportPage> {
   int _selectedReportIndex = -1;
   final ApiService apiService = ApiService();
+  bool _isSubmitting = false;
 
   List<bool> isChecked = List.generate(
       productReport.length,
@@ -25,7 +26,7 @@ class _PostReportPageState extends State<PostReportPage> {
 
   @override
   Widget build(BuildContext context) {
-    bool isSubmitButtonEnabled = _selectedReportIndex != -1;
+    bool isSubmitButtonEnabled = _selectedReportIndex != -1&& !_isSubmitting;
     return Scaffold(
       appBar: AppBar(
         title: const Text(
@@ -72,7 +73,7 @@ class _PostReportPageState extends State<PostReportPage> {
               ...List<Widget>.generate(isChecked.length, (index) {
                 bool isSelected = _selectedReportIndex == index;
                 return InkWell(
-                  onTap: () {
+                  onTap: _isSubmitting? null:() {
                     setState(() {
                       _selectedReportIndex = isSelected ? -1 : index;
                       if (_selectedReportIndex == productReport.length - 1) {
@@ -101,18 +102,17 @@ class _PostReportPageState extends State<PostReportPage> {
                       ),
                       trailing: Checkbox(
                         value: isSelected,
-                        onChanged: (bool? value) {
+                        onChanged: _isSubmitting ? null : (bool? value) { // Disable checkbox if submitting
                           setState(() {
                             _selectedReportIndex = value! ? index : -1;
-                            if (_selectedReportIndex ==
-                                productReport.length - 1) {
-                              // Last item's special condition
+                            if (_selectedReportIndex == productReport.length - 1) {
                               _customReportController.clear();
                             }
                           });
                         },
                         activeColor: const Color(0xFFEC5870),
                       ),
+
                     ),
                   ),
                 );
@@ -171,6 +171,10 @@ class _PostReportPageState extends State<PostReportPage> {
                     onPressed: isSubmitButtonEnabled
                         ? () async {
                             // Determine the content of the report
+                            setState(() {
+                              _isSubmitting = true;
+                            });
+
                             String content;
                             if (_selectedReportIndex ==
                                 productReport.length - 1) {
@@ -182,6 +186,7 @@ class _PostReportPageState extends State<PostReportPage> {
                             }
                             // Call the API service to report the post with the determined content
                             try {
+                              print(content);
                               final response = await apiService.reportPost(
                                   0, widget.product.postId, content);
                               if (response.statusCode == 200) {
@@ -209,6 +214,10 @@ class _PostReportPageState extends State<PostReportPage> {
                                   const SnackBar(
                                       content: Text(
                                           'An error occurred. Please try again later.')));
+                            } finally{
+                              setState(() {
+                                _isSubmitting = false;
+                              });
                             }
                           }
                         : null,
@@ -225,7 +234,12 @@ class _PostReportPageState extends State<PostReportPage> {
                         ),
                       ),
                     ),
-                    child: const Text(
+                    child:
+                    _isSubmitting
+                        ? const CircularProgressIndicator( // Show a loading indicator when submitting
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                    ):
+                    const Text(
                       '신고 접수',
                       style: TextStyle(
                         color: Color(0xFFFFFFFF),

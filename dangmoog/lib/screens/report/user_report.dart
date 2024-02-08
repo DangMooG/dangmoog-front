@@ -20,6 +20,7 @@ class _UserReportPageState extends State<UserReportPage> {
 
   int _selectedReportIndex = -1;
   final ApiService apiService= ApiService();
+  bool _isSubmitting = false;
 
   List<bool> isChecked = List.generate(userReport.length, (index) => false); // Assuming productReport is a List of Strings for report reasons
 
@@ -28,7 +29,7 @@ class _UserReportPageState extends State<UserReportPage> {
     bool isSubmitButtonEnabled = _selectedReportIndex != -1;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('게시글 신고',
+        title: const Text('사용자 신고',
           style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w600),),
@@ -50,7 +51,7 @@ class _UserReportPageState extends State<UserReportPage> {
               return ListView( // Changed to ListView to accommodate dynamic content
                 children: <Widget>[
                   Text(
-                    "\'${widget.product.title}\'\n해당 게시글 신고 사유를 알려주세요.",
+                    "'${widget.product.userName}'\n해당 사용자 신고 사유를 알려주세요.",
                     style: const TextStyle(color: Color(0xFF000000),fontSize: 16, fontWeight: FontWeight.w600),
                   ),
                   const SizedBox(height: 8,),
@@ -62,7 +63,7 @@ class _UserReportPageState extends State<UserReportPage> {
                   ...List<Widget>.generate(isChecked.length, (index) {
                     bool isSelected = _selectedReportIndex==index;
                     return InkWell(
-                      onTap: (){
+                      onTap: _isSubmitting? null:(){
                         setState(() {
                           _selectedReportIndex = isSelected?-1:index;
                           if (_selectedReportIndex==userReport.length-1){
@@ -89,7 +90,7 @@ class _UserReportPageState extends State<UserReportPage> {
                           ),
                           trailing: Checkbox(
                             value: isSelected,
-                            onChanged: (bool? value) {
+                            onChanged: _isSubmitting ? null :(bool? value) {
                               setState(() {
                                 _selectedReportIndex = value! ? index : -1;
                                 if (_selectedReportIndex == userReport.length - 1) {
@@ -153,6 +154,11 @@ class _UserReportPageState extends State<UserReportPage> {
                       const SizedBox(width: 16,),
                       TextButton(
                         onPressed: isSubmitButtonEnabled? () async {
+
+                          setState(() {
+                            _isSubmitting = true;
+                          });
+
                           String content;
                           if (_selectedReportIndex == userReport.length - 1) {
                             // When custom report is selected
@@ -187,6 +193,10 @@ class _UserReportPageState extends State<UserReportPage> {
                             ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(content: Text('An error occurred. Please try again later.'))
                             );
+                          } finally{
+                            setState(() {
+                              _isSubmitting = false;
+                            });
                           }
                         } : null,
                         style: ButtonStyle(
@@ -200,12 +210,17 @@ class _UserReportPageState extends State<UserReportPage> {
                             ),
                           ),
                         ),
-                        child: const Text(
-                          '신고 접수',
-                          style: TextStyle(
-                            color: Color(0xFFFFFFFF), // Set the text color as well if needed
+                        child:
+                          _isSubmitting
+                              ? const CircularProgressIndicator( // Show a loading indicator when submitting
+                            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                          ):
+                          const Text(
+                            '신고 접수',
+                            style: TextStyle(
+                              color: Color(0xFFFFFFFF), // Set the text color as well if needed
+                            ),
                           ),
-                        ),
                       ),
                     ],
                   )

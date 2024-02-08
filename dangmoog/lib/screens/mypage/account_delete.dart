@@ -53,11 +53,12 @@ class _AccountDeletePageState extends State<AccountDeletePage> {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  padding: EdgeInsets.symmetric(
+                      horizontal: screenSize.height * 0.009),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
-                      const SizedBox(height: 32),
+                      SizedBox(height: screenSize.height * 0.038),
                       const Text(
                         '계정을 탈퇴하시나요?',
                         style: TextStyle(
@@ -66,16 +67,17 @@ class _AccountDeletePageState extends State<AccountDeletePage> {
                           fontWeight: FontWeight.w600,
                         ),
                       ),
-                      const SizedBox(height: 32),
+                      SizedBox(height: screenSize.height * 0.039),
                       Container(
                         width: screenSize.width * 0.91,
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(4.0),
                           color: const Color(0xFFF1F1F1),
                         ),
-                        child: const Padding(
+                        child: Padding(
                           padding: EdgeInsets.symmetric(
-                              vertical: 16.0, horizontal: 8.0),
+                              vertical: screenSize.height * 0.018,
+                              horizontal: screenSize.height * 0.009),
                           child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
@@ -87,12 +89,12 @@ class _AccountDeletePageState extends State<AccountDeletePage> {
                                     fontWeight: FontWeight.w600,
                                   ),
                                 ),
-                                SizedBox(height: 8),
+                                SizedBox(height: screenSize.height * 0.009),
                                 Text(
                                   '계정을 삭제하면 게시글, 관심목록, 채팅 등의 모든 활동정보가 삭제되며, 계정 삭제 후 7일 간 다시 가입할 수 없습니다.',
                                   style: TextStyle(
                                     color: Color(0xFF302E2E),
-                                    fontSize: 14,
+                                    fontSize: screenSize.height * 0.02,
                                     fontWeight: FontWeight.w400,
                                   ),
                                 ),
@@ -132,8 +134,6 @@ class _AccountDeletePageState extends State<AccountDeletePage> {
 
   SizedBox _inputField(Size screenSize) {
     return SizedBox(
-      width: screenSize.width,
-      height: screenSize.height * 0.4,
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16.0),
         child: Column(
@@ -148,7 +148,7 @@ class _AccountDeletePageState extends State<AccountDeletePage> {
                 fontWeight: FontWeight.w400,
               ),
             ),
-            const SizedBox(height: 32),
+            SizedBox(height: screenSize.height * 0.039),
             Row(
               children: [
                 ElevatedButton(
@@ -171,7 +171,7 @@ class _AccountDeletePageState extends State<AccountDeletePage> {
                   ),
                   child: Container(
                     width: screenSize.width * 0.28,
-                    height: 46,
+                    height: screenSize.height * 0.058,
                     alignment: Alignment.center,
                     child: const Text(
                       '취소하기',
@@ -239,7 +239,8 @@ class _AccountDeletePageState extends State<AccountDeletePage> {
     }
 
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 20, 16, 6),
+      padding: EdgeInsets.fromLTRB(
+          16, screenSize.height * 0.024, 16, screenSize.height * 0.007),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -251,7 +252,7 @@ class _AccountDeletePageState extends State<AccountDeletePage> {
               fontWeight: FontWeight.w600,
             ),
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: screenSize.height * 0.009),
           GestureDetector(
             onTap: () {
               setState(() {
@@ -340,14 +341,13 @@ class _AccountDeletePageState extends State<AccountDeletePage> {
     );
   }
 
-  // 계좌번호 입력 위젯
   Widget _accountNumber(Size screenSize) {
     return Column(
       children: [
         Container(
           alignment: Alignment.center,
           width: screenSize.width * 0.91,
-          height: screenSize.height * 0.06,
+          height: screenSize.height * 0.08,
           child: TextField(
             onTap: () {},
             decoration: const InputDecoration(
@@ -400,8 +400,8 @@ class _AccountDeletePageState extends State<AccountDeletePage> {
         ),
       ),
       child: Container(
-        width: 121,
-        height: 47,
+        width: screenSize.width * 0.28,
+        height: screenSize.height * 0.056,
         alignment: Alignment.center,
         child: Text(
           text,

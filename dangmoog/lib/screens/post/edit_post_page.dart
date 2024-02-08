@@ -669,21 +669,21 @@ class _EditPostPageState extends State<EditPostPage> {
                 ],
               ),
             ),
-          Padding(
-            padding: const EdgeInsets.only(top: 8.0), // 가격 텍스트랑 ai 추천 가격 사이 칸
-            child: Container(
-              padding: const EdgeInsets.only(left: 8),
-              height: 48,
-              // padding: const EdgeInsets.symmetric(horizontal:8),
-              decoration: BoxDecoration(
-                color: const Color(0xFFF1F1F1),
-                borderRadius: BorderRadius.circular(4),
-              ),
-              child: _showPrice
-                  ? _recommendedPriceButtons()
-                  : _initialAiRecommended(),
-            ),
-          ),
+          // Padding(
+          //   padding: const EdgeInsets.only(top: 8.0), // 가격 텍스트랑 ai 추천 가격 사이 칸
+          //   child: Container(
+          //     padding: const EdgeInsets.only(left: 8),
+          //     height: 48,
+          //     // padding: const EdgeInsets.symmetric(horizontal:8),
+          //     decoration: BoxDecoration(
+          //       color: const Color(0xFFF1F1F1),
+          //       borderRadius: BorderRadius.circular(4),
+          //     ),
+          //     child: _showPrice
+          //         ? _recommendedPriceButtons()
+          //         : _initialAiRecommended(),
+          //   ),
+          // ),
           Container(
             padding: const EdgeInsets.only(top: 8),
             child: Row(
