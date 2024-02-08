@@ -203,7 +203,7 @@ class _ProfilePageState extends State<ProfilePage> {
           children: [
             Column(
               children: [
-                const Text(
+                Text(
                   '잠깐! 프로필을 설정해보세요!',
                   style: TextStyle(
                     color: Color(0xFF302E2E),
@@ -212,8 +212,8 @@ class _ProfilePageState extends State<ProfilePage> {
                     height: 1.33,
                   ),
                 ),
-                const SizedBox(height: 8),
-                const Text(
+                SizedBox(height: screenSize.height * 0.009),
+                Text(
                   '개성있는 사진으로 프로필 사진을 설정해보세요.\n'
                   '프로필 사진은 마이페이지에서 언제든지 수정 가능합니다!\n'
                   '생략할 경우 현재 보이는 사진이 기본 프로필이 됩니다.',
@@ -225,12 +225,12 @@ class _ProfilePageState extends State<ProfilePage> {
                     height: 1.43,
                   ),
                 ),
-                const SizedBox(height: 16),
+                SizedBox(height: screenSize.height * 0.018),
                 Stack(
                   children: [
                     SizedBox(
-                      width: 210,
-                      height: 210,
+                      width: screenSize.height * 0.27,
+                      height: screenSize.height * 0.27,
                       child: ClipOval(
                         child: _image != null
                             ? Image.file(
@@ -244,8 +244,8 @@ class _ProfilePageState extends State<ProfilePage> {
                       ),
                     ),
                     Positioned(
-                      top: 150,
-                      left: 150,
+                      top: screenSize.height * 0.2,
+                      left: screenSize.height * 0.2,
                       child: GestureDetector(
                         onTap: () {
                           showDialog(
@@ -257,16 +257,16 @@ class _ProfilePageState extends State<ProfilePage> {
                                 ),
                                 content: SizedBox(
                                   width: screenSize.width * 0.55,
-                                  height: screenSize.height * 0.21,
+                                  height: screenSize.height * 0.25,
                                   child: Column(
                                     mainAxisAlignment:
                                         MainAxisAlignment.spaceBetween,
                                     children: [
-                                      const Text(
+                                      Text(
                                         '사진 업로드 방식을\n선택해주세요!',
                                         textAlign: TextAlign.center,
                                         style: TextStyle(
-                                          fontSize: 16,
+                                          fontSize: screenSize.height * 0.023,
                                           fontWeight: FontWeight.w600,
                                         ),
                                       ),
@@ -297,8 +297,8 @@ class _ProfilePageState extends State<ProfilePage> {
                                           Navigator.of(context).pop();
                                         },
                                         child: Container(
-                                          width: 228,
-                                          height: 36,
+                                          width: screenSize.width * 0.61,
+                                          height: screenSize.height * 0.044,
                                           alignment: Alignment.center,
                                           decoration: BoxDecoration(
                                             border: Border.all(
@@ -326,8 +326,8 @@ class _ProfilePageState extends State<ProfilePage> {
                           );
                         },
                         child: Container(
-                          width: 50,
-                          height: 50,
+                          width: screenSize.height * 0.06,
+                          height: screenSize.height * 0.06,
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
                             color: Colors.white,
@@ -345,7 +345,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     ),
                   ],
                 ),
-                const SizedBox(height: 16),
+                SizedBox(height: screenSize.height * 0.018),
                 InkWell(
                   onTap: () {
                     setState(() {
@@ -368,7 +368,7 @@ class _ProfilePageState extends State<ProfilePage> {
             Column(
               children: [
                 SizedBox(
-                  height: 144,
+                  height: screenSize.height * 0.17,
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
@@ -384,7 +384,7 @@ class _ProfilePageState extends State<ProfilePage> {
                         buttonText: '프로필 설정 완료!',
                         isActive: buttonAcitve,
                       ),
-                      const SizedBox(height: 21),
+                      SizedBox(height: screenSize.height * 0.026),
                       GestureDetector(
                         onTap: () {
                           Navigator.pushAndRemoveUntil(
@@ -416,121 +416,128 @@ class _ProfilePageState extends State<ProfilePage> {
       ),
     );
   }
-}
 
-Widget addPhotoButtonPopUp(Size screenSize, IconData icon, String text,
-    Function onTap, BuildContext context) {
-  return GestureDetector(
-    onTap: () {
-      onTap();
-      Navigator.of(context).pop();
-    },
-    child: Container(
-      width: screenSize.width * 0.192,
-      height: screenSize.width * 0.192,
-      decoration: const BoxDecoration(
-        color: Color(0xffE20529),
-        borderRadius: BorderRadius.all(Radius.circular(4)),
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            icon,
-            color: Colors.white,
-          ),
-          Text(
-            text,
-            style: const TextStyle(
-              fontSize: 11,
-              fontWeight: FontWeight.w400,
+  Widget addPhotoButtonPopUp(Size screenSize, IconData icon, String text,
+      Function onTap, BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        onTap();
+        Navigator.of(context).pop();
+      },
+      child: Container(
+        width: screenSize.width * 0.192,
+        height: screenSize.width * 0.192,
+        decoration: const BoxDecoration(
+          color: Color(0xffE20529),
+          borderRadius: BorderRadius.all(Radius.circular(4)),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              icon,
               color: Colors.white,
             ),
-          )
-        ],
-      ),
-    ),
-  );
-}
-
-Widget profileHelpMsg() {
-  Widget textCell(String text) {
-    return Padding(
-      padding: const EdgeInsets.only(left: 8.0, bottom: 2.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            "• ",
-            style: TextStyle(
-              fontSize: 11,
-              fontWeight: FontWeight.w400,
-              color: Color(0xff302E2E),
-            ),
-          ),
-          Expanded(
-            child: Text(
+            Text(
               text,
-              style: const TextStyle(
-                fontSize: 11,
+              style: TextStyle(
+                fontSize: screenSize.height * 0.014,
                 fontWeight: FontWeight.w400,
-                color: Color(0xff302E2E),
+                color: Colors.white,
               ),
-            ),
-          )
-        ],
+            )
+          ],
+        ),
       ),
     );
   }
 
-  return Padding(
-    padding: const EdgeInsets.only(top: 16),
-    child: Row(
-      children: [
-        Expanded(
-            child: Container(
-          decoration: BoxDecoration(
-            border: Border.all(
-              width: 1,
-              color: const Color(0xffD3D2D2),
+  Widget profileHelpMsg() {
+    Size screenSize = MediaQuery.of(context).size;
+    Widget textCell(String text) {
+      return Padding(
+        padding: EdgeInsets.only(
+            left: screenSize.height * 0.009,
+            bottom: screenSize.height * 0.0024),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              "• ",
+              style: TextStyle(
+                fontSize: screenSize.height * 0.014,
+                fontWeight: FontWeight.w400,
+                color: Color(0xff302E2E),
+              ),
             ),
-            borderRadius: const BorderRadius.all(Radius.circular(10)),
-          ),
-          padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              const Padding(
-                padding: EdgeInsets.only(bottom: 8),
-                child: Text(
-                  '다음 사항을 꼭 확인해주세요!',
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: Color(0xff302E2E),
-                  ),
+            Expanded(
+              child: Text(
+                text,
+                style: TextStyle(
+                  fontSize: screenSize.height * 0.014,
+                  fontWeight: FontWeight.w400,
+                  color: Color(0xff302E2E),
                 ),
               ),
-              textCell("부적절한 이미지는 제한되며, 등록되었더라도 관리자에 의해 예고없이 사용이 중지될 수 있습니다."),
-              const Padding(
-                padding: EdgeInsets.symmetric(vertical: 8),
-                child: Text(
-                  '부적절한 이미지 기준 안내',
-                  style: TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w600,
-                    color: Color(0xff302E2E),
+            )
+          ],
+        ),
+      );
+    }
+
+    return Padding(
+      padding: EdgeInsets.only(top: screenSize.height * 0.018),
+      child: Row(
+        children: [
+          Expanded(
+              child: Container(
+            decoration: BoxDecoration(
+              border: Border.all(
+                width: 1,
+                color: const Color(0xffD3D2D2),
+              ),
+              borderRadius: const BorderRadius.all(Radius.circular(10)),
+            ),
+            padding: EdgeInsets.symmetric(
+                vertical: screenSize.height * 0.018,
+                horizontal: screenSize.height * 0.025),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Padding(
+                  padding: EdgeInsets.only(bottom: screenSize.height * 0.009),
+                  child: Text(
+                    '다음 사항을 꼭 확인해주세요!',
+                    style: TextStyle(
+                      fontSize: screenSize.height * 0.017,
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xff302E2E),
+                    ),
                   ),
                 ),
-              ),
-              textCell("다른 사용자에게 불쾌감을 줄 수 있는 이미지"),
-              textCell("도토릿 운영자, 관리자로 착오할 수 있는 이미지"),
-              textCell("본인 혹인 타인의 개인정보가 노출된 이미지 "),
-            ],
-          ),
-        )),
-      ],
-    ),
-  );
+                textCell(
+                    "부적절한 이미지는 제한되며, 등록되었더라도 관리자에 의해 예고없이 사용이 중지될 수 있습니다."),
+                Padding(
+                  padding:
+                      EdgeInsets.symmetric(vertical: screenSize.height * 0.009),
+                  child: Text(
+                    '부적절한 이미지 기준 안내',
+                    style: TextStyle(
+                      fontSize: screenSize.height * 0.013,
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xff302E2E),
+                    ),
+                  ),
+                ),
+                textCell("다른 사용자에게 불쾌감을 줄 수 있는 이미지"),
+                textCell("도토릿 운영자, 관리자로 착오할 수 있는 이미지"),
+                textCell("본인 혹인 타인의 개인정보가 노출된 이미지 "),
+              ],
+            ),
+          )),
+        ],
+      ),
+    );
+  }
 }

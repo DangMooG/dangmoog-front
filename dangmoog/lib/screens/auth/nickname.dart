@@ -369,17 +369,20 @@ class _NicknamePageState extends State<NicknamePage> {
   }
 
   Widget nicknameHelpMsg() {
+    Size screenSize = MediaQuery.of(context).size;
     Widget textCell(String text) {
       return Padding(
-        padding: const EdgeInsets.only(left: 8.0, bottom: 2.0),
+        padding: EdgeInsets.only(
+            left: screenSize.height * 0.009,
+            bottom: screenSize.height * 0.0024),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
+            Text(
               "• ",
               style: TextStyle(
-                fontSize: 11,
+                fontSize: screenSize.height * 0.014,
                 fontWeight: FontWeight.w400,
                 color: Color(0xff302E2E),
               ),
@@ -387,8 +390,8 @@ class _NicknamePageState extends State<NicknamePage> {
             Expanded(
               child: Text(
                 text,
-                style: const TextStyle(
-                  fontSize: 11,
+                style: TextStyle(
+                  fontSize: screenSize.height * 0.014,
                   fontWeight: FontWeight.w400,
                   color: Color(0xff302E2E),
                 ),
@@ -400,7 +403,7 @@ class _NicknamePageState extends State<NicknamePage> {
     }
 
     return Padding(
-      padding: const EdgeInsets.only(top: 10),
+      padding: EdgeInsets.only(top: screenSize.height * 0.012),
       child: Row(
         children: [
           Expanded(
@@ -412,16 +415,16 @@ class _NicknamePageState extends State<NicknamePage> {
               ),
               borderRadius: const BorderRadius.all(Radius.circular(10)),
             ),
-            padding: const EdgeInsets.all(16),
+            padding: EdgeInsets.all(screenSize.height * 0.019),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
-                const Padding(
-                  padding: EdgeInsets.only(bottom: 8),
+                Padding(
+                  padding: EdgeInsets.only(bottom: screenSize.height * 0.009),
                   child: Text(
                     '다음 사항을 꼭 확인해주세요!',
                     style: TextStyle(
-                      fontSize: 14,
+                      fontSize: screenSize.height * 0.017,
                       fontWeight: FontWeight.w600,
                       color: Color(0xff302E2E),
                     ),
@@ -430,12 +433,13 @@ class _NicknamePageState extends State<NicknamePage> {
                 textCell("한글, 영문, 숫자 혼용 가능하며, 공백과 특수문자(-, #, @ 등)는 사용 불가합니다."),
                 textCell("글자 수는 2자 이상, 15자 이하로 제한됩니다."),
                 textCell("부적절한 닉네임은 제한되며, 관리자에 의해 예고없이 사용이 중지될 수 있습니다."),
-                const Padding(
-                  padding: EdgeInsets.symmetric(vertical: 8),
+                Padding(
+                  padding:
+                      EdgeInsets.symmetric(vertical: screenSize.height * 0.009),
                   child: Text(
                     '부적절한 별명 기준 안내',
                     style: TextStyle(
-                      fontSize: 11,
+                      fontSize: screenSize.height * 0.013,
                       fontWeight: FontWeight.w600,
                       color: Color(0xff302E2E),
                     ),

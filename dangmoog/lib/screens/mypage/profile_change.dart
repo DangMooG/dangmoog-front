@@ -243,8 +243,8 @@ class _ProfileChangePageState extends State<ProfileChangePage> {
                 );
               }),
               Positioned(
-                top: screenSize.height * 0.19,
-                left: screenSize.height * 0.19,
+                top: 155,
+                left: 155,
                 child: GestureDetector(
                   onTap: () {
                     showDialog(
@@ -315,8 +315,8 @@ class _ProfileChangePageState extends State<ProfileChangePage> {
                     );
                   },
                   child: Container(
-                    width: 50,
-                    height: 50,
+                    width: screenSize.height * 0.06,
+                    height: screenSize.height * 0.06,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       color: Colors.white,
