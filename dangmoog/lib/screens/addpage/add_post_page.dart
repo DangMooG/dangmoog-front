@@ -9,7 +9,6 @@ import 'package:intl/intl.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:image_picker/image_picker.dart';
 
-import 'package:dangmoog/screens/home.dart';
 import 'package:dangmoog/widgets/bottom_popup.dart';
 import 'package:dangmoog/constants/category_list.dart';
 import 'package:dangmoog/services/api.dart';
