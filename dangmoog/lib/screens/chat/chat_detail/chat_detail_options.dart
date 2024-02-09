@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:dangmoog/constants/locker_location_url.dart';
 import 'package:dangmoog/models/chat_detail_message_model.dart';
 import 'package:dangmoog/providers/chat_list_provider.dart';
 import 'package:dangmoog/providers/chat_provider.dart';
@@ -666,8 +667,9 @@ class _ChatDetailOptionsState extends State<ChatDetailOptions> {
       if (!mounted) return;
 
       final lockerName = response.data["name"];
-      final password = response.data["password"];
 
+      final password = response.data["password"];
+      final lockerValPhotoUrl = response.data["photo_url"];
       final lockerMessage = "사물함 위치 : $lockerName\n비밀번호 : $password";
 
       showDialog(
@@ -748,6 +750,7 @@ class _ChatDetailOptionsState extends State<ChatDetailOptions> {
                               Colors.transparent,
                               Colors.white, () {
                             handleTextChatSubmitted(lockerMessage);
+                            sendLockerImage(lockerValPhotoUrl);
 
                             var newMessage = ChatDetailMessageModel(
                               isMine: true,
@@ -927,6 +930,8 @@ class _ChatDetailOptionsState extends State<ChatDetailOptions> {
             Response response =
                 await ApiService().getPhotoUrls(roomId!, imageFiles);
 
+            print(response.data);
+
             if (response.statusCode == 200) {
               final data = response.data;
 
@@ -1102,22 +1107,70 @@ class _ChatDetailOptionsState extends State<ChatDetailOptions> {
     }
   }
 
+  void sendLockerImage(lockerPhotoUrl) async {
+    if (roomId != null && roomId != "") {
+      List<dynamic> photoUrls = [lockerPhotoUrl, lockerLocationImageUrl];
+
+      if (photoUrls.runtimeType == List<dynamic>) {
+        // 서버로 전송
+        await socketChannel.onSendMessage(null, photoUrls, roomId!, true);
+        final currentTime = DateTime.now();
+        final chatMessage = photoUrls;
+
+        var newMessage = ChatDetailMessageModel(
+          isMine: true,
+          message: chatMessage,
+          read: true,
+          createTime: currentTime,
+          isImage: true,
+        );
+
+        final chatProvider = Provider.of<ChatProvider>(context, listen: false);
+        chatProvider.addChatContent(newMessage);
+
+        final chatListProvider =
+            Provider.of<ChatListProvider>(context, listen: false);
+        if (chatListProvider.buyChatList
+            .any((chatListCell) => chatListCell.roomId == roomId)) {
+          int index = chatListProvider.buyChatList
+              .indexWhere((chatCell) => chatCell.roomId == roomId);
+
+          chatListProvider.updateChatList(
+            index,
+            "사진",
+            currentTime,
+            true,
+          );
+          chatListProvider.resetUnreadCount(index, true);
+        } else if (chatListProvider.sellChatList
+            .any((chatListCell) => chatListCell.roomId == roomId)) {
+          int index = chatListProvider.sellChatList
+              .indexWhere((chatCell) => chatCell.roomId == roomId);
+          chatListProvider.updateChatList(
+            index,
+            "사진",
+            currentTime,
+            false,
+          );
+          chatListProvider.resetUnreadCount(index, false);
+        } else {
+          chatProvider.addNewChatList();
+        }
+      }
+    }
+  }
+
   @override
   void initState() {
     super.initState();
 
     roomId = widget.roomId;
-    print("옵션에서 방 id");
-    print(widget.roomId);
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       setState(() {
         postId = Provider.of<ChatProvider>(context, listen: false).postId;
         imBuyer = Provider.of<ChatProvider>(context, listen: false).imBuyer;
       });
-      // setState(() {
-      //   roomId = widget.roomId;
-      // });
     });
   }
 
