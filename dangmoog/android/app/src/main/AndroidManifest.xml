@@ -33,6 +33,14 @@
     <uses-permission android:name="android.permission.ACCESS_NOTIFICATION_POLICY" />
     <!-- 알림 관련 -->
 
+    <!-- 외부 링크(도토릿 소개) 연결을 위함 -->
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:scheme="https" />
+        </intent>
+    </queries>
+
     <application
         android:label="도토릿"
         android:name="${applicationName}"

@@ -7,6 +7,7 @@ import 'package:dangmoog/screens/auth/welcome.dart';
 
 import 'package:dangmoog/widgets/bottom_popup.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import 'package:provider/provider.dart';
 import 'package:dangmoog/providers/user_provider.dart';
@@ -248,12 +249,12 @@ class _MyPageState extends State<MyPage> {
               ),
             ),
           ),
-          MypageText(
-              text: '공지사항',
-              icon: Icons.campaign_outlined,
-              onPressed: () {
-                showPopup(context, "서비스 예정입니다");
-              }),
+          // MypageText(
+          //     text: '공지사항',
+          //     icon: Icons.campaign_outlined,
+          //     onPressed: () {
+          //       showPopup(context, "서비스 예정입니다");
+          //     }),
           MypageText(
               text: '자주 묻는 질문',
               icon: Icons.support_agent_outlined,
@@ -264,7 +265,11 @@ class _MyPageState extends State<MyPage> {
               text: '도토릿 소개',
               imageUrl: 'assets/images/dotorit_intro_icon.png',
               onPressed: () {
-                showPopup(context, "서비스 예정입니다");
+                launchUrl(
+                  Uri.parse(
+                      'https://dangmoog.notion.site/dangmoog/20ca8562e68f4e1b8b28c40461f0edda'),
+                );
+                // showPopup(context, "서비스 예정입니다");
               }),
           MypageText(
               text: '버전 정보',
