@@ -1,8 +1,10 @@
 import 'package:dangmoog/constants/account_list.dart';
 import 'package:dangmoog/providers/user_provider.dart';
 import 'package:dangmoog/screens/app_bar.dart';
+import 'package:dangmoog/services/api.dart';
 import 'package:dangmoog/widgets/bottom_popup.dart';
 import 'package:dangmoog/widgets/submit_button.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -15,39 +17,35 @@ class MyBankAccountPage extends StatefulWidget {
 }
 
 class _MyBankAccountPageState extends State<MyBankAccountPage> {
-  final FlutterSecureStorage storage = const FlutterSecureStorage();
+  final storage = const FlutterSecureStorage();
 
-  late TextEditingController _accountController = TextEditingController();
-  late TextEditingController _bankController = TextEditingController();
+  late TextEditingController accountNumberController = TextEditingController();
 
-  String _storedAccount = '';
-  String _storedBank = '';
+  String typedAccountNumber = '';
+  String selectedBankName = '';
 
-  bool isSubmitVerificationCodeActive = false;
-  String selectedBank = '';
-  String accountNumber = '';
-  bool data = true;
-  bool _isSelectListVisible = false;
-  String _selectedItem = '';
+  bool isAccountNumberFormatOkay = false;
+  bool isBankNameSelected = false;
 
-  String buttonext = '';
-  bool Pressed = false;
+  bool isSubmitButtonActive = false;
+  bool isBankListVisible = false;
 
   String text = '';
   String text2 = '등록하기';
   String text3 = '등록하기';
 
+  bool errorMessageVisible = false;
+  String accountNumberErrorMessage = "계좌번호의 길이가 올바르지 않습니다.";
+
   @override
   void initState() {
     super.initState();
-    _accountController = TextEditingController();
-    _bankController = TextEditingController();
+    accountNumberController = TextEditingController();
 
     _loadAccount().then((_) {
-      // Check if both account number and bank name are stored
-      if (_storedAccount.isNotEmpty && _storedBank.isNotEmpty) {
+      if (typedAccountNumber.isNotEmpty && selectedBankName.isNotEmpty) {
         setState(() {
-          text = '수정이 완료되었습니다';
+          text = '계좌정보 수정이 완료되었습니다';
           text2 = '수정하기';
           text3 = '수정하기';
         });
@@ -55,26 +53,49 @@ class _MyBankAccountPageState extends State<MyBankAccountPage> {
     });
   }
 
+  // 로컬 기기에 저장된 계좌번호 불러오기
   Future<void> _loadAccount() async {
-    String? storedAccount = await storage.read(key: 'encrypted_account');
-    String? storedBank = await storage.read(key: 'encrypted_bank');
+    String? storedAccount = await storage.read(key: 'accountNumber');
+    String? storedBank = await storage.read(key: 'bankName');
     if (storedAccount != null && storedAccount.isNotEmpty) {
       setState(() {
-        _storedAccount = storedAccount;
-        _storedBank = storedBank!;
+        typedAccountNumber = storedAccount;
+        selectedBankName = storedBank!;
       });
     }
   }
 
   Future<void> _saveAccount(String accountNumber, String bankName) async {
-    await storage.write(key: 'encrypted_account', value: accountNumber);
-    await storage.write(key: 'encrypted_bank', value: bankName);
+    try {
+      Response response =
+          await ApiService().uploadBank(bankName, accountNumber);
+    } catch (e) {
+      print(e);
+    }
+
+    await storage.write(key: 'bankName', value: bankName);
+    await storage.write(key: 'accountNumber', value: accountNumber);
+  }
+
+  void updateFormatState() {
+    if (isAccountNumberFormatOkay == true && isBankNameSelected == true) {
+      if (isSubmitButtonActive == false) {
+        setState(() {
+          isSubmitButtonActive = true;
+        });
+      }
+    } else {
+      if (isSubmitButtonActive == true) {
+        setState(() {
+          isSubmitButtonActive = false;
+        });
+      }
+    }
   }
 
   @override
   void dispose() {
-    _accountController.dispose();
-    _bankController.dispose();
+    accountNumberController.dispose();
     super.dispose();
   }
 
@@ -118,7 +139,7 @@ class _MyBankAccountPageState extends State<MyBankAccountPage> {
             ),
             Padding(
               padding: EdgeInsets.only(bottom: screenSize.height * 0.03),
-              child: isSubmitVerificationCodeActive
+              child: isSubmitButtonActive
                   ? AuthSubmitButton(
                       onPressed: () {
                         if (text.isEmpty) {
@@ -126,23 +147,23 @@ class _MyBankAccountPageState extends State<MyBankAccountPage> {
                           text2 = '등록하기';
                           text3 = '수정하기';
                         } else {
-                          text = '수정이 완료되었습니다!';
+                          text = '계좌정보 수정이 완료되었습니다!';
                           text2 = '수정하기';
                           text3 = '수정하기';
                         }
                         _accountPopup(screenSize, context);
 
                         setState(() {
-                          _isSelectListVisible = false;
+                          isBankListVisible = false;
                         });
                       },
                       buttonText: text3,
-                      isActive: Pressed,
+                      isActive: isSubmitButtonActive,
                     )
                   : AuthSubmitButton(
                       onPressed: () {},
                       buttonText: text3,
-                      isActive: Pressed,
+                      isActive: isSubmitButtonActive,
                     ),
             ),
           ],
@@ -161,21 +182,48 @@ class _MyBankAccountPageState extends State<MyBankAccountPage> {
         children: [
           _buildAccountNumber(screenSize),
           const SizedBox(height: 24),
-          _buildAccountSelect(_storedBank),
+          _buildAccountSelect(selectedBankName),
         ],
       ),
     );
   }
 
   Widget _buildAccountNumber(Size screenSize) {
-    String hintText = _storedAccount.isEmpty ? '계좌번호 입력(-제외)' : _storedAccount;
+    String hintText =
+        typedAccountNumber.isEmpty ? '계좌번호 입력(-제외)' : typedAccountNumber;
 
-    void onAccountChanged(String value) {
+    void onAccountNumberChanged(String value) {
       setState(() {
-        accountNumber = value;
-        // Provider.of<UserProvider>(context, listen: false)
-        //     .setAccount(accountNumber);
+        typedAccountNumber = value;
       });
+
+      if (value.length >= 10 && value.length <= 14) {
+        if (isAccountNumberFormatOkay == false) {
+          setState(() {
+            isAccountNumberFormatOkay = true;
+          });
+        }
+
+        if (errorMessageVisible == true) {
+          setState(() {
+            errorMessageVisible = false;
+          });
+        }
+      } else {
+        if (isAccountNumberFormatOkay == true) {
+          setState(() {
+            isAccountNumberFormatOkay = false;
+          });
+        }
+
+        if (errorMessageVisible == false) {
+          setState(() {
+            errorMessageVisible = true;
+          });
+        }
+      }
+
+      updateFormatState();
     }
 
     return Column(
@@ -187,8 +235,8 @@ class _MyBankAccountPageState extends State<MyBankAccountPage> {
           width: screenSize.width * 0.91,
           height: screenSize.height * 0.06,
           child: TextField(
-            onChanged: onAccountChanged,
-            controller: _accountController,
+            onChanged: onAccountNumberChanged,
+            controller: accountNumberController,
             keyboardType: TextInputType.number,
             inputFormatters: [
               FilteringTextInputFormatter.allow(RegExp(r'[0-9]'))
@@ -200,8 +248,17 @@ class _MyBankAccountPageState extends State<MyBankAccountPage> {
                   width: 1.0,
                 ),
               ),
+              enabledBorder: const OutlineInputBorder(
+                borderSide: BorderSide(
+                  color: Color(0xFFA19E9E),
+                  width: 1.0,
+                ),
+              ),
               focusedBorder: const OutlineInputBorder(
-                borderSide: BorderSide(color: Color(0xFF302E2E)),
+                borderSide: BorderSide(
+                  color: Color(0xFF302E2E),
+                  width: 1.0,
+                ),
               ),
               hintText: hintText,
               hintStyle: const TextStyle(
@@ -215,27 +272,41 @@ class _MyBankAccountPageState extends State<MyBankAccountPage> {
             ),
           ),
         ),
+        errorMessageVisible
+            ? Text(
+                accountNumberErrorMessage,
+                style: const TextStyle(
+                  color: Color(0xFFE20529),
+                  fontSize: 11,
+                ),
+              )
+            : const SizedBox.shrink(),
       ],
     );
   }
 
-//은행 선택
+  //은행 선택
   Widget _buildAccountSelect(String bankText) {
     void toggleListVisibility() {
       FocusScope.of(context).unfocus();
       setState(() {
-        _isSelectListVisible = !_isSelectListVisible;
+        isBankListVisible = !isBankListVisible;
       });
     }
 
     void _selectItem(String item) {
       setState(() {
-        _selectedItem = item;
-        _storedBank = item;
-        _isSelectListVisible = false;
-        isSubmitVerificationCodeActive = true;
-        Pressed = true;
+        selectedBankName = item;
+        isBankListVisible = false;
       });
+
+      if (isBankNameSelected == false) {
+        setState(() {
+          isBankNameSelected = true;
+        });
+
+        updateFormatState();
+      }
     }
 
     return Column(
@@ -243,18 +314,15 @@ class _MyBankAccountPageState extends State<MyBankAccountPage> {
       children: [
         _titleEachSection("은행 선택"),
         GestureDetector(
-          onTap: () {
-            setState(() {
-              toggleListVisibility();
-            });
-          },
+          onTap: toggleListVisibility,
           child: Container(
             height: 40,
             decoration: BoxDecoration(
               border: Border.all(
-                color: _isSelectListVisible
+                color: isBankListVisible
                     ? const Color(0xFF302E2E)
                     : const Color(0xFFA19E9E),
+                width: 1.0,
               ),
               borderRadius: const BorderRadius.all(Radius.circular(4)),
             ),
@@ -276,7 +344,7 @@ class _MyBankAccountPageState extends State<MyBankAccountPage> {
                     : Text(
                         bankText,
                         style: TextStyle(
-                          color: _isSelectListVisible
+                          color: isBankNameSelected
                               ? const Color(0xff302E2E)
                               : const Color(0xFFA19E9E),
                           fontSize: 14,
@@ -284,10 +352,10 @@ class _MyBankAccountPageState extends State<MyBankAccountPage> {
                         ),
                       ),
                 Icon(
-                  _isSelectListVisible
+                  isBankNameSelected
                       ? Icons.keyboard_arrow_down_sharp
                       : Icons.keyboard_arrow_right_sharp,
-                  color: _isSelectListVisible
+                  color: isBankNameSelected
                       ? const Color(0xff726E6E)
                       : const Color(0xffA19E9E),
                 )
@@ -295,7 +363,7 @@ class _MyBankAccountPageState extends State<MyBankAccountPage> {
             ),
           ),
         ),
-        if (_isSelectListVisible)
+        if (isBankListVisible)
           Container(
             margin: const EdgeInsets.only(top: 8),
             decoration: BoxDecoration(
@@ -354,6 +422,7 @@ class _MyBankAccountPageState extends State<MyBankAccountPage> {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(14.0),
           ),
+          surfaceTintColor: Colors.transparent,
           title: const Column(
             children: [
               Text(
@@ -377,7 +446,7 @@ class _MyBankAccountPageState extends State<MyBankAccountPage> {
             ],
           ),
           content: Text(
-            '$accountNumber $_selectedItem',
+            '$typedAccountNumber $selectedBankName',
             textAlign: TextAlign.center,
             style: const TextStyle(
                 fontSize: 16,
@@ -390,19 +459,14 @@ class _MyBankAccountPageState extends State<MyBankAccountPage> {
               children: [
                 ElevatedButton(
                   onPressed: () {
-                    // showCustomPopup(context, screenSize);
+                    FocusScope.of(context).unfocus();
+
                     showPopup(context, text);
                     Navigator.of(context).pop();
                     Navigator.of(context).pop();
 
-                    data = false;
-
-                    String accountNumber = _accountController.text;
-                    _saveAccount(accountNumber, _storedBank);
-                    setState(() {
-                      _storedAccount = accountNumber;
-                      _accountController.clear();
-                    });
+                    _saveAccount(typedAccountNumber, selectedBankName);
+                    accountNumberController.clear();
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFFE20529),
@@ -461,16 +525,16 @@ class _MyBankAccountPageState extends State<MyBankAccountPage> {
                       color: Color(0xFF726E6E),
                       size: 16,
                     ),
-                    Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 16),
-                      child: Text(
-                        '운영자는 회원이 저장, 게시 또는 전송한 자료와\n관련하여 일체의 책임을 지지 않습니다.',
-                        style: TextStyle(
-                            color: Color(0xFF726E6E),
-                            fontSize: 11,
-                            fontWeight: FontWeight.w400),
-                        textAlign: TextAlign.center,
-                      ),
+                    SizedBox(
+                      width: 4,
+                    ),
+                    Text(
+                      '운영자는 회원이 저장, 게시 또는 전송한 자료와\n관련하여 일체의 책임을 지지 않습니다.',
+                      style: TextStyle(
+                          color: Color(0xFF726E6E),
+                          fontSize: 11,
+                          fontWeight: FontWeight.w400),
+                      textAlign: TextAlign.center,
                     ),
                   ],
                 )

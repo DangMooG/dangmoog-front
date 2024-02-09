@@ -54,9 +54,6 @@ class _ChatDetailOptionsState extends State<ChatDetailOptions> {
 
   bool saveBankAccount = true;
 
-  String accountNumber = '';
-  String? selectedBank;
-
   late SocketProvider socketChannel;
 
   // 은행별로 divider 넣어주기 위함 //
@@ -82,6 +79,7 @@ class _ChatDetailOptionsState extends State<ChatDetailOptions> {
           if (item != items.last)
             const DropdownMenuItem<String>(
               enabled: false,
+              value: null,
               child: Divider(
                 color: Color(0xffD3D2D2),
               ),
@@ -106,12 +104,92 @@ class _ChatDetailOptionsState extends State<ChatDetailOptions> {
   }
 
   void setBankAccount(BuildContext context) async {
+    Future<void> _saveAccount(String accountNumber, String bankName) async {
+      try {
+        Response response =
+            await ApiService().uploadBank(bankName, accountNumber);
+      } catch (e) {
+        print(e);
+      }
+
+      await storage.write(key: 'bankName', value: bankName);
+      await storage.write(key: 'accountNumber', value: accountNumber);
+    }
+
+    String typedAccountNumber = "";
+    String? selectedBankName;
+
+    bool isAccountNumberFormatOkay = false;
+    bool isBankNameSelected = false;
+
+    bool isSubmitButtonActive = false;
+
+    bool errorMessageVisible = false;
+    String accountNumberErrorMessage = "계좌번호의 길이가 올바르지 않습니다.";
+
     showDialog(
       barrierDismissible: false,
       context: context,
       builder: (context) {
         return StatefulBuilder(
           builder: (context, setState) {
+            void updateFormatState() {
+              if (isAccountNumberFormatOkay == true &&
+                  isBankNameSelected == true) {
+                if (isSubmitButtonActive == false) {
+                  setState(() {
+                    isSubmitButtonActive = true;
+                  });
+                }
+              } else {
+                if (isSubmitButtonActive == true) {
+                  setState(() {
+                    isSubmitButtonActive = false;
+                  });
+                }
+              }
+            }
+
+            void onAccountNumberChanged(String value) {
+              setState(() {
+                typedAccountNumber = value;
+              });
+
+              if (value.length >= 10 && value.length <= 14) {
+                if (isAccountNumberFormatOkay == false) {
+                  setState(() {
+                    isAccountNumberFormatOkay = true;
+                  });
+                }
+
+                if (errorMessageVisible == true) {
+                  setState(() {
+                    errorMessageVisible = false;
+                  });
+                }
+              } else {
+                if (isAccountNumberFormatOkay == true) {
+                  setState(() {
+                    isAccountNumberFormatOkay = false;
+                  });
+                }
+
+                if (errorMessageVisible == false) {
+                  setState(() {
+                    errorMessageVisible = true;
+                  });
+                }
+              }
+
+              if (value.isEmpty) {
+                setState(() {
+                  errorMessageVisible = false;
+                });
+              }
+
+              updateFormatState();
+            }
+
             return GestureDetector(
               behavior: HitTestBehavior.opaque,
               onTap: () {
@@ -156,7 +234,7 @@ class _ChatDetailOptionsState extends State<ChatDetailOptions> {
                             width: 300,
                             child: TextField(
                               decoration: const InputDecoration(
-                                hintText: '계좌번호 입력',
+                                hintText: '계좌번호 입력(10~14자리)',
                                 hintStyle: TextStyle(
                                   color: Color(0xffA19E9E),
                                   fontSize: 14,
@@ -182,12 +260,22 @@ class _ChatDetailOptionsState extends State<ChatDetailOptions> {
                                 fontWeight: FontWeight.w400,
                               ),
                               keyboardType: TextInputType.number,
-                              onChanged: (value) {
-                                accountNumber = value;
-                              },
+                              onChanged: onAccountNumberChanged,
                             ),
                           ),
-                          const SizedBox(height: 20),
+                          errorMessageVisible
+                              ? Padding(
+                                  padding: const EdgeInsets.only(top: 8.0),
+                                  child: Text(
+                                    accountNumberErrorMessage,
+                                    style: const TextStyle(
+                                      color: Color(0xFFE20529),
+                                      fontSize: 11,
+                                    ),
+                                  ),
+                                )
+                              : const SizedBox.shrink(),
+                          const SizedBox(height: 8),
                           GestureDetector(
                             child: DropdownButtonHideUnderline(
                               child: DropdownButton2<String>(
@@ -205,11 +293,19 @@ class _ChatDetailOptionsState extends State<ChatDetailOptions> {
                                   ),
                                 ),
                                 items: _addDividersAfterItems(bankNameList),
-                                value: selectedBank,
+                                value: selectedBankName,
                                 onChanged: (String? value) {
                                   setState(() {
-                                    selectedBank = value;
+                                    selectedBankName = value;
                                   });
+
+                                  if (isBankNameSelected == false) {
+                                    setState(() {
+                                      isBankNameSelected = true;
+                                    });
+
+                                    updateFormatState();
+                                  }
                                 },
                                 iconStyleData: IconStyleData(
                                     icon: const Icon(
@@ -272,43 +368,34 @@ class _ChatDetailOptionsState extends State<ChatDetailOptions> {
                         children: [
                           accountButtonWidget(
                               '바로 발송하기',
-                              const Color(0xFFE20529),
+                              isSubmitButtonActive
+                                  ? const Color(0xFFE20529)
+                                  : const Color(0xffD3D2D2),
                               Colors.transparent,
                               Colors.white, () async {
-                            if (selectedBank != null) {
-                              // 국내 은행의 계좌번호는 10~14자리
-                              if (saveBankAccount) {
-                                await storage.write(
-                                    key: 'encrypted_bank', value: selectedBank);
-                                await storage.write(
-                                    key: 'encrypted_account',
-                                    value: accountNumber);
+                            if (isSubmitButtonActive == true) {
+                              if (selectedBankName != "" &&
+                                  selectedBankName != null &&
+                                  typedAccountNumber != "") {
+                                // 국내 은행의 계좌번호는 10~14자리
+                                if (saveBankAccount) {
+                                  _saveAccount(
+                                      typedAccountNumber, selectedBankName!);
+                                }
                               }
+                              handleTextChatSubmitted(
+                                  "$selectedBankName $typedAccountNumber");
+                              Navigator.pop(context);
                             }
-
-                            handleTextChatSubmitted(
-                                "$selectedBank $accountNumber");
-                            // Provider.of<SocketProvider>(context, listen: false)
-                            //     .onSendMessage(
-                            //   "$selectedBank $accountNumber",
-                            //   widget.roomId,
-                            // );
-
-                            // var newMessage = ChatDetailMessageModel(
-                            //   isMine: true,
-                            //   message: "$selectedBank $accountNumber",
-                            //   read: true,
-                            //   createTime: DateTime.now(),
-                            // );
-                            // Provider.of<ChatProvider>(context, listen: false)
-                            //     .addChatContent(newMessage);
                           }),
                           accountButtonWidget(
                             '취소하기',
                             Colors.transparent,
                             const Color(0xFF726E6E),
                             const Color(0xff726E6E),
-                            () {},
+                            () {
+                              Navigator.pop(context);
+                            },
                           ),
                         ],
                       ),
@@ -366,8 +453,8 @@ class _ChatDetailOptionsState extends State<ChatDetailOptions> {
 
   // 계좌 정보 전송
   void sendBankAccount(BuildContext context) async {
-    final bankAccountName = await storage.read(key: 'encrypted_bank');
-    final bankAccountNumber = await storage.read(key: 'encrypted_account');
+    final bankAccountName = await storage.read(key: 'bankName');
+    final bankAccountNumber = await storage.read(key: 'accountNumber');
 
     // 이미 등록된 계좌가 존재하는 경우
     if (bankAccountName != null && bankAccountNumber != null) {
@@ -697,10 +784,7 @@ class _ChatDetailOptionsState extends State<ChatDetailOptions> {
     return SizedBox(
       width: 300,
       child: TextButton(
-        onPressed: () {
-          Navigator.pop(context);
-          onTap();
-        },
+        onPressed: onTap,
         style: ButtonStyle(
           backgroundColor: MaterialStateProperty.resolveWith<Color>(
             (Set<MaterialState> states) {
