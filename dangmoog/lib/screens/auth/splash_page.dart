@@ -74,12 +74,10 @@ class _SplashScreenState extends State<SplashScreen> {
     // 만약 해당 값이 존재하지 않을 경우 null 값이 저장된다.
     final accessToken = await storage.read(key: 'accessToken');
     final userId = await storage.read(key: 'userId');
-
     // accessToken userId가 존재할 경우
     if (accessToken != null && userId != null) {
       try {
         Response response = await ApiService().autoLogin();
-        print(response.data);
 
         // 유효한 토큰일 경우
         if (response.statusCode == 200) {
