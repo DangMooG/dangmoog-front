@@ -560,6 +560,7 @@ class _AddPostPageState extends State<AddPostPage> {
           builder: (BuildContext dialogContext) {
             Size screenSize = MediaQuery.of(context).size;
             return AlertDialog(
+              surfaceTintColor: Colors.transparent,
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(14)),
               content: SingleChildScrollView(
@@ -1383,13 +1384,13 @@ class _AddPostPageState extends State<AddPostPage> {
                 getRecommendedPrice();
               },
               style: TextButton.styleFrom(
-                minimumSize: const Size(111, 24),
+                minimumSize: const Size(90, 24),
                 backgroundColor: const Color(0xFFEC5870),
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(6)),
               ),
               child: const Text(
-                'AI 가격 추천(BETA)',
+                'AI 가격 추천',
                 style: TextStyle(
                   fontSize: 11,
                   color: Colors.white,
@@ -1411,7 +1412,8 @@ class _AddPostPageState extends State<AddPostPage> {
                   padding: const EdgeInsets.only(right: 4.0),
                   child: TextButton(
                     onPressed: () {
-                      priceController.text = convertMoneyFormat(price);
+                      priceController.text =
+                          convertMoneyFormat(price).replaceAll("원", "");
                       if (isFree == true) {
                         setState(() {
                           isFree = !isFree;

@@ -254,6 +254,7 @@ class _LockerValState extends State<LockerValPage> {
         Size screenSize = MediaQuery.of(context).size;
         // Use SingleChildScrollView to prevent overflow
         return AlertDialog(
+            surfaceTintColor: Colors.transparent,
             shape:
                 RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
             content: SingleChildScrollView(
