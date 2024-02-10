@@ -127,7 +127,7 @@ class _ProductListSortingState extends State<ProductListSorting> {
           ),
           content: SizedBox(
             width: 270,
-            height: screenSize.height * 0.226,
+            height: screenSize.height * 0.3,
             child: Column(
               children: [
                 CustomTextButtonWithBorder(
@@ -137,7 +137,7 @@ class _ProductListSortingState extends State<ProductListSorting> {
                     Navigator.of(context).pop();
                     newindex = 0;
                   },
-                  height: screenSize.height * 0.044,
+                  height: screenSize.height * 0.06,
                 ),
                 CustomTextButtonWithBorder(
                   text: '거래중',
@@ -146,7 +146,7 @@ class _ProductListSortingState extends State<ProductListSorting> {
                     Navigator.of(context).pop();
                     newindex = 1;
                   },
-                  height: screenSize.height * 0.044,
+                  height: screenSize.height * 0.06,
                 ),
                 CustomTextButtonWithBorder(
                   text: '예약중',
@@ -155,7 +155,7 @@ class _ProductListSortingState extends State<ProductListSorting> {
                     Navigator.of(context).pop();
                     newindex = 2;
                   },
-                  height: screenSize.height * 0.044,
+                  height: screenSize.height * 0.06,
                 ),
                 CustomTextButtonWithBorder(
                   text: '거래완료',
@@ -164,19 +164,19 @@ class _ProductListSortingState extends State<ProductListSorting> {
                     Navigator.of(context).pop();
                     newindex = 3;
                   },
-                  height: screenSize.height * 0.044,
+                  height: screenSize.height * 0.06,
                 ),
                 SizedBox(
-                  height: screenSize.height * 0.044,
+                  height: screenSize.height * 0.06,
                   child: TextButton(
                     onPressed: () {
                       Navigator.of(context).pop();
                     },
-                    style: ButtonStyle(
-                      fixedSize: MaterialStateProperty.all<Size>(
-                        const Size(375, 36), // 크기를 원하는대로 설정
-                      ),
-                    ),
+                    // style: ButtonStyle(
+                    //   fixedSize: MaterialStateProperty.all<Size>(
+                    //     const Size(375, 36),
+                    //   ),
+                    // ),
                     child: const Text(
                       '취소',
                       style: TextStyle(

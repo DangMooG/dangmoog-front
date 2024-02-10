@@ -205,7 +205,7 @@ class _ChatDetailOptionsState extends State<ChatDetailOptions> {
                 insetPadding: const EdgeInsets.all(10),
                 child: Container(
                   padding: const EdgeInsets.all(20),
-                  width: 350,
+                  width: 320,
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -232,7 +232,7 @@ class _ChatDetailOptionsState extends State<ChatDetailOptions> {
                       Column(
                         children: [
                           SizedBox(
-                            width: 300,
+                            width: 280,
                             child: TextField(
                               decoration: const InputDecoration(
                                 hintText: '계좌번호 입력(10~14자리)',
@@ -321,7 +321,7 @@ class _ChatDetailOptionsState extends State<ChatDetailOptions> {
                                         ))),
                                 buttonStyleData: const ButtonStyleData(
                                   height: 40,
-                                  width: 300,
+                                  width: 280,
                                   decoration: BoxDecoration(
                                     border: Border(
                                         bottom: BorderSide(
@@ -333,7 +333,7 @@ class _ChatDetailOptionsState extends State<ChatDetailOptions> {
                                 ),
                                 dropdownStyleData: DropdownStyleData(
                                   maxHeight: 160,
-                                  width: 300,
+                                  width: 280,
                                   padding: EdgeInsets.zero,
                                   scrollPadding: EdgeInsets.zero,
                                   decoration: BoxDecoration(
@@ -694,6 +694,8 @@ class _ChatDetailOptionsState extends State<ChatDetailOptions> {
                     color: Color(0xff302E2E),
                   ),
                 ),
+                contentPadding:
+                    const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
                 content: const Text(
                   '저장된 사물함 위치와 비밀번호, 업로드된 사진을 구매자에게 바로 보내시겠어요? 사물함의 정보 발송은 되돌리기 어려운 만큼 구매자와 상의 후 신중히 발송하시기 바랍니다.',
                   textAlign: TextAlign.center,
@@ -708,6 +710,36 @@ class _ChatDetailOptionsState extends State<ChatDetailOptions> {
                   Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(6),
+                        child: Image.network(
+                          lockerValPhotoUrl!,
+                          width: 208,
+                          height: 208,
+                          fit: BoxFit.cover,
+                          errorBuilder: (BuildContext context, Object error,
+                              StackTrace? stackTrace) {
+                            return Image.network(
+                              lockerValPhotoUrl!,
+                              width: 208,
+                              height: 208,
+                              fit: BoxFit.cover,
+                              errorBuilder: (BuildContext context, Object error,
+                                  StackTrace? stackTrace) {
+                                return Image.asset(
+                                  'assets/images/sample.png',
+                                  fit: BoxFit.cover,
+                                  width: 208,
+                                  height: 208,
+                                );
+                              },
+                            );
+                          },
+                        ),
+                      ),
+                      const SizedBox(
+                        height: 8,
+                      ),
                       Text(
                         lockerMessage,
                         style: const TextStyle(
@@ -791,7 +823,7 @@ class _ChatDetailOptionsState extends State<ChatDetailOptions> {
   Widget accountButtonWidget(String text, Color btnColor, Color borderColor,
       Color textColor, VoidCallback onTap) {
     return SizedBox(
-      width: 300,
+      width: 280,
       child: TextButton(
         onPressed: onTap,
         style: ButtonStyle(
