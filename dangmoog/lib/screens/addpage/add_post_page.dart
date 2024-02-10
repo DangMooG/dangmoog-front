@@ -560,66 +560,78 @@ class _AddPostPageState extends State<AddPostPage> {
           context: context,
           builder: (BuildContext dialogContext) {
             Size screenSize = MediaQuery.of(context).size;
-            return AlertDialog(
+            return Dialog(
+              surfaceTintColor: Colors.transparent,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(14),
               ),
-              content: SizedBox(
-                width: screenSize.width * 0.55,
-                height: screenSize.height * 0.21,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text(
-                      '사진 업로드 방식을\n선택해주세요!',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        addPhotoButtonPopUp(
-                            screenSize, Icons.add_a_photo_outlined, '카메라', () {
-                          getImagesFromCamera(context);
-                        }),
-                        const SizedBox(
-                          width: 30,
-                        ),
-                        addPhotoButtonPopUp(screenSize,
-                            Icons.add_photo_alternate_outlined, '앨범', () {
-                          getImagesFromAlbum(context);
-                        }),
-                      ],
-                    ),
-                    GestureDetector(
-                      onTap: () {
-                        Navigator.of(context).pop();
-                      },
-                      child: Container(
-                        width: 228,
-                        height: 36,
-                        alignment: Alignment.center,
-                        decoration: BoxDecoration(
-                          border: Border.all(
-                            color: const Color(0xff726E6E),
-                            width: 1.0,
-                          ),
-                          borderRadius: BorderRadius.circular(6),
-                        ),
-                        child: const Text(
-                          '취소하기',
-                          style: TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w400,
-                            color: Color(0xff726E6E),
-                          ),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                child: SizedBox(
+                  width: screenSize.width * 0.55,
+                  // height: screenSize.height * 0.21,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Text(
+                        '사진 업로드 방식을\n선택해주세요!',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
                         ),
                       ),
-                    )
-                  ],
+                      const SizedBox(
+                        height: 16,
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          addPhotoButtonPopUp(
+                              screenSize, Icons.add_a_photo_outlined, '카메라',
+                              () {
+                            getImagesFromCamera(context);
+                          }),
+                          const SizedBox(
+                            width: 30,
+                          ),
+                          addPhotoButtonPopUp(screenSize,
+                              Icons.add_photo_alternate_outlined, '앨범', () {
+                            getImagesFromAlbum(context);
+                          }),
+                        ],
+                      ),
+                      const SizedBox(
+                        height: 16,
+                      ),
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.of(context).pop();
+                        },
+                        child: Container(
+                          width: 228,
+                          height: 36,
+                          alignment: Alignment.center,
+                          decoration: BoxDecoration(
+                            border: Border.all(
+                              color: const Color(0xff726E6E),
+                              width: 1.0,
+                            ),
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: const Text(
+                            '취소하기',
+                            style: TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w400,
+                              color: Color(0xff726E6E),
+                            ),
+                          ),
+                        ),
+                      )
+                    ],
+                  ),
                 ),
               ),
             );
