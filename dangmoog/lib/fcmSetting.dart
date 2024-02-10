@@ -1,6 +1,7 @@
 // ignore_for_file: avoid_print
 
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:dangmoog/firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -56,8 +57,6 @@ Future<void> setupNotifications() async {
 }
 
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  print("원본");
-  print(message);
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   String title = message.notification?.title ?? "알림";
@@ -65,17 +64,11 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 
   Map<String, dynamic> data = message.data;
   String? bodyJson = data['body'];
-  print("json");
-  print(bodyJson);
   if (bodyJson != null) {
     Map<String, dynamic> body = jsonDecode(bodyJson);
     String type = body['type'];
     messageText = type == "img" ? "사진" : body['message'];
   }
-
-  print("메시지");
-  print(title);
-  print(messageText);
 
   const NotificationDetails platformChannelSpecifics = NotificationDetails(
     android: androidPlatformChannelSpecifics,
@@ -109,15 +102,17 @@ Future<String?> fcmSetting() async {
     sound: true,
   );
 
-  NotificationSettings settings = await messaging.requestPermission(
-    alert: true,
-    announcement: false,
-    badge: true,
-    carPlay: false,
-    criticalAlert: false,
-    provisional: false,
-    sound: true,
-  );
+  if (Platform.isIOS) {
+    await messaging.requestPermission(
+      alert: true,
+      announcement: false,
+      badge: true,
+      carPlay: false,
+      criticalAlert: false,
+      provisional: false,
+      sound: true,
+    );
+  }
 
   // foreground 에서의 푸시 알림 표시를 위한 local notifications 설정
   final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
@@ -130,13 +125,14 @@ Future<String?> fcmSetting() async {
   // foreground 푸시 알림 핸들링
   FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
     print("foregorund mesga");
-    print(message);
+    print(message.toString());
 
     // RemoteNotification? notification = message.notification;
     AndroidNotification? android = message.notification?.android;
 
     String title = message.notification?.title ?? "알림";
     String messageText = "message";
+    print(title);
 
     Map<String, dynamic> data = message.data;
     String? bodyJson = data['body'];
@@ -155,15 +151,23 @@ Future<String?> fcmSetting() async {
       ),
     );
 
+    print("메시지");
+    print(messageText);
+
     if (message.notification != null && android != null) {
       await flutterLocalNotificationsPlugin.show(
         0,
         title,
-        messageText,
+        // messageText,
+        "포그라운드여",
         platformChannelSpecifics,
       );
     }
   });
+
+  await messaging
+      .getInitialMessage()
+      .then((message) => _firebaseMessagingBackgroundHandler);
 
   // firebase token 발급
   String? firebaseToken = await messaging.getToken();
