@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:dangmoog/screens/home.dart';
 import 'package:dangmoog/screens/main_page.dart';
 import 'package:dangmoog/services/api.dart';
@@ -163,18 +165,14 @@ class _AuthPageState extends State<AuthPage> {
         });
         String accessToken = response.data['access_token'];
         int userId = response.data['account_id'];
-
-        // 키에 대한 값이 없어도 에러 발생 X
         await storage.delete(key: 'accessToken');
         await storage.delete(key: 'userId');
-
         await storage.write(key: 'accessToken', value: accessToken);
         await storage.write(key: 'userId', value: userId.toString());
 
         // 인증에 성공한 이메일을 전역 상태로 저장
         if (!mounted) return;
         Provider.of<UserProvider>(context, listen: false).setEmail(inputEmail);
-
         // 내가 올린 게시글들의 ID 목록 전역 상태로 저장
         Provider.of<UserProvider>(context, listen: false).getMyPostListId();
 
@@ -192,20 +190,29 @@ class _AuthPageState extends State<AuthPage> {
           } else {
             try {
               final response = await ApiService().autoLogin();
+
               if (response.statusCode == 200) {
                 final userNickname = response.data['username'];
+                final nicknameState = response.data['available'];
+                final String? profileUrl = response.data["profile_url"];
+
                 Provider.of<UserProvider>(context, listen: false)
                     .setNickname(userNickname);
+                Provider.of<UserProvider>(context, listen: false)
+                    .setUserImage(profileUrl);
+                Provider.of<UserProvider>(context, listen: false)
+                    .updateNicknameButton(nicknameState);
+
+                await storage.write(
+                    key: "accountNumber",
+                    value: response.data["account_number"]);
+                await storage.write(
+                    key: "bankName", value: response.data["bank_info"]);
               }
             } catch (e) {
               print(e);
             }
 
-            // Navigator.pushAndRemoveUntil(
-            //   context,
-            //   MaterialPageRoute(builder: (context) => const MainPage()),
-            //   (route) => false,
-            // );
             Navigator.pushNamedAndRemoveUntil(
               context,
               '/mainpage',
