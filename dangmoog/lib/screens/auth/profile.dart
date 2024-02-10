@@ -244,14 +244,15 @@ class _ProfilePageState extends State<ProfilePage> {
                       ),
                     ),
                     Positioned(
-                      top: screenSize.height * 0.2,
-                      left: screenSize.height * 0.2,
+                      bottom: 5,
+                      right: 15,
                       child: GestureDetector(
                         onTap: () {
                           showDialog(
                             context: context,
                             builder: (BuildContext context) {
                               return Dialog(
+                                surfaceTintColor: Colors.transparent,
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(14),
                                 ),
