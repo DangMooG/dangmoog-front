@@ -243,14 +243,15 @@ class _ProfileChangePageState extends State<ProfileChangePage> {
                 );
               }),
               Positioned(
-                top: 155,
-                left: 155,
+                bottom: 5,
+                right: 15,
                 child: GestureDetector(
                   onTap: () {
                     showDialog(
                       context: context,
                       builder: (BuildContext context) {
                         return AlertDialog(
+                          surfaceTintColor: Colors.transparent,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(14),
                           ),

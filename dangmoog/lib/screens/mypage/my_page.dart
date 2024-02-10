@@ -264,7 +264,7 @@ class _MyPageState extends State<MyPage> {
                       'https://dangmoog.notion.site/e2c98dd1ce0049dba05a37d550a83f18?pvs=4'),
                 );
               }),
-          mypageButton(
+          mypageButtonSecond(
               text: '도토릿 소개',
               imageUrl: 'assets/images/dotorit_intro_icon.png',
               onPressed: () {
@@ -274,7 +274,7 @@ class _MyPageState extends State<MyPage> {
                 );
               }),
           MypageText(
-              text: '버전 1.1.2',
+              text: '버전 1.0.0',
               icon: Icons.device_hub_outlined,
               onPressed: () {
                 // showPopup(context, "서비스 예정입니다");
@@ -440,6 +440,53 @@ class mypageButton extends StatelessWidget {
               imageUrl,
               width: 24,
               height: 24,
+            ),
+            const SizedBox(width: 8),
+            Text(
+              text,
+              style: const TextStyle(
+                color: Color(0xFF302E2E),
+                fontSize: 16,
+                fontWeight: FontWeight.w400,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class mypageButtonSecond extends StatelessWidget {
+  final String text;
+  final String imageUrl;
+  final VoidCallback onPressed;
+
+  const mypageButtonSecond({
+    super.key,
+    required this.text,
+    required this.imageUrl,
+    required this.onPressed,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    Size screenSize = MediaQuery.of(context).size;
+    return SizedBox(
+      height: screenSize.height * 0.049,
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: onPressed,
+        child: Row(
+          children: [
+            const SizedBox(width: 12),
+            Padding(
+              padding: const EdgeInsets.only(left: 4),
+              child: Image.asset(
+                imageUrl,
+                width: 24,
+                height: 24,
+              ),
             ),
             const SizedBox(width: 8),
             Text(
