@@ -244,7 +244,6 @@ class _MyPageState extends State<MyPage> {
               '기타',
               style: TextStyle(
                 color: Color(0xFF302E2E),
-                fontFamily: 'Pretendard-Semibold',
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
               ),
@@ -275,10 +274,10 @@ class _MyPageState extends State<MyPage> {
                 );
               }),
           MypageText(
-              text: '버전 정보',
+              text: '버전 1.1.2',
               icon: Icons.device_hub_outlined,
               onPressed: () {
-                showPopup(context, "서비스 예정입니다");
+                // showPopup(context, "서비스 예정입니다");
               }),
           MypageText(
               text: '로그아웃',
@@ -367,7 +366,7 @@ class _MyPageState extends State<MyPage> {
                         const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                     minimumSize: Size(
                       screenSize.width * 0.67,
-                      screenSize.height * 0.044,
+                      40,
                     ),
                   ),
                   child: const Text(
@@ -381,7 +380,6 @@ class _MyPageState extends State<MyPage> {
                 ),
                 ElevatedButton(
                   onPressed: () {
-                    // 팝업 창을 닫을 때 수행할 작업을 여기에 추가하세요.
                     Navigator.of(context).pop();
                   },
                   style: ElevatedButton.styleFrom(
@@ -395,7 +393,7 @@ class _MyPageState extends State<MyPage> {
                         const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                     minimumSize: Size(
                       screenSize.width * 0.67,
-                      screenSize.height * 0.044,
+                      40,
                     ),
                   ),
                   child: const Text(

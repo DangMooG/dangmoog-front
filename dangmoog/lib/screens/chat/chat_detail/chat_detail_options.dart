@@ -514,8 +514,7 @@ class _ChatDetailOptionsState extends State<ChatDetailOptions> {
                         child: TextButton(
                           onPressed: () {
                             handleTextChatSubmitted(
-                                "$bankAccountNumber $bankAccountName");
-
+                                "$bankAccountName $bankAccountNumber");
                             Navigator.pop(context);
                           },
                           style: ButtonStyle(
@@ -641,6 +640,7 @@ class _ChatDetailOptionsState extends State<ChatDetailOptions> {
                   children: [
                     accountButtonWidget('작성하기', const Color(0xFFE20529),
                         Colors.transparent, Colors.white, () {
+                      Navigator.pop(context);
                       setBankAccount(context);
                     }),
                     accountButtonWidget(
@@ -648,7 +648,9 @@ class _ChatDetailOptionsState extends State<ChatDetailOptions> {
                       Colors.transparent,
                       const Color(0xFF726E6E),
                       const Color(0xff726E6E),
-                      () {},
+                      () {
+                        Navigator.pop(context);
+                      },
                     ),
                   ],
                 ),
@@ -724,6 +726,7 @@ class _ChatDetailOptionsState extends State<ChatDetailOptions> {
                           Icon(
                             Icons.error_outline,
                             color: Color(0xff726E6E),
+                            size: 16,
                           ),
                           SizedBox(
                             width: 4,
@@ -732,7 +735,7 @@ class _ChatDetailOptionsState extends State<ChatDetailOptions> {
                             "해당 정보는 수정할 수 없는 내용입니다!",
                             style: TextStyle(
                               color: Color(0xff726E6E),
-                              fontSize: 14,
+                              fontSize: 11,
                               fontWeight: FontWeight.w400,
                             ),
                             overflow: TextOverflow.clip,
@@ -761,13 +764,16 @@ class _ChatDetailOptionsState extends State<ChatDetailOptions> {
                             );
                             Provider.of<ChatProvider>(context, listen: false)
                                 .addChatContent(newMessage);
+                            Navigator.pop(context);
                           }),
                           accountButtonWidget(
                             '취소하기',
                             Colors.transparent,
                             const Color(0xFF726E6E),
                             const Color(0xff726E6E),
-                            () {},
+                            () {
+                              Navigator.pop(context);
+                            },
                           ),
                         ],
                       ),
@@ -930,8 +936,6 @@ class _ChatDetailOptionsState extends State<ChatDetailOptions> {
             Response response =
                 await ApiService().getPhotoUrls(roomId!, imageFiles);
 
-            print(response.data);
-
             if (response.statusCode == 200) {
               final data = response.data;
 
@@ -1059,6 +1063,8 @@ class _ChatDetailOptionsState extends State<ChatDetailOptions> {
       }
 
       if (photoUrls.runtimeType == List<dynamic>) {
+        print("보낸 사진");
+        print(photoUrls);
         // 서버로 전송
         await socketChannel.onSendMessage(null, photoUrls, roomId!, true);
         final currentTime = DateTime.now();
@@ -1107,7 +1113,9 @@ class _ChatDetailOptionsState extends State<ChatDetailOptions> {
     }
   }
 
-  void sendLockerImage(lockerPhotoUrl) async {
+  void sendLockerImage(String lockerPhotoUrl) async {
+    print("사진");
+    print(lockerPhotoUrl);
     if (roomId != null && roomId != "") {
       List<dynamic> photoUrls = [lockerPhotoUrl, lockerLocationImageUrl];
 
