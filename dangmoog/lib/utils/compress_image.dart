@@ -6,7 +6,7 @@ Future<File> compressImage(File imageFile) async {
   await checkFileSize(imageFile);
 
   var tmpDir = await path_provider.getTemporaryDirectory();
-  var targetName = DateTime.now().millisecondsSinceEpoch;
+  var targetName = DateTime.now().microsecondsSinceEpoch;
 
   var compressFile = await FlutterImageCompress.compressAndGetFile(
     imageFile.absolute.path,
