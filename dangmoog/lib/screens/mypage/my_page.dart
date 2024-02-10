@@ -1,3 +1,4 @@
+import 'package:dangmoog/services/api.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -259,7 +260,10 @@ class _MyPageState extends State<MyPage> {
               text: '자주 묻는 질문',
               icon: Icons.support_agent_outlined,
               onPressed: () {
-                showPopup(context, "서비스 예정입니다");
+                launchUrl(
+                  Uri.parse(
+                      'https://dangmoog.notion.site/e2c98dd1ce0049dba05a37d550a83f18?pvs=4'),
+                );
               }),
           mypageButton(
               text: '도토릿 소개',
@@ -269,7 +273,6 @@ class _MyPageState extends State<MyPage> {
                   Uri.parse(
                       'https://dangmoog.notion.site/dangmoog/20ca8562e68f4e1b8b28c40461f0edda'),
                 );
-                // showPopup(context, "서비스 예정입니다");
               }),
           MypageText(
               text: '버전 정보',
@@ -339,8 +342,10 @@ class _MyPageState extends State<MyPage> {
                     try {
                       await storage.delete(key: 'accessToken');
                       await storage.delete(key: 'userId');
-                      await storage.delete(key: 'encrypted_bank');
-                      await storage.delete(key: 'encrypted_account');
+                      await storage.delete(key: 'bankName');
+                      await storage.delete(key: 'accountNumber');
+
+                      ApiService().fcmDelete();
 
                       if (!mounted) return;
                       Navigator.pushAndRemoveUntil(

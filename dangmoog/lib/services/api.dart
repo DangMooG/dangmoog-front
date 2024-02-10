@@ -23,6 +23,10 @@ class ApiService {
     return await _authClient.patch("account/fcm_update?fcm=$fcmToken");
   }
 
+  Future<Response> fcmDelete() async {
+    return await _authClient.patch("account/fcm_update");
+  }
+
   // 이메일 전송
   Future<Response> emailSend(inputEmail) async {
     return await _publicClient
