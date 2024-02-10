@@ -412,6 +412,7 @@ class _AddPostPageState extends State<AddPostPage> {
               kToolbarHeight + 0.5), // AppBar height + divider thickness
           child: Column(
             children: [
+              if (isUploading) const Center(child: CircularProgressIndicator()),
               AppBar(
                 title: Text(appbarTitle),
                 leading: IconButton(
@@ -521,14 +522,18 @@ class _AddPostPageState extends State<AddPostPage> {
     // 카메라, 앨범 버튼
     Widget addPhotoButtonPopUp(
         Size screenSize, IconData icon, String text, Function onTap) {
+      // Adjust the size of buttons dynamically if needed
+      double buttonSize = screenSize.width > 320
+          ? screenSize.width * 0.192
+          : screenSize.width * 0.25;
       return GestureDetector(
         onTap: () {
           onTap();
           Navigator.of(context).pop();
         },
         child: Container(
-          width: screenSize.width * 0.192,
-          height: screenSize.width * 0.192,
+          width: buttonSize,
+          height: buttonSize,
           decoration: const BoxDecoration(
             color: Color(0xffE20529),
             borderRadius: BorderRadius.all(Radius.circular(4)),
@@ -536,18 +541,12 @@ class _AddPostPageState extends State<AddPostPage> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(
-                icon,
-                color: Colors.white,
-              ),
-              Text(
-                text,
-                style: const TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w400,
-                  color: Colors.white,
-                ),
-              )
+              Icon(icon, color: Colors.white),
+              Text(text,
+                  style: const TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w400,
+                      color: Colors.white)),
             ],
           ),
         ),
@@ -560,31 +559,28 @@ class _AddPostPageState extends State<AddPostPage> {
           context: context,
           builder: (BuildContext dialogContext) {
             Size screenSize = MediaQuery.of(context).size;
-            return Dialog(
-              surfaceTintColor: Colors.transparent,
+            return AlertDialog(
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(14),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                child: SizedBox(
-                  width: screenSize.width * 0.55,
-                  // height: screenSize.height * 0.21,
+                  borderRadius: BorderRadius.circular(14)),
+              content: SingleChildScrollView(
+                // Wrap content in a SingleChildScrollView
+                child: ConstrainedBox(
+                  // Use ConstrainedBox to limit dialog size
+                  constraints: BoxConstraints(
+                      maxHeight: screenSize.height *
+                          0.4), // Limit dialog height to 40% of screen height
                   child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    mainAxisSize: MainAxisSize.min,
+                    mainAxisSize:
+                        MainAxisSize.min, // Use minimum size for the content
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       const Text(
                         '사진 업로드 방식을\n선택해주세요!',
                         textAlign: TextAlign.center,
                         style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                        ),
+                            fontSize: 16, fontWeight: FontWeight.w600),
                       ),
-                      const SizedBox(
-                        height: 16,
-                      ),
+                      const SizedBox(height: 16), // Adjust spacing as needed
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
@@ -594,39 +590,32 @@ class _AddPostPageState extends State<AddPostPage> {
                             getImagesFromCamera(context);
                           }),
                           const SizedBox(
-                            width: 30,
-                          ),
+                              width: 20), // Adjust spacing for smaller screens
                           addPhotoButtonPopUp(screenSize,
                               Icons.add_photo_alternate_outlined, '앨범', () {
                             getImagesFromAlbum(context);
                           }),
                         ],
                       ),
-                      const SizedBox(
-                        height: 16,
-                      ),
                       GestureDetector(
-                        onTap: () {
-                          Navigator.of(context).pop();
-                        },
+                        onTap: () => Navigator.of(context).pop(),
                         child: Container(
+                          margin: const EdgeInsets.only(
+                              top: 16), // Add some margin at the top
                           width: 228,
                           height: 36,
                           alignment: Alignment.center,
                           decoration: BoxDecoration(
                             border: Border.all(
-                              color: const Color(0xff726E6E),
-                              width: 1.0,
-                            ),
+                                color: const Color(0xff726E6E), width: 1.0),
                             borderRadius: BorderRadius.circular(6),
                           ),
                           child: const Text(
                             '취소하기',
                             style: TextStyle(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w400,
-                              color: Color(0xff726E6E),
-                            ),
+                                fontSize: 13,
+                                fontWeight: FontWeight.w400,
+                                color: Color(0xff726E6E)),
                           ),
                         ),
                       )
@@ -641,39 +630,25 @@ class _AddPostPageState extends State<AddPostPage> {
       child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(8),
-          border: Border.all(
-            color: const Color(0xFFA19E9E),
-            width: 1,
-          ),
+          border: Border.all(color: const Color(0xFFA19E9E), width: 1),
         ),
         width: 80,
         height: 80,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(
-              Icons.image_outlined,
-              color: Color(0xFFA19E9E),
-            ),
+            const Icon(Icons.image_outlined, color: Color(0xFFA19E9E)),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text(
-                  "${_imageList.length}",
-                  style: TextStyle(
-                    color: _imageList.isEmpty
-                        ? const Color(0xFFA19E9E)
-                        : const Color(0xFFE20529),
-                    fontSize: 12,
-                  ),
-                ),
-                const Text(
-                  "/10",
-                  style: TextStyle(
-                    color: Color(0xFFA19E9E),
-                    fontSize: 12,
-                  ),
-                ),
+                Text("${_imageList.length}",
+                    style: TextStyle(
+                        color: _imageList.isEmpty
+                            ? const Color(0xFFA19E9E)
+                            : const Color(0xFFE20529),
+                        fontSize: 12)),
+                const Text("/10",
+                    style: TextStyle(color: Color(0xFFA19E9E), fontSize: 12)),
               ],
             )
           ],
