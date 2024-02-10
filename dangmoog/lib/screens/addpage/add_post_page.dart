@@ -9,7 +9,6 @@ import 'package:intl/intl.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:image_picker/image_picker.dart';
 
-import 'package:dangmoog/screens/home.dart';
 import 'package:dangmoog/widgets/bottom_popup.dart';
 import 'package:dangmoog/constants/category_list.dart';
 import 'package:dangmoog/services/api.dart';
@@ -412,10 +411,8 @@ class _AddPostPageState extends State<AddPostPage> {
           preferredSize: const Size.fromHeight(
               kToolbarHeight + 0.5), // AppBar height + divider thickness
           child: Column(
-
             children: [
-              if (isUploading)
-                const Center(child: CircularProgressIndicator()),
+              if (isUploading) const Center(child: CircularProgressIndicator()),
               AppBar(
                 title: Text(appbarTitle),
                 leading: IconButton(
@@ -523,9 +520,12 @@ class _AddPostPageState extends State<AddPostPage> {
   // 사진 추가 버튼
   Widget _addImages(BuildContext context) {
     // 카메라, 앨범 버튼
-    Widget addPhotoButtonPopUp(Size screenSize, IconData icon, String text, Function onTap) {
+    Widget addPhotoButtonPopUp(
+        Size screenSize, IconData icon, String text, Function onTap) {
       // Adjust the size of buttons dynamically if needed
-      double buttonSize = screenSize.width > 320 ? screenSize.width * 0.192 : screenSize.width * 0.25;
+      double buttonSize = screenSize.width > 320
+          ? screenSize.width * 0.192
+          : screenSize.width * 0.25;
       return GestureDetector(
         onTap: () {
           onTap();
@@ -542,7 +542,11 @@ class _AddPostPageState extends State<AddPostPage> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Icon(icon, color: Colors.white),
-              Text(text, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w400, color: Colors.white)),
+              Text(text,
+                  style: const TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w400,
+                      color: Colors.white)),
             ],
           ),
         ),
@@ -556,28 +560,39 @@ class _AddPostPageState extends State<AddPostPage> {
           builder: (BuildContext dialogContext) {
             Size screenSize = MediaQuery.of(context).size;
             return AlertDialog(
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-              content: SingleChildScrollView( // Wrap content in a SingleChildScrollView
-                child: ConstrainedBox( // Use ConstrainedBox to limit dialog size
-                  constraints: BoxConstraints(maxHeight: screenSize.height * 0.4), // Limit dialog height to 40% of screen height
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(14)),
+              content: SingleChildScrollView(
+                // Wrap content in a SingleChildScrollView
+                child: ConstrainedBox(
+                  // Use ConstrainedBox to limit dialog size
+                  constraints: BoxConstraints(
+                      maxHeight: screenSize.height *
+                          0.4), // Limit dialog height to 40% of screen height
                   child: Column(
-                    mainAxisSize: MainAxisSize.min, // Use minimum size for the content
+                    mainAxisSize:
+                        MainAxisSize.min, // Use minimum size for the content
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       const Text(
                         '사진 업로드 방식을\n선택해주세요!',
                         textAlign: TextAlign.center,
-                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                        style: TextStyle(
+                            fontSize: 16, fontWeight: FontWeight.w600),
                       ),
-                      SizedBox(height: 16), // Adjust spacing as needed
+                      const SizedBox(height: 16), // Adjust spacing as needed
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          addPhotoButtonPopUp(screenSize, Icons.add_a_photo_outlined, '카메라', () {
+                          addPhotoButtonPopUp(
+                              screenSize, Icons.add_a_photo_outlined, '카메라',
+                              () {
                             getImagesFromCamera(context);
                           }),
-                          const SizedBox(width: 20), // Adjust spacing for smaller screens
-                          addPhotoButtonPopUp(screenSize, Icons.add_photo_alternate_outlined, '앨범', () {
+                          const SizedBox(
+                              width: 20), // Adjust spacing for smaller screens
+                          addPhotoButtonPopUp(screenSize,
+                              Icons.add_photo_alternate_outlined, '앨범', () {
                             getImagesFromAlbum(context);
                           }),
                         ],
@@ -585,17 +600,22 @@ class _AddPostPageState extends State<AddPostPage> {
                       GestureDetector(
                         onTap: () => Navigator.of(context).pop(),
                         child: Container(
-                          margin: const EdgeInsets.only(top: 16), // Add some margin at the top
+                          margin: const EdgeInsets.only(
+                              top: 16), // Add some margin at the top
                           width: 228,
                           height: 36,
                           alignment: Alignment.center,
                           decoration: BoxDecoration(
-                            border: Border.all(color: const Color(0xff726E6E), width: 1.0),
+                            border: Border.all(
+                                color: const Color(0xff726E6E), width: 1.0),
                             borderRadius: BorderRadius.circular(6),
                           ),
                           child: const Text(
                             '취소하기',
-                            style: TextStyle(fontSize: 13, fontWeight: FontWeight.w400, color: Color(0xff726E6E)),
+                            style: TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w400,
+                                color: Color(0xff726E6E)),
                           ),
                         ),
                       )
@@ -621,8 +641,14 @@ class _AddPostPageState extends State<AddPostPage> {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text("${_imageList.length}", style: TextStyle(color: _imageList.isEmpty ? const Color(0xFFA19E9E) : const Color(0xFFE20529), fontSize: 12)),
-                const Text("/10", style: TextStyle(color: Color(0xFFA19E9E), fontSize: 12)),
+                Text("${_imageList.length}",
+                    style: TextStyle(
+                        color: _imageList.isEmpty
+                            ? const Color(0xFFA19E9E)
+                            : const Color(0xFFE20529),
+                        fontSize: 12)),
+                const Text("/10",
+                    style: TextStyle(color: Color(0xFFA19E9E), fontSize: 12)),
               ],
             )
           ],
@@ -630,7 +656,6 @@ class _AddPostPageState extends State<AddPostPage> {
       ),
     );
   }
-
 
   // 사진 미리보기 위젯
   Widget _imagePreview(String imagePath) {

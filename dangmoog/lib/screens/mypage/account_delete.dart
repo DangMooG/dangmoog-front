@@ -81,7 +81,7 @@ class _AccountDeletePageState extends State<AccountDeletePage> {
                           child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(
+                                const Text(
                                   '탈퇴 전 꼭 확인해주세요.',
                                   style: TextStyle(
                                     color: Color(0xFF302E2E),
@@ -93,7 +93,7 @@ class _AccountDeletePageState extends State<AccountDeletePage> {
                                 Text(
                                   '계정을 삭제하면 게시글, 관심목록, 채팅 등의 모든 활동정보가 삭제되며, 계정 삭제 후 7일 간 다시 가입할 수 없습니다.',
                                   style: TextStyle(
-                                    color: Color(0xFF302E2E),
+                                    color: const Color(0xFF302E2E),
                                     fontSize: screenSize.height * 0.02,
                                     fontWeight: FontWeight.w400,
                                   ),
@@ -190,8 +190,10 @@ class _AccountDeletePageState extends State<AccountDeletePage> {
                     onPressed = () async {
                       if (isChecked && _selectedItem.isNotEmpty) {
                         try {
+                          ApiService().fcmDelete();
                           Response response =
                               await ApiService().deleteAccount();
+
                           if (response.statusCode == 204) {
                             await storage.delete(key: 'accessToken');
                             await storage.delete(key: 'userId');

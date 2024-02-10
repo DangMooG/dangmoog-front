@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:dangmoog/constants/locker_location_url.dart';
 import 'package:dangmoog/models/chat_detail_message_model.dart';
 import 'package:dangmoog/providers/chat_list_provider.dart';
 import 'package:dangmoog/providers/chat_provider.dart';
@@ -54,9 +55,6 @@ class _ChatDetailOptionsState extends State<ChatDetailOptions> {
 
   bool saveBankAccount = true;
 
-  String accountNumber = '';
-  String? selectedBank;
-
   late SocketProvider socketChannel;
 
   // 은행별로 divider 넣어주기 위함 //
@@ -82,6 +80,7 @@ class _ChatDetailOptionsState extends State<ChatDetailOptions> {
           if (item != items.last)
             const DropdownMenuItem<String>(
               enabled: false,
+              value: null,
               child: Divider(
                 color: Color(0xffD3D2D2),
               ),
@@ -106,12 +105,92 @@ class _ChatDetailOptionsState extends State<ChatDetailOptions> {
   }
 
   void setBankAccount(BuildContext context) async {
+    Future<void> _saveAccount(String accountNumber, String bankName) async {
+      try {
+        Response response =
+            await ApiService().uploadBank(bankName, accountNumber);
+      } catch (e) {
+        print(e);
+      }
+
+      await storage.write(key: 'bankName', value: bankName);
+      await storage.write(key: 'accountNumber', value: accountNumber);
+    }
+
+    String typedAccountNumber = "";
+    String? selectedBankName;
+
+    bool isAccountNumberFormatOkay = false;
+    bool isBankNameSelected = false;
+
+    bool isSubmitButtonActive = false;
+
+    bool errorMessageVisible = false;
+    String accountNumberErrorMessage = "계좌번호의 길이가 올바르지 않습니다.";
+
     showDialog(
       barrierDismissible: false,
       context: context,
       builder: (context) {
         return StatefulBuilder(
           builder: (context, setState) {
+            void updateFormatState() {
+              if (isAccountNumberFormatOkay == true &&
+                  isBankNameSelected == true) {
+                if (isSubmitButtonActive == false) {
+                  setState(() {
+                    isSubmitButtonActive = true;
+                  });
+                }
+              } else {
+                if (isSubmitButtonActive == true) {
+                  setState(() {
+                    isSubmitButtonActive = false;
+                  });
+                }
+              }
+            }
+
+            void onAccountNumberChanged(String value) {
+              setState(() {
+                typedAccountNumber = value;
+              });
+
+              if (value.length >= 10 && value.length <= 14) {
+                if (isAccountNumberFormatOkay == false) {
+                  setState(() {
+                    isAccountNumberFormatOkay = true;
+                  });
+                }
+
+                if (errorMessageVisible == true) {
+                  setState(() {
+                    errorMessageVisible = false;
+                  });
+                }
+              } else {
+                if (isAccountNumberFormatOkay == true) {
+                  setState(() {
+                    isAccountNumberFormatOkay = false;
+                  });
+                }
+
+                if (errorMessageVisible == false) {
+                  setState(() {
+                    errorMessageVisible = true;
+                  });
+                }
+              }
+
+              if (value.isEmpty) {
+                setState(() {
+                  errorMessageVisible = false;
+                });
+              }
+
+              updateFormatState();
+            }
+
             return GestureDetector(
               behavior: HitTestBehavior.opaque,
               onTap: () {
@@ -156,7 +235,7 @@ class _ChatDetailOptionsState extends State<ChatDetailOptions> {
                             width: 300,
                             child: TextField(
                               decoration: const InputDecoration(
-                                hintText: '계좌번호 입력',
+                                hintText: '계좌번호 입력(10~14자리)',
                                 hintStyle: TextStyle(
                                   color: Color(0xffA19E9E),
                                   fontSize: 14,
@@ -182,12 +261,22 @@ class _ChatDetailOptionsState extends State<ChatDetailOptions> {
                                 fontWeight: FontWeight.w400,
                               ),
                               keyboardType: TextInputType.number,
-                              onChanged: (value) {
-                                accountNumber = value;
-                              },
+                              onChanged: onAccountNumberChanged,
                             ),
                           ),
-                          const SizedBox(height: 20),
+                          errorMessageVisible
+                              ? Padding(
+                                  padding: const EdgeInsets.only(top: 8.0),
+                                  child: Text(
+                                    accountNumberErrorMessage,
+                                    style: const TextStyle(
+                                      color: Color(0xFFE20529),
+                                      fontSize: 11,
+                                    ),
+                                  ),
+                                )
+                              : const SizedBox.shrink(),
+                          const SizedBox(height: 8),
                           GestureDetector(
                             child: DropdownButtonHideUnderline(
                               child: DropdownButton2<String>(
@@ -205,11 +294,19 @@ class _ChatDetailOptionsState extends State<ChatDetailOptions> {
                                   ),
                                 ),
                                 items: _addDividersAfterItems(bankNameList),
-                                value: selectedBank,
+                                value: selectedBankName,
                                 onChanged: (String? value) {
                                   setState(() {
-                                    selectedBank = value;
+                                    selectedBankName = value;
                                   });
+
+                                  if (isBankNameSelected == false) {
+                                    setState(() {
+                                      isBankNameSelected = true;
+                                    });
+
+                                    updateFormatState();
+                                  }
                                 },
                                 iconStyleData: IconStyleData(
                                     icon: const Icon(
@@ -272,43 +369,34 @@ class _ChatDetailOptionsState extends State<ChatDetailOptions> {
                         children: [
                           accountButtonWidget(
                               '바로 발송하기',
-                              const Color(0xFFE20529),
+                              isSubmitButtonActive
+                                  ? const Color(0xFFE20529)
+                                  : const Color(0xffD3D2D2),
                               Colors.transparent,
                               Colors.white, () async {
-                            if (selectedBank != null) {
-                              // 국내 은행의 계좌번호는 10~14자리
-                              if (saveBankAccount) {
-                                await storage.write(
-                                    key: 'encrypted_bank', value: selectedBank);
-                                await storage.write(
-                                    key: 'encrypted_account',
-                                    value: accountNumber);
+                            if (isSubmitButtonActive == true) {
+                              if (selectedBankName != "" &&
+                                  selectedBankName != null &&
+                                  typedAccountNumber != "") {
+                                // 국내 은행의 계좌번호는 10~14자리
+                                if (saveBankAccount) {
+                                  _saveAccount(
+                                      typedAccountNumber, selectedBankName!);
+                                }
                               }
+                              handleTextChatSubmitted(
+                                  "$selectedBankName $typedAccountNumber");
+                              Navigator.pop(context);
                             }
-
-                            handleTextChatSubmitted(
-                                "$selectedBank $accountNumber");
-                            // Provider.of<SocketProvider>(context, listen: false)
-                            //     .onSendMessage(
-                            //   "$selectedBank $accountNumber",
-                            //   widget.roomId,
-                            // );
-
-                            // var newMessage = ChatDetailMessageModel(
-                            //   isMine: true,
-                            //   message: "$selectedBank $accountNumber",
-                            //   read: true,
-                            //   createTime: DateTime.now(),
-                            // );
-                            // Provider.of<ChatProvider>(context, listen: false)
-                            //     .addChatContent(newMessage);
                           }),
                           accountButtonWidget(
                             '취소하기',
                             Colors.transparent,
                             const Color(0xFF726E6E),
                             const Color(0xff726E6E),
-                            () {},
+                            () {
+                              Navigator.pop(context);
+                            },
                           ),
                         ],
                       ),
@@ -366,8 +454,8 @@ class _ChatDetailOptionsState extends State<ChatDetailOptions> {
 
   // 계좌 정보 전송
   void sendBankAccount(BuildContext context) async {
-    final bankAccountName = await storage.read(key: 'encrypted_bank');
-    final bankAccountNumber = await storage.read(key: 'encrypted_account');
+    final bankAccountName = await storage.read(key: 'bankName');
+    final bankAccountNumber = await storage.read(key: 'accountNumber');
 
     // 이미 등록된 계좌가 존재하는 경우
     if (bankAccountName != null && bankAccountNumber != null) {
@@ -426,8 +514,7 @@ class _ChatDetailOptionsState extends State<ChatDetailOptions> {
                         child: TextButton(
                           onPressed: () {
                             handleTextChatSubmitted(
-                                "$bankAccountNumber $bankAccountName");
-
+                                "$bankAccountName $bankAccountNumber");
                             Navigator.pop(context);
                           },
                           style: ButtonStyle(
@@ -553,6 +640,7 @@ class _ChatDetailOptionsState extends State<ChatDetailOptions> {
                   children: [
                     accountButtonWidget('작성하기', const Color(0xFFE20529),
                         Colors.transparent, Colors.white, () {
+                      Navigator.pop(context);
                       setBankAccount(context);
                     }),
                     accountButtonWidget(
@@ -560,7 +648,9 @@ class _ChatDetailOptionsState extends State<ChatDetailOptions> {
                       Colors.transparent,
                       const Color(0xFF726E6E),
                       const Color(0xff726E6E),
-                      () {},
+                      () {
+                        Navigator.pop(context);
+                      },
                     ),
                   ],
                 ),
@@ -579,8 +669,9 @@ class _ChatDetailOptionsState extends State<ChatDetailOptions> {
       if (!mounted) return;
 
       final lockerName = response.data["name"];
-      final password = response.data["password"];
 
+      final password = response.data["password"];
+      final lockerValPhotoUrl = response.data["photo_url"];
       final lockerMessage = "사물함 위치 : $lockerName\n비밀번호 : $password";
 
       showDialog(
@@ -635,6 +726,7 @@ class _ChatDetailOptionsState extends State<ChatDetailOptions> {
                           Icon(
                             Icons.error_outline,
                             color: Color(0xff726E6E),
+                            size: 16,
                           ),
                           SizedBox(
                             width: 4,
@@ -643,7 +735,7 @@ class _ChatDetailOptionsState extends State<ChatDetailOptions> {
                             "해당 정보는 수정할 수 없는 내용입니다!",
                             style: TextStyle(
                               color: Color(0xff726E6E),
-                              fontSize: 14,
+                              fontSize: 11,
                               fontWeight: FontWeight.w400,
                             ),
                             overflow: TextOverflow.clip,
@@ -661,6 +753,7 @@ class _ChatDetailOptionsState extends State<ChatDetailOptions> {
                               Colors.transparent,
                               Colors.white, () {
                             handleTextChatSubmitted(lockerMessage);
+                            sendLockerImage(lockerValPhotoUrl);
 
                             var newMessage = ChatDetailMessageModel(
                               isMine: true,
@@ -671,13 +764,16 @@ class _ChatDetailOptionsState extends State<ChatDetailOptions> {
                             );
                             Provider.of<ChatProvider>(context, listen: false)
                                 .addChatContent(newMessage);
+                            Navigator.pop(context);
                           }),
                           accountButtonWidget(
                             '취소하기',
                             Colors.transparent,
                             const Color(0xFF726E6E),
                             const Color(0xff726E6E),
-                            () {},
+                            () {
+                              Navigator.pop(context);
+                            },
                           ),
                         ],
                       ),
@@ -697,10 +793,7 @@ class _ChatDetailOptionsState extends State<ChatDetailOptions> {
     return SizedBox(
       width: 300,
       child: TextButton(
-        onPressed: () {
-          Navigator.pop(context);
-          onTap();
-        },
+        onPressed: onTap,
         style: ButtonStyle(
           backgroundColor: MaterialStateProperty.resolveWith<Color>(
             (Set<MaterialState> states) {
@@ -970,6 +1063,63 @@ class _ChatDetailOptionsState extends State<ChatDetailOptions> {
       }
 
       if (photoUrls.runtimeType == List<dynamic>) {
+        print("보낸 사진");
+        print(photoUrls);
+        // 서버로 전송
+        await socketChannel.onSendMessage(null, photoUrls, roomId!, true);
+        final currentTime = DateTime.now();
+        final chatMessage = photoUrls;
+
+        var newMessage = ChatDetailMessageModel(
+          isMine: true,
+          message: chatMessage,
+          read: true,
+          createTime: currentTime,
+          isImage: true,
+        );
+
+        final chatProvider = Provider.of<ChatProvider>(context, listen: false);
+        chatProvider.addChatContent(newMessage);
+
+        final chatListProvider =
+            Provider.of<ChatListProvider>(context, listen: false);
+        if (chatListProvider.buyChatList
+            .any((chatListCell) => chatListCell.roomId == roomId)) {
+          int index = chatListProvider.buyChatList
+              .indexWhere((chatCell) => chatCell.roomId == roomId);
+
+          chatListProvider.updateChatList(
+            index,
+            "사진",
+            currentTime,
+            true,
+          );
+          chatListProvider.resetUnreadCount(index, true);
+        } else if (chatListProvider.sellChatList
+            .any((chatListCell) => chatListCell.roomId == roomId)) {
+          int index = chatListProvider.sellChatList
+              .indexWhere((chatCell) => chatCell.roomId == roomId);
+          chatListProvider.updateChatList(
+            index,
+            "사진",
+            currentTime,
+            false,
+          );
+          chatListProvider.resetUnreadCount(index, false);
+        } else {
+          chatProvider.addNewChatList();
+        }
+      }
+    }
+  }
+
+  void sendLockerImage(String lockerPhotoUrl) async {
+    print("사진");
+    print(lockerPhotoUrl);
+    if (roomId != null && roomId != "") {
+      List<dynamic> photoUrls = [lockerPhotoUrl, lockerLocationImageUrl];
+
+      if (photoUrls.runtimeType == List<dynamic>) {
         // 서버로 전송
         await socketChannel.onSendMessage(null, photoUrls, roomId!, true);
         final currentTime = DateTime.now();
@@ -1023,17 +1173,12 @@ class _ChatDetailOptionsState extends State<ChatDetailOptions> {
     super.initState();
 
     roomId = widget.roomId;
-    print("옵션에서 방 id");
-    print(widget.roomId);
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       setState(() {
         postId = Provider.of<ChatProvider>(context, listen: false).postId;
         imBuyer = Provider.of<ChatProvider>(context, listen: false).imBuyer;
       });
-      // setState(() {
-      //   roomId = widget.roomId;
-      // });
     });
   }
 

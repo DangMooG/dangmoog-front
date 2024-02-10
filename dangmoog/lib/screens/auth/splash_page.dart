@@ -74,7 +74,6 @@ class _SplashScreenState extends State<SplashScreen> {
     // 만약 해당 값이 존재하지 않을 경우 null 값이 저장된다.
     final accessToken = await storage.read(key: 'accessToken');
     final userId = await storage.read(key: 'userId');
-
     // accessToken userId가 존재할 경우
     if (accessToken != null && userId != null) {
       try {
@@ -87,9 +86,10 @@ class _SplashScreenState extends State<SplashScreen> {
           final nicknameState = response.data['available'];
           final String? profileUrl = response.data["profile_url"];
 
-          // async 내에서 BuildContexts를 사용할 경우
-          // 위젯이 마운트되지 않았으면 context에 아무런 값이 없기 때문에
-          // 아래 조건문을 추가해줘야 한다.
+          await storage.write(
+              key: "accountNumber", value: response.data["account_number"]);
+          await storage.write(
+              key: "bankName", value: response.data["bank_info"]);
 
           if (!mounted) return;
 
@@ -102,6 +102,14 @@ class _SplashScreenState extends State<SplashScreen> {
 
           Provider.of<UserProvider>(context, listen: false)
               .updateNicknameButton(nicknameState);
+
+          // FCM Token 서버로 전송
+          try {
+            final fcmToken = await storage.read(key: "fcmToken");
+            await ApiService().fcmUpdate(fcmToken!);
+          } catch (e) {
+            print(e);
+          }
 
           // 별명을 설정하지 않았을 경우
           // 별명 설정 페이지로 이동한다

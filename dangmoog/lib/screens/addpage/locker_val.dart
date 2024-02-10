@@ -215,9 +215,12 @@ class _LockerValState extends State<LockerValPage> {
   }
 
   Future<void> _pickImage() async {
-    Widget addPhotoButtonPopUp(Size screenSize, IconData icon, String text, Function onTap) {
+    Widget addPhotoButtonPopUp(
+        Size screenSize, IconData icon, String text, Function onTap) {
       // Adjust button size based on screen size to ensure it fits well on smaller screens
-      double buttonSize = screenSize.width > 320 ? screenSize.width * 0.192 : screenSize.width * 0.25;
+      double buttonSize = screenSize.width > 320
+          ? screenSize.width * 0.192
+          : screenSize.width * 0.25;
       return GestureDetector(
         onTap: () {
           onTap();
@@ -234,7 +237,11 @@ class _LockerValState extends State<LockerValPage> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Icon(icon, color: Colors.white),
-              Text(text, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w400, color: Colors.white)),
+              Text(text,
+                  style: const TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w400,
+                      color: Colors.white)),
             ],
           ),
         ),
@@ -247,59 +254,67 @@ class _LockerValState extends State<LockerValPage> {
         Size screenSize = MediaQuery.of(context).size;
         // Use SingleChildScrollView to prevent overflow
         return AlertDialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-          content: SingleChildScrollView(
-            child: SizedBox(
-              width: screenSize.width * 0.55,
-              // Remove fixed height to allow the content to size itself
-              child: Column(
-                mainAxisSize: MainAxisSize.min, // Make column size to fit its children
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text(
-                    '사진 업로드 방식을\n선택해주세요!',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-                  ),
-                  const SizedBox(height: 8),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      addPhotoButtonPopUp(screenSize, Icons.add_a_photo_outlined, '카메라', () {
-                        _pickImageFromCamera(context);
-                      }),
-                      const SizedBox(width: 30),
-                      addPhotoButtonPopUp(screenSize, Icons.add_photo_alternate_outlined, '앨범', () {
-                        _pickImageFromAlbum(context);
-                      }),
-                    ],
-                  ),
-                  GestureDetector(
-                    onTap: () => Navigator.of(context).pop(),
-                    child: Container(
-                      margin: const EdgeInsets.only(top: 16), // Add margin to ensure space for scrolling
-                      width: 228,
-                      height: 36,
-                      alignment: Alignment.center,
-                      decoration: BoxDecoration(
-                        border: Border.all(color: const Color(0xff726E6E), width: 1.0),
-                        borderRadius: BorderRadius.circular(6),
-                      ),
-                      child: const Text(
-                        '취소하기',
-                        style: TextStyle(fontSize: 13, fontWeight: FontWeight.w400, color: Color(0xff726E6E)),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        );
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+            content: SingleChildScrollView(
+                child: SizedBox(
+                    width: screenSize.width * 0.55,
+                    // Remove fixed height to allow the content to size itself
+                    child: Column(
+                      mainAxisSize: MainAxisSize
+                          .min, // Make column size to fit its children
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text(
+                          '사진 업로드 방식을\n선택해주세요!',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                              fontSize: 16, fontWeight: FontWeight.w600),
+                        ),
+                        const SizedBox(height: 8),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            addPhotoButtonPopUp(
+                                screenSize, Icons.add_a_photo_outlined, '카메라',
+                                () {
+                              _pickImageFromCamera(context);
+                            }),
+                            const SizedBox(width: 30),
+                            addPhotoButtonPopUp(screenSize,
+                                Icons.add_photo_alternate_outlined, '앨범', () {
+                              _pickImageFromAlbum(context);
+                            }),
+                          ],
+                        ),
+                        GestureDetector(
+                          onTap: () => Navigator.of(context).pop(),
+                          child: Container(
+                            margin: const EdgeInsets.only(
+                                top:
+                                    16), // Add margin to ensure space for scrolling
+                            width: 228,
+                            height: 36,
+                            alignment: Alignment.center,
+                            decoration: BoxDecoration(
+                              border: Border.all(
+                                  color: const Color(0xff726E6E), width: 1.0),
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            child: const Text(
+                              '취소하기',
+                              style: TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w400,
+                                  color: Color(0xff726E6E)),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ))));
       },
     );
   }
-
 
   Future<void> _pickImageFromAlbum(BuildContext context) async {
     PermissionStatus status = await Permission.photos.request();

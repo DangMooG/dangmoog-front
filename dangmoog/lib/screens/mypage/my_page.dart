@@ -1,3 +1,4 @@
+import 'package:dangmoog/services/api.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -7,6 +8,7 @@ import 'package:dangmoog/screens/auth/welcome.dart';
 
 import 'package:dangmoog/widgets/bottom_popup.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import 'package:provider/provider.dart';
 import 'package:dangmoog/providers/user_provider.dart';
@@ -242,35 +244,40 @@ class _MyPageState extends State<MyPage> {
               '기타',
               style: TextStyle(
                 color: Color(0xFF302E2E),
-                fontFamily: 'Pretendard-Semibold',
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
               ),
             ),
           ),
-          MypageText(
-              text: '공지사항',
-              icon: Icons.campaign_outlined,
-              onPressed: () {
-                showPopup(context, "서비스 예정입니다");
-              }),
+          // MypageText(
+          //     text: '공지사항',
+          //     icon: Icons.campaign_outlined,
+          //     onPressed: () {
+          //       showPopup(context, "서비스 예정입니다");
+          //     }),
           MypageText(
               text: '자주 묻는 질문',
               icon: Icons.support_agent_outlined,
               onPressed: () {
-                showPopup(context, "서비스 예정입니다");
+                launchUrl(
+                  Uri.parse(
+                      'https://dangmoog.notion.site/e2c98dd1ce0049dba05a37d550a83f18?pvs=4'),
+                );
               }),
           mypageButton(
               text: '도토릿 소개',
               imageUrl: 'assets/images/dotorit_intro_icon.png',
               onPressed: () {
-                showPopup(context, "서비스 예정입니다");
+                launchUrl(
+                  Uri.parse(
+                      'https://dangmoog.notion.site/dangmoog/20ca8562e68f4e1b8b28c40461f0edda'),
+                );
               }),
           MypageText(
-              text: '버전 정보',
+              text: '버전 1.1.2',
               icon: Icons.device_hub_outlined,
               onPressed: () {
-                showPopup(context, "서비스 예정입니다");
+                // showPopup(context, "서비스 예정입니다");
               }),
           MypageText(
               text: '로그아웃',
@@ -334,8 +341,10 @@ class _MyPageState extends State<MyPage> {
                     try {
                       await storage.delete(key: 'accessToken');
                       await storage.delete(key: 'userId');
-                      await storage.delete(key: 'encrypted_bank');
-                      await storage.delete(key: 'encrypted_account');
+                      await storage.delete(key: 'bankName');
+                      await storage.delete(key: 'accountNumber');
+
+                      ApiService().fcmDelete();
 
                       if (!mounted) return;
                       Navigator.pushAndRemoveUntil(
@@ -357,7 +366,7 @@ class _MyPageState extends State<MyPage> {
                         const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                     minimumSize: Size(
                       screenSize.width * 0.67,
-                      screenSize.height * 0.044,
+                      40,
                     ),
                   ),
                   child: const Text(
@@ -371,7 +380,6 @@ class _MyPageState extends State<MyPage> {
                 ),
                 ElevatedButton(
                   onPressed: () {
-                    // 팝업 창을 닫을 때 수행할 작업을 여기에 추가하세요.
                     Navigator.of(context).pop();
                   },
                   style: ElevatedButton.styleFrom(
@@ -385,7 +393,7 @@ class _MyPageState extends State<MyPage> {
                         const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                     minimumSize: Size(
                       screenSize.width * 0.67,
-                      screenSize.height * 0.044,
+                      40,
                     ),
                   ),
                   child: const Text(

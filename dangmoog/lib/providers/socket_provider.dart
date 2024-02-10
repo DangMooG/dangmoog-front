@@ -51,9 +51,6 @@ class SocketProvider {
     });
 
     socket.on('message', (data) async {
-      print("======");
-      print(data);
-      print("======");
       onChatReceived.call(data);
     });
 

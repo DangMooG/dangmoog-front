@@ -54,6 +54,9 @@ post_install do |installer|
 
         ## dart: PermissionGroup.photos
         'PERMISSION_PHOTOS=1',
+
+        ## dart: PermissionGroup.notification
+        'PERMISSION_NOTIFICATIONS=1',
       ]
     end
   end

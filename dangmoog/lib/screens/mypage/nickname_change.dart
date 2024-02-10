@@ -371,7 +371,7 @@ class _NicknameChangePageState extends State<NicknameChangePage> {
                                 horizontal: 12, vertical: 4),
                             minimumSize: Size(
                               screenSize.width * 0.67,
-                              screenSize.height * 0.044,
+                              40,
                             ),
                           ),
                           child: const Text(
@@ -399,7 +399,7 @@ class _NicknameChangePageState extends State<NicknameChangePage> {
                                 horizontal: 12, vertical: 4),
                             minimumSize: Size(
                               screenSize.width * 0.67,
-                              screenSize.height * 0.044,
+                              40,
                             ),
                           ),
                           child: const Text(

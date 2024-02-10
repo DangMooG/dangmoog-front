@@ -1,7 +1,6 @@
 import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:dangmoog/services/custom_dio.dart';
-// import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class ApiService {
   // 토큰이 필요한 요청은 authClient를
@@ -17,6 +16,15 @@ class ApiService {
   // 자동 로그인
   Future<Response> autoLogin() async {
     return await _authClient.post("account/me");
+  }
+
+  // 자동로그인시 FCM 토큰 업데이트
+  Future<Response> fcmUpdate(String fcmToken) async {
+    return await _authClient.patch("account/fcm_update?fcm=$fcmToken");
+  }
+
+  Future<Response> fcmDelete() async {
+    return await _authClient.patch("account/fcm_update");
   }
 
   // 이메일 전송
@@ -327,8 +335,7 @@ class ApiService {
 
   // 한 채팅방에 대한 모든 채팅 정보 얻기
   Future<Response> getChatAllMessages(String roomId) async {
-    print(roomId);
-    return await _publicClient.get("chat/all/$roomId");
+    return await _authClient.get("chat/all/$roomId");
   }
 
   // 한 채팅방에 해당하는 게시글 id 얻기
@@ -367,7 +374,7 @@ class ApiService {
     final queryParams = {"room_id": roomId};
 
     final queryString = Uri(queryParameters: queryParams).query;
-    final String url = '/chat/photo_chat?$queryString';
+    final String url = 'chat/photo_chat?$queryString';
 
     List<MultipartFile> multipartImageList = [];
     for (var file in imageFiles) {
@@ -382,6 +389,16 @@ class ApiService {
     return await _authClient.post(
       url,
       data: formData,
+    );
+  }
+
+  Future<Response> uploadBank(String bankName, String accountNumber) async {
+    return await _authClient.post(
+      'account/bank',
+      data: {
+        "bank_info": bankName,
+        "account_number": accountNumber,
+      },
     );
   }
 

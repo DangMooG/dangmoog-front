@@ -22,6 +22,8 @@ class SingleChatMessage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    Size screenSize = MediaQuery.of(context).size;
+
     return Container(
       margin: EdgeInsets.only(top: profileOmit ? 4 : 8),
       child: IntrinsicHeight(
@@ -40,13 +42,13 @@ class SingleChatMessage extends StatelessWidget {
                   ),
                   isImage
                       ? _chatImageBox(context, message, me)!
-                      : _chatTextBox(message, me),
+                      : _chatTextBox(message, me, screenSize),
                 ]
               : <Widget>[
                   _userProfileCircle(profileOmit),
                   isImage
                       ? _chatImageBox(context, message, me)!
-                      : _chatTextBox(message, me),
+                      : _chatTextBox(message, me, screenSize),
                   Column(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -76,10 +78,10 @@ class SingleChatMessage extends StatelessWidget {
     );
   }
 
-  Widget _chatTextBox(String text, bool me) {
+  Widget _chatTextBox(String text, bool me, Size screenSize) {
     return Container(
-      constraints: const BoxConstraints(
-        maxWidth: 270,
+      constraints: BoxConstraints(
+        maxWidth: screenSize.width * 0.6,
       ),
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
@@ -147,8 +149,8 @@ class SingleChatMessage extends StatelessWidget {
       case 2:
         return Container(
           constraints: const BoxConstraints(
-            maxWidth: 210,
-            maxHeight: 104,
+            maxWidth: 208,
+            maxHeight: 103,
           ),
           padding: EdgeInsets.zero,
           decoration: const BoxDecoration(
@@ -178,15 +180,15 @@ class SingleChatMessage extends StatelessWidget {
                       child: Image.network(
                         url,
                         fit: BoxFit.cover,
-                        width: 104,
-                        height: 104,
+                        width: 103,
+                        height: 103,
                         errorBuilder: (BuildContext context, Object error,
                             StackTrace? stackTrace) {
                           return Image.asset(
                             'assets/images/sample.png',
                             fit: BoxFit.cover,
-                            width: 104,
-                            height: 104,
+                            width: 103,
+                            height: 103,
                           );
                         },
                       ),
@@ -201,8 +203,8 @@ class SingleChatMessage extends StatelessWidget {
       case 3:
         return Container(
           constraints: const BoxConstraints(
-            maxWidth: 274,
-            maxHeight: 90,
+            maxWidth: 244,
+            maxHeight: 80,
           ),
           padding: EdgeInsets.zero,
           decoration: const BoxDecoration(
@@ -232,15 +234,15 @@ class SingleChatMessage extends StatelessWidget {
                       child: Image.network(
                         url,
                         fit: BoxFit.cover,
-                        width: 90,
-                        height: 90,
+                        width: 80,
+                        height: 80,
                         errorBuilder: (BuildContext context, Object error,
                             StackTrace? stackTrace) {
                           return Image.asset(
                             'assets/images/sample.png',
                             fit: BoxFit.cover,
-                            width: 90,
-                            height: 90,
+                            width: 80,
+                            height: 80,
                           );
                         },
                       ),
