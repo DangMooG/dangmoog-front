@@ -8,13 +8,18 @@ import 'package:dangmoog/models/product_class.dart';
 enum TimerState { loading, active, completed }
 
 class ProductTimer extends StatefulWidget {
-  // final DateTime createTime;
-  // final VoidCallback onTimerEnd;
+
   final ProductModel product;
   final Widget Function(BuildContext, ProductModel) buildProductImage;
   final Widget Function(BuildContext, ProductModel) buildProductDetails;
-
-  const ProductTimer({Key? key, required this.product, required this.buildProductImage, required this.buildProductDetails}) : super(key: key);
+  final VoidCallback onRemove;
+  const ProductTimer({
+    Key? key,
+    required this.product,
+    required this.buildProductImage,
+    required this.buildProductDetails,
+    required this.onRemove
+  }) : super(key: key);
 
   @override
   _ProductTimerState createState() => _ProductTimerState();
@@ -132,6 +137,8 @@ class _ProductTimerState extends State<ProductTimer> {
                             onPressed: _timerState == TimerState.completed ? () {
                               // Navigate to LockerValPage
                               // apiService.deletePost(product.postId);
+                              widget.onRemove(); // Use the callback here
+                              // Navigator.pop(context);
                             } : () {
                               Navigator.push(
                                 context,
@@ -230,8 +237,8 @@ class _ProductTimerState extends State<ProductTimer> {
   }
 }
 
-  //   return
-  // }
+//   return
+// }
 
 
 

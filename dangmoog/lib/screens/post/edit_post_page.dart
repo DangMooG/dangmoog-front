@@ -1,9 +1,7 @@
 // ignore_for_file: avoid_print
 
 import 'dart:io';
-import 'package:dangmoog/screens/home.dart';
 import 'package:dangmoog/screens/main_page.dart';
-import 'package:dangmoog/screens/post/post_list.dart';
 import 'package:dangmoog/widgets/bottom_popup.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
@@ -179,7 +177,7 @@ class _EditPostPageState extends State<EditPostPage> {
   String _selectedItem = '';
 
   bool isFree = false;
-  bool _showPrice = false;
+  // bool _showPrice = false;
   List<dynamic> recommendedPriceList = [0, 0, 0];
   bool recommendedAlready = false;
   bool isAiLoading = false;
@@ -213,7 +211,7 @@ class _EditPostPageState extends State<EditPostPage> {
         setState(() {
           // recommendedAlready = true;
           recommendedPriceList = data;
-          _showPrice = true;
+          // _showPrice = true;
         });
       }
     } catch (e) {
@@ -865,105 +863,105 @@ class _EditPostPageState extends State<EditPostPage> {
     );
   }
 
-  Widget _initialAiRecommended() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        const SizedBox(
-          width: 212,
-          height: 32,
-          child: Text(
-            '중고가를 어떻게 설정해야 할지 모르겠다면?\nAI가 대표사진을 분석하여 가격을 추천해줘요!',
-            style: TextStyle(
-              fontFamily: 'Pretendard',
-              fontSize: 11,
-              height: 1.45,
-              color: Color(0xFF302E2E),
-              fontWeight: FontWeight.w400,
-            ),
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.only(right: 8.0),
-          child: TextButton(
-            onPressed: () {
-              getRecommendedPrice();
-            },
-            style: TextButton.styleFrom(
-              minimumSize: const Size(111, 24),
-              backgroundColor: const Color(0xFFEC5870),
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(6)),
-            ),
-            child: const Text(
-              'AI 가격 추천(BETA)',
-              style: TextStyle(
-                fontFamily: 'Pretendard',
-                fontSize: 11,
-                color: Colors.white,
-                fontWeight: FontWeight.w400,
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _recommendedPriceButtons() {
-    return Row(
-      children: [
-        ...<String>['₩ 1,011,000', '₩ 1,212,000', '₩ 1,413,000']
-            .map((price) => Padding(
-                  padding: const EdgeInsets.only(
-                      right:
-                          4.0), // This gives each button a right padding of 4.0
-                  child: TextButton(
-                    onPressed: () {
-                      priceController.text = price.replaceFirst('₩ ', '');
-                      if (isFree == true) {
-                        setState(() {
-                          isFree = !isFree;
-                        });
-                      }
-                    },
-                    style: TextButton.styleFrom(
-                      backgroundColor: const Color(0xFFEC5870),
-                      padding: const EdgeInsets.symmetric(
-                          vertical: 8), // Vertical padding of 8 for buttons
-                      minimumSize: const Size(82, 24),
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(6)),
-                    ),
-                    child: Text(
-                      price,
-                      style: const TextStyle(
-                        fontFamily: 'Pretendard',
-                        fontSize: 11,
-                        color: Colors.white,
-                        fontWeight: FontWeight.w400,
-                      ),
-                    ),
-                  ),
-                ))
-            .toList(),
-        const Spacer(),
-        IconButton(
-          icon: const Image(
-            image: AssetImage('assets/images/Vector.png'),
-            width: 12.5,
-            height: 12.5,
-          ),
-          onPressed: () {
-            setState(() {
-              _showPrice =
-                  false; // Switching back to the _initialAiRecommended widget
-            });
-          },
-        ),
-      ],
-    );
-  }
+  // Widget _initialAiRecommended() {
+  //   return Row(
+  //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  //     children: [
+  //       const SizedBox(
+  //         width: 212,
+  //         height: 32,
+  //         child: Text(
+  //           '중고가를 어떻게 설정해야 할지 모르겠다면?\nAI가 대표사진을 분석하여 가격을 추천해줘요!',
+  //           style: TextStyle(
+  //             fontFamily: 'Pretendard',
+  //             fontSize: 11,
+  //             height: 1.45,
+  //             color: Color(0xFF302E2E),
+  //             fontWeight: FontWeight.w400,
+  //           ),
+  //         ),
+  //       ),
+  //       Padding(
+  //         padding: const EdgeInsets.only(right: 8.0),
+  //         child: TextButton(
+  //           onPressed: () {
+  //             getRecommendedPrice();
+  //           },
+  //           style: TextButton.styleFrom(
+  //             minimumSize: const Size(111, 24),
+  //             backgroundColor: const Color(0xFFEC5870),
+  //             shape: RoundedRectangleBorder(
+  //                 borderRadius: BorderRadius.circular(6)),
+  //           ),
+  //           child: const Text(
+  //             'AI 가격 추천(BETA)',
+  //             style: TextStyle(
+  //               fontFamily: 'Pretendard',
+  //               fontSize: 11,
+  //               color: Colors.white,
+  //               fontWeight: FontWeight.w400,
+  //             ),
+  //           ),
+  //         ),
+  //       ),
+  //     ],
+  //   );
+  // }
+  //
+  // Widget _recommendedPriceButtons() {
+  //   return Row(
+  //     children: [
+  //       ...<String>['₩ 1,011,000', '₩ 1,212,000', '₩ 1,413,000']
+  //           .map((price) => Padding(
+  //                 padding: const EdgeInsets.only(
+  //                     right:
+  //                         4.0), // This gives each button a right padding of 4.0
+  //                 child: TextButton(
+  //                   onPressed: () {
+  //                     priceController.text = price.replaceFirst('₩ ', '');
+  //                     if (isFree == true) {
+  //                       setState(() {
+  //                         isFree = !isFree;
+  //                       });
+  //                     }
+  //                   },
+  //                   style: TextButton.styleFrom(
+  //                     backgroundColor: const Color(0xFFEC5870),
+  //                     padding: const EdgeInsets.symmetric(
+  //                         vertical: 8), // Vertical padding of 8 for buttons
+  //                     minimumSize: const Size(82, 24),
+  //                     shape: RoundedRectangleBorder(
+  //                         borderRadius: BorderRadius.circular(6)),
+  //                   ),
+  //                   child: Text(
+  //                     price,
+  //                     style: const TextStyle(
+  //                       fontFamily: 'Pretendard',
+  //                       fontSize: 11,
+  //                       color: Colors.white,
+  //                       fontWeight: FontWeight.w400,
+  //                     ),
+  //                   ),
+  //                 ),
+  //               ))
+  //           .toList(),
+  //       const Spacer(),
+  //       IconButton(
+  //         icon: const Image(
+  //           image: AssetImage('assets/images/Vector.png'),
+  //           width: 12.5,
+  //           height: 12.5,
+  //         ),
+  //         onPressed: () {
+  //           setState(() {
+  //             // _showPrice =
+  //                 false; // Switching back to the _initialAiRecommended widget
+  //           });
+  //         },
+  //       ),
+  //     ],
+  //   );
+  // }
 
   void _setFieldErrors() {
     setState(() {
