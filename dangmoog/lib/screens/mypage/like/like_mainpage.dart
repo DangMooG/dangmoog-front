@@ -167,8 +167,34 @@ class _LikeMainPageState extends State<LikeMainPage> {
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.done) {
             if (snapshot.hasError) {
-              return const Center(
-                child: Text('게시물을 불러오는데 실패했습니다.'),
+              return RefreshIndicator(
+                onRefresh: () async {
+                  reloadLikedProducts();
+                },
+                child: Center(
+                    child: SingleChildScrollView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  child: SizedBox(
+                    height: MediaQuery.of(context).size.height * 0.8,
+                    child: const Center(child: Text('게시물을 불러오는데 실패했습니다.')),
+                  ),
+                )),
+              );
+            }
+
+            if (snapshot.data == null || snapshot.data!.isEmpty) {
+              return RefreshIndicator(
+                onRefresh: () async {
+                  reloadLikedProducts();
+                },
+                child: Center(
+                    child: SingleChildScrollView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  child: SizedBox(
+                    height: MediaQuery.of(context).size.height * 0.8,
+                    child: const Center(child: Text('관심목록이 없습니다.')),
+                  ),
+                )),
               );
             }
 
