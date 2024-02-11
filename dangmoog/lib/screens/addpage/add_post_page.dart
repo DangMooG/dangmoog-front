@@ -132,11 +132,10 @@ class _AddPostPageState extends State<AddPostPage> {
       }
     } catch (e) {
       print(e);
+      setState(() {
+        isUploading = false;
+      });
     }
-
-    setState(() {
-      isUploading = false;
-    });
   }
 
   // 앨범에서 이미지를 가져오는 함수
@@ -412,7 +411,6 @@ class _AddPostPageState extends State<AddPostPage> {
               kToolbarHeight + 0.5), // AppBar height + divider thickness
           child: Column(
             children: [
-              if (isUploading) const Center(child: CircularProgressIndicator()),
               AppBar(
                 title: Text(appbarTitle),
                 leading: IconButton(
@@ -1197,10 +1195,11 @@ class _AddPostPageState extends State<AddPostPage> {
     return Container(
       padding: const EdgeInsets.only(top: 14, bottom: 35),
       child: ElevatedButton(
-        onPressed: () {
+        onPressed: () async {
           _setFieldErrors();
 
           if (isButtonEnabled) {
+            // 사진이 없는 경우
             if (_imageList.isEmpty) {
               showDialog(
                 context: context,
@@ -1245,6 +1244,7 @@ class _AddPostPageState extends State<AddPostPage> {
                                   setState(() {
                                     isUploading = true;
                                   });
+
                                   _createNewPost();
                                 },
                                 style: ButtonStyle(
@@ -1318,13 +1318,23 @@ class _AddPostPageState extends State<AddPostPage> {
                   );
                 },
               );
-            } else {
-              if (!isUploading) {
-                _createNewPost();
+            }
+            // 사진이 있는 경우
+            else {
+              print("====");
+              print(isUploading);
+              // 이미 업로드 중인 경우
+              if (isUploading) {
+                return;
               }
+              setState(() {
+                isUploading = true;
+              });
+
+              _createNewPost();
             }
 
-            if (mounted) {
+            if (!mounted) {
               setState(() {
                 isUploading = false;
               });
