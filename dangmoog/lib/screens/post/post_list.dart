@@ -158,7 +158,8 @@ class _ProductListState extends State<ProductList> {
   Widget addPostButton(BuildContext context) {
     // Use MediaQuery to get the screen width and calculate the logo size dynamically.
     double screenWidth = MediaQuery.of(context).size.width;
-    double logoSize = screenWidth * 0.15; // Adjust the 0.15 value as needed to scale the logo proportionally.
+    double logoSize = screenWidth *
+        0.15; // Adjust the 0.15 value as needed to scale the logo proportionally.
 
     return GestureDetector(
       onTap: () {
@@ -171,31 +172,38 @@ class _ProductListState extends State<ProductList> {
               ),
               surfaceTintColor: Colors.transparent,
               child: Container(
-                padding: const EdgeInsets.only(top: 16, bottom: 20, left: 21, right: 21),
+                padding: const EdgeInsets.only(
+                    top: 16, bottom: 20, left: 21, right: 21),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     const Text(
                       '거래 방식을 \n선택해주세요!',
                       textAlign: TextAlign.center,
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                      style:
+                          TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
                     ),
                     const SizedBox(height: 20),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        _customButton(context, '직접거래', 'assets/images/direct_icon.png', () {
+                        _customButton(
+                            context, '직접거래', 'assets/images/direct_icon.png',
+                            () {
                           Navigator.of(context).pop();
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => const AddPostPage(fromChooseLocker: false, lockerId: null),
+                              builder: (context) => const AddPostPage(
+                                  fromChooseLocker: false, lockerId: null),
                             ),
                           );
                         }),
                         const SizedBox(width: 28),
-                        _customButton(context, '사물함거래', 'assets/images/move_to_inbox.png', () {
+                        _customButton(
+                            context, '사물함거래', 'assets/images/move_to_inbox.png',
+                            () {
                           Navigator.of(context).pop();
                           Navigator.push(
                             context,
@@ -215,16 +223,19 @@ class _ProductListState extends State<ProductList> {
                           Navigator.of(context).pop(); // close the dialog
                         },
                         style: ButtonStyle(
-                          backgroundColor: MaterialStateProperty.resolveWith<Color>(
-                                (Set<MaterialState> states) {
+                          backgroundColor:
+                              MaterialStateProperty.resolveWith<Color>(
+                            (Set<MaterialState> states) {
                               if (states.contains(MaterialState.pressed)) {
                                 return Colors.red[600]!; // Color when pressed
                               }
                               return Colors.transparent; // Regular color
                             },
                           ),
-                          foregroundColor: MaterialStateProperty.all<Color>(const Color(0xFF726E6E)),
-                          shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                          foregroundColor: MaterialStateProperty.all<Color>(
+                              const Color(0xFF726E6E)),
+                          shape:
+                              MaterialStateProperty.all<RoundedRectangleBorder>(
                             RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(6),
                               side: const BorderSide(color: Color(0xFF726E6E)),
@@ -246,14 +257,14 @@ class _ProductListState extends State<ProductList> {
         width: logoSize, // Use the dynamically calculated logo size.
         height: logoSize, // Use the dynamically calculated logo size.
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(logoSize / 2), // Ensure the borderRadius is half the size of the logo for a circular shape.
+          borderRadius: BorderRadius.circular(logoSize /
+              2), // Ensure the borderRadius is half the size of the logo for a circular shape.
           color: Colors.transparent,
         ),
         child: Image.asset('assets/images/add_icon.png'),
       ),
     );
   }
-
 
   // 직접 거래 or 사물함 거래 선택 버튼
   Widget _customButton(BuildContext context, String label, String imagePath,
@@ -305,6 +316,34 @@ class _ProductListState extends State<ProductList> {
 
   // 게시물 리스트 위젯
   Widget _postListView() {
+    if (products.isEmpty && lockerProducts.isEmpty) {
+      return RefreshIndicator(
+        onRefresh: () async {
+          if (mounted) {
+            setState(() {
+              checkpoint = 0;
+            });
+          }
+          products.clear();
+          lockerProducts.clear();
+          await _loadProducts();
+          await _loadLockerProducts();
+        },
+        child: Center(
+            child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          child: SizedBox(
+            height: MediaQuery.of(context).size.height * 0.8,
+            child: const Center(
+                child: Text(
+              '등록된 게시글이 없습니다.\n가장 먼저 게시글을 올려보세요!',
+              textAlign: TextAlign.center,
+            )),
+          ),
+        )),
+      );
+    }
+
     return RefreshIndicator(
       onRefresh: () async {
         if (mounted) {
@@ -365,14 +404,11 @@ class _ProductListState extends State<ProductList> {
     );
   }
 
-
   void _removeProductFromLockerProducts(ProductModel product) {
     setState(() {
       lockerProducts.removeWhere((p) => p.postId == product.postId);
     });
   }
-
-
 
   // 게시물 리스트에서 게시물 하나에 대한 위젯
   Widget _postCard(BuildContext context) {
@@ -380,8 +416,6 @@ class _ProductListState extends State<ProductList> {
       builder: (context, product, child) {
         double paddingValue = MediaQuery.of(context).size.width * 0.042;
 
-        print('${product.title}을 만든 시간:${product.createTime}');
-        print('업데이트 시간:${product.updateTime}');
         return InkWell(
           onTap: () {
             var productDetailPage = ProductDetailPage(postId: product.postId);
@@ -452,6 +486,16 @@ class _ProductListState extends State<ProductList> {
                   ? Image.network(
                       imageCache[product.representativePhotoId]!,
                       fit: BoxFit.cover,
+                      loadingBuilder: (context, child, loadingProgress) {
+                        if (loadingProgress == null) return child;
+                        return Container(
+                          decoration: const BoxDecoration(
+                            color: Color(0xffD9D9D9),
+                          ),
+                          width: 90,
+                          height: 90,
+                        );
+                      },
                       errorBuilder: (BuildContext context, Object exception,
                           StackTrace? stackTrace) {
                         return Image.asset(
@@ -504,6 +548,14 @@ class _ProductListState extends State<ProductList> {
                               return Image.network(
                                 imageUrl,
                                 fit: BoxFit.cover,
+                                loadingBuilder:
+                                    (context, child, loadingProgress) {
+                                  if (loadingProgress == null) return child;
+                                  return Image.asset(
+                                    'assets/images/sample.png',
+                                    fit: BoxFit.cover,
+                                  );
+                                },
                                 errorBuilder: (BuildContext context,
                                     Object error, StackTrace? stackTrace) {
                                   return Image.asset(

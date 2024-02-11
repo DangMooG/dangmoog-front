@@ -192,7 +192,11 @@ class _LikeMainPageState extends State<LikeMainPage> {
                   physics: const AlwaysScrollableScrollPhysics(),
                   child: SizedBox(
                     height: MediaQuery.of(context).size.height * 0.8,
-                    child: const Center(child: Text('관심목록이 없습니다.')),
+                    child: const Center(
+                        child: Text(
+                      '관심목록이 없습니다.\n관심있는 게시글에 좋아요를 눌러보세요!',
+                      textAlign: TextAlign.center,
+                    )),
                   ),
                 )),
               );
