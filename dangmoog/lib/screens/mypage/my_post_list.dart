@@ -169,6 +169,14 @@ class _MyProductListState extends State<MyProductList> {
               ? Image.network(
                   imageCache[product.representativePhotoId]!,
                   fit: BoxFit.cover,
+                  loadingBuilder: (context, child, loadingProgress) {
+                    if (loadingProgress == null) return child;
+                    return Container(
+                      decoration: const BoxDecoration(
+                        color: Color(0xffD9D9D9),
+                      ),
+                    );
+                  },
                   errorBuilder: (BuildContext context, Object exception,
                       StackTrace? stackTrace) {
                     return Image.asset(
@@ -217,12 +225,34 @@ class _MyProductListState extends State<MyProductList> {
                           imageCache[product.representativePhotoId] = imageUrl;
                           return Image.network(
                             imageUrl,
+                            width: 90,
+                            height: 90,
                             fit: BoxFit.cover,
+                            loadingBuilder: (context, child, loadingProgress) {
+                              if (loadingProgress == null) return child;
+                              return Container(
+                                decoration: const BoxDecoration(
+                                  color: Color(0xffD9D9D9),
+                                ),
+                                width: 90,
+                                height: 90,
+                              );
+                            },
+                            errorBuilder: (context, child, stackTrace) {
+                              return Image.asset(
+                                "assets/images/sample.png",
+                                fit: BoxFit.cover,
+                                width: 90,
+                                height: 90,
+                              );
+                            },
                           );
                         } else {
                           return Image.asset(
                             "assets/images/sample.png",
                             fit: BoxFit.cover,
+                            width: 90,
+                            height: 90,
                           );
                         }
                       },

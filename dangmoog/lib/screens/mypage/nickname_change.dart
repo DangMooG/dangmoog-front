@@ -225,6 +225,23 @@ class _NicknameChangePageState extends State<NicknameChangePage> {
                           ? Image.network(
                               profileUrl!,
                               fit: BoxFit.cover,
+                              loadingBuilder:
+                                  (context, child, loadingProgress) {
+                                if (loadingProgress == null) return child;
+                                return Container(
+                                  decoration: const BoxDecoration(
+                                    color: Color(0xffD9D9D9),
+                                  ),
+                                );
+                              },
+                              errorBuilder: (BuildContext context,
+                                  Object exception, StackTrace? stackTrace) {
+                                return Image.asset(
+                                  "assets/images/basic_profile.png",
+                                  width: 90,
+                                  fit: BoxFit.cover,
+                                );
+                              },
                             )
                           : Image.asset(
                               imagePath,
