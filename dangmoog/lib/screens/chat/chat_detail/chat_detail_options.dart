@@ -717,6 +717,16 @@ class _ChatDetailOptionsState extends State<ChatDetailOptions> {
                           width: 208,
                           height: 208,
                           fit: BoxFit.cover,
+                          loadingBuilder: (context, child, loadingProgress) {
+                            if (loadingProgress == null) return child;
+                            return Container(
+                              decoration: const BoxDecoration(
+                                color: Color(0xffD9D9D9),
+                              ),
+                              width: 208,
+                              height: 208,
+                            );
+                          },
                           errorBuilder: (BuildContext context, Object error,
                               StackTrace? stackTrace) {
                             return Image.network(

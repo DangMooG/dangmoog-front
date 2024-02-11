@@ -133,6 +133,16 @@ class SingleChatMessage extends StatelessWidget {
                 fit: BoxFit.cover,
                 width: 208,
                 height: 208,
+                loadingBuilder: (context, child, loadingProgress) {
+                  if (loadingProgress == null) return child;
+                  return Container(
+                    decoration: const BoxDecoration(
+                      color: Color(0xffD9D9D9),
+                    ),
+                    width: 208,
+                    height: 208,
+                  );
+                },
                 errorBuilder: (BuildContext context, Object error,
                     StackTrace? stackTrace) {
                   return Image.asset(
@@ -149,8 +159,8 @@ class SingleChatMessage extends StatelessWidget {
       case 2:
         return Container(
           constraints: const BoxConstraints(
-            maxWidth: 208,
-            maxHeight: 103,
+            maxWidth: 210,
+            maxHeight: 104,
           ),
           padding: EdgeInsets.zero,
           decoration: const BoxDecoration(
@@ -180,15 +190,25 @@ class SingleChatMessage extends StatelessWidget {
                       child: Image.network(
                         url,
                         fit: BoxFit.cover,
-                        width: 103,
-                        height: 103,
+                        width: 104,
+                        height: 104,
+                        loadingBuilder: (context, child, loadingProgress) {
+                          if (loadingProgress == null) return child;
+                          return Container(
+                            decoration: const BoxDecoration(
+                              color: Color(0xffD9D9D9),
+                            ),
+                            width: 104,
+                            height: 104,
+                          );
+                        },
                         errorBuilder: (BuildContext context, Object error,
                             StackTrace? stackTrace) {
                           return Image.asset(
                             'assets/images/sample.png',
                             fit: BoxFit.cover,
-                            width: 103,
-                            height: 103,
+                            width: 104,
+                            height: 104,
                           );
                         },
                       ),
@@ -236,6 +256,16 @@ class SingleChatMessage extends StatelessWidget {
                         fit: BoxFit.cover,
                         width: 80,
                         height: 80,
+                        loadingBuilder: (context, child, loadingProgress) {
+                          if (loadingProgress == null) return child;
+                          return Container(
+                            decoration: const BoxDecoration(
+                              color: Color(0xffD9D9D9),
+                            ),
+                            width: 80,
+                            height: 80,
+                          );
+                        },
                         errorBuilder: (BuildContext context, Object error,
                             StackTrace? stackTrace) {
                           return Image.asset(
@@ -289,6 +319,16 @@ class SingleChatMessage extends StatelessWidget {
                           fit: BoxFit.cover,
                           width: 104,
                           height: 104,
+                          loadingBuilder: (context, child, loadingProgress) {
+                            if (loadingProgress == null) return child;
+                            return Container(
+                              decoration: const BoxDecoration(
+                                color: Color(0xffD9D9D9),
+                              ),
+                              width: 104,
+                              height: 104,
+                            );
+                          },
                           errorBuilder: (BuildContext context, Object error,
                               StackTrace? stackTrace) {
                             return Image.asset(
@@ -315,6 +355,16 @@ class SingleChatMessage extends StatelessWidget {
                         fit: BoxFit.cover,
                         width: 104,
                         height: 104,
+                        loadingBuilder: (context, child, loadingProgress) {
+                          if (loadingProgress == null) return child;
+                          return Container(
+                            decoration: const BoxDecoration(
+                              color: Color(0xffD9D9D9),
+                            ),
+                            width: 104,
+                            height: 104,
+                          );
+                        },
                         errorBuilder: (BuildContext context, Object error,
                             StackTrace? stackTrace) {
                           return Image.asset(
@@ -349,6 +399,16 @@ class SingleChatMessage extends StatelessWidget {
                           fit: BoxFit.cover,
                           width: 104,
                           height: 104,
+                          loadingBuilder: (context, child, loadingProgress) {
+                            if (loadingProgress == null) return child;
+                            return Container(
+                              decoration: const BoxDecoration(
+                                color: Color(0xffD9D9D9),
+                              ),
+                              width: 104,
+                              height: 104,
+                            );
+                          },
                           errorBuilder: (BuildContext context, Object error,
                               StackTrace? stackTrace) {
                             return Image.asset(
@@ -375,6 +435,16 @@ class SingleChatMessage extends StatelessWidget {
                         fit: BoxFit.cover,
                         width: 104,
                         height: 104,
+                        loadingBuilder: (context, child, loadingProgress) {
+                          if (loadingProgress == null) return child;
+                          return Container(
+                            decoration: const BoxDecoration(
+                              color: Color(0xffD9D9D9),
+                            ),
+                            width: 104,
+                            height: 104,
+                          );
+                        },
                         errorBuilder: (BuildContext context, Object error,
                             StackTrace? stackTrace) {
                           return Image.asset(

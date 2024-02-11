@@ -384,7 +384,7 @@ class _NicknamePageState extends State<NicknamePage> {
               style: TextStyle(
                 fontSize: screenSize.height * 0.014,
                 fontWeight: FontWeight.w400,
-                color: Color(0xff302E2E),
+                color: const Color(0xff302E2E),
               ),
             ),
             Expanded(
@@ -393,7 +393,7 @@ class _NicknamePageState extends State<NicknamePage> {
                 style: TextStyle(
                   fontSize: screenSize.height * 0.014,
                   fontWeight: FontWeight.w400,
-                  color: Color(0xff302E2E),
+                  color: const Color(0xff302E2E),
                 ),
               ),
             )
@@ -426,12 +426,12 @@ class _NicknamePageState extends State<NicknamePage> {
                     style: TextStyle(
                       fontSize: screenSize.height * 0.017,
                       fontWeight: FontWeight.w600,
-                      color: Color(0xff302E2E),
+                      color: const Color(0xff302E2E),
                     ),
                   ),
                 ),
                 textCell("한글, 영문, 숫자 혼용 가능하며, 공백과 특수문자(-, #, @ 등)는 사용 불가합니다."),
-                textCell("글자 수는 2자 이상, 15자 이하로 제한됩니다."),
+                textCell("글자 수는 한글 기준 2자 이상, 7자 이하로 제한니다."),
                 textCell("부적절한 닉네임은 제한되며, 관리자에 의해 예고없이 사용이 중지될 수 있습니다."),
                 Padding(
                   padding:
@@ -441,7 +441,7 @@ class _NicknamePageState extends State<NicknamePage> {
                     style: TextStyle(
                       fontSize: screenSize.height * 0.013,
                       fontWeight: FontWeight.w600,
-                      color: Color(0xff302E2E),
+                      color: const Color(0xff302E2E),
                     ),
                   ),
                 ),

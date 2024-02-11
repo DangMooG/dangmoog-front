@@ -103,10 +103,10 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
         ),
         iconTheme: const IconThemeData(color: Colors.white),
         actions: <Widget>[
-          isUserProduct?
-          IconButton(
-            icon: const Icon(Icons.more_vert, color: Color(0xFF726E6E)),
-            onPressed: () {
+          isUserProduct
+              ? IconButton(
+                  icon: const Icon(Icons.more_vert, color: Color(0xFF726E6E)),
+                  onPressed: () {
                     showDialog(
                       context: context,
                       builder: (BuildContext context) {
@@ -223,7 +223,8 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                       },
                     );
                   },
-          ):const SizedBox.shrink(),
+                )
+              : const SizedBox.shrink(),
         ],
       ),
       extendBodyBehindAppBar: true,
@@ -275,8 +276,8 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
           builder: (context) {
             return GestureDetector(
               onTap: () {
-                if (imagePath !=
-                    'assets/images/sample.png') { // Check if the image is not sample.png
+                if (imagePath != 'assets/images/sample.png') {
+                  // Check if the image is not sample.png
                   Navigator.of(context).push(fadeInRouting(
                     FullScreenImageViewer(
                       imageUrls: displayImages,

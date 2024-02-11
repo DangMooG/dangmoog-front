@@ -1,12 +1,10 @@
 import 'package:dangmoog/services/api.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import 'package:dangmoog/screens/mypage/account_delete.dart';
 
 import 'package:dangmoog/screens/auth/welcome.dart';
 
-import 'package:dangmoog/widgets/bottom_popup.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -72,6 +70,16 @@ class _MyPageState extends State<MyPage> {
                             width: screenSize.width * 0.14,
                             height: screenSize.width * 0.14,
                             fit: BoxFit.cover,
+                            loadingBuilder: (context, child, loadingProgress) {
+                              if (loadingProgress == null) return child;
+                              return Container(
+                                decoration: const BoxDecoration(
+                                  color: Color(0xffD9D9D9),
+                                ),
+                                width: screenSize.width * 0.14,
+                                height: screenSize.height * 0.14,
+                              );
+                            },
                             errorBuilder: (BuildContext context,
                                 Object exception, StackTrace? stackTrace) {
                               return Image.asset(

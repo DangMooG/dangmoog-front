@@ -499,7 +499,7 @@ class _ProfilePageState extends State<ProfilePage> {
     }
 
     return Padding(
-      padding: EdgeInsets.only(top: screenSize.height * 0.018),
+      padding: EdgeInsets.only(top: screenSize.height * 0.014),
       child: Row(
         children: [
           Expanded(

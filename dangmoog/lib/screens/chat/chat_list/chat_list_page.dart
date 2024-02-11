@@ -285,6 +285,14 @@ class ChatListView extends StatefulWidget {
 class _ChatListViewState extends State<ChatListView> {
   @override
   Widget build(BuildContext context) {
+    if (widget.chatList.isEmpty) {
+      return const Center(
+        child: Text(
+          '채팅 내역이 없습니다.\n새로운 채팅을 시작해보세요!',
+          textAlign: TextAlign.center,
+        ),
+      );
+    }
     return ListView.separated(
       key: UniqueKey(),
       itemCount: widget.chatList.length,

@@ -85,6 +85,16 @@ class _ChatDetailProductState extends State<ChatDetailProduct> {
                           width: 48,
                           height: 48,
                           fit: BoxFit.cover,
+                          loadingBuilder: (context, child, loadingProgress) {
+                            if (loadingProgress == null) return child;
+                            return Container(
+                              decoration: const BoxDecoration(
+                                color: Color(0xffD9D9D9),
+                              ),
+                              width: 48,
+                              height: 48,
+                            );
+                          },
                           errorBuilder: (BuildContext context, Object error,
                               StackTrace? stackTrace) {
                             return Image.asset(

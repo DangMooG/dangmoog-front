@@ -234,6 +234,21 @@ class _ProfileChangePageState extends State<ProfileChangePage> {
                         ? Image.network(
                             userProvider.userProfileImageUrl!,
                             fit: BoxFit.cover,
+                            loadingBuilder: (context, child, loadingProgress) {
+                              if (loadingProgress == null) return child;
+                              return Container(
+                                decoration: const BoxDecoration(
+                                  color: Color(0xffD9D9D9),
+                                ),
+                              );
+                            },
+                            errorBuilder: (BuildContext context,
+                                Object exception, StackTrace? stackTrace) {
+                              return Image.asset(
+                                "assets/images/basic_profile.png",
+                                fit: BoxFit.cover,
+                              );
+                            },
                           )
                         : Image.asset(
                             'assets/images/basic_profile.png',
