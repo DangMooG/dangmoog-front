@@ -32,24 +32,24 @@ AppBar _postListAppbar(BuildContext context) {
         ),
       ),
     ),
-    actions: [
-      Container(
-        margin: const EdgeInsets.only(
-          top: 5,
-          right: 10,
-        ),
-        child: IconButton(
-          onPressed: () {
-            showPopup(context, "서비스 예정입니다");
-          },
-          icon: const Icon(
-            Icons.notifications_none,
-            size: 26,
-          ),
-          color: const Color(0xFF302E2E),
-        ),
-      ),
-    ],
+    // actions: [
+    //   Container(
+    //     margin: const EdgeInsets.only(
+    //       top: 5,
+    //       right: 10,
+    //     ),
+    //     child: IconButton(
+    //       onPressed: () {
+    //         showPopup(context, "서비스 예정입니다");
+    //       },
+    //       icon: const Icon(
+    //         Icons.notifications_none,
+    //         size: 26,
+    //       ),
+    //       color: const Color(0xFF302E2E),
+    //     ),
+    //   ),
+    // ],
     bottom: appBarBottomLine(),
   );
 }
