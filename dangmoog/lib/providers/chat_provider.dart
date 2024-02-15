@@ -17,6 +17,9 @@ class ChatProvider with ChangeNotifier {
   String? _userName;
   String? get userName => _userName;
 
+  int? _dealStatus;
+  int? get dealStatus => _dealStatus;
+
   // 상세 게시글에서 상세 채팅방 접근해서 첫 채팅 시, 내 채팅방 목록 새로 불러오기
   late VoidCallback addNewChatList;
 
@@ -49,6 +52,11 @@ class ChatProvider with ChangeNotifier {
 
   void setuserName(String? userName) {
     _userName = userName;
+    notifyListeners();
+  }
+
+  void setDealStatus(int dealStatus) {
+    _dealStatus = dealStatus;
     notifyListeners();
   }
 

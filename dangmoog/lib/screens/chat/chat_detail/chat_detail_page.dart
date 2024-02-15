@@ -109,6 +109,8 @@ class _ChatDetailState extends State<ChatDetail> {
         setState(() {
           product = ProductModel.fromJson(post);
         });
+        Provider.of<ChatProvider>(context, listen: false)
+            .setDealStatus(post['status'] ?? 0);
       }
     }
   }

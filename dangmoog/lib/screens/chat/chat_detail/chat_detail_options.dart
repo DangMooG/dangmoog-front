@@ -1,3 +1,5 @@
+// ignore_for_file: no_leading_underscores_for_local_identifiers, use_build_context_synchronously
+
 import 'dart:io';
 
 import 'package:dangmoog/constants/locker_location_url.dart';
@@ -104,11 +106,21 @@ class _ChatDetailOptionsState extends State<ChatDetailOptions> {
     return itemsHeights;
   }
 
+  Future<void> setDealDone() async {
+    try {
+      final response = await ApiService().setDoneDeal(widget.roomId!);
+      if (response.statusCode == 200) {
+        Provider.of<ChatProvider>(context, listen: false).setDealStatus(2);
+      }
+    } catch (e) {
+      print(e);
+    }
+  }
+
   void setBankAccount(BuildContext context) async {
     Future<void> _saveAccount(String accountNumber, String bankName) async {
       try {
-        Response response =
-            await ApiService().uploadBank(bankName, accountNumber);
+        await ApiService().uploadBank(bankName, accountNumber);
       } catch (e) {
         print(e);
       }
@@ -384,8 +396,10 @@ class _ChatDetailOptionsState extends State<ChatDetailOptions> {
                                       typedAccountNumber, selectedBankName!);
                                 }
                               }
-                              handleTextChatSubmitted(
+                              await handleTextChatSubmitted(
                                   "$selectedBankName $typedAccountNumber");
+                              await setDealDone();
+
                               Navigator.pop(context);
                             }
                           }),
@@ -478,7 +492,7 @@ class _ChatDetailOptionsState extends State<ChatDetailOptions> {
               ),
             ),
             content: const Text(
-              '해당 정보를 구매자에게 발송하시겠습니까?',
+              '계좌정보를 발송할 경우\n자동으로 거래완료 처리됩니다.\n해당 정보를 구매자에게 발송하시겠습니까?',
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 14,
@@ -512,9 +526,10 @@ class _ChatDetailOptionsState extends State<ChatDetailOptions> {
                       SizedBox(
                         width: 300,
                         child: TextButton(
-                          onPressed: () {
-                            handleTextChatSubmitted(
+                          onPressed: () async {
+                            await handleTextChatSubmitted(
                                 "$bankAccountName $bankAccountNumber");
+                            await setDealDone();
                             Navigator.pop(context);
                           },
                           style: ButtonStyle(
@@ -600,6 +615,30 @@ class _ChatDetailOptionsState extends State<ChatDetailOptions> {
                       ),
                     ],
                   ),
+                  const SizedBox(
+                    height: 8,
+                  ),
+                  const Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.error_outline,
+                        color: Color(0xFF726E6E),
+                        size: 16,
+                      ),
+                      SizedBox(
+                        width: 4,
+                      ),
+                      Text(
+                        '운영자는 회원이 저장, 게시 또는 전송한 자료와\n관련하여 일체의 책임을 지지 않습니다.',
+                        style: TextStyle(
+                            color: Color(0xFF726E6E),
+                            fontSize: 11,
+                            fontWeight: FontWeight.w400),
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
+                  )
                 ],
               ),
             ]),
@@ -672,7 +711,7 @@ class _ChatDetailOptionsState extends State<ChatDetailOptions> {
 
       final password = response.data["password"];
       final lockerValPhotoUrl = response.data["photo_url"];
-      final lockerMessage = "사물함 위치 : $lockerName\n비밀번호 : $password";
+      final lockerMessage = "사물함 위치 : $lockerName, 비밀번호 : $password";
 
       showDialog(
         context: context,
@@ -686,7 +725,7 @@ class _ChatDetailOptionsState extends State<ChatDetailOptions> {
                 backgroundColor: Colors.white,
                 surfaceTintColor: Colors.transparent,
                 title: const Text(
-                  '사물함 정보는 다음과 같습니다!',
+                  '사물함 정보를 발송할까요?',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 16,
@@ -697,7 +736,7 @@ class _ChatDetailOptionsState extends State<ChatDetailOptions> {
                 contentPadding:
                     const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
                 content: const Text(
-                  '저장된 사물함 위치와 비밀번호, 업로드된 사진을 구매자에게 바로 보내시겠어요? 사물함의 정보 발송은 되돌리기 어려운 만큼 구매자와 상의 후 신중히 발송하시기 바랍니다.',
+                  '사물함 정보를 발송할 경우\n자동으로 거래완료 처리됩니다.\n사물함의 정보 발송은 되돌리기 어려운 만큼\n구매자와 상의 후 신중히 발송하시기 \n바랍니다.',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 14,
@@ -710,6 +749,19 @@ class _ChatDetailOptionsState extends State<ChatDetailOptions> {
                   Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
+                      Text(
+                        lockerMessage,
+                        style: const TextStyle(
+                          color: Color(0xff302E2E),
+                          fontSize: 16,
+                          fontWeight: FontWeight.w400,
+                          decoration: TextDecoration.underline,
+                          height: 1,
+                        ),
+                      ),
+                      const SizedBox(
+                        height: 16,
+                      ),
                       ClipRRect(
                         borderRadius: BorderRadius.circular(6),
                         child: Image.network(
@@ -748,17 +800,6 @@ class _ChatDetailOptionsState extends State<ChatDetailOptions> {
                         ),
                       ),
                       const SizedBox(
-                        height: 8,
-                      ),
-                      Text(
-                        lockerMessage,
-                        style: const TextStyle(
-                          color: Color(0xff302E2E),
-                          fontSize: 16,
-                          fontWeight: FontWeight.w400,
-                        ),
-                      ),
-                      const SizedBox(
                         height: 16,
                       ),
                       const Row(
@@ -793,19 +834,16 @@ class _ChatDetailOptionsState extends State<ChatDetailOptions> {
                               '바로 발송하기',
                               const Color(0xFFE20529),
                               Colors.transparent,
-                              Colors.white, () {
-                            handleTextChatSubmitted(lockerMessage);
-                            sendLockerImage(lockerValPhotoUrl);
+                              Colors.white, () async {
+                            print(1);
+                            await sendLockerImage(lockerValPhotoUrl);
+                            print(2);
+                            await handleTextChatSubmitted(lockerMessage);
 
-                            var newMessage = ChatDetailMessageModel(
-                              isMine: true,
-                              message: lockerMessage,
-                              read: true,
-                              createTime: DateTime.now(),
-                              isImage: false,
-                            );
-                            Provider.of<ChatProvider>(context, listen: false)
-                                .addChatContent(newMessage);
+                            print(3);
+                            await setDealDone();
+                            print(4);
+
                             Navigator.pop(context);
                           }),
                           accountButtonWidget(
@@ -832,8 +870,9 @@ class _ChatDetailOptionsState extends State<ChatDetailOptions> {
 
   Widget accountButtonWidget(String text, Color btnColor, Color borderColor,
       Color textColor, VoidCallback onTap) {
+    Size screenSize = MediaQuery.of(context).size;
     return SizedBox(
-      width: 280,
+      width: screenSize.width * 0.9,
       child: TextButton(
         onPressed: onTap,
         style: ButtonStyle(
@@ -1028,7 +1067,7 @@ class _ChatDetailOptionsState extends State<ChatDetailOptions> {
     }
   }
 
-  void handleTextChatSubmitted(String message) async {
+  Future<void> handleTextChatSubmitted(String message) async {
     if (message != "" && (roomId == null || roomId == "")) {
       try {
         await getRoomIdWhenFirstChat();
@@ -1155,15 +1194,17 @@ class _ChatDetailOptionsState extends State<ChatDetailOptions> {
     }
   }
 
-  void sendLockerImage(String lockerPhotoUrl) async {
-    print("사진");
-    print(lockerPhotoUrl);
+  Future<void> sendLockerImage(String lockerPhotoUrl) async {
     if (roomId != null && roomId != "") {
       List<dynamic> photoUrls = [lockerPhotoUrl, lockerLocationImageUrl];
 
       if (photoUrls.runtimeType == List<dynamic>) {
         // 서버로 전송
-        await socketChannel.onSendMessage(null, photoUrls, roomId!, true);
+        try {
+          await socketChannel.onSendMessage(null, photoUrls, roomId!, true);
+        } catch (e) {
+          print(e);
+        }
         final currentTime = DateTime.now();
         final chatMessage = photoUrls;
 
