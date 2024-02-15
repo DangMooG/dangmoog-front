@@ -37,8 +37,7 @@ class _PurchaseMainPageState extends State<PurchaseMainPage> {
     String userNickname =
         Provider.of<UserProvider>(context, listen: false).nickname;
 
-    final filters = {'username': userNickname};
-    final response = await apiService.loadPurchase(filters);
+    final response = await apiService.loadPurchase();
 
     if (response.statusCode == 200) {
       if (response.data is List) {
