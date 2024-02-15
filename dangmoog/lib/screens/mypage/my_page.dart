@@ -77,7 +77,7 @@ class _MyPageState extends State<MyPage> {
                                   color: Color(0xffD9D9D9),
                                 ),
                                 width: screenSize.width * 0.14,
-                                height: screenSize.height * 0.14,
+                                height: screenSize.width * 0.14,
                               );
                             },
                             errorBuilder: (BuildContext context,
@@ -294,16 +294,17 @@ class _MyPageState extends State<MyPage> {
                 LogoutPopup(screenSize, context);
               }),
           MypageText(
-              text: '탈퇴하기',
-              icon: Icons.delete_outline_outlined,
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const AccountDeletePage(),
-                  ),
-                );
-              }),
+            text: '탈퇴하기',
+            icon: Icons.delete_outline_outlined,
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const AccountDeletePage(),
+                ),
+              );
+            },
+          ),
         ],
       ),
     );
@@ -347,21 +348,24 @@ class _MyPageState extends State<MyPage> {
                 ElevatedButton(
                   onPressed: () async {
                     try {
-                      await storage.delete(key: 'accessToken');
-                      await storage.delete(key: 'userId');
-                      await storage.delete(key: 'bankName');
-                      await storage.delete(key: 'accountNumber');
-
-                      ApiService().fcmDelete();
-
-                      if (!mounted) return;
-                      Navigator.pushAndRemoveUntil(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const WelcomePage()),
-                        (route) => false,
-                      );
+                      final response = await ApiService().fcmDelete();
+                      print(response);
+                      print(response.statusCode);
+                      if (response.statusCode == 200) {
+                        await storage.delete(key: 'accessToken');
+                        await storage.delete(key: 'userId');
+                        await storage.delete(key: 'bankName');
+                        await storage.delete(key: 'accountNumber');
+                        if (!mounted) return;
+                        Navigator.pushAndRemoveUntil(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const WelcomePage()),
+                          (route) => false,
+                        );
+                      }
                     } catch (e) {
+                      print(e);
                       print("로그아웃에 실패했습니다.");
                     }
                   },
