@@ -11,7 +11,7 @@ class SocketProvider {
   late ChatReceivedCallback onChatReceived;
 
   int retryCount = 0;
-  static const int maxRetryCount = 3;
+  static const int maxRetryCount = 5;
 
   late String socketUrl;
 
@@ -34,7 +34,7 @@ class SocketProvider {
       'autoConnect': false,
       'reconnection': true,
       'reconnectionAttempts': maxRetryCount,
-      'reconnectionDelay': 2000,
+      'reconnectionDelay': 1000,
       'reconnectionDelayMax': 5000,
       'path': '/ws/socket.io',
       'auth': {
@@ -51,11 +51,13 @@ class SocketProvider {
     });
 
     socket.on('message', (data) async {
+      print("채팅 받음");
+      print(data);
       onChatReceived.call(data);
     });
 
     socket.onConnectError((data) {
-      print("연결 에러: $data");
+      print("소켓 연결 에러: $data");
     });
 
     try {
@@ -84,6 +86,7 @@ class SocketProvider {
       "type": isImage ? 'img' : 'txt',
       'content': message ?? photoUrls,
     };
+    print(messageDict);
 
     socket.emit('send_chat', [messageDict]);
   }
