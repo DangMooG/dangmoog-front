@@ -11,6 +11,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dangmoog/screens/addpage/add_post_page.dart';
 import 'package:dangmoog/screens/addpage/choose_locker_page.dart';
 import 'package:dangmoog/screens/post/detail_page.dart';
+import 'package:dangmoog/screens/post/house_page.dart';
 
 import 'package:dangmoog/services/api.dart';
 import 'package:dangmoog/models/product_class.dart';
@@ -331,16 +332,17 @@ class _ProductListState extends State<ProductList> {
         },
         child: Center(
             child: SingleChildScrollView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          child: SizedBox(
-            height: MediaQuery.of(context).size.height * 0.8,
-            child: const Center(
-                child: Text(
-              '등록된 게시글이 없습니다.\n가장 먼저 게시글을 올려보세요!',
-              textAlign: TextAlign.center,
-            )),
-          ),
-        )),
+              physics: const AlwaysScrollableScrollPhysics(),
+              child: SizedBox(
+                height: MediaQuery.of(context).size.height * 0.8,
+                child: const Center(
+                    child: Text(
+                      '등록된 게시글이 없습니다.\n가장 먼저 게시글을 올려보세요!',
+                      textAlign: TextAlign.center,)
+                ),
+              ),
+            )
+        ),
       );
     }
 
@@ -363,19 +365,81 @@ class _ProductListState extends State<ProductList> {
           physics: const AlwaysScrollableScrollPhysics(),
           addAutomaticKeepAlives: true,
           controller: _scrollController,
-          itemCount: lockerProducts.length + products.length,
+          itemCount: 1+ lockerProducts.length + products.length,
           itemBuilder: (context, index) {
-            if (index < lockerProducts.length) {
-              // Build locker product card
-              return ChangeNotifierProvider<ProductModel>.value(
-                value: lockerProducts[index],
-                child: _lockerProductCard(context, lockerProducts[index]),
+
+            if (index == 0) {
+              // InkWell widget at the top of the list
+              return Padding(
+                padding: const EdgeInsets.only(top:16.0, left: 16.0, right: 16.0),
+                child: Container(
+                  width: 343, // Fixed width as specified
+                  height: 120, // Hug content height, but here it's fixed as specified
+                  // padding: EdgeInsets.all(16), // Padding as specified
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFEC5870), // Background color as specified
+                    borderRadius: BorderRadius.circular(16), // Border radius as specified
+                  ),
+                  child: InkWell(
+
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => HousePage()), // Assuming HousePage is your destination page
+                      );
+                    },
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(16), // Adjust padding as needed
+                          child: const Text('하우스 중고장터!\n지금 바로 구경하러 가볼까요?!',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w600,
+                              fontSize: 14,
+                            ),
+                          ), // Customize your widget appearance
+                        ),
+                        const Padding(
+                          padding: EdgeInsets.all(16.0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.end, // Align the row to the right
+                            children: [
+                              Text('구경하러 가기',
+                                style: TextStyle(
+                                  color: Colors.white, // Match the text color with your design
+                                  fontWeight: FontWeight.w600, // Adjust font weight as needed
+                                  fontSize: 11, // Adjust font size as needed
+                                ),
+                              ),
+                              Icon(
+                                size: 16,
+                                Icons.arrow_forward, // Use an arrow icon
+                                color: Colors.white,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+
+                  ),
+                ),
               );
             }
-            int regularIndex = index - lockerProducts.length;
-            if (regularIndex < products.length) {
+
+            else if (index <= lockerProducts.length ) {
+              // Build locker product card
               return ChangeNotifierProvider<ProductModel>.value(
-                value: products[regularIndex],
+                value: lockerProducts[index-1],
+                child: _lockerProductCard(context, lockerProducts[index-1]),
+              );
+            }
+            else if (index <  lockerProducts.length + products.length) {
+              return ChangeNotifierProvider<ProductModel>.value(
+                value: products[index-lockerProducts.length-1],
                 child: _postCard(context),
               );
             } else if (isLoadingProductList) {
@@ -385,9 +449,11 @@ class _ProductListState extends State<ProductList> {
             }
           },
           separatorBuilder: (context, i) {
-            return const Divider(
-              height: 1,
-            );
+            if (i == 0) {
+              return Container(); // Return an empty container to effectively "remove" the divider
+            } else {
+              return const Divider(height: 1); // Your existing divider for other items
+            }
           },
         ),
       ),
