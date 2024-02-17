@@ -34,18 +34,12 @@ class _PurchaseMainPageState extends State<PurchaseMainPage> {
   }
 
   Future<List<ProductModel>> _loadPurchaseProducts(BuildContext context) async {
-    String userNickname =
-        Provider.of<UserProvider>(context, listen: false).nickname;
-
-    final response = await apiService.loadPurchase();
+    final response = await ApiService().loadPurchase();
 
     if (response.statusCode == 200) {
-      if (response.data is List) {
-        List<dynamic> data = response.data as List;
-        return data.map((item) => ProductModel.fromJson(item)).toList();
-      } else {
-        throw Exception('Data format from server is unexpected.');
-      }
+      final data = response.data["result"];
+
+      return data.map((item) => ProductModel.fromJson(item)).toList();
     } else {
       throw Exception('Failed to load products');
     }
