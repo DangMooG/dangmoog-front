@@ -1449,10 +1449,9 @@ class _AddPostPageState extends State<AddPostPage> {
             .toList(),
         const Spacer(),
         IconButton(
-          icon: const Image(
-            image: AssetImage('assets/images/Vector.png'),
-            width: 12.5,
-            height: 12.5,
+          icon: const Icon(
+            Icons.cancel_outlined,
+            size: 15,
           ),
           onPressed: () {
             setState(() {
