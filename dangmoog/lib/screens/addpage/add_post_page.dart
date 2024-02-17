@@ -826,9 +826,7 @@ class _AddPostPageState extends State<AddPostPage> {
                   border: Border.all(
                       color: productCategoryError == null
                           ? const Color(0xff726E6E)
-                          : const Color(
-                              0xFFE20529) // Changes based on error condition
-                      ),
+                          : const Color(0xFFE20529)),
                   borderRadius: const BorderRadius.all(Radius.circular(4)),
                 ),
                 padding: const EdgeInsets.all(8),
@@ -1127,7 +1125,7 @@ class _AddPostPageState extends State<AddPostPage> {
               isDense: true,
               contentPadding: const EdgeInsets.all(8),
               hintText:
-                  '물품에 대한 상세 설명을 작성해주세요. \n판매 금지 물품은 게시가 제한될 수 있습니다. \n\n좋은 거래를 위해 신뢰할 수 있는 내용을 작성해주세요. 욕설이나 비방 등의 내용이 들어갈 경우 다른 이용자에게 상처를 줄 수 있으며 신고 대상이 될 수 있습니다.',
+                  '물품에 대한 상세 설명을 작성해주세요. \n판매 금지 물품은 게시가 제한될 수 있습니다.\n\nTip!\n다음과 같은 내용이 포함되면 좋아요!\n- 물품명\n- 물품원가\n- 사용 기간\n- 하자 여부\n- 간단 설명 \n\n좋은 거래를 위해 신뢰할 수 있는 내용을 작성해주세요. 욕설이나 비방 등의 내용이 들어갈 경우 다른 이용자에게 상처를 줄 수 있으며 신고 대상이 될 수 있습니다.',
               hintStyle: const TextStyle(
                 color: Color(0xFFA19E9E),
                 fontSize: 14,
@@ -1451,10 +1449,9 @@ class _AddPostPageState extends State<AddPostPage> {
             .toList(),
         const Spacer(),
         IconButton(
-          icon: const Image(
-            image: AssetImage('assets/images/Vector.png'),
-            width: 12.5,
-            height: 12.5,
+          icon: const Icon(
+            Icons.cancel_outlined,
+            size: 15,
           ),
           onPressed: () {
             setState(() {

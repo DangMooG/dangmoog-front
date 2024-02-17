@@ -140,7 +140,6 @@ class _ChatDetailProductState extends State<ChatDetailProduct> {
             ),
           ),
           ChatDealStatus(
-            currentStatus: product.status,
             imBuyer: widget.imBuyer,
             postId: widget.product.postId,
           )

@@ -5,9 +5,6 @@ import 'package:dangmoog/services/api.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 
-import 'package:provider/provider.dart';
-import 'package:dangmoog/providers/user_provider.dart';
-
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class AccountDeletePage extends StatefulWidget {
@@ -190,15 +187,15 @@ class _AccountDeletePageState extends State<AccountDeletePage> {
                     onPressed = () async {
                       if (isChecked && _selectedItem.isNotEmpty) {
                         try {
-                          ApiService().fcmDelete();
+                          await ApiService().fcmDelete();
                           Response response =
                               await ApiService().deleteAccount();
 
                           if (response.statusCode == 204) {
                             await storage.delete(key: 'accessToken');
                             await storage.delete(key: 'userId');
-                            await storage.delete(key: 'encrypted_bank');
-                            await storage.delete(key: 'encrypted_account');
+                            await storage.delete(key: 'bankName');
+                            await storage.delete(key: 'accountNumber');
                             if (!mounted) return;
                             Navigator.pushAndRemoveUntil(
                               context,

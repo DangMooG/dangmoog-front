@@ -124,8 +124,8 @@ Future<String?> fcmSetting() async {
 
   // foreground 푸시 알림 핸들링
   FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
-    print("foregorund mesga");
-    print(message.toString());
+    // print("foregorund mesga");
+    // print(message.toString());
 
     // RemoteNotification? notification = message.notification;
     AndroidNotification? android = message.notification?.android;
@@ -151,8 +151,8 @@ Future<String?> fcmSetting() async {
       ),
     );
 
-    print("메시지");
-    print(messageText);
+    // print("메시지");
+    // print(messageText);
 
     if (message.notification != null && android != null) {
       await flutterLocalNotificationsPlugin.show(

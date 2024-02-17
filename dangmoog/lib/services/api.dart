@@ -24,7 +24,7 @@ class ApiService {
   }
 
   Future<Response> fcmDelete() async {
-    return await _authClient.patch("account/fcm_update");
+    return await _authClient.patch("account/fcm_update?fcm=");
   }
 
   // 이메일 전송
@@ -244,15 +244,11 @@ class ApiService {
     return await _authClient.post("post/get_like_list");
   }
 
-  Future<Response> loadPurchase(Map<String, dynamic> filters) async {
+  Future<Response> loadPurchase() async {
     try {
-      final response = await _authClient.post(
-        'post/my_items',
-        data: filters,
-      );
+      final response = await _authClient.post('post/my_items');
       return response;
     } catch (e) {
-      // Handle exception, or rethrow to be handled by the calling function
       rethrow;
     }
   }
@@ -273,10 +269,6 @@ class ApiService {
   Future<Response> valLockerPost(
       int postId, int lockerId, String password, File imageFile) async {
     // Define the URL endpoint
-    print(imageFile.path.split('/').last);
-    print(lockerId);
-    print(postId);
-    print(password);
 
     // Create a FormData object with the single image
     FormData formData = FormData.fromMap({
@@ -381,6 +373,10 @@ class ApiService {
   Future<Response> changeDealStatus(int status, int postId) async {
     Map<String, int> requestBody = {"status": status};
     return await _authClient.patch("post/$postId", data: requestBody);
+  }
+
+  Future<Response> setDoneDeal(String roomId) async {
+    return await _authClient.patch("post/done/$roomId");
   }
 
   Future<Response> getPhotoUrls(String roomId, List<File> imageFiles) async {
@@ -504,6 +500,13 @@ class ApiService {
     return await _authClient.get('locker/locker_auth/$postId');
   }
 
+  Future<Response> preLockerInfo(int lockerId) async {
+    return await _authClient.get('locker/pre_locker_auth/$lockerId');
+  }
+
+  ///////////////
+  /// 신고 관련 ///
+  ///////////////
   Future<Response> reportPost(
       int blameUser, int blameId, String content) async {
     Map<String, dynamic> requestBody = {

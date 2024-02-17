@@ -19,7 +19,8 @@ import 'package:dangmoog/screens/chat/chat_list/chat_list_page.dart';
 
 import 'package:dangmoog/screens/app_bar.dart';
 import 'package:dangmoog/screens/nav_bar.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:flutter/services.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:provider/provider.dart';
 
 class MainPage extends StatefulWidget {
@@ -224,12 +225,34 @@ class _MainPageState extends State<MainPage> {
     }
   }
 
+  DateTime? currentBackPressTime;
+  Future<bool> onWillPop() async {
+    DateTime now = DateTime.now();
+    if (currentBackPressTime == null ||
+        now.difference(currentBackPressTime!) > const Duration(seconds: 2)) {
+      currentBackPressTime = now; // 현재 시간 업데이트
+      Fluttertoast.showToast(
+        msg: "'뒤로' 버튼을 한번 더 누르시면 종료됩니다.",
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+        timeInSecForIosWeb: 1,
+        backgroundColor: const Color(0xff6E6E6E),
+        textColor: Colors.white,
+        fontSize: 16.0,
+      );
+      return Future.value(false);
+    }
+    SystemNavigator.pop();
+    return Future.value(true);
+  }
+
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
-      onWillPop: () {
-        return Future(() => false);
-      },
+      // onWillPop: () {
+      //   return Future(() => false);
+      // },
+      onWillPop: onWillPop,
       child: Scaffold(
         appBar: mainAppBar(currentTabIndex, context),
         body: IndexedStack(
