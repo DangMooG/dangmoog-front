@@ -113,6 +113,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                         double dividerThickness = 1;
                         double buttonHeight = 36;
                         return AlertDialog(
+                          surfaceTintColor: Colors.transparent,
                           contentPadding: EdgeInsets.zero,
                           shape: const RoundedRectangleBorder(
                             borderRadius: BorderRadius.all(Radius.circular(14)),
