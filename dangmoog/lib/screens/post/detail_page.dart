@@ -378,7 +378,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
             ],
           ),
           _buildProductDescription(product),
-          if (!isUserProduct || product.status!=-1) _buildReportButton(product),
+          (!isUserProduct || product.status==-1) ?_buildReportButton(product):const SizedBox.shrink(),
         ],
       ),
     );
