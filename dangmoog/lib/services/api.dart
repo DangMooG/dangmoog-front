@@ -227,6 +227,19 @@ class ApiService {
     }
   }
 
+  Future<Response> loadHouseProductListWithPaging(int checkpoint) async {
+    if (checkpoint == 0) {
+      return await _publicClient.get("post/house-app-paging", queryParameters: {
+        "size": 20,
+      });
+    } else {
+      return await _publicClient.get("post/house-app-paging", queryParameters: {
+        "size": 20,
+        "checkpoint": checkpoint,
+      });
+    }
+  }
+
   Future<Response> loadLikes() async {
     return await _authClient.post("post/get_like_list");
   }

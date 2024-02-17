@@ -151,7 +151,7 @@ class _ProductTimerState extends State<ProductTimer> {
                               backgroundColor: buttonColor,
                               // Button background color // when time's up, the button background should be transparent, but the border of the button's color is background: #A19E9E;
 
-                              primary: Colors.white,
+                              foregroundColor: Colors.white,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(
                                     6), // Border radius of the button
@@ -160,6 +160,7 @@ class _ProductTimerState extends State<ProductTimer> {
                                 fontFamily: 'Pretendard',
                                 fontSize: 11,
                                 fontWeight: FontWeight.w400,
+
                               ),
                             ),
                             child: _timerState == TimerState.completed ? const Row(
