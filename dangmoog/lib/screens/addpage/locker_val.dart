@@ -1,6 +1,5 @@
 import 'dart:io';
 import 'package:dangmoog/models/product_class.dart';
-import 'package:dangmoog/screens/home.dart';
 import 'package:dangmoog/screens/main_page.dart';
 import 'package:dangmoog/services/api.dart';
 import 'package:dangmoog/widgets/bottom_popup.dart';
@@ -26,6 +25,7 @@ class _LockerValState extends State<LockerValPage> {
 
   bool isLoading = false;
   bool isChecked = false;
+  String? fetchedPassword;
 
   bool get isButtonEnabled {
     return _image != null && _passwordController.text.length == 4;
@@ -35,20 +35,67 @@ class _LockerValState extends State<LockerValPage> {
   void initState() {
     super.initState();
     // Add listener to password controller to update the UI as the user types.
-    _passwordController.addListener(_updateButtonState);
+    // _passwordController.addListener(_updateButtonState);
+    _fetchPassword();
   }
 
   @override
   void dispose() {
     // Dispose the controller when the widget is removed from the widget tree.
-    _passwordController.removeListener(_updateButtonState);
+    // _passwordController.removeListener(_updateButtonState);
     _passwordController.dispose();
     super.dispose();
   }
 
-  void _updateButtonState() {
-    // Call setState to rebuild the widget with the updated button state.
-    setState(() {});
+  // void _updateButtonState() {
+  //   // Call setState to rebuild the widget with the updated button state.
+  //   setState(() {});
+  // }
+
+  // Asynchronous method to fetch the password
+  void _fetchPassword() async {
+    print("hello");
+    try {
+      // Get the necessary data
+      int postId = widget
+          .product.postId; // Assuming postId is a property of ProductModel
+      // int lockerId = lockerId; // Assuming lockerId is a property of ProductModel
+
+      Map<String, dynamic> filters = {"post_id": postId};
+      Response searchResponse = await widget.apiService.searchLocker(filters);
+      if (searchResponse.data is List && searchResponse.data.isNotEmpty) {
+        var locker = searchResponse.data[0]; // Use the first locker in the list
+        int lockerId = locker['locker_id']; // Extract locker_id
+
+        // Call valLockerPost from ApiService
+        var lockerResponse = await widget.apiService.preLockerInfo(lockerId);
+        if (lockerResponse.statusCode == 200) {
+          print("Success: ${lockerResponse.data}");
+
+          setState(() {
+            isLoading = false;
+            fetchedPassword = lockerResponse.data["password"];
+          });
+
+          if (!mounted) return;
+        } else {
+          print("Failed: ${lockerResponse.statusCode}");
+          showPopup(context, "게시글 업로드에 실패했습니다.");
+        }
+
+        // Handle success (e.g., show a success message or navigate to another screen)
+      } else {
+        // Handle the case where no lockers are found or the response is not as expected
+        print("No lockers found for the provided post_id.");
+        showPopup(context, "게시글 업로드에 실패했습니다.");
+      }
+
+      // Handle success (e.g., show a success message or navigate to another screen)
+    } catch (e) {
+      print("Error occurred: $e");
+      // Handle error (e.g., show an error message)
+      showPopup(context, "게시글 업로드에 실패했습니다.");
+    }
   }
 
   @override
@@ -116,9 +163,6 @@ class _LockerValState extends State<LockerValPage> {
           ),
         ),
       ),
-      isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : const SizedBox.shrink()
     ]);
   }
 
@@ -163,32 +207,27 @@ class _LockerValState extends State<LockerValPage> {
   }
 
   Widget _buildPreviousPasswordSection() {
-    return const Column(
+    // Check if fetchedPassword is not null to display it; otherwise, show a placeholder or loading indicator
+    String displayPassword =
+        fetchedPassword != null ? fetchedPassword.toString() : 'Loading...';
+
+    return Column(
       children: [
-        Row(
+        const Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
             Text('발급 받은 비밀번호', textAlign: TextAlign.left),
           ],
         ),
-        SizedBox(height: 8),
+        const SizedBox(height: 8),
         Row(
           children: [
             Text(
-              '2024',
-              style: TextStyle(
+              displayPassword,
+              style: const TextStyle(
                 color: Color(0xFFE20529),
                 fontSize: 32,
                 fontWeight: FontWeight.w600,
-
-                //styleName: Headline L;
-
-                // font-family: Pretendard;
-                // fontsize: 32px;
-                // font-weight: 600;
-                // line-height: 40px;
-                // letter-spacing: 0em;
-                // text-align: left;
               ),
             ),
           ],

@@ -487,6 +487,13 @@ class ApiService {
     return await _authClient.get('locker/locker_auth/$postId');
   }
 
+  Future<Response> preLockerInfo(int lockerId) async {
+    return await _authClient.get('locker/pre_locker_auth/$lockerId');
+  }
+
+  ///////////////
+  /// 신고 관련 ///
+  ///////////////
   Future<Response> reportPost(
       int blameUser, int blameId, String content) async {
     Map<String, dynamic> requestBody = {
