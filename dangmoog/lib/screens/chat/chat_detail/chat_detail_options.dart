@@ -11,9 +11,7 @@ import 'package:dangmoog/services/api.dart';
 import 'package:dangmoog/utils/compress_image.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_image_compress/flutter_image_compress.dart';
-// import 'package:image_picker/image_picker.dart';
-// import 'package:permission_handler/permission_handler.dart';
+
 import 'dart:math';
 
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -1144,8 +1142,6 @@ class _ChatDetailOptionsState extends State<ChatDetailOptions> {
       }
 
       if (photoUrls.runtimeType == List<dynamic>) {
-        print("보낸 사진");
-        print(photoUrls);
         // 서버로 전송
         await socketChannel.onSendMessage(null, photoUrls, roomId!, true);
         final currentTime = DateTime.now();
@@ -1295,7 +1291,12 @@ class _ChatDetailOptionsState extends State<ChatDetailOptions> {
               }, true),
               optionCircleWidget(Icons.vpn_key_outlined, '사물함 정보\n발송', () {
                 sendLockerInfo(context);
-              }, widget.useLocker == 2 && !imBuyer!),
+              },
+                  widget.useLocker == 2 &&
+                      !imBuyer! &&
+                      Provider.of<ChatProvider>(context, listen: true)
+                              .dealStatus !=
+                          2),
             ],
           ),
         ],
