@@ -379,7 +379,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
             ],
           ),
           _buildProductDescription(product),
-          if (!isUserProduct) _buildReportButton(product),
+          if (!isUserProduct || product.status!=-1) _buildReportButton(product),
         ],
       ),
     );
@@ -394,11 +394,11 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
     double imageWidth = 100.0; // Example width
 
     String imagePath;
-    if (saleStatus == 0 && !forFree) {
+    if (saleStatus==-1 ||(saleStatus == 0 && !forFree)) {
       imagePath = 'assets/images/saleStatus_logos/selling_logo.png';
     } else if (saleStatus == 0 && forFree) {
       imagePath = 'assets/images/saleStatus_logos/forfree_selling_logo.png';
-    } else if (saleStatus == 1 && !forFree) {
+    } else if ((saleStatus == 1 && !forFree)) {
       imagePath = 'assets/images/saleStatus_logos/reserved_logo.png';
     } else if (saleStatus == 1 && forFree) {
       imagePath = 'assets/images/saleStatus_logos/forfree_reserved_logo.png';
@@ -592,7 +592,11 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
   }
 
   Widget _buildReportButton(ProductModel product) {
-    return Container(
+
+    if (product.status==-1){
+      return const SizedBox.shrink();
+    }else {
+      return Container(
       margin: const EdgeInsets.only(top: 8),
       child: InkWell(
         onTap: () {
@@ -699,6 +703,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
         ),
       ),
     );
+    }
   }
 
   Widget _buildChatButton(
@@ -800,9 +805,10 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                 ),
               ),
             ),
-            child: const Text(
-              '채팅하기',
-              style: TextStyle(color: Color(0xFFFFFFFF)),
+            child:
+            Text(
+              product.status==-1?'하우스에 문의하기':'채팅하기',
+              style: const TextStyle(color: Color(0xFFFFFFFF)),
             ),
           ),
         ],
