@@ -30,14 +30,14 @@ class _PurchaseMainPageState extends State<PurchaseMainPage> {
   @override
   void initState() {
     super.initState();
-    futureProducts = _loadPurchaseProducts(context);
+    futureProducts = _loadPurchaseProducts();
   }
 
-  Future<List<ProductModel>> _loadPurchaseProducts(BuildContext context) async {
+  Future<List<ProductModel>> _loadPurchaseProducts() async {
     final response = await ApiService().loadPurchase();
 
     if (response.statusCode == 200) {
-      final data = response.data["result"];
+      List<dynamic> data = response.data["result"] as List;
 
       return data.map((item) => ProductModel.fromJson(item)).toList();
     } else {
