@@ -52,11 +52,12 @@ class _ChatContentsState extends State<ChatContents> {
     super.initState();
     widget.scrollController.addListener(_scrollListener);
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await Future.delayed(const Duration(milliseconds: 500));
       if (widget.scrollController.hasClients) {
         widget.scrollController.animateTo(
           widget.scrollController.position.maxScrollExtent,
-          duration: const Duration(milliseconds: 200),
+          duration: const Duration(milliseconds: 400),
           curve: Curves.easeOut,
         );
       }
@@ -77,9 +78,7 @@ class _ChatContentsState extends State<ChatContents> {
           List<ChatDetailMessageModel> chatContents = chatProvider.chatContents;
           // 데이터가 비어 있으면 아무것도 반환하지 않음
           if (chatContents.isEmpty) {
-            return Container(
-              height: double.infinity,
-            );
+            return const Center(child: CircularProgressIndicator());
           }
 
           return Stack(

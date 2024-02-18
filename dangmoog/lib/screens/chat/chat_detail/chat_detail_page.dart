@@ -240,7 +240,7 @@ class _ChatDetailState extends State<ChatDetail> {
                         product: product!,
                         imBuyer: imBuyer!,
                       )
-                    : const Center(child: CircularProgressIndicator()),
+                    : const SizedBox.shrink(),
                 Expanded(
                   child: GestureDetector(
                     onTap: unFocusKeyBoard,
@@ -302,14 +302,6 @@ class _ChatDetailState extends State<ChatDetail> {
         final chatProvider = Provider.of<ChatProvider>(context, listen: false);
         chatProvider.addChatContent(newMessage);
 
-        if (chatProvider.chatContents.length > 1) {
-          _scrollController.animateTo(
-            _scrollController.position.maxScrollExtent,
-            duration: const Duration(milliseconds: 300),
-            curve: Curves.easeOut,
-          );
-        }
-
         final chatListProvider =
             Provider.of<ChatListProvider>(context, listen: false);
         if (chatListProvider.buyChatList
@@ -338,6 +330,14 @@ class _ChatDetailState extends State<ChatDetail> {
         } else {
           chatProvider.addNewChatList();
         }
+
+        if (chatProvider.chatContents.length > 1) {
+          _scrollController.animateTo(
+            _scrollController.position.maxScrollExtent,
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeOut,
+          );
+        }
       }
     }
 
@@ -355,7 +355,6 @@ class _ChatDetailState extends State<ChatDetail> {
     );
   }
 
-  // option box button, chat input field, submit button
   Widget _buildchatInputField(
       BuildContext context, VoidCallback handleTextChatSubmitted) {
     return Container(
