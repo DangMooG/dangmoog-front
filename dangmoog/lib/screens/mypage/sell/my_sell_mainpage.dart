@@ -37,7 +37,8 @@ class _MySellMainPageState extends State<MySellMainPage> {
         Provider.of<UserProvider>(context, listen: false).nickname;
 
     final filters = {'username': userNickname};
-    final response = await apiService.searchPosts(filters);
+    final response = await ApiService().searchPosts(filters);
+
     if (response.statusCode == 200) {
       if (response.data is List) {
         List<dynamic> data = response.data as List;

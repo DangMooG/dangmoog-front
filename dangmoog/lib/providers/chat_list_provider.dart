@@ -65,4 +65,13 @@ class ChatListProvider with ChangeNotifier {
     sortedList.sort((a, b) => b.updateTime.compareTo(a.updateTime));
     return sortedList;
   }
+
+  void resetAllChatList() {
+    _sellChatList = [];
+    _buyChatList = [];
+    _sellUnreadCount = 0;
+    _buyUnreadCount = 0;
+
+    notifyListeners();
+  }
 }
