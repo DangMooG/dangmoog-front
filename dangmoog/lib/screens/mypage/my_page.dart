@@ -1,3 +1,6 @@
+// ignore_for_file: use_build_context_synchronously
+
+import 'package:dangmoog/providers/chat_list_provider.dart';
 import 'package:dangmoog/services/api.dart';
 import 'package:flutter/material.dart';
 
@@ -349,13 +352,12 @@ class _MyPageState extends State<MyPage> {
                   onPressed: () async {
                     try {
                       final response = await ApiService().fcmDelete();
-                      print(response);
-                      print(response.statusCode);
                       if (response.statusCode == 200) {
                         await storage.delete(key: 'accessToken');
                         await storage.delete(key: 'userId');
                         await storage.delete(key: 'bankName');
                         await storage.delete(key: 'accountNumber');
+
                         if (!mounted) return;
                         Navigator.pushAndRemoveUntil(
                           context,
