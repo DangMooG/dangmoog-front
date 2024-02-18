@@ -238,6 +238,20 @@ class _ChatDetailOptionsState extends State<ChatDetailOptions> {
                           color: Color(0xff302E2E),
                         ),
                       ),
+                      widget.useLocker != 2
+                          ? const SizedBox(height: 8)
+                          : const SizedBox.shrink(),
+                      widget.useLocker != 2
+                          ? const Text(
+                              '직접거래는 계좌정보를 발송할 경우\n자동으로 거래완료 처리됩니다.',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w400,
+                                color: Color(0xff302E2E),
+                              ),
+                            )
+                          : const SizedBox.shrink(),
                       const SizedBox(height: 8),
                       Column(
                         children: [
@@ -396,7 +410,9 @@ class _ChatDetailOptionsState extends State<ChatDetailOptions> {
                               }
                               await handleTextChatSubmitted(
                                   "$selectedBankName $typedAccountNumber");
-                              await setDealDone();
+                              if (widget.useLocker == 0) {
+                                await setDealDone();
+                              }
 
                               Navigator.pop(context);
                             }
@@ -424,6 +440,8 @@ class _ChatDetailOptionsState extends State<ChatDetailOptions> {
                             ),
                           ),
                           Checkbox(
+                            materialTapTargetSize:
+                                MaterialTapTargetSize.shrinkWrap,
                             overlayColor: MaterialStateProperty.all(
                                 const Color(0xffBEBCBC)),
                             value: saveBankAccount,
@@ -471,6 +489,10 @@ class _ChatDetailOptionsState extends State<ChatDetailOptions> {
 
     // 이미 등록된 계좌가 존재하는 경우
     if (bankAccountName != null && bankAccountNumber != null) {
+      final contentMessage = widget.useLocker == 2
+          ? '해당 정보를 구매자에게 바로 발송하시겠어요?'
+          : '직접거래는 계좌정보를 발송할 경우\n자동으로 거래완료 처리됩니다.\n해당 정보를 구매자에게 발송하시겠습니까?';
+
       if (!mounted) return;
       showDialog(
         context: context,
@@ -489,10 +511,10 @@ class _ChatDetailOptionsState extends State<ChatDetailOptions> {
                 color: Color(0xff302E2E),
               ),
             ),
-            content: const Text(
-              '계좌정보를 발송할 경우\n자동으로 거래완료 처리됩니다.\n해당 정보를 구매자에게 발송하시겠습니까?',
+            content: Text(
+              contentMessage,
               textAlign: TextAlign.center,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w400,
                 color: Color(0xff302E2E),
@@ -503,8 +525,7 @@ class _ChatDetailOptionsState extends State<ChatDetailOptions> {
             actions: <Widget>[
               Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisSize:
-                    MainAxisSize.min, // Use minimum space required by children
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   Padding(
                     padding: const EdgeInsets.only(bottom: 12.0),
@@ -527,7 +548,9 @@ class _ChatDetailOptionsState extends State<ChatDetailOptions> {
                           onPressed: () async {
                             await handleTextChatSubmitted(
                                 "$bankAccountName $bankAccountNumber");
-                            await setDealDone();
+                            if (widget.useLocker == 0) {
+                              await setDealDone();
+                            }
                             Navigator.pop(context);
                           },
                           style: ButtonStyle(
@@ -833,14 +856,11 @@ class _ChatDetailOptionsState extends State<ChatDetailOptions> {
                               const Color(0xFFE20529),
                               Colors.transparent,
                               Colors.white, () async {
-                            print(1);
                             await sendLockerImage(lockerValPhotoUrl);
-                            print(2);
+
                             await handleTextChatSubmitted(lockerMessage);
 
-                            print(3);
                             await setDealDone();
-                            print(4);
 
                             Navigator.pop(context);
                           }),
@@ -1275,28 +1295,33 @@ class _ChatDetailOptionsState extends State<ChatDetailOptions> {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              optionCircleWidget(Icons.camera_alt_outlined, '카메라', () {
+              optionCircleWidget(context, Icons.camera_alt_outlined, '카메라', () {
                 handleImageChatSubmitted(true);
-              }, true),
-              optionCircleWidget(Icons.image_outlined, '앨범', () {
+              }, true, null),
+              optionCircleWidget(context, Icons.image_outlined, '앨범', () {
                 handleImageChatSubmitted(false);
-              }, true),
+              }, true, null),
             ],
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              optionCircleWidget(Icons.credit_card_outlined, '계좌정보\n발송', () {
+              optionCircleWidget(
+                  context, Icons.credit_card_outlined, '계좌정보\n발송', () {
                 sendBankAccount(context);
-              }, true),
-              optionCircleWidget(Icons.vpn_key_outlined, '사물함 정보\n발송', () {
+              }, !imBuyer!, "구매자는 계좌정보를 전송할 수 없습니다"),
+              optionCircleWidget(context, Icons.vpn_key_outlined, '사물함 정보\n발송',
+                  () {
                 sendLockerInfo(context);
               },
                   widget.useLocker == 2 &&
                       !imBuyer! &&
                       Provider.of<ChatProvider>(context, listen: true)
                               .dealStatus !=
-                          2),
+                          2,
+                  !imBuyer!
+                      ? "거래완료 상태의 사물함 정보를 전송할 수 없습니다"
+                      : "구매자는 사물함 정보를 전송할 수 없습니다"),
             ],
           ),
         ],
@@ -1305,8 +1330,8 @@ class _ChatDetailOptionsState extends State<ChatDetailOptions> {
   }
 }
 
-Widget optionCircleWidget(
-    IconData icon, String iconText, Function onTap, bool isActive) {
+Widget optionCircleWidget(BuildContext context, IconData icon, String iconText,
+    Function onTap, bool isActive, String? deActiveMessag) {
   return Container(
     margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
     child: Column(
@@ -1316,6 +1341,8 @@ Widget optionCircleWidget(
           onTap: () {
             if (isActive) {
               onTap();
+            } else {
+              showPopup(context, deActiveMessag!);
             }
           },
           child: Container(
