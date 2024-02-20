@@ -78,7 +78,7 @@ class _ChatContentsState extends State<ChatContents> {
           List<ChatDetailMessageModel> chatContents = chatProvider.chatContents;
           // 데이터가 비어 있으면 아무것도 반환하지 않음
           if (chatContents.isEmpty) {
-            return const Center(child: CircularProgressIndicator());
+            return const Center(child: SizedBox.shrink());
           }
 
           return Stack(
