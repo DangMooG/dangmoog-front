@@ -1,6 +1,6 @@
-import 'package:dangmoog/providers/post_list_scroll_provider.dart';
 import 'package:dangmoog/screens/addpage/locker_val.dart';
 import 'package:dangmoog/utils/time_ago.dart';
+import 'package:dangmoog/providers/post_list_scroll_provider.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
@@ -118,7 +118,7 @@ class _ProductListState extends State<ProductList> {
                     4 /
                     5) &&
         !isLoadingProductList) {
-      if (checkpoint != -1) {
+      if (checkpoint != 0) {
         _lastMaxScrollExtent = _scrollController.position.maxScrollExtent;
         _loadProducts();
       }
@@ -364,7 +364,7 @@ class _ProductListState extends State<ProductList> {
           physics: const AlwaysScrollableScrollPhysics(),
           addAutomaticKeepAlives: true,
           controller: _scrollController,
-          itemCount: lockerProducts.length + products.length + 1,
+          itemCount: 1+ lockerProducts.length + products.length,
           itemBuilder: (context, index) {
             if (index == 0) {
               // InkWell widget at the top of the list
