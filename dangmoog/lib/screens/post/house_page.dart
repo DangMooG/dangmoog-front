@@ -29,7 +29,7 @@ class _HousePageState extends State<HousePage> {
 
   List<ProductModel> houseProducts = [];
   bool isLoadingProductList = false;
-  String? selectedCategory;
+  String? selectedCategory=houseItems[0];
 
   // 이미지 캐싱을 위한 변수
   Map<int, String> imageCache = {};
