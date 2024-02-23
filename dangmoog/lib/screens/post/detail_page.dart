@@ -1,3 +1,4 @@
+import 'package:dangmoog/constants/category_house.dart';
 import 'package:dangmoog/constants/category_list.dart';
 import 'package:dangmoog/providers/chat_list_provider.dart';
 import 'package:dangmoog/providers/chat_provider.dart';
@@ -549,7 +550,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
     return Container(
       margin: const EdgeInsets.only(top: 4),
       child: Text(
-        '${categeryItems[product.categoryId]} | ${timeAgo(product.createTime)}',
+        '${product.status==-1?houseItems[product.categoryId]:categeryItems[product.categoryId]} | ${timeAgo(product.createTime)}',
         style: const TextStyle(
           fontSize: 11,
           color: Color(0xffA19E9E),
