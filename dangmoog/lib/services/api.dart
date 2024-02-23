@@ -228,6 +228,8 @@ class ApiService {
   }
 
   Future<Response> loadHouseProductListWithPaging(int checkpoint) async {
+
+
     if (checkpoint == 0) {
       return await _publicClient.get("post/house-app-paging", queryParameters: {
         "size": 20,
@@ -236,6 +238,21 @@ class ApiService {
       return await _publicClient.get("post/house-app-paging", queryParameters: {
         "size": 20,
         "checkpoint": checkpoint,
+      });
+    }
+  }
+
+  Future<Response> loadHouseProductListWithCategoryPaging(int checkpoint, int category) async {
+    if (checkpoint == 0) {
+      return await _publicClient.get("post/house-category-paging", queryParameters: {
+        "size": 20,
+        "category": category,
+      });
+    } else {
+      return await _publicClient.get("post/house-category-paging", queryParameters: {
+        "size": 20,
+        "checkpoint": checkpoint,
+        "category": category,
       });
     }
   }
