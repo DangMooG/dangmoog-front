@@ -364,90 +364,86 @@ class _ProductListState extends State<ProductList> {
           physics: const AlwaysScrollableScrollPhysics(),
           addAutomaticKeepAlives: true,
           controller: _scrollController,
-          itemCount: lockerProducts.length +
-              products.length, // 나중에 하우스 중고장터 기능 추가할 때 +1 추가해줘야함
+          itemCount: lockerProducts.length + products.length + 1,
           itemBuilder: (context, index) {
-            // if (index == 0) {
-            //   // InkWell widget at the top of the list
-            //   return Padding(
-            //     padding:
-            //         const EdgeInsets.only(top: 16.0, left: 16.0, right: 16.0),
-            //     child: Container(
-            //       width: 343,
-            //       height: 100,
-            //       decoration: BoxDecoration(
-            //         color: const Color(0xFFEC5870),
-            //         borderRadius: BorderRadius.circular(16),
-            //       ),
-            //       child: Padding(
-            //         padding: const EdgeInsets.all(16),
-            //         child: InkWell(
-            //           onTap: () {
-            //             Navigator.push(
-            //               context,
-            //               MaterialPageRoute(
-            //                 builder: (context) => const HousePage(),
-            //               ),
-            //             );
-            //           },
-            //           child: const Column(
-            //             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            //             crossAxisAlignment: CrossAxisAlignment.start,
-            //             children: [
-            //               Row(
-            //                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            //                 crossAxisAlignment: CrossAxisAlignment.start,
-            //                 children: [
-            //                   Text(
-            //                     '하우스 중고장터!\n지금 바로 구경하러 가볼까요?!',
-            //                     style: TextStyle(
-            //                       color: Colors.white,
-            //                       fontWeight: FontWeight.w600,
-            //                       fontSize: 14,
-            //                     ),
-            //                   ),
-            //                   // Image.asset(
-            //                   //   'assets/images/gist_house.png',
-            //                   //   width: 84,
-            //                   // ),
-            //                 ],
-            //               ),
-            //               Row(
-            //                 mainAxisAlignment: MainAxisAlignment.end,
-            //                 children: [
-            //                   Text(
-            //                     '구경하러 가기',
-            //                     style: TextStyle(
-            //                       color: Color(0xffFCE6EA),
-            //                       fontWeight: FontWeight.w400,
-            //                       fontSize: 11,
-            //                     ),
-            //                   ),
-            //                   Icon(
-            //                     size: 16,
-            //                     Icons.arrow_forward, // Use an arrow icon
-            //                     color: Color(0xffFCE6EA),
-            //                   ),
-            //                 ],
-            //               ),
-            //             ],
-            //           ),
-            //         ),
-            //       ),
-            //     ),
-            //   );
-            // }
-            if (index < lockerProducts.length) {
+            if (index == 0) {
+              // InkWell widget at the top of the list
+              return Padding(
+                padding:
+                    const EdgeInsets.only(top: 16.0, left: 16.0, right: 16.0),
+                child: Container(
+                  width: 343,
+                  height: 100,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFEC5870),
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: InkWell(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const HousePage(),
+                          ),
+                        );
+                      },
+                      child: const Column(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                '하우스 중고장터!\n지금 바로 구경하러 가볼까요?!',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 14,
+                                ),
+                              ),
+                              // Image.asset(
+                              //   'assets/images/gist_house.png',
+                              //   width: 84,
+                              // ),
+                            ],
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              Text(
+                                '구경하러 가기',
+                                style: TextStyle(
+                                  color: Color(0xffFCE6EA),
+                                  fontWeight: FontWeight.w400,
+                                  fontSize: 11,
+                                ),
+                              ),
+                              Icon(
+                                size: 16,
+                                Icons.arrow_forward, // Use an arrow icon
+                                color: Color(0xffFCE6EA),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              );
+            } else if (index < lockerProducts.length) {
               // Build locker product card
               return ChangeNotifierProvider<ProductModel>.value(
-                value: lockerProducts[index],
-                child: _lockerProductCard(context, lockerProducts[index]),
+                value: lockerProducts[index - 1],
+                child: _lockerProductCard(context, lockerProducts[index - 1]),
               );
-            }
-            int regularIndex = index - lockerProducts.length;
-            if (regularIndex < products.length) {
+            } else if (index < lockerProducts.length + products.length) {
               return ChangeNotifierProvider<ProductModel>.value(
-                value: products[regularIndex],
+                value: products[index - lockerProducts.length - 1],
                 child: _postCard(context),
               );
             } else if (isLoadingProductList) {
@@ -457,7 +453,12 @@ class _ProductListState extends State<ProductList> {
             }
           },
           separatorBuilder: (context, i) {
-            return const Divider(height: 1);
+            if (i == 0) {
+              return Container(); // Return an empty container to effectively "remove" the divider
+            } else {
+              return const Divider(
+                  height: 1); // Your existing divider for other items
+            }
           },
         ),
       ),
