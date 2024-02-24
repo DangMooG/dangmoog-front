@@ -125,7 +125,7 @@ class _HousePageState extends State<HousePage> {
 
     setState(() {
       // Toggle category selection
-      selectedCategory = isDeselecting ? null : categoryName;
+      selectedCategory = isDeselecting ? houseItems[0] : categoryName;
       checkpoint = 0; // Reset pagination checkpoint
       _lastMaxScrollExtent =0;
       houseProducts.clear(); // Clear existing products to load new set
@@ -160,43 +160,51 @@ class _HousePageState extends State<HousePage> {
             fontWeight: FontWeight.w600,
           ),
         ),
-        bottom: const PreferredSize(
-          preferredSize: Size.fromHeight(0.0),
-          child: Divider(
-            color: Color(0xFFBEBCBC),
-            height: 1,
-            thickness: 1,
-            indent: 0,
-            endIndent: 0,
-          ),
-        ),
+        // bottom: const PreferredSize(
+        //   preferredSize: Size.fromHeight(0.0),
+        //   child: Divider(
+        //     color: Color(0xFFBEBCBC),
+        //     height: 1,
+        //     thickness: 1,
+        //     indent: 0,
+        //     endIndent: 0,
+        //   ),
+        // ),
       ),
       body: Column(
         children: [
           SizedBox(
             height: 50, // Adjust based on your design
-            child: ListView.builder(
-              scrollDirection: Axis.horizontal,
-              itemCount: houseItems.length,
-              itemBuilder: (context, index) {
-                var category = houseItems[index];
-                return Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 8.0),
-                  child: OutlinedButton(
-                    onPressed: () => _onCategorySelected(category),
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: selectedCategory == category ? Colors.white : Colors.black,
-                      backgroundColor: selectedCategory == category ? const Color(0xFFE20529) : Colors.white,
-                      shape: RoundedRectangleBorder( // Use RoundedRectangleBorder for customizing border radius
-                        borderRadius: BorderRadius.circular(8), // Set the border radius here, 4 is just an example
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12.0),
+              child: ListView.builder(
+                scrollDirection: Axis.horizontal,
+                itemCount: houseItems.length,
+                itemBuilder: (context, index) {
+                  var category = houseItems[index];
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 4.0),
+                    child: OutlinedButton(
+                      onPressed: () => _onCategorySelected(category),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: selectedCategory == category ? Colors.white : const Color(0xFF514E4E),
+                        backgroundColor: selectedCategory == category ? const Color(0xFF514E4E) : Colors.white,
+                        shape: RoundedRectangleBorder( // Use RoundedRectangleBorder for customizing border radius
+                          borderRadius: BorderRadius.circular(18), // Set the border radius here, 4 is just an example
+                        ),
+                        side: const BorderSide(color: Color(0xFFD3D2D2)),
+                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                      ),
+                      child: Text(category.isEmpty ? '전체' : category,
+                      style: const TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w400
+                      ),
                       ),
                     ),
-                    child: Text(category.isEmpty ? '전체보기' : category,
-                    style: const TextStyle(fontSize: 12,
-                    ),),
-                  ),
-                );
-              },
+                  );
+                },
+              ),
             ),
           ),
           Expanded(
