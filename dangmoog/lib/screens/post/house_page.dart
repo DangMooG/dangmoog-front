@@ -160,16 +160,6 @@ class _HousePageState extends State<HousePage> {
             fontWeight: FontWeight.w600,
           ),
         ),
-        // bottom: const PreferredSize(
-        //   preferredSize: Size.fromHeight(0.0),
-        //   child: Divider(
-        //     color: Color(0xFFBEBCBC),
-        //     height: 1,
-        //     thickness: 1,
-        //     indent: 0,
-        //     endIndent: 0,
-        //   ),
-        // ),
       ),
       body: Column(
         children: [
@@ -197,7 +187,7 @@ class _HousePageState extends State<HousePage> {
                       ),
                       child: Text(category.isEmpty ? '전체' : category,
                       style: const TextStyle(
-                          fontSize: 12,
+                          fontSize: 14,
                           fontWeight: FontWeight.w400
                       ),
                       ),
@@ -238,9 +228,13 @@ class _HousePageState extends State<HousePage> {
           if (mounted) {
             setState(() {
               checkpoint = 0;
+              selectedCategory = houseItems[0];
+
+              // _lastMaxScrollExtent = 0;
+              houseProducts.clear();
             });
           }
-          houseProducts.clear();
+          // houseProducts.clear();
           await _loadHouseProducts();
         },
         child: Center(
@@ -264,9 +258,13 @@ class _HousePageState extends State<HousePage> {
         if (mounted) {
           setState(() {
             checkpoint = 0;
+            selectedCategory = houseItems[0];
+
+            // _lastMaxScrollExtent = 0;
+            houseProducts.clear();
           });
         }
-        houseProducts.clear();
+        // houseProducts.clear();
         await _loadHouseProducts();
       },
       child: Scrollbar(
