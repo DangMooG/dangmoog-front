@@ -15,3 +15,5 @@ List<String> categeryItems = [
   '티켓/쿠폰',
   '기타'
 ];
+
+
