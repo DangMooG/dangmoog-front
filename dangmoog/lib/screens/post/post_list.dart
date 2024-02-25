@@ -360,7 +360,7 @@ class _ProductListState extends State<ProductList> {
       child: Scrollbar(
         controller: _scrollController,
         child: ListView.separated(
-          // cacheExtent: 200,
+          cacheExtent: 3000,
           physics: const AlwaysScrollableScrollPhysics(),
           addAutomaticKeepAlives: true,
           controller: _scrollController,

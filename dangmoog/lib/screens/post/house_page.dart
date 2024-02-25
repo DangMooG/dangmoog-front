@@ -1,5 +1,5 @@
 import 'package:dangmoog/providers/post_list_scroll_provider.dart';
-import  'package:dangmoog/utils/time_ago.dart';
+import 'package:dangmoog/utils/time_ago.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
@@ -20,7 +20,6 @@ class HousePage extends StatefulWidget {
 }
 
 class _HousePageState extends State<HousePage> {
-
   final ApiService apiService = ApiService();
   final ScrollController _scrollController = ScrollController();
 
@@ -29,11 +28,10 @@ class _HousePageState extends State<HousePage> {
 
   List<ProductModel> houseProducts = [];
   bool isLoadingProductList = false;
-  String? selectedCategory=houseItems[0];
+  String? selectedCategory = houseItems[0];
 
   // 이미지 캐싱을 위한 변수
   Map<int, String> imageCache = {};
-
 
   Future<void> _loadHouseProducts({String? categoryName}) async {
     if (isLoadingProductList) return; // 중복 호출 방지
@@ -53,17 +51,20 @@ class _HousePageState extends State<HousePage> {
         int categoryIndex = houseItems.indexOf(categoryName);
         // Ensure categoryIndex is valid and not pointing to 'All'
         if (categoryIndex > 0) {
-          response = await apiService.loadHouseProductListWithCategoryPaging(checkpoint, categoryIndex);
+          response = await apiService.loadHouseProductListWithCategoryPaging(
+              checkpoint, categoryIndex);
         } else {
           // Fallback to loading without category filter
-          response = await apiService.loadHouseProductListWithPaging(checkpoint);
+          response =
+              await apiService.loadHouseProductListWithPaging(checkpoint);
         }
       }
 
       if (response.statusCode == 200) {
         final data = response.data;
         final List<dynamic> items = data["items"];
-        List<ProductModel> newProducts = items.map((item) => ProductModel.fromJson(item)).toList();
+        List<ProductModel> newProducts =
+            items.map((item) => ProductModel.fromJson(item)).toList();
 
         if (mounted) {
           setState(() {
@@ -80,22 +81,23 @@ class _HousePageState extends State<HousePage> {
     }
   }
 
-
-
   double _lastMaxScrollExtent = 0; // null로 시작
 
   void _scrollListener() {
     if (_scrollController.position.pixels >=
-        (_lastMaxScrollExtent + (_scrollController.position.maxScrollExtent - _lastMaxScrollExtent) * 4 / 5) &&
+            (_lastMaxScrollExtent +
+                (_scrollController.position.maxScrollExtent -
+                        _lastMaxScrollExtent) *
+                    4 /
+                    5) &&
         !isLoadingProductList) {
-      if (checkpoint != 0) { // Assuming `-1` indicates no more products to load.
+      if (checkpoint != 0) {
+        // Assuming `-1` indicates no more products to load.
         _lastMaxScrollExtent = _scrollController.position.maxScrollExtent;
-        _loadHouseProducts(categoryName: selectedCategory); // Pass selectedCategory
+        _loadHouseProducts(categoryName: selectedCategory);
       }
     }
   }
-
-
 
   @override
   void initState() {
@@ -127,17 +129,13 @@ class _HousePageState extends State<HousePage> {
       // Toggle category selection
       selectedCategory = isDeselecting ? houseItems[0] : categoryName;
       checkpoint = 0; // Reset pagination checkpoint
-      _lastMaxScrollExtent =0;
+      _lastMaxScrollExtent = 0;
       houseProducts.clear(); // Clear existing products to load new set
-
     });
 
     // Load products based on the updated selection
     _loadHouseProducts(categoryName: selectedCategory);
   }
-
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -153,7 +151,8 @@ class _HousePageState extends State<HousePage> {
             Navigator.of(context).pop();
           },
         ),
-        title: const Text("하우스 중고장터",
+        title: const Text(
+          "하우스 중고장터",
           style: TextStyle(
             color: Color(0xff302E2E),
             fontSize: 18,
@@ -173,23 +172,35 @@ class _HousePageState extends State<HousePage> {
                 itemBuilder: (context, index) {
                   var category = houseItems[index];
                   return Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 4.0),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 4.0, vertical: 4.0),
                     child: OutlinedButton(
                       onPressed: () => _onCategorySelected(category),
                       style: OutlinedButton.styleFrom(
-                        foregroundColor: selectedCategory == category ? Colors.white : const Color(0xFF514E4E),
-                        backgroundColor: selectedCategory == category ? const Color(0xFF514E4E) : Colors.white,
-                        shape: RoundedRectangleBorder( // Use RoundedRectangleBorder for customizing border radius
-                          borderRadius: BorderRadius.circular(18), // Set the border radius here, 4 is just an example
+                        foregroundColor: selectedCategory == category
+                            ? Colors.white
+                            : const Color(0xFF514E4E),
+                        backgroundColor: selectedCategory == category
+                            ? const Color(0xFF514E4E)
+                            : Colors.white,
+                        shape: RoundedRectangleBorder(
+                          // Use RoundedRectangleBorder for customizing border radius
+                          borderRadius: BorderRadius.circular(
+                              18), // Set the border radius here, 4 is just an example
                         ),
-                        side: const BorderSide(color: Color(0xFFD3D2D2)),
+                        side: BorderSide(
+                          color: selectedCategory == category
+                              ? Colors.transparent
+                              : const Color(0xFFD3D2D2),
+                        ),
                         padding: const EdgeInsets.symmetric(horizontal: 8.0),
                       ),
-                      child: Text(category.isEmpty ? '전체' : category,
-                      style: const TextStyle(
+                      child: Text(
+                        category.isEmpty ? '전체' : category,
+                        style: const TextStyle(
                           fontSize: 14,
-                          fontWeight: FontWeight.w400
-                      ),
+                          fontWeight: FontWeight.w400,
+                        ),
                       ),
                     ),
                   );
@@ -198,9 +209,9 @@ class _HousePageState extends State<HousePage> {
             ),
           ),
           Expanded(
-            child: Platform.isIOS ? _buildIOSListView() : _buildDefaultListView(),
+            child:
+                Platform.isIOS ? _buildIOSListView() : _buildDefaultListView(),
           )
-
         ],
       ),
     );
@@ -239,17 +250,16 @@ class _HousePageState extends State<HousePage> {
         },
         child: Center(
             child: SingleChildScrollView(
-              physics: const AlwaysScrollableScrollPhysics(),
-              child: SizedBox(
-                height: MediaQuery.of(context).size.height * 0.8,
-                child: const Center(
-                    child: Text(
-                      '등록된 게시글이 없습니다.',
-                      textAlign: TextAlign.center,)
-                ),
-              ),
-            )
-        ),
+          physics: const AlwaysScrollableScrollPhysics(),
+          child: SizedBox(
+            height: MediaQuery.of(context).size.height * 0.8,
+            child: const Center(
+                child: Text(
+              '등록된 게시글이 없습니다.',
+              textAlign: TextAlign.center,
+            )),
+          ),
+        )),
       );
     }
 
@@ -270,21 +280,20 @@ class _HousePageState extends State<HousePage> {
       child: Scrollbar(
         controller: _scrollController,
         child: ListView.separated(
-          // cacheExtent: 200,
+          cacheExtent: 3000,
           physics: const AlwaysScrollableScrollPhysics(),
           addAutomaticKeepAlives: true,
           controller: _scrollController,
           itemCount: houseProducts.length,
           itemBuilder: (context, index) {
-              return ChangeNotifierProvider<ProductModel>.value(
-                value: houseProducts[index],
-                child: _postCard(context),
-              );
+            return ChangeNotifierProvider<ProductModel>.value(
+              value: houseProducts[index],
+              child: _postCard(context),
+            );
           },
           separatorBuilder: (context, i) {
-
-              return const Divider(height: 1); // Your existing divider for other items
-
+            return const Divider(
+                height: 1); // Your existing divider for other items
           },
         ),
       ),
@@ -365,94 +374,94 @@ class _HousePageState extends State<HousePage> {
               borderRadius: BorderRadius.circular(8),
               child: imageCache.containsKey(product.representativePhotoId)
                   ? Image.network(
-                imageCache[product.representativePhotoId]!,
-                fit: BoxFit.cover,
-                loadingBuilder: (context, child, loadingProgress) {
-                  if (loadingProgress == null) return child;
-                  return Container(
-                    decoration: const BoxDecoration(
-                      color: Color(0xffD9D9D9),
-                    ),
-                    width: 90,
-                    height: 90,
-                  );
-                },
-                errorBuilder: (BuildContext context, Object exception,
-                    StackTrace? stackTrace) {
-                  return Image.asset(
-                    "assets/images/sample.png",
-                    width: 90,
-                    fit: BoxFit.cover,
-                  );
-                },
-              )
-                  : product.representativePhotoId == 0
-                  ? Image.asset(
-                "assets/images/sample.png",
-                width: 90,
-                fit: BoxFit.cover,
-              )
-                  : FutureBuilder<Response>(
-                future: apiService
-                    .loadPhoto(product.representativePhotoId),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState ==
-                      ConnectionState.waiting) {
-                    return Container(
-                      decoration: const BoxDecoration(
-                        color: Color(0xffF1F1F1),
-                      ),
-                    );
-                  } else if (snapshot.hasError) {
-                    return Image.asset(
-                      "assets/images/sample.png",
-                      width: 90,
-                      errorBuilder: (BuildContext context,
-                          Object exception, StackTrace? stackTrace) {
+                      imageCache[product.representativePhotoId]!,
+                      fit: BoxFit.cover,
+                      loadingBuilder: (context, child, loadingProgress) {
+                        if (loadingProgress == null) return child;
+                        return Container(
+                          decoration: const BoxDecoration(
+                            color: Color(0xffD9D9D9),
+                          ),
+                          width: 90,
+                          height: 90,
+                        );
+                      },
+                      errorBuilder: (BuildContext context, Object exception,
+                          StackTrace? stackTrace) {
                         return Image.asset(
                           "assets/images/sample.png",
                           width: 90,
                           fit: BoxFit.cover,
                         );
                       },
-                    );
-                  } else if (snapshot.data == null) {
-                    return Image.asset(
-                      'assets/images/sample.png',
-                      fit: BoxFit.cover,
-                    );
-                  } else if (snapshot.hasData) {
-                    Map<String, dynamic> data = snapshot.data!.data;
-                    String imageUrl = data["url"];
-                    imageCache[product.representativePhotoId] =
-                        imageUrl;
-                    return Image.network(
-                      imageUrl,
-                      fit: BoxFit.cover,
-                      loadingBuilder:
-                          (context, child, loadingProgress) {
-                        if (loadingProgress == null) return child;
-                        return Image.asset(
-                          'assets/images/sample.png',
+                    )
+                  : product.representativePhotoId == 0
+                      ? Image.asset(
+                          "assets/images/sample.png",
+                          width: 90,
                           fit: BoxFit.cover,
-                        );
-                      },
-                      errorBuilder: (BuildContext context,
-                          Object error, StackTrace? stackTrace) {
-                        return Image.asset(
-                          'assets/images/sample.png',
-                          fit: BoxFit.cover,
-                        );
-                      },
-                    );
-                  } else {
-                    return Image.asset(
-                      "assets/images/sample.png",
-                      fit: BoxFit.cover,
-                    );
-                  }
-                },
-              ),
+                        )
+                      : FutureBuilder<Response>(
+                          future: apiService
+                              .loadPhoto(product.representativePhotoId),
+                          builder: (context, snapshot) {
+                            if (snapshot.connectionState ==
+                                ConnectionState.waiting) {
+                              return Container(
+                                decoration: const BoxDecoration(
+                                  color: Color(0xffF1F1F1),
+                                ),
+                              );
+                            } else if (snapshot.hasError) {
+                              return Image.asset(
+                                "assets/images/sample.png",
+                                width: 90,
+                                errorBuilder: (BuildContext context,
+                                    Object exception, StackTrace? stackTrace) {
+                                  return Image.asset(
+                                    "assets/images/sample.png",
+                                    width: 90,
+                                    fit: BoxFit.cover,
+                                  );
+                                },
+                              );
+                            } else if (snapshot.data == null) {
+                              return Image.asset(
+                                'assets/images/sample.png',
+                                fit: BoxFit.cover,
+                              );
+                            } else if (snapshot.hasData) {
+                              Map<String, dynamic> data = snapshot.data!.data;
+                              String imageUrl = data["url"];
+                              imageCache[product.representativePhotoId] =
+                                  imageUrl;
+                              return Image.network(
+                                imageUrl,
+                                fit: BoxFit.cover,
+                                loadingBuilder:
+                                    (context, child, loadingProgress) {
+                                  if (loadingProgress == null) return child;
+                                  return Image.asset(
+                                    'assets/images/sample.png',
+                                    fit: BoxFit.cover,
+                                  );
+                                },
+                                errorBuilder: (BuildContext context,
+                                    Object error, StackTrace? stackTrace) {
+                                  return Image.asset(
+                                    'assets/images/sample.png',
+                                    fit: BoxFit.cover,
+                                  );
+                                },
+                              );
+                            } else {
+                              return Image.asset(
+                                "assets/images/sample.png",
+                                fit: BoxFit.cover,
+                              );
+                            }
+                          },
+                        ),
             ),
           ),
           if (product.useLocker != 0)
@@ -568,21 +577,21 @@ class _HousePageState extends State<HousePage> {
             // _buildDealStatus(product.status),
             product.price != 0
                 ? Text(
-              convertMoneyFormat(product.price),
-              style: const TextStyle(
-                fontWeight: FontWeight.w600,
-                fontSize: 16,
-                color: Color(0xFF302E2E),
-              ),
-            )
+                    convertMoneyFormat(product.price),
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 16,
+                      color: Color(0xFF302E2E),
+                    ),
+                  )
                 : const Text(
-              '나눔 🐿️',
-              style: TextStyle(
-                fontWeight: FontWeight.w600,
-                fontSize: 16,
-                color: Color(0xFF302E2E),
-              ),
-            ),
+                    '나눔 🐿️',
+                    style: TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 16,
+                      color: Color(0xFF302E2E),
+                    ),
+                  ),
           ],
         ),
       ],
@@ -621,5 +630,3 @@ class _HousePageState extends State<HousePage> {
   //       : const SizedBox.shrink();
   // }
 }
-
-
