@@ -1,5 +1,6 @@
 import 'package:dangmoog/providers/post_list_scroll_provider.dart';
 import 'package:dangmoog/screens/post/post_list.dart';
+import 'package:dangmoog/widgets/update_popup.dart';
 import 'package:dio/dio.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -22,6 +23,7 @@ import 'package:dangmoog/screens/nav_bar.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:provider/provider.dart';
+import 'package:upgrader/upgrader.dart';
 
 class MainPage extends StatefulWidget {
   const MainPage({super.key});
@@ -255,9 +257,24 @@ class _MainPageState extends State<MainPage> {
       onWillPop: onWillPop,
       child: Scaffold(
         appBar: mainAppBar(currentTabIndex, context),
-        body: IndexedStack(
-          index: currentTabIndex,
-          children: _bodyPage,
+        body: UpgradeAlert(
+          upgrader: Upgrader(
+            languageCode: 'ko',
+            messages: MyUpgraderMessages(),
+            // messages: UpgraderMessages(),
+            durationUntilAlertAgain: const Duration(seconds: 0),
+          ),
+          showIgnore: false,
+          showLater: false,
+          showReleaseNotes: false,
+          dialogStyle: UpgradeDialogStyle.cupertino,
+          cupertinoButtonTextStyle: const TextStyle(
+            color: Colors.black,
+          ),
+          child: IndexedStack(
+            index: currentTabIndex,
+            children: _bodyPage,
+          ),
         ),
         bottomNavigationBar: MainNavigationBar(
           currentTabIndex: currentTabIndex,
