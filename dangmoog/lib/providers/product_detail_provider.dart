@@ -63,7 +63,10 @@ class ProductDetailProvider with ChangeNotifier {
       chatAvailable = false;
     } else if (product!.status != 0) {
       chatAvailable = false;
-    } else {
+    } else if (product?.userName=='하우스') {
+      chatAvailable = false;
+    }
+    else {
       chatAvailable = true;
     }
   }
