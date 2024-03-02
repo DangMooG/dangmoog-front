@@ -454,12 +454,15 @@ class _ProductListState extends State<ProductList> {
             }
           },
           separatorBuilder: (context, i) {
-            if (i == 0) {
-              return Container(); // Return an empty container to effectively "remove" the divider
-            } else {
-              return const Divider(
-                  height: 1); // Your existing divider for other items
-            }
+            return const Divider(
+            height: 1); // Your existing divider for other items
+
+            // if (i == 0) {
+            //   return Container(); // Return an empty container to effectively "remove" the divider
+            // } else {
+            //   return const Divider(
+            //       height: 1); // Your existing divider for other items
+            // }
           },
         ),
       ),
