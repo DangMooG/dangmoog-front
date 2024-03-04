@@ -574,7 +574,7 @@ class _HousePageState extends State<HousePage> {
         Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            // _buildDealStatus(product.status),
+            _buildDealStatus(product.status),
             product.price != 0
                 ? Text(
                     convertMoneyFormat(product.price),
@@ -599,34 +599,34 @@ class _HousePageState extends State<HousePage> {
   }
 
   // 게시글 거래 상태 표기
-  // Widget _buildDealStatus(int dealStatus) {
-  //   return dealStatus != 0
-  //       ? Container(
-  //         padding: const EdgeInsets.symmetric(
-  //           horizontal: 8,
-  //           vertical: 2.5,
-  //         ),
-  //         margin: const EdgeInsets.only(right: 6),
-  //         decoration: BoxDecoration(
-  //           borderRadius: const BorderRadius.all(
-  //             Radius.circular(3),
-  //           ),
-  //           color: dealStatus == 1
-  //               ? const Color(0xffEC5870)
-  //               : const Color(0xff726E6E),
-  //         ),
-  //       child: Text(
-  //         dealStatus == 1 ? '예약중' : '거래완료',
-  //         style: TextStyle(
-  //           color: Colors.white,
-  //           fontSize: 11,
-  //           fontWeight: FontWeight.w400,
-  //           backgroundColor: dealStatus == 1
-  //               ? const Color(0xffEC5870)
-  //               : const Color(0xff726E6E),
-  //         ),
-  //       ),
-  //   )
-  //       : const SizedBox.shrink();
-  // }
+  Widget _buildDealStatus(int dealStatus) {
+    return dealStatus != 0
+        ? Container(
+          padding: const EdgeInsets.symmetric(
+            horizontal: 8,
+            vertical: 2.5,
+          ),
+          margin: const EdgeInsets.only(right: 6),
+          decoration: BoxDecoration(
+            borderRadius: const BorderRadius.all(
+              Radius.circular(3),
+            ),
+            color: dealStatus == 1
+                ? const Color(0xffEC5870)
+                : const Color(0xff726E6E),
+          ),
+        child: Text(
+          dealStatus == 1 ? '예약중' : '거래완료',
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 11,
+            fontWeight: FontWeight.w400,
+            backgroundColor: dealStatus == 1
+                ? const Color(0xffEC5870)
+                : const Color(0xff726E6E),
+          ),
+        ),
+    )
+        : const SizedBox.shrink();
+  }
 }

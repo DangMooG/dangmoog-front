@@ -1,3 +1,5 @@
+import 'package:dangmoog/constants/category_house.dart';
+import 'package:dangmoog/providers/user_provider.dart';
 import 'package:dangmoog/screens/main_page.dart';
 import 'package:dangmoog/utils/compress_image.dart';
 import 'package:flutter/material.dart';
@@ -14,6 +16,7 @@ import 'package:dangmoog/constants/category_list.dart';
 import 'package:dangmoog/services/api.dart';
 
 import 'package:dangmoog/utils/convert_money_format.dart';
+import 'package:provider/provider.dart';
 
 class AddPostPage extends StatefulWidget {
   final int? lockerId;
@@ -65,7 +68,16 @@ class _AddPostPageState extends State<AddPostPage> {
     }
 
     String description = detailController.text;
-    int categoryId = categeryItems.indexOf(_selectedItem);
+    int categoryId;
+
+    final userProvider = Provider.of<UserProvider>(context, listen: false);
+    final userNickname = userProvider.nickname;
+
+    if (userNickname=='하우스'){
+      categoryId = houseItems.indexOf(_selectedItem);
+    }else{
+      categoryId = categeryItems.indexOf(_selectedItem);
+    }
 
     List<File>? imageFiles;
     if (_imageList.isNotEmpty) {
@@ -810,6 +822,9 @@ class _AddPostPageState extends State<AddPostPage> {
       });
     }
 
+    final userProvider = Provider.of<UserProvider>(context, listen: false);
+    final userNickname = userProvider.nickname;
+
     return Padding(
       padding: const EdgeInsets.only(top: 16),
       child: Column(
@@ -889,12 +904,33 @@ class _AddPostPageState extends State<AddPostPage> {
               ),
               constraints: const BoxConstraints(maxHeight: 3 * 41.0),
               child: Scrollbar(
+
                 // <- Wrap ListView inside Scrollbar
                 child: ListView(
                   padding: EdgeInsets.zero,
                   physics: const AlwaysScrollableScrollPhysics(),
                   shrinkWrap: true,
-                  children: categeryItems
+                  children: (userNickname!='하우스')?
+                  categeryItems
+                      .where((category) => category.isNotEmpty)
+                      .map((category) {
+                    return ListTile(
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 8),
+                      dense: true,
+                      visualDensity: VisualDensity.compact,
+                      hoverColor: const Color(0xffF1F1F1),
+                      title: Text(
+                        category,
+                        style: const TextStyle(
+                          color: Color(0xff302E2E),
+                          fontSize: 14,
+                          fontWeight: FontWeight.w400,
+                        ),
+                      ),
+                      onTap: () => _selectItem(category),
+                    );
+                  }).toList():
+                  houseItems
                       .where((category) => category.isNotEmpty)
                       .map((category) {
                     return ListTile(
