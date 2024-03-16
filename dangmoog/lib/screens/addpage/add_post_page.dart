@@ -73,9 +73,9 @@ class _AddPostPageState extends State<AddPostPage> {
     final userProvider = Provider.of<UserProvider>(context, listen: false);
     final userNickname = userProvider.nickname;
 
-    if (userNickname=='하우스'){
+    if (userNickname == '하우스') {
       categoryId = houseItems.indexOf(_selectedItem);
-    }else{
+    } else {
       categoryId = categeryItems.indexOf(_selectedItem);
     }
 
@@ -804,14 +804,14 @@ class _AddPostPageState extends State<AddPostPage> {
 
   // 카테고리 선택 위젯
   Widget _categorySelect() {
-    void _toggleListVisibility() {
+    void toggleListVisibility() {
       FocusScope.of(context).unfocus();
       setState(() {
         _isSelectListVisible = !_isSelectListVisible;
       });
     }
 
-    void _selectItem(String item) {
+    void selectItem(String item) {
       setState(() {
         _selectedItem = item;
         _isSelectListVisible = false;
@@ -832,7 +832,7 @@ class _AddPostPageState extends State<AddPostPage> {
         children: [
           _titleEachSection("카테고리(항목) 선택"),
           GestureDetector(
-            onTap: _toggleListVisibility,
+            onTap: toggleListVisibility,
             child: Container(
                 height: 38,
                 decoration: BoxDecoration(
@@ -904,51 +904,52 @@ class _AddPostPageState extends State<AddPostPage> {
               ),
               constraints: const BoxConstraints(maxHeight: 3 * 41.0),
               child: Scrollbar(
-
                 // <- Wrap ListView inside Scrollbar
                 child: ListView(
                   padding: EdgeInsets.zero,
                   physics: const AlwaysScrollableScrollPhysics(),
                   shrinkWrap: true,
-                  children: (userNickname!='하우스')?
-                  categeryItems
-                      .where((category) => category.isNotEmpty)
-                      .map((category) {
-                    return ListTile(
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 8),
-                      dense: true,
-                      visualDensity: VisualDensity.compact,
-                      hoverColor: const Color(0xffF1F1F1),
-                      title: Text(
-                        category,
-                        style: const TextStyle(
-                          color: Color(0xff302E2E),
-                          fontSize: 14,
-                          fontWeight: FontWeight.w400,
-                        ),
-                      ),
-                      onTap: () => _selectItem(category),
-                    );
-                  }).toList():
-                  houseItems
-                      .where((category) => category.isNotEmpty)
-                      .map((category) {
-                    return ListTile(
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 8),
-                      dense: true,
-                      visualDensity: VisualDensity.compact,
-                      hoverColor: const Color(0xffF1F1F1),
-                      title: Text(
-                        category,
-                        style: const TextStyle(
-                          color: Color(0xff302E2E),
-                          fontSize: 14,
-                          fontWeight: FontWeight.w400,
-                        ),
-                      ),
-                      onTap: () => _selectItem(category),
-                    );
-                  }).toList(),
+                  children: (userNickname != '하우스')
+                      ? categeryItems
+                          .where((category) => category.isNotEmpty)
+                          .map((category) {
+                          return ListTile(
+                            contentPadding:
+                                const EdgeInsets.symmetric(horizontal: 8),
+                            dense: true,
+                            visualDensity: VisualDensity.compact,
+                            hoverColor: const Color(0xffF1F1F1),
+                            title: Text(
+                              category,
+                              style: const TextStyle(
+                                color: Color(0xff302E2E),
+                                fontSize: 14,
+                                fontWeight: FontWeight.w400,
+                              ),
+                            ),
+                            onTap: () => selectItem(category),
+                          );
+                        }).toList()
+                      : houseItems
+                          .where((category) => category.isNotEmpty)
+                          .map((category) {
+                          return ListTile(
+                            contentPadding:
+                                const EdgeInsets.symmetric(horizontal: 8),
+                            dense: true,
+                            visualDensity: VisualDensity.compact,
+                            hoverColor: const Color(0xffF1F1F1),
+                            title: Text(
+                              category,
+                              style: const TextStyle(
+                                color: Color(0xff302E2E),
+                                fontSize: 14,
+                                fontWeight: FontWeight.w400,
+                              ),
+                            ),
+                            onTap: () => selectItem(category),
+                          );
+                        }).toList(),
                 ),
               ),
             ),
@@ -1243,6 +1244,7 @@ class _AddPostPageState extends State<AddPostPage> {
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(14),
                     ),
+                    surfaceTintColor: Colors.transparent,
                     elevation: 5,
                     child: Container(
                       padding: const EdgeInsets.all(20),

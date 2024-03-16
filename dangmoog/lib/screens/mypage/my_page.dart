@@ -285,7 +285,7 @@ class _MyPageState extends State<MyPage> {
                 );
               }),
           MypageText(
-              text: '버전 1.0.3',
+              text: '버전 1.0.4',
               icon: Icons.device_hub_outlined,
               onPressed: () {
                 // showPopup(context, "서비스 예정입니다");
