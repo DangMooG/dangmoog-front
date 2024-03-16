@@ -11,6 +11,8 @@ import 'package:intl/intl.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:image_picker/image_picker.dart';
 
+import 'package:reorderables/reorderables.dart';
+
 import 'package:dangmoog/widgets/bottom_popup.dart';
 import 'package:dangmoog/constants/category_list.dart';
 import 'package:dangmoog/services/api.dart';
@@ -516,7 +518,7 @@ class _AddPostPageState extends State<AddPostPage> {
                   ? Row(
                       children: List.generate(
                         _imageList.length,
-                        (index) => _imagePreview(_imageList[index]),
+                        (index) => _imagePreview(_imageList[index], index),
                       ),
                     )
                   : null,
@@ -669,27 +671,59 @@ class _AddPostPageState extends State<AddPostPage> {
   }
 
   // 사진 미리보기 위젯
-  Widget _imagePreview(String imagePath) {
+  Widget _imagePreview(String imagePath, int index) {
     return Container(
       margin: const EdgeInsets.only(left: 8),
-      decoration: BoxDecoration(
-        border: Border.all(
-          width: 1,
-          color: const Color(0xffA19E9E),
-        ),
-        borderRadius: BorderRadius.circular(8),
-      ),
       child: Stack(
         alignment: Alignment.topRight,
         children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(8),
-            child: Image.file(
-              File(imagePath),
-              width: 80,
-              height: 80,
-              fit: BoxFit.cover,
-            ),
+          Stack(
+            alignment: Alignment.bottomCenter,
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child: Container(
+                  decoration: BoxDecoration(
+                    border: Border.all(
+                      width: 1,
+                      color: const Color(0xffA19E9E),
+                    ),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Stack(children: [
+                    Image.file(
+                      File(imagePath),
+                      width: 80,
+                      height: 80,
+                      fit: BoxFit.cover,
+                    ),
+                    if (index == 0) // 첫 번째 이미지에만 표시
+                      Positioned(
+                        bottom: 0,
+                        left: 0,
+                        right: 0,
+                        child: Container(
+                          height: 16,
+                          decoration: const BoxDecoration(
+                            color: Color(0xffA19E9E),
+                          ),
+                          child: const Center(
+                            child: Text(
+                              '대표사진',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 11,
+                                fontWeight: FontWeight.w400,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                        ),
+                      ),
+                  ]),
+                ),
+              ),
+            ],
           ),
           Positioned(
             child: GestureDetector(
